@@ -3,7 +3,7 @@ package world
 const (
 	// MaxHeight is the maximum height
 	// value of any location in the world.
-	MaxHeight = 5
+	MaxHeight = 8
 )
 
 // World is the main container for the world
