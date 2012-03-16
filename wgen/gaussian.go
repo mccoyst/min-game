@@ -7,6 +7,7 @@ type Gaussian2d struct{
 	Mx, My float64 	// mean
 	Sx, Sy float64	// standard deviation
 	Cov float64	// covariance
+	Ht  float64	// value at the mean
 
 	// pre-computed values for the PDF
 	covcov, cov2, sxsy, sxsx, sysy, coeff, expcoeff float64
@@ -19,13 +20,14 @@ type Gaussian2d struct{
 // pre-computed for efficiency, so if any of the exported
 // fields are changed then Precompute() must be called
 // to re-compute these fields.
-func NewGaussian2d(mx, my, sx, sy, cov float64) *Gaussian2d {
+func NewGaussian2d(mx, my, sx, sy, ht, cov float64) *Gaussian2d {
 	g := &Gaussian2d{
 		Mx: mx,
 		My: my,
 		Sx: sx,
 		Sy: sy,
 		Cov: cov,
+		Ht: ht,
 	}
 	g.Precompute()
 	return g
@@ -46,6 +48,11 @@ func (g *Gaussian2d) Precompute() {
 	g.sysy = g.Sy*g.Sy
 	g.coeff = 1 / (2 * math.Pi * sxsy * math.Sqrt(1-covcov))
 	g.expcoeff = -0.5 * (1-covcov)
+
+	// Re-compute coefficient so that the
+	// mean probability is g.Ht 
+	m := g.PDF(g.Mx, g.My)
+	g.coeff = (g.Ht/m) / (2 * math.Pi * sxsy * math.Sqrt(1-covcov))
 }
 
 // PDF returns the probability density.

@@ -35,6 +35,7 @@ var (
 
 func main() {
 	flag.Parse()
+
 	if *seed == 0 {
 		*seed = int64(time.Now().Nanosecond())
 	}
@@ -43,7 +44,22 @@ func main() {
 
 	fmt.Println("width", *width)
 	fmt.Println("height", *height)
-	w := world.Make(*width, *height)
+	w := initWorld(*width, *height)
+
+	num := int(rand.NormFloat64() * stdevGauss + meanGauss)
+	fmt.Println("num gaussians: ", num)
+	for g := range gaussians(w, num) {
+		grow(w, g)
+	}
+
+	fmt.Println("Saving image")
+	savePng(w)
+}
+
+// initWorld returns a newly initialized world
+// with the given dimensions.
+func initWorld(width, height int) *world.World {
+	w := world.Make(width, height)
 	for i := 0; i < w.W; i++ {
 		for j := 0; j < w.H; j++ {
 			l := w.At(i, j)
@@ -51,23 +67,7 @@ func main() {
 			l.Height = world.MaxHeight / 2
 		}
 	}
-
-	ch := make(chan *Gaussian2d)
-	go func() {
-		num := int(rand.NormFloat64() * stdevGauss + meanGauss)
-		fmt.Println("num gaussians: ", num)
-		for i := 0; i < num; i++ {
-			ch <- randomGaussian2d(&w)
-		}
-		close(ch)
-	}()
-
-	for g := range ch {
-		grow(&w, g)
-	}
-
-	fmt.Println("Saving image")
-	savePng(&w)
+	return &w
 }
 
 // grow generates a random height for the mean
@@ -78,14 +78,10 @@ func grow(w *world.World, g *Gaussian2d) {
 	xmin, xmax := int(g.Mx - s*g.Sx), int(g.Mx + s*g.Sx)
 	ymin, ymax := int(g.My - s*g.Sy), int(g.My + s*g.Sy)
 
-	ht := int(rand.NormFloat64()*stdevGrowth + meanGrowth)
-	peek := g.PDF(g.Mx, g.My)
-	mul := float64(ht) / peek
-
 	for x := xmin; x < xmax; x++ {
 		for y := ymin; y < ymax; y++ {
 			l := w.At(x, y)
-			p := g.PDF(float64(x), float64(y)) * mul
+			p := g.PDF(float64(x), float64(y))
 			l.Height += int(p)
 			if l.Height < 0 {
 				l.Height = 0
@@ -95,6 +91,19 @@ func grow(w *world.World, g *Gaussian2d) {
 			}
 		}
 	}
+}
+
+// gaussians makes some random Gaussians and
+// sends them out on the given channel.
+func gaussians(w *world.World, num int) <-chan *Gaussian2d {
+	ch := make(chan *Gaussian2d)
+	go func() {
+		for i := 0; i < num; i++ {
+			ch <- randomGaussian2d(w)
+		}
+		close(ch)
+	}()
+	return ch
 }
 
 // randomGaussian2d creates a random Gaussian2d
@@ -108,8 +117,9 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	sx := rand.Float64() * (sxmax-sxmin) + sxmin
 	sy := rand.Float64() * (symax-symin) + symin
 
+	ht := rand.NormFloat64()*stdevGrowth + meanGrowth
 	cov := rand.Float64() * (covMax - covMin) + covMin
 
-	return NewGaussian2d(mx, my, sx, sy, cov)
+	return NewGaussian2d(mx, my, sx, sy, ht, cov)
 }
 
