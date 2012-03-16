@@ -11,11 +11,11 @@ import (
 const (
 	// The parameters of the distribution over the
 	// number of Gaussian2ds.
-	meanGauss, stdevGauss = 180, 20
+	meanGauss, stdevGauss = 150, 10
 
 	// The parameters of the normal distribution
 	// over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight/4
+	meanGrowth, stdevGrowth = 0, world.MaxHeight/5.0
 
 	// Minimum and maximum Gaussian2d covariance of
 	// random Gaussian2ds.
@@ -54,6 +54,8 @@ func main() {
 
 	fmt.Println("Saving image")
 	savePng(w)
+
+	fmt.Println("Done")
 }
 
 // initWorld returns a newly initialized world
