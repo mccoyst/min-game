@@ -16,10 +16,13 @@ const (
 )
 
 var (
-	outFile = flag.String("-o", "world.png", "The output file")
+	outFile = flag.String("o", "world.png", "The output file")
+	echo = flag.Bool("e", false, "Echo the world to standard output")
 )
 
 func main() {
+	flag.Parse()
+
 	w, err := world.Read(bufio.NewReader(os.Stdin))
 	if err != nil {
 		panic(err)
@@ -32,11 +35,12 @@ func main() {
 	defer imgout.Close()
 	png.Encode(imgout, (*worldImg)(&w))
 
-
-	out := bufio.NewWriter(os.Stdout)
-	defer out.Flush()
-	if err := w.Write(out); err != nil {
-		panic(err)
+	if *echo {
+		out := bufio.NewWriter(os.Stdout)
+		defer out.Flush()
+		if err := w.Write(out); err != nil {
+			panic(err)
+		}
 	}
 }
 
