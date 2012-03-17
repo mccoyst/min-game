@@ -1,5 +1,10 @@
 package world
 
+import (
+	"fmt"
+	"io"
+)
+
 const (
 	// MaxHeight is the maximum height
 	// value of any location in the world.
@@ -8,7 +13,7 @@ const (
 
 // World is the main container for the world
 // representation of minima.
-type World struct{
+type World struct {
 	W, H int
 
 	// locs is the grid of world locations.
@@ -17,15 +22,15 @@ type World struct{
 
 // A Location is a cell in the grid that
 // represents the world
-type Location struct{
+type Location struct {
 	Terrain *TerrainType
-	Height int
+	Height  int
 }
 
 // Make returns a world of the given
 // dimensions.
-func Make(w, h int) World{
-	const maxInt = int(^uint(0)>>1)
+func Make(w, h int) World {
+	const maxInt = int(^uint(0) >> 1)
 	if w <= 0 || h <= 0 {
 		panic("World dimensions must be positive")
 	}
@@ -33,8 +38,8 @@ func Make(w, h int) World{
 		panic("The world dimensions are too big")
 	}
 	return World{
-		W: w,
-		H: h,
+		W:    w,
+		H:    h,
 		locs: make([]Location, w*h),
 	}
 }
@@ -43,13 +48,13 @@ func Make(w, h int) World{
 //
 // Unlike AtCoord(), this roution does not wrap the
 // x,y values around the boundaries of the grid.
-func (w *World) At(x, y int) *Location{
+func (w *World) At(x, y int) *Location {
 	return &w.locs[x*w.H+y]
 }
 
 // AtCoord returns a pointer to the location at
 // the given world coordinate.
-func (w *World) AtCoord(x, y int) *Location{
+func (w *World) AtCoord(x, y int) *Location {
 	return &w.locs[w.CoordToIndex(x, y)]
 }
 
@@ -82,4 +87,51 @@ func wrap(n, bound int) int {
 		}
 	}
 	return n
+}
+
+// Write writes the world to the given io.Writer.
+func (w *World) Write(out io.Writer) (err error) {
+	if _, err = fmt.Fprintln(out, "width", w.W, "height", w.H); err != nil {
+		return
+	}
+
+	for _, l := range w.locs {
+		ht, ch := uint8(l.Height)+'0', l.Terrain.Char
+		if _, err = fmt.Fprintf(out, "%c%c", ht, ch); err != nil {
+			break
+		}
+	}
+
+	fmt.Fprintln(out)
+
+	return
+}
+
+// Read reads the world from the given io.Reader
+// and returns it.  If an error is encountered then
+// the error is returned as the second argument and
+// the zero-world is returned as the first.
+func Read(in io.Reader) (_ World, err error) {
+	var width, height, n int
+	if n, err = fmt.Fscanf(in, "width %d height %d\n", &width, &height); n != 2 || err != nil {
+		if err == nil {
+			err = fmt.Errorf("Failed to scan width and height")
+		}
+		return
+	}
+
+	w := Make(width, height)
+	for i := range w.locs {
+		var ht, ch uint8
+		if n, err = fmt.Fscanf(in, "%c%c", &ht, &ch); n != 2 || err != nil {
+			if err == nil {
+				err = fmt.Errorf("Failed to scan location %d", i)
+			}
+			return
+		}
+		w.locs[i].Height = int(ht - '0')
+		w.locs[i].Terrain = &Terrain[int(ch)]
+	}
+
+	return w, nil
 }

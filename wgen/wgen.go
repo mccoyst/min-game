@@ -1,11 +1,13 @@
 package main
 
 import (
-	"minima/world"
-	"math/rand"
-	"time"
+	"bufio"
 	"flag"
 	"fmt"
+	"math/rand"
+	"minima/world"
+	"os"
+	"time"
 )
 
 const (
@@ -15,7 +17,7 @@ const (
 
 	// The parameters of the normal distribution
 	// over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight/5.0
+	meanGrowth, stdevGrowth = 0, world.MaxHeight / 5.0
 
 	// Minimum and maximum Gaussian2d covariance of
 	// random Gaussian2ds.
@@ -28,9 +30,9 @@ const (
 )
 
 var (
-	width = flag.Int("w", 100, "World width")
+	width  = flag.Int("w", 100, "World width")
 	height = flag.Int("h", 100, "World height")
-	seed = flag.Int64("seed", 0, "Random seed: 0 == use time")
+	seed   = flag.Int64("seed", 0, "Random seed: 0 == use time")
 )
 
 func main() {
@@ -46,7 +48,7 @@ func main() {
 	fmt.Println("height", *height)
 	w := initWorld(*width, *height)
 
-	num := int(rand.NormFloat64() * stdevGauss + meanGauss)
+	num := int(rand.NormFloat64()*stdevGauss + meanGauss)
 	fmt.Println("num gaussians: ", num)
 	for g := range gaussians(w, num) {
 		grow(w, g)
@@ -55,7 +57,11 @@ func main() {
 	fmt.Println("Saving image")
 	savePng(w)
 
-	fmt.Println("Done")
+	out := bufio.NewWriter(os.Stdout)
+	defer out.Flush()
+	if err := w.Write(out); err != nil {
+		panic(err)
+	}
 }
 
 // initWorld returns a newly initialized world
@@ -76,9 +82,9 @@ func initWorld(width, height int) *world.World {
 // of the given Gaussian2d and grows the world
 // around it.
 func grow(w *world.World, g *Gaussian2d) {
-	const s = 4.0	// standard deviations to grow around
-	xmin, xmax := int(g.Mx - s*g.Sx), int(g.Mx + s*g.Sx)
-	ymin, ymax := int(g.My - s*g.Sy), int(g.My + s*g.Sy)
+	const s = 4.0 // standard deviations to grow around
+	xmin, xmax := int(g.Mx-s*g.Sx), int(g.Mx+s*g.Sx)
+	ymin, ymax := int(g.My-s*g.Sy), int(g.My+s*g.Sy)
 
 	for x := xmin; x < xmax; x++ {
 		for y := ymin; y < ymax; y++ {
@@ -116,12 +122,11 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 
 	sxmin, sxmax := sdevMin*float64(w.W), sdevMax*float64(w.W)
 	symin, symax := sdevMin*float64(w.H), sdevMax*float64(w.H)
-	sx := rand.Float64() * (sxmax-sxmin) + sxmin
-	sy := rand.Float64() * (symax-symin) + symin
+	sx := rand.Float64()*(sxmax-sxmin) + sxmin
+	sy := rand.Float64()*(symax-symin) + symin
 
 	ht := rand.NormFloat64()*stdevGrowth + meanGrowth
-	cov := rand.Float64() * (covMax - covMin) + covMin
+	cov := rand.Float64()*(covMax-covMin) + covMin
 
 	return NewGaussian2d(mx, my, sx, sy, ht, cov)
 }
-
