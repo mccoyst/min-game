@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 	"math"
+	"runtime/pprof"
 )
 
 const (
@@ -42,10 +43,21 @@ var (
 	width  = flag.Int("w", 500, "World width")
 	height = flag.Int("h", 500, "World height")
 	seed   = flag.Int64("seed", 0, "Random seed: 0 == use time")
+	cpuprofile = flag.String("cprof", "", "Write cpu profile to file")
+	memprofile = flag.String("mprof", "", "Write mem profile to file")
 )
 
 func main() {
 	flag.Parse()
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 
 	if *seed == 0 {
 		*seed = int64(time.Now().Nanosecond())
@@ -63,6 +75,14 @@ func main() {
 	defer out.Flush()
 	if err := w.Write(out); err != nil {
 		panic(err)
+	}
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.WriteHeapProfile(f)
 	}
 }
 
@@ -84,7 +104,7 @@ func initWorld(width, height int) *world.World {
 // of the given Gaussian2d and grows the world
 // around it.
 func grow(w *world.World, g *Gaussian2d) {
-	const s = 4.0 // standard deviations to grow around
+	const s = 2.0 // standard deviations to grow around
 	xmin, xmax := int(g.Mx-s*g.Sx), int(g.Mx+s*g.Sx)
 	ymin, ymax := int(g.My-s*g.Sy), int(g.My+s*g.Sy)
 
