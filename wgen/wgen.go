@@ -17,7 +17,7 @@ const (
 
 	// meanGroth and stdevGrowth are the parameters
 	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight/6.0
+	meanGrowth, stdevGrowth = 0, 10
 
 	// conMin and covMax are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
@@ -35,7 +35,7 @@ var(
 
 	// waterMax is the maximum value below which
 	// the terrain is water.
-	waterMax = int(math.Floor(world.MaxHeight*0.35))
+	waterMax = int(math.Floor(world.MaxHeight*0.45))
 )
 
 var (
@@ -57,6 +57,7 @@ func main() {
 	for g := range gaussians(w, num) {
 		grow(w, g)
 	}
+	doTerrain(w)
 
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
@@ -92,18 +93,6 @@ func grow(w *world.World, g *Gaussian2d) {
 			l := w.AtCoord(x, y)
 			p := g.PDF(float64(x), float64(y))
 			l.Height = l.Height + int(p)
-			if l.Height < 0 {
-				l.Height = 0
-			}
-			if l.Height > world.MaxHeight {
-				l.Height = world.MaxHeight
-			}
-			switch {
-			case l.Height >= mntMin:
-				l.Terrain = &world.Terrain['m']
-			case l.Height <=waterMax:
-				l.Terrain = &world.Terrain['w']
-			}
 		}
 	}
 }
@@ -137,4 +126,26 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	cov := rand.Float64()*(covMax-covMin) + covMin
 
 	return NewGaussian2d(mx, my, sx, sy, ht, cov)
+}
+
+// doTerrain clamps the heights of each cell and
+// assigns their terrains.
+func doTerrain(w *world.World) {
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			l := w.At(x, y)
+			if l.Height < 0 {
+				l.Height = 0
+			}
+			if l.Height > world.MaxHeight {
+				l.Height = world.MaxHeight
+			}
+			switch {
+			case l.Height >= mntMin:
+				l.Terrain = &world.Terrain['m']
+			case l.Height <=waterMax:
+				l.Terrain = &world.Terrain['w']
+			}
+		}
+	}
 }
