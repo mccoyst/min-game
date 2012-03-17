@@ -10,6 +10,8 @@ const (
 // representation of minima.
 type World struct{
 	W, H int
+
+	// locs is the grid of world locations.
 	locs []Location
 }
 
@@ -37,17 +39,23 @@ func Make(w, h int) World{
 	}
 }
 
-// Index returns the array index of the
-// given x and y coordinates of the world.
-// Coordinates beyond the bounds of the
-// array wrap around, i.e., this always
-// returns a valid index into an array
-// that matches the size of the world.
+// At returns the location at the given x, y grid cell.
 //
-// This function is intended indexing into
-// arrays of auxiliary data for each world
-// location.
-func (w *World) Index(x, y int) int {
+// Unlike AtCoord(), this roution does not wrap the
+// x,y values around the boundaries of the grid.
+func (w *World) At(x, y int) *Location{
+	return &w.locs[x*w.H+y]
+}
+
+// AtCoord returns a pointer to the location at
+// the given world coordinate.
+func (w *World) AtCoord(x, y int) *Location{
+	return &w.locs[w.CoordToIndex(x, y)]
+}
+
+// CoordToIndex returns the array index that
+// corresponds to the given x,y world coordinate.
+func (w *World) CoordToIndex(x, y int) int {
 	x = wrap(x, w.W)
 	y = wrap(y, w.H)
 	return x*w.H + y
@@ -74,10 +82,4 @@ func wrap(n, bound int) int {
 		}
 	}
 	return n
-}
-
-// At returns a pointer to the location at
-// the given x, y coordinate.
-func (w *World) At(x, y int) *Location{
-	return &w.locs[w.Index(x, y)]
 }

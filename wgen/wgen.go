@@ -64,7 +64,7 @@ func initWorld(width, height int) *world.World {
 	w := world.Make(width, height)
 	for i := 0; i < w.W; i++ {
 		for j := 0; j < w.H; j++ {
-			l := w.At(i, j)
+			l := w.AtCoord(i, j)
 			l.Terrain = &world.Terrain['g']
 			l.Height = world.MaxHeight / 2
 		}
@@ -82,7 +82,7 @@ func grow(w *world.World, g *Gaussian2d) {
 
 	for x := xmin; x < xmax; x++ {
 		for y := ymin; y < ymax; y++ {
-			l := w.At(x, y)
+			l := w.AtCoord(x, y)
 			p := g.PDF(float64(x), float64(y))
 			l.Height += int(p)
 			if l.Height < 0 {
