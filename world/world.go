@@ -8,7 +8,7 @@ import (
 const (
 	// NHeights is the number of distinct
 	// heights, numbered 0..MaxHeight.
-	MaxHeight = 7
+	MaxHeight = 9
 )
 
 // World is the main container for the world
