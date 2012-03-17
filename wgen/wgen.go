@@ -7,6 +7,7 @@ import (
 	"minima/world"
 	"os"
 	"time"
+	"math"
 )
 
 const (
@@ -25,6 +26,16 @@ const (
 	// stdevMin and stdevMax are the minimum and
 	// maximum standard deviation of random Gaussians.
 	sdevMin, sdevMax = 10, 30
+)
+
+var(
+	// mtnMin is the minimum value above which the
+	// terrain is mountains.
+	mntMin = int(math.Floor(world.MaxHeight*0.90))
+
+	// waterMax is the maximum value below which
+	// the terrain is water.
+	waterMax = int(math.Floor(world.MaxHeight*0.35))
 )
 
 var (
@@ -88,9 +99,9 @@ func grow(w *world.World, g *Gaussian2d) {
 				l.Height = world.MaxHeight
 			}
 			switch {
-			case l.Height > world.MaxHeight-2:
+			case l.Height >= mntMin:
 				l.Terrain = &world.Terrain['m']
-			case l.Height <= 3:
+			case l.Height <=waterMax:
 				l.Terrain = &world.Terrain['w']
 			}
 		}

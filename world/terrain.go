@@ -21,4 +21,6 @@ var Terrain = []TerrainType{
 	int('m'): {'m', color.RGBA{128, 128, 128, 255}},
 	// Water
 	int('w'): {'w', color.RGBA{0, 0, 255, 255}},
+	// Lava
+	int('l'): {'l', color.RGBA{255, 0, 0, 255}},
 }

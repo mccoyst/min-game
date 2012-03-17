@@ -8,7 +8,7 @@ import (
 const (
 	// NHeights is the number of distinct
 	// heights, numbered 0..MaxHeight.
-	MaxHeight = 9
+	MaxHeight = 99
 )
 
 // World is the main container for the world
@@ -99,9 +99,8 @@ func (w *World) Write(out io.Writer) (err error) {
 		if l.Terrain == nil {
 			panic("Nil terrain")
 		}
-		ht, ch := uint8(l.Height)+'0', l.Terrain.Char
-		if _, err = fmt.Fprintf(out, "%c%c", ht, ch); err != nil {
-			break
+		if _, err = fmt.Fprintf(out, " %d %c", l.Height, l.Terrain.Char); err != nil {
+			return
 		}
 	}
 
@@ -125,16 +124,16 @@ func Read(in io.Reader) (_ World, err error) {
 
 	w := Make(width, height)
 	for i := range w.locs {
-		var ht, ch uint8
-		if n, err = fmt.Fscanf(in, "%c%c", &ht, &ch); n != 2 || err != nil {
+		var ht int
+		var ch uint8
+		if n, err = fmt.Fscanf(in, " %d %c", &ht, &ch); n != 2 || err != nil {
 			if err == nil {
 				err = fmt.Errorf("Failed to scan location %d", i)
 			}
 			return
 		}
-		if int(ht - '0') < 0 || int(ht - '0') > MaxHeight {
-			err = fmt.Errorf("Location %d height %d is out of bounds",
-				i, int(ht-'0'))
+		if ht < 0 || ht > MaxHeight {
+			err = fmt.Errorf("Location %d height %d is out of bounds", i, ht)
 			return
 		}
 		if int(ch) >= len(Terrain) || Terrain[int(ch)].Char == uint8(0) {
@@ -142,7 +141,7 @@ func Read(in io.Reader) (_ World, err error) {
 				i, ch)
 			return
 		}
-		w.locs[i].Height = int(ht - '0')
+		w.locs[i].Height = ht
 		w.locs[i].Terrain = &Terrain[int(ch)]
 	}
 
