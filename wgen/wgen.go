@@ -10,22 +10,21 @@ import (
 )
 
 const (
-	// The parameters of the distribution over the
-	// number of Gaussian2ds.
-	meanGauss, stdevGauss = 150, 10
+	// gaussFact is the number of Gaussians given as
+	// a factor of the map size.
+	gaussFact = 0.015
 
-	// The parameters of the normal distribution
-	// over mountain growths.
+	// meanGroth and stdevGrowth are the parameters
+	// of the normal distribution over mountain growths.
 	meanGrowth, stdevGrowth = 0, world.MaxHeight / 5.0
 
-	// Minimum and maximum Gaussian2d covariance of
-	// random Gaussian2ds.
+	// conMin and covMax are the minimum and maximum
+	// Gaussian2d covariance of random Gaussian2ds.
 	covMin, covMax = -0.5, 0.5
 
-	// Minimum and maximum standard deviation of
-	// random Gaussian2ds as a factor of the
-	// map width and height.
-	sdevMin, sdevMax = 0.04, 0.1
+	// stdevMin and stdevMax are the minimum and
+	// maximum standard deviation of random Gaussians.
+	sdevMin, sdevMax = 4, 10
 )
 
 var (
@@ -41,9 +40,9 @@ func main() {
 		*seed = int64(time.Now().Nanosecond())
 	}
 	rand.Seed(*seed)
-
 	w := initWorld(*width, *height)
-	num := int(rand.NormFloat64()*stdevGauss + meanGauss)
+
+	num := int(float64(w.W*w.H)*gaussFact)
 	for g := range gaussians(w, num) {
 		grow(w, g)
 	}
@@ -111,10 +110,8 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	mx := rand.Float64() * float64(w.W)
 	my := rand.Float64() * float64(w.H)
 
-	sxmin, sxmax := sdevMin*float64(w.W), sdevMax*float64(w.W)
-	symin, symax := sdevMin*float64(w.H), sdevMax*float64(w.H)
-	sx := rand.Float64()*(sxmax-sxmin) + sxmin
-	sy := rand.Float64()*(symax-symin) + symin
+	sx := rand.Float64()*(sdevMax-sdevMin) + sdevMin
+	sy := rand.Float64()*(sdevMax-sdevMin) + sdevMin
 
 	ht := rand.NormFloat64()*stdevGrowth + meanGrowth
 	cov := rand.Float64()*(covMax-covMin) + covMin
