@@ -17,7 +17,7 @@ const (
 
 	// meanGroth and stdevGrowth are the parameters
 	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, 10
+	meanGrowth, stdevGrowth = 0, world.MaxHeight*0.15
 
 	// conMin and covMax are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
