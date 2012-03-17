@@ -12,11 +12,11 @@ import (
 const (
 	// gaussFact is the number of Gaussians given as
 	// a factor of the map size.
-	gaussFact = 0.015
+	gaussFact = 0.02
 
 	// meanGroth and stdevGrowth are the parameters
 	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight / 5.0
+	meanGrowth, stdevGrowth = 0, world.MaxHeight / 6.0
 
 	// conMin and covMax are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
