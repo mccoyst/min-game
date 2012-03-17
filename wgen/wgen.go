@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"flag"
-	"fmt"
 	"math/rand"
 	"minima/world"
 	"os"
@@ -41,21 +40,13 @@ func main() {
 	if *seed == 0 {
 		*seed = int64(time.Now().Nanosecond())
 	}
-	fmt.Println("seed", *seed)
 	rand.Seed(*seed)
 
-	fmt.Println("width", *width)
-	fmt.Println("height", *height)
 	w := initWorld(*width, *height)
-
 	num := int(rand.NormFloat64()*stdevGauss + meanGauss)
-	fmt.Println("num gaussians: ", num)
 	for g := range gaussians(w, num) {
 		grow(w, g)
 	}
-
-	fmt.Println("Saving image")
-	savePng(w)
 
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()

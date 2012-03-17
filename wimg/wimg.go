@@ -1,17 +1,44 @@
 package main
 
 import (
+	"minima/world"
 	"image"
 	"image/color"
 	"image/png"
-	"minima/world"
 	"os"
+	"bufio"
+	"flag"
 )
 
 const (
 	BlkWidth  = 1
 	BlkHeight = 1
 )
+
+var (
+	outFile = flag.String("-o", "world.png", "The output file")
+)
+
+func main() {
+	w, err := world.Read(bufio.NewReader(os.Stdin))
+	if err != nil {
+		panic(err)
+	}
+
+	imgout, err := os.Create(*outFile)
+	if err != nil {
+		panic(err)
+	}
+	defer imgout.Close()
+	png.Encode(imgout, (*worldImg)(&w))
+
+
+	out := bufio.NewWriter(os.Stdout)
+	defer out.Flush()
+	if err := w.Write(out); err != nil {
+		panic(err)
+	}
+}
 
 type worldImg world.World
 
@@ -43,14 +70,4 @@ func (w *worldImg) At(x, y int) color.Color {
 // of the image.Image interface.
 func (w *worldImg) ColorModel() color.Model {
 	return color.RGBAModel
-}
-
-// savePng saves the given world as a .png image.
-func savePng(w *world.World) {
-	out, err := os.Create("world.png")
-	if err != nil {
-		panic(err)
-	}
-	defer out.Close()
-	png.Encode(out, (*worldImg)(w))
 }
