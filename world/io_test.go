@@ -3,7 +3,6 @@ package world
 import (
 	"testing"
 	"os"
-	"bufio"
 )
 
 // TestWriteRead tests writing a world and reading it back.
@@ -30,7 +29,7 @@ func TestWriteRead(t *testing.T) {
 		t.Fatalf("Failed to write the world: %s", err)
 	}
 
-	u, err := Read(bufio.NewReader(read))
+	u, err := Read(read)
 	if err != nil {
 		t.Fatalf("Failed to read the world: %s", err)
 	}

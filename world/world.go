@@ -91,7 +91,7 @@ func wrap(n, bound int) int {
 
 // Write writes the world to the given io.Writer.
 func (w *World) Write(out io.Writer) (err error) {
-	if _, err = fmt.Fprintln(out, "width", w.W, "height", w.H); err != nil {
+	if _, err = fmt.Fprintln(out, w.W, w.H); err != nil {
 		return
 	}
 
@@ -116,7 +116,7 @@ func (w *World) Write(out io.Writer) (err error) {
 // the zero-world is returned as the first.
 func Read(in io.Reader) (_ World, err error) {
 	var width, height, n int
-	if n, err = fmt.Fscanf(in, "width %d height %d\n", &width, &height); n != 2 || err != nil {
+	if n, err = fmt.Fscanln(in, &width, &height); n != 2 || err != nil {
 		if err == nil {
 			err = fmt.Errorf("Failed to scan width and height")
 		}
