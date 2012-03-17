@@ -12,11 +12,11 @@ import (
 const (
 	// gaussFact is the number of Gaussians given as
 	// a factor of the map size.
-	gaussFact = 0.02
+	gaussFact = 0.002
 
 	// meanGroth and stdevGrowth are the parameters
 	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight / 6.0
+	meanGrowth, stdevGrowth = 0, world.MaxHeight/6.0
 
 	// conMin and covMax are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
@@ -24,12 +24,12 @@ const (
 
 	// stdevMin and stdevMax are the minimum and
 	// maximum standard deviation of random Gaussians.
-	sdevMin, sdevMax = 4, 10
+	sdevMin, sdevMax = 10, 30
 )
 
 var (
-	width  = flag.Int("w", 100, "World width")
-	height = flag.Int("h", 100, "World height")
+	width  = flag.Int("w", 500, "World width")
+	height = flag.Int("h", 500, "World height")
 	seed   = flag.Int64("seed", 0, "Random seed: 0 == use time")
 )
 
@@ -62,7 +62,7 @@ func initWorld(width, height int) *world.World {
 		for j := 0; j < w.H; j++ {
 			l := w.AtCoord(i, j)
 			l.Terrain = &world.Terrain['g']
-			l.Height = world.MaxHeight / 2
+			l.Height = (world.MaxHeight / 2) +1
 		}
 	}
 	return &w
@@ -80,12 +80,18 @@ func grow(w *world.World, g *Gaussian2d) {
 		for y := ymin; y < ymax; y++ {
 			l := w.AtCoord(x, y)
 			p := g.PDF(float64(x), float64(y))
-			l.Height += int(p)
+			l.Height = l.Height + int(p)
 			if l.Height < 0 {
 				l.Height = 0
 			}
 			if l.Height > world.MaxHeight {
 				l.Height = world.MaxHeight
+			}
+			switch {
+			case l.Height > world.MaxHeight-2:
+				l.Terrain = &world.Terrain['m']
+			case l.Height <= 3:
+				l.Terrain = &world.Terrain['w']
 			}
 		}
 	}
@@ -113,7 +119,10 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	sx := rand.Float64()*(sdevMax-sdevMin) + sdevMin
 	sy := rand.Float64()*(sdevMax-sdevMin) + sdevMin
 
-	ht := rand.NormFloat64()*stdevGrowth + meanGrowth
+	ht := 0.0
+	for int(ht) == 0 {
+		ht = rand.NormFloat64()*stdevGrowth + meanGrowth
+	}
 	cov := rand.Float64()*(covMax-covMin) + covMin
 
 	return NewGaussian2d(mx, my, sx, sy, ht, cov)
