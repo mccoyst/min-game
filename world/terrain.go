@@ -8,7 +8,7 @@ import (
 // terrain.
 type TerrainType struct {
 	Char  uint8       // character representation
-	Color color.Color // color at the highest altitude
+	Color color.RGBA // color at the highest altitude
 }
 
 // Terrain is an array with the canonical terrain
