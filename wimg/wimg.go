@@ -10,14 +10,10 @@ import (
 	"flag"
 )
 
-const (
-	BlkWidth  = 1
-	BlkHeight = 1
-)
-
 var (
 	outFile = flag.String("o", "world.png", "The output file")
 	echo = flag.Bool("e", false, "Echo the world to standard output")
+	blkSize = flag.Int("s", 1, "Size of each block in pixels")
 )
 
 func main() {
@@ -49,25 +45,26 @@ type worldImg world.World
 // Bounds implements the Bounds() method of
 // the image.Image interface.
 func (w *worldImg) Bounds() image.Rectangle {
-	return image.Rect(0, 0, w.W*BlkWidth, w.H*BlkHeight)
+	return image.Rect(0, 0, w.W*(*blkSize), w.H*(*blkSize))
 }
 
 // At implements the At() method of the
 // image.Image interface.
 func (w *worldImg) At(x, y int) color.Color {
-	x /= BlkWidth
-	y /= BlkHeight
-
+	x /= *blkSize
+	y /= *blkSize
 	loc := (*world.World)(w).At(x, y)
-	fact := float64(loc.Height+world.MaxHeight) / (2 * world.MaxHeight)
-	if fact > 1 {
+	f := float64(loc.Height+world.MaxHeight) / (2 * world.MaxHeight)
+	if f > 1 {
 		panic("Color factor is >1 in worldImg.At")
 	}
-	r, g, b, a := loc.Terrain.Color.RGBA()
-	r = uint32(float64(r) * fact)
-	g = uint32(float64(g) * fact)
-	b = uint32(float64(b) * fact)
-	return color.RGBA64{uint16(r), uint16(g), uint16(b), uint16(a)}
+	c := loc.Terrain.Color
+	return color.RGBA{
+		R: uint8(float64(c.R) * f),
+		G: uint8(float64(c.G) * f),
+		B: uint8(float64(c.B) * f),
+		A: c.A,
+	}
 }
 
 // ColorModel implements the ColorModel() method
