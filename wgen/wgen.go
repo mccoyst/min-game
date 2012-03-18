@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"minima/world"
 	"os"
+	"fmt"
 	"time"
 	"runtime/pprof"
 )
@@ -52,6 +53,7 @@ func main() {
 		*seed = int64(time.Now().Nanosecond())
 	}
 	rand.Seed(*seed)
+	fmt.Fprintln(os.Stderr, "seed", *seed)
 	w := initWorld(*width, *height)
 
 	num := int(float64(w.W*w.H)*gaussFact)
