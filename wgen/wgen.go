@@ -7,7 +7,6 @@ import (
 	"minima/world"
 	"os"
 	"time"
-	"math"
 	"runtime/pprof"
 )
 
@@ -27,16 +26,6 @@ const (
 	// stdevMin and stdevMax are the minimum and
 	// maximum standard deviation of random Gaussians.
 	sdevMin, sdevMax = 10, 30
-)
-
-var(
-	// mtnMin is the minimum value above which the
-	// terrain is mountains.
-	mntMin = int(math.Floor(world.MaxHeight*0.90))
-
-	// waterMax is the maximum value below which
-	// the terrain is water.
-	waterMax = int(math.Floor(world.MaxHeight*0.45))
 )
 
 var (
@@ -146,26 +135,4 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	cov := rand.Float64()*(covMax-covMin) + covMin
 
 	return NewGaussian2d(mx, my, sx, sy, ht, cov)
-}
-
-// doTerrain clamps the heights of each cell and
-// assigns their terrains.
-func doTerrain(w *world.World) {
-	for x := 0; x < w.W; x++ {
-		for y := 0; y < w.H; y++ {
-			l := w.At(x, y)
-			if l.Height < 0 {
-				l.Height = 0
-			}
-			if l.Height > world.MaxHeight {
-				l.Height = world.MaxHeight
-			}
-			switch {
-			case l.Height >= mntMin:
-				l.Terrain = &world.Terrain['m']
-			case l.Height <=waterMax:
-				l.Terrain = &world.Terrain['w']
-			}
-		}
-	}
 }
