@@ -1,18 +1,18 @@
 package main
 
 import (
-	"minima/world"
+	"bufio"
+	"flag"
 	"image"
 	"image/color"
 	"image/png"
+	"minima/world"
 	"os"
-	"bufio"
-	"flag"
 )
 
 var (
 	outFile = flag.String("o", "world.png", "The output file")
-	echo = flag.Bool("e", false, "Echo the world to standard output")
+	echo    = flag.Bool("e", false, "Echo the world to standard output")
 	blkSize = flag.Int("s", 1, "Size of each block in pixels")
 )
 
