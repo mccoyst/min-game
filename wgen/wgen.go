@@ -120,7 +120,7 @@ func grow(w *world.World, g *Gaussian2d) {
 // gaussians makes some random Gaussians and
 // sends them out on the given channel.
 func gaussians(w *world.World, num int) <-chan *Gaussian2d {
-	ch := make(chan *Gaussian2d)
+	ch := make(chan *Gaussian2d, 100)
 	go func() {
 		for i := 0; i < num; i++ {
 			ch <- randomGaussian2d(w)
