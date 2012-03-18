@@ -5,7 +5,6 @@ import (
 	"code.google.com/p/eaburns/djsets"
 	"math"
 	"math/rand"
-	"sort"
 )
 
 var(
@@ -19,9 +18,13 @@ var(
 )
 
 const (
-	// lavaPercent is the percent of all lakes that become
-	// lava pits instead.
-	lavaPercent = 10
+	// lavaFact is the factor of all lakes that will
+	// be converted to lava pits.
+	lavaFact = 0.10
+
+	// lavaMaxFact is the upper limit, given as a factor
+	// of the map area, on the size of a lava pool.
+	lavaMaxFact = 0.05
 )
 
 // doTerrain clamps the heights of each cell and
@@ -128,27 +131,10 @@ type Region struct{
 	set *djsets.Set
 }
 
-type RegionSlice []*Region
-
-// Len implements the Len() method of sort.Interface
-func (rs RegionSlice) Len() int {
-	return len(rs)
-}
-
-// Less implements the Less() method of sort.Interface
-func (rs RegionSlice) Less(i, j int) bool {
-	return rs[i].size < rs[j].size
-}
-
-// Swap implements the Swap() method of sort.Interface
-func (rs RegionSlice) Swap(i, j int) {
-	rs[i], rs[j] = rs[j], rs[i]
-}
-
 // makeRegions returns a slice of Regions built from
 // the connected components with the same terrain
 // type.
-func makeRegions(w *world.World, sets []djsets.Set) (regs RegionSlice) {
+func makeRegions(w *world.World, sets []djsets.Set) (regs []*Region) {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			switch set := sets[x*w.H+y].Find(); {
@@ -174,7 +160,7 @@ func makeRegions(w *world.World, sets []djsets.Set) (regs RegionSlice) {
 }
 
 // findLakes returns all regions that are lakes
-func findLakes(regs RegionSlice) (lakes RegionSlice) {
+func findLakes(regs []*Region) (lakes []*Region) {
 	for _, r := range regs {
 		if r.terrain.Char == 'w' {
 			lakes = append(lakes, r)
@@ -196,23 +182,17 @@ func finalizeTerrain(w *world.World, sets []djsets.Set) {
 
 // addLava randomly selects some lakes and makes them
 // into lava.
-func addLava(w *world.World, lakes RegionSlice) {
-	// all but the largest lake are candidates for lava
-	if len(lakes) < 1 {
-		return
-	}
-	sort.Sort(lakes)
+func addLava(w *world.World, lakes []*Region) {
+	maxLava := int(float64(len(lakes))*lavaFact)
+	maxSz := int(float64(w.W*w.H)*lavaMaxFact)
 
-	nlava := int(float64(len(lakes))*lavaPercent*0.01)
-	if len(lakes) < nlava {
-		nlava = len(lakes)
-	}
-
-	lava := make([]*Region,0, nlava)
-	for i := 0; i < nlava; i++ {
+	for i := 0; i < maxLava && len(lakes) > 0; i++ {
 		ind := rand.Intn(len(lakes))
-		lakes[ind].terrain = &world.Terrain[int('l')]
-		lava = append(lava, lakes[ind])
+		l := lakes[ind];
 		lakes[ind], lakes = lakes[len(lakes)-1], lakes[:len(lakes)-1]
+
+		if l.size <= maxSz {
+			l.terrain = &world.Terrain[int('l')]
+		}
 	}
 }
