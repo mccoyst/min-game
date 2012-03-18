@@ -1,20 +1,20 @@
 package main
 
 import (
-	"minima/world"
 	"code.google.com/p/eaburns/djsets"
 	"math"
 	"math/rand"
+	"minima/world"
 )
 
-var(
+var (
 	// mtnMin is the minimum value above which the
 	// terrain is mountains.
-	mntMin = int(math.Floor(world.MaxHeight*0.90))
+	mntMin = int(math.Floor(world.MaxHeight * 0.90))
 
 	// waterMax is the maximum value below which
 	// the terrain is water.
-	waterMax = int(math.Floor(world.MaxHeight*0.45))
+	waterMax = int(math.Floor(world.MaxHeight * 0.45))
 )
 
 const (
@@ -55,7 +55,7 @@ func initTerrain(w *world.World) {
 			switch {
 			case l.Height >= mntMin:
 				l.Terrain = &world.Terrain['m']
-			case l.Height <=waterMax:
+			case l.Height <= waterMax:
 				l.Terrain = &world.Terrain['w']
 			}
 		}
@@ -81,7 +81,7 @@ func makeSets(w *world.World) (sets []djsets.Set) {
 	}
 
 	// Right edge of the map (wraps to x == 0)
-	x := w.W-1
+	x := w.W - 1
 	for y := 0; y < w.H-1; y++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
@@ -94,7 +94,7 @@ func makeSets(w *world.World) (sets []djsets.Set) {
 	}
 
 	// Bottom edge of the map (wraps to y==0)
-	y := w.H-1
+	y := w.H - 1
 	for x := 0; x < w.W-1; x++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
@@ -120,7 +120,7 @@ func makeSets(w *world.World) (sets []djsets.Set) {
 
 // A Region is a connected component of the world
 // that has the same terrain type.
-type Region struct{
+type Region struct {
 	// size is the number of locations in this region.
 	size int
 
@@ -146,9 +146,9 @@ func makeRegions(w *world.World, sets []djsets.Set) (regs []*Region) {
 				r.size++
 			default:
 				r := &Region{
-					size: 1,
+					size:    1,
 					terrain: w.At(x, y).Terrain,
-					set: set,
+					set:     set,
 				}
 				set.Aux = r
 				regs = append(regs, r)
@@ -183,12 +183,12 @@ func finalizeTerrain(w *world.World, sets []djsets.Set) {
 // addLava randomly selects some lakes and makes them
 // into lava.
 func addLava(w *world.World, lakes []*Region) {
-	maxLava := int(float64(len(lakes))*lavaFact)
-	maxSz := int(float64(w.W*w.H)*lavaMaxFact)
+	maxLava := int(float64(len(lakes)) * lavaFact)
+	maxSz := int(float64(w.W*w.H) * lavaMaxFact)
 
 	for i := 0; i < maxLava && len(lakes) > 0; i++ {
 		ind := rand.Intn(len(lakes))
-		l := lakes[ind];
+		l := lakes[ind]
 		lakes[ind], lakes = lakes[len(lakes)-1], lakes[:len(lakes)-1]
 
 		if l.size <= maxSz {

@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"math/rand"
 	"minima/world"
 	"os"
-	"fmt"
-	"time"
 	"runtime/pprof"
+	"time"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 
 	// meanGroth and stdevGrowth are the parameters
 	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight*0.15
+	meanGrowth, stdevGrowth = 0, world.MaxHeight * 0.15
 
 	// conMin and covMax are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
@@ -30,9 +30,9 @@ const (
 )
 
 var (
-	width  = flag.Int("w", 500, "World width")
-	height = flag.Int("h", 500, "World height")
-	seed   = flag.Int64("seed", 0, "Random seed: 0 == use time")
+	width      = flag.Int("w", 500, "World width")
+	height     = flag.Int("h", 500, "World height")
+	seed       = flag.Int64("seed", 0, "Random seed: 0 == use time")
 	cpuprofile = flag.String("cprof", "", "Write cpu profile to file")
 	memprofile = flag.String("mprof", "", "Write mem profile to file")
 )
@@ -56,7 +56,7 @@ func main() {
 	fmt.Fprintln(os.Stderr, "seed", *seed)
 	w := initWorld(*width, *height)
 
-	num := int(float64(w.W*w.H)*gaussFact)
+	num := int(float64(w.W*w.H) * gaussFact)
 	for g := range gaussians(w, num) {
 		grow(w, g)
 	}
@@ -85,7 +85,7 @@ func initWorld(width, height int) *world.World {
 		for j := 0; j < w.H; j++ {
 			l := w.AtCoord(i, j)
 			l.Terrain = &world.Terrain['g']
-			l.Height = (world.MaxHeight / 2) +1
+			l.Height = (world.MaxHeight / 2) + 1
 		}
 	}
 	return &w

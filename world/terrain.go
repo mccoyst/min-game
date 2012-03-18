@@ -7,7 +7,7 @@ import (
 // TerrainType holds information on a given type of
 // terrain.
 type TerrainType struct {
-	Char  uint8       // character representation
+	Char  uint8      // character representation
 	Color color.RGBA // color at the highest altitude
 }
 

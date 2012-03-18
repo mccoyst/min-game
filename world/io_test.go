@@ -1,8 +1,8 @@
 package world
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 // TestWriteRead tests writing a world and reading it back.
@@ -16,8 +16,8 @@ func TestWriteRead(t *testing.T) {
 
 	w := Make(10, 10)
 	for i := range w.locs {
-		w.locs[i].Height = i % (MaxHeight+1)
-		w.locs[i].Terrain = &Terrain[types[i % len(types)]]
+		w.locs[i].Height = i % (MaxHeight + 1)
+		w.locs[i].Terrain = &Terrain[types[i%len(types)]]
 	}
 
 	read, write, err := os.Pipe()
