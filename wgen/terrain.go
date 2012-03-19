@@ -32,7 +32,7 @@ const (
 func doTerrain(w *world.World) {
 	initTerrain(w)
 
-	comps := makeComponents(w, false, func(a, b *world.Location) bool{
+	comps := makeComponents(w, false, func(a, b *world.Loc) bool{
 		return a.Terrain == b.Terrain
 	})
 
@@ -112,7 +112,7 @@ type component struct {
 	// loc is the canonical location for this group.
 	// All other locations have something similar
 	// to the canonical location.
-	loc *world.Location
+	loc *world.Loc
 
 	// set is the set for the canonical location.
 	set *djsets.Set
@@ -120,7 +120,7 @@ type component struct {
 
 // sameComponent tests if two adjacent locations
 // should fall within the same component.
-type sameComponent func(a, b *world.Location)bool
+type sameComponent func(a, b *world.Loc)bool
 
 // find returns the component for the given location.
 func (c components) find(x, y int) *component {
