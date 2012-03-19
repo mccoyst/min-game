@@ -32,11 +32,30 @@ const (
 func doTerrain(w *world.World) {
 	initTerrain(w)
 
-	sets := makeSets(w)
-	regs := makeRegions(w, sets)
-	addLava(w, findLakes(regs))
+	comps := makeComponents(w, false, func(a, b *world.Location) bool{
+		return a.Terrain == b.Terrain
+	})
 
-	finalizeTerrain(w, sets)
+	var lakes []*component
+	for _, c := range comps.comps {
+		if c.loc.Terrain.Char == 'w' {
+			lakes = append(lakes, c)
+		}
+	}
+
+	maxLava := int(float64(len(lakes)) * lavaFact)
+	maxSz := int(float64(w.W*w.H) * lavaMaxFact)
+	for i := 0; i < maxLava && len(lakes) > 0; i++ {
+		ind := rand.Intn(len(lakes))
+		c := lakes[ind]
+		lakes[ind], lakes = lakes[len(lakes)-1], lakes[:len(lakes)-1]
+
+		if c.size <= maxSz {
+			c.loc.Terrain = &world.Terrain[int('l')]
+		}
+	}
+
+	finalizeTerrain(w, comps)
 }
 
 // initTerrain initializes the world's terrain by
@@ -62,20 +81,86 @@ func initTerrain(w *world.World) {
 	}
 }
 
-// makeSets returns a slice of djsets.Sets that are
-// unioned together in regions.
-func makeSets(w *world.World) (sets []djsets.Set) {
+// finalizeTerrain sets the terrain for each location based
+// on the final terrain of its component.
+func finalizeTerrain(w *world.World, comps components) {
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			c := comps.find(x, y)
+			w.At(x, y).Terrain = c.loc.Terrain
+		}
+	}
+}
+
+// components are a set of connected components.
+type components struct {
+	sets []djsets.Set
+	stride int
+	comps []*component
+}
+
+// A component is some set of locations that can be represented
+// by a canonical location.
+type component struct {
+	// size is the number of locations in this group.
+	size int
+
+	// minHt and maxHt are the extreme
+	// heights of the region.
+	minHt, maxHt int
+
+	// loc is the canonical location for this group.
+	// All other locations have something similar
+	// to the canonical location.
+	loc *world.Location
+
+	// set is the set for the canonical location.
+	set *djsets.Set
+}
+
+// sameComponent tests if two adjacent locations
+// should fall within the same component.
+type sameComponent func(a, b *world.Location)bool
+
+// find returns the component for the given location.
+func (c components) find(x, y int) *component {
+	return c.sets[x*c.stride+y].Find().Aux.(*component)
+}
+
+// makeComponents returns a components containing all 
+// connected components for which p evaluates to true
+// on adjacent locations.
+//
+// If d is true then diagonals are considered adjacent.
+func makeComponents(w *world.World, d bool, p sameComponent) components {
+	sets := findSets(w, d, p)
+	return components{
+		comps: findComps(w, sets),
+		stride: w.H,
+		sets: sets,
+	}
+}
+
+// findSets returns a slice of djsets.Sets containing all
+// connected components where p evaluates to true for
+// adjacent of locations.
+//
+// If d is false then Diagonals are not considered adjacent.
+func findSets(w *world.World, d bool, p sameComponent) (sets []djsets.Set) {
 	sets = make([]djsets.Set, w.W*w.H)
 
 	for x := 0; x < w.W-1; x++ {
 		for y := 0; y < w.H-1; y++ {
 			loc := w.At(x, y)
 			set := &sets[x*w.H+y]
-			if right := w.At(x+1, y); right.Terrain == loc.Terrain {
+			if right := w.At(x+1, y); p(loc, right) {
 				set.Union(&sets[(x+1)*w.H+y])
 			}
-			if down := w.At(x, y+1); down.Terrain == loc.Terrain {
+			if down := w.At(x, y+1); p(loc, down) {
 				set.Union(&sets[x*w.H+y+1])
+			}
+			if diag := w.At(x+1, y+1); d && p(loc, diag) {
+				set.Union(&sets[(x+1)*w.H+y+1])
 			}
 		}
 	}
@@ -85,11 +170,14 @@ func makeSets(w *world.World) (sets []djsets.Set) {
 	for y := 0; y < w.H-1; y++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
-		if right := w.At(0, y); right.Terrain == loc.Terrain {
+		if right := w.At(0, y); p(loc, right) {
 			set.Union(&sets[y])
 		}
-		if down := w.At(x, y+1); down.Terrain == loc.Terrain {
+		if down := w.At(x, y+1); p(loc, down) {
 			set.Union(&sets[x*w.H+y+1])
+		}
+		if diag := w.At(0, y+1); d && p(loc, diag) {
+			set.Union(&sets[y+1])
 		}
 	}
 
@@ -104,6 +192,9 @@ func makeSets(w *world.World) (sets []djsets.Set) {
 		if down := w.At(x, 0); down.Terrain == loc.Terrain {
 			set.Union(&sets[x*w.H])
 		}
+		if diag := w.At(x+1, 0); d && p(loc, diag) {
+			set.Union(&sets[(x+1)*w.H])
+		}
 	}
 
 	// Bottom left corner
@@ -115,84 +206,42 @@ func makeSets(w *world.World) (sets []djsets.Set) {
 	if down := w.At(x, 0); down.Terrain == loc.Terrain {
 		set.Union(&sets[x*w.H])
 	}
+	if diag := w.At(0, 0); d && p(loc, diag) {
+		set.Union(&sets[0])
+	}
 	return
 }
 
-// A Region is a connected component of the world
-// that has the same terrain type.
-type Region struct {
-	// size is the number of locations in this region.
-	size int
-
-	// terrain is the terrain of this region.
-	terrain *world.TerrainType
-
-	// set is this region's canonical set.
-	set *djsets.Set
-}
-
-// makeRegions returns a slice of Regions built from
-// the connected components with the same terrain
-// type.
-func makeRegions(w *world.World, sets []djsets.Set) (regs []*Region) {
+// findComps returns a slice of all components,
+// where each component has one canonical location.
+func findComps(w *world.World, sets []djsets.Set) (comps []*component) {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			switch set := sets[x*w.H+y].Find(); {
 			case set.Aux != nil:
-				r := set.Aux.(*Region)
-				if r.terrain != w.At(x, y).Terrain {
-					panic("A region has multiple terrains")
+				c := set.Aux.(*component)
+				l := w.At(x, y)
+				if l.Height < c.minHt {
+					c.minHt = l.Height
 				}
-				r.size++
+				if l.Height > c.maxHt {
+					c.maxHt = l.Height
+				}
+				c.size++
 			default:
-				r := &Region{
+				l := w.At(x, y)
+				c := &component{
 					size:    1,
-					terrain: w.At(x, y).Terrain,
+					minHt: l.Height,
+					maxHt: l.Height,
+					loc: l,
 					set:     set,
 				}
-				set.Aux = r
-				regs = append(regs, r)
+				set.Aux = c
+				comps = append(comps, c)
 			}
 		}
 	}
-
 	return
 }
 
-// findLakes returns all regions that are lakes
-func findLakes(regs []*Region) (lakes []*Region) {
-	for _, r := range regs {
-		if r.terrain.Char == 'w' {
-			lakes = append(lakes, r)
-		}
-	}
-	return
-}
-
-// finalizeTerrain sets the terrain for each location based
-// on the final terrain of its region.
-func finalizeTerrain(w *world.World, sets []djsets.Set) {
-	for x := 0; x < w.W; x++ {
-		for y := 0; y < w.H; y++ {
-			set := sets[x*w.H+y].Find()
-			w.At(x, y).Terrain = set.Aux.(*Region).terrain
-		}
-	}
-}
-
-// addLava randomly selects some lakes and makes them
-// into lava.
-func addLava(w *world.World, lakes []*Region) {
-	maxLava := int(float64(len(lakes)) * lavaFact)
-	maxSz := int(float64(w.W*w.H) * lavaMaxFact)
-
-	for i := 0; i < maxLava && len(lakes) > 0; i++ {
-		ind := rand.Intn(len(lakes))
-		l := lakes[ind]
-		lakes[ind], lakes = lakes[len(lakes)-1], lakes[:len(lakes)-1]
-
-		if l.size <= maxSz {
-			l.terrain = &world.Terrain[int('l')]
-		}
-	}
-}
