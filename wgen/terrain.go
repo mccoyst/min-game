@@ -2,29 +2,31 @@ package main
 
 import (
 	"code.google.com/p/eaburns/djsets"
-	"math"
-	"math/rand"
 	"minima/world"
-)
-
-var (
-	// mtnMin is the minimum value above which the
-	// terrain is mountains.
-	mntMin = int(math.Floor(world.MaxHeight * 0.90))
-
-	// waterMax is the maximum value below which
-	// the terrain is water.
-	waterMax = int(math.Floor(world.MaxHeight * 0.45))
+	"math/rand"
+	"math"
+	"fmt"
+	"os"
 )
 
 const (
-	// lavaFact is the factor of all lakes that will
-	// be converted to lava pits.
-	lavaFact = 0.10
+	// mtnMin is the minimum value above which the
+	// terrain is mountains.
+	mtnMin = world.MaxHeight * 0.90
 
-	// lavaMaxFact is the upper limit, given as a factor
-	// of the map area, on the size of a lava pool.
-	lavaMaxFact = 0.05
+	// minWaterFrac and maxWaterFrac define the minimum and
+	// maximum amount of water that will be flooded into the
+	// world.  Both are given as a fraction of the map size.
+	minWaterFrac, maxWaterFrac = 0.50, 0.75
+
+	// maxFloodFrac is the maximum amount of water that a
+	// single flood can add to the world given as a fraction of
+	// the world size.
+	maxFloodFrac = 0.15
+
+	// floodMaxHeight is the maximum amount of water to flood
+	// into a minima given as fraction of the world.MaxHeight
+	floodMaxHeight = 0.25
 )
 
 // doTerrain clamps the heights of each cell and
@@ -32,30 +34,56 @@ const (
 func doTerrain(w *world.World) {
 	initTerrain(w)
 
-	comps := makeComponents(w, false, func(a, b *world.Loc) bool{
-		return a.Terrain == b.Terrain
-	})
+	tmap := makeTopoMap(w)
 
-	var lakes []*component
-	for _, c := range comps.comps {
-		if c.loc.Terrain.Char == 'w' {
-			lakes = append(lakes, c)
+	addWater(w, tmap)
+
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			c := tmap.getContour(x, y)
+			if c.terrain == nil {
+				continue
+			}
+			loc := w.At(x, y)
+			loc.Terrain = c.terrain
+			loc.Height = c.height
+			loc.Depth = c.depth
 		}
 	}
+}
 
-	maxLava := int(float64(len(lakes)) * lavaFact)
-	maxSz := int(float64(w.W*w.H) * lavaMaxFact)
-	for i := 0; i < maxLava && len(lakes) > 0; i++ {
-		ind := rand.Intn(len(lakes))
-		c := lakes[ind]
-		lakes[ind], lakes = lakes[len(lakes)-1], lakes[:len(lakes)-1]
+// addWater adds water to the world by flooding some local
+// minima with water.
+func addWater(w *world.World, tmap topoMap) {
+	minWater := int(float64(w.W*w.H)*minWaterFrac)
+	maxWater := int(float64(w.W*w.H)*maxWaterFrac)
+	maxHeight := int(math.Floor(world.MaxHeight*floodMaxHeight))
+	maxFlood := int(float64(w.W*w.H)*maxFloodFrac)
 
-		if c.size <= maxSz {
-			c.loc.Terrain = &world.Terrain[int('l')]
+	waterSz := 0
+	mins := tmap.minima()
+	for len(mins) > 0 && waterSz < minWater {
+		i := rand.Intn(len(mins))
+		min := mins[i]
+		mins[i], mins = mins[len(mins)-1], mins[:len(mins)-1]
+
+		if min.terrain == &world.Terrain['w'] {
+			continue
+		}
+
+		amt := rand.Intn(maxHeight-1)+1
+		ht := min.height + amt
+		sz := min.floodSize(ht, &world.Terrain['w'])
+		for (sz > maxFlood || waterSz + sz > maxWater) && ht > min.height {
+			ht--
+			sz = min.floodSize(ht, &world.Terrain['w'])
+		}
+
+		if ht > min.height {
+			waterSz += min.flood(ht, &world.Terrain['w'])
 		}
 	}
-
-	finalizeTerrain(w, comps)
+	fmt.Fprintln(os.Stderr, float64(waterSz)/float64(w.H*w.W)*100, "percent water")
 }
 
 // initTerrain initializes the world's terrain by
@@ -71,95 +99,150 @@ func initTerrain(w *world.World) {
 			if l.Height > world.MaxHeight {
 				l.Height = world.MaxHeight
 			}
-			switch {
-			case l.Height >= mntMin:
+			if float64(l.Height) >= mtnMin {
 				l.Terrain = &world.Terrain['m']
-			case l.Height <= waterMax:
-				l.Terrain = &world.Terrain['w']
 			}
 		}
 	}
 }
 
-// finalizeTerrain sets the terrain for each location based
-// on the final terrain of its component.
-func finalizeTerrain(w *world.World, comps components) {
-	for x := 0; x < w.W; x++ {
-		for y := 0; y < w.H; y++ {
-			c := comps.find(x, y)
-			w.At(x, y).Terrain = c.loc.Terrain
-		}
-	}
-}
-
-// components are a set of connected components.
-type components struct {
+// topoMap are a set of connected components.
+type topoMap struct {
 	sets []djsets.Set
 	stride int
-	comps []*component
+	conts []*contour
 }
 
-// A component is some set of locations that can be represented
-// by a canonical location.
-type component struct {
+// A contour is a connected set of locations that are
+// of the same height.
+type contour struct {
 	// size is the number of locations in this group.
 	size int
 
-	// minHt and maxHt are the extreme
-	// heights of the region.
-	minHt, maxHt int
+	// terrain, if non-nil, specifies the terrain type
+	// for all locations of this contour.
+	terrain *world.TerrainType
 
-	// loc is the canonical location for this group.
-	// All other locations have something similar
-	// to the canonical location.
-	loc *world.Loc
+	// height and depth are the height and depth values
+	// for all locations of this contour.
+	height, depth int
+
+	// adj is the list of adjacent countours.
+	adj []*contour
 
 	// set is the set for the canonical location.
 	set *djsets.Set
 }
 
-// sameComponent tests if two adjacent locations
-// should fall within the same component.
-type sameComponent func(a, b *world.Loc)bool
-
-// find returns the component for the given location.
-func (c components) find(x, y int) *component {
-	return c.sets[x*c.stride+y].Find().Aux.(*component)
-}
-
-// makeComponents returns a components containing all 
-// connected components for which p evaluates to true
-// on adjacent locations.
-//
-// If d is true then diagonals are considered adjacent.
-func makeComponents(w *world.World, d bool, p sameComponent) components {
-	sets := findSets(w, d, p)
-	return components{
-		comps: findComps(w, sets),
+// topoMap returns a topological map of the world.
+func makeTopoMap(w *world.World) topoMap {
+	sets := findSets(w)
+	m := topoMap {
 		stride: w.H,
 		sets: sets,
+		conts: findContours(w, sets),
+	}
+	linkContours(w, m)
+	return m
+}
+
+// find returns the contour on which the given x,y point resides.
+func (m topoMap) getContour(x, y int) *contour {
+	return m.sets[x*m.stride+y].Find().Aux.(*contour)
+}
+
+// minima returns a slice of all contours that are local minima.
+func (m topoMap) minima() (mins []*contour) {
+	for _, c := range m.conts {
+		min := true
+		for _, a := range c.adj {
+			if a.height < c.height {
+				min = false
+				break
+			}
+		}
+		if min {
+			mins = append(mins, c)
+		}
+	}
+	return
+}
+
+// flood floods the contour and its neighbors to the given
+// height with the given terrain type and returns the
+// number of locations that were newly converted to this type.
+func (c *contour) flood(ht int, t *world.TerrainType) int {
+	n := 0
+	walk(c, func (c *contour) bool {
+		if c.height > ht {
+			return false
+		}
+		c.depth = ht - (c.height - c.depth)
+		c.height = ht
+		if c.terrain != t {
+			c.terrain = t
+			n += c.size
+		}
+		return true
+	})
+	return n
+}
+
+// floodSize counts the number of locations that would be
+// affected by the flood without actually flooding.
+func (c *contour) floodSize(ht int, t *world.TerrainType) int {
+	n := 0
+	walk(c, func (c *contour) bool {
+		if c.height <= ht && c.terrain != t {
+			n += c.size
+		}
+		return c.height <= ht
+	})
+	return n
+}
+
+// walk traverses the contours out from the initial
+// in a depth-first order, calling foreach on each newly
+// visited contour.  If foreach returns false then the
+// successors of the given contour are not traversed
+// unless they are reached via another path.
+func walk(init *contour, foreach func(*contour)bool) {
+	seen := make(map[*contour]bool)
+	var stack []*contour
+
+	seen[init] = true
+	stack = append(stack, init)
+	for len(stack) > 0 {
+		n := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		if !foreach(n) {
+			continue
+		}
+		for _, kid := range n.adj {
+			if !seen[kid] {
+				seen[kid] = true
+				stack = append(stack, kid)
+			}
+		}
 	}
 }
 
-// findSets returns a slice of djsets.Sets containing all
-// connected components where p evaluates to true for
-// adjacent of locations.
-//
-// If d is false then Diagonals are not considered adjacent.
-func findSets(w *world.World, d bool, p sameComponent) (sets []djsets.Set) {
+// findSets returns a slice of the set structures for each location,
+// unioned into contours.
+func findSets(w *world.World) (sets []djsets.Set) {
 	sets = make([]djsets.Set, w.W*w.H)
 
 	for x := 0; x < w.W-1; x++ {
 		for y := 0; y < w.H-1; y++ {
 			loc := w.At(x, y)
 			set := &sets[x*w.H+y]
-			if right := w.At(x+1, y); p(loc, right) {
+			if right := w.At(x+1, y); loc.Height == right.Height {
 				set.Union(&sets[(x+1)*w.H+y])
 			}
-			if down := w.At(x, y+1); p(loc, down) {
+			if down := w.At(x, y+1); loc.Height == down.Height {
 				set.Union(&sets[x*w.H+y+1])
 			}
-			if diag := w.At(x+1, y+1); d && p(loc, diag) {
+			if diag := w.At(x+1, y+1); loc.Height == diag.Height {
 				set.Union(&sets[(x+1)*w.H+y+1])
 			}
 		}
@@ -170,13 +253,13 @@ func findSets(w *world.World, d bool, p sameComponent) (sets []djsets.Set) {
 	for y := 0; y < w.H-1; y++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
-		if right := w.At(0, y); p(loc, right) {
+		if right := w.At(0, y); loc.Height == right.Height {
 			set.Union(&sets[y])
 		}
-		if down := w.At(x, y+1); p(loc, down) {
+		if down := w.At(x, y+1); loc.Height == down.Height {
 			set.Union(&sets[x*w.H+y+1])
 		}
-		if diag := w.At(0, y+1); d && p(loc, diag) {
+		if diag := w.At(0, y+1); loc.Height == diag.Height {
 			set.Union(&sets[y+1])
 		}
 	}
@@ -186,13 +269,13 @@ func findSets(w *world.World, d bool, p sameComponent) (sets []djsets.Set) {
 	for x := 0; x < w.W-1; x++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
-		if right := w.At(x+1, y); right.Terrain == loc.Terrain {
+		if right := w.At(x+1, y); loc.Height == right.Height {
 			set.Union(&sets[x*w.H+y])
 		}
-		if down := w.At(x, 0); down.Terrain == loc.Terrain {
+		if down := w.At(x, 0); loc.Height == down.Height {
 			set.Union(&sets[x*w.H])
 		}
-		if diag := w.At(x+1, 0); d && p(loc, diag) {
+		if diag := w.At(x+1, 0); loc.Height == diag.Height {
 			set.Union(&sets[(x+1)*w.H])
 		}
 	}
@@ -200,41 +283,32 @@ func findSets(w *world.World, d bool, p sameComponent) (sets []djsets.Set) {
 	// Bottom left corner
 	loc := w.At(x, y)
 	set := &sets[x*w.H+y]
-	if right := w.At(0, y); right.Terrain == loc.Terrain {
+	if right := w.At(0, y); loc.Height == right.Height {
 		set.Union(&sets[y])
 	}
-	if down := w.At(x, 0); down.Terrain == loc.Terrain {
+	if down := w.At(x, 0); loc.Height == down.Height {
 		set.Union(&sets[x*w.H])
 	}
-	if diag := w.At(0, 0); d && p(loc, diag) {
+	if diag := w.At(0, 0); loc.Height == diag.Height {
 		set.Union(&sets[0])
 	}
 	return
 }
 
-// findComps returns a slice of all components,
-// where each component has one canonical location.
-func findComps(w *world.World, sets []djsets.Set) (comps []*component) {
+// findContours returns a slice of all contours.
+func findContours(w *world.World, sets []djsets.Set) (comps []*contour) {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
+			loc := w.At(x, y)
 			switch set := sets[x*w.H+y].Find(); {
 			case set.Aux != nil:
-				c := set.Aux.(*component)
-				l := w.At(x, y)
-				if l.Height < c.minHt {
-					c.minHt = l.Height
-				}
-				if l.Height > c.maxHt {
-					c.maxHt = l.Height
-				}
+				c := set.Aux.(*contour)
 				c.size++
 			default:
-				l := w.At(x, y)
-				c := &component{
+				c := &contour{
 					size:    1,
-					minHt: l.Height,
-					maxHt: l.Height,
-					loc: l,
+					height: loc.Height,
+					depth: loc.Depth,
 					set:     set,
 				}
 				set.Aux = c
@@ -245,3 +319,76 @@ func findComps(w *world.World, sets []djsets.Set) (comps []*component) {
 	return
 }
 
+// linkContours links the topoMap into a graph.
+func linkContours(w *world.World, m topoMap) {
+	for x := 0; x < w.W-1; x++ {
+		for y := 0; y < w.H-1; y++ {
+			c := m.getContour(x, y)
+			if right := m.getContour(x+1, y); c != right {
+				link(c, right)
+			}
+			if down := m.getContour(x, y+1); c != down {
+				link(c, down)
+			}
+			if diag := m.getContour(x+1, y+1); c != diag {
+				link(c, diag)
+			}
+		}
+	}
+
+	// Right edge of the map (wraps to x == 0)
+	x := w.W - 1
+	for y := 0; y < w.H-1; y++ {
+		c := m.getContour(x, y)
+		if right := m.getContour(0, y); c != right {
+			link(c, right)
+		}
+		if down := m.getContour(x, y); c != down {
+			link(c, down)
+		}
+		if diag := m.getContour(0, y+1); c != diag {
+			link(c, diag)
+		}
+	}
+
+	// Bottom edge of the map (wraps to y==0)
+	y := w.H - 1
+	for x := 0; x < w.W-1; x++ {
+		c := m.getContour(x, y)
+		if right := m.getContour(x, y+1); c != right {
+			link(c, right)
+		}
+		if down := m.getContour(x, 0); c != down {
+			link(c, down)
+		}
+		if diag := m.getContour(x+1, 0); c != diag {
+			link(c, diag)
+		}
+	}
+
+	// Bottom left corner
+	c := m.getContour(x, y)
+	if right := m.getContour(0, y); c != right {
+		link(c, right)
+	}
+	if down := m.getContour(x, 0); c != down {
+		link(c, down)
+	}
+	if diag := m.getContour(0, 0); c != diag {
+		link(c, diag)
+	}
+	return
+}
+
+// link adds a link between the two contours if
+// one did not already exist.
+func link(a, b *contour) {
+	for _, l := range a.adj {
+		if l == b {
+			return
+		}
+	}
+
+	a.adj = append(a.adj, b)
+	b.adj = append(b.adj, a)
+}

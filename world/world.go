@@ -126,7 +126,7 @@ func Read(in io.Reader) (_ World, err error) {
 	for i := range w.locs {
 		var ht, dp int
 		var ch uint8
-		if n, err = fmt.Fscanf(in, " %c %d %d", &ch, &ht, &dp); n != 2 || err != nil {
+		if n, err = fmt.Fscanf(in, " %c %d %d", &ch, &ht, &dp); n != 3 || err != nil {
 			if err == nil {
 				err = fmt.Errorf("Failed to scan location %d", i)
 			}
