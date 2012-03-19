@@ -17,14 +17,14 @@ type World struct {
 	W, H int
 
 	// locs is the grid of world locations.
-	locs []Location
+	locs []Loc
 }
 
-// A Location is a cell in the grid that
+// A Loc is a cell in the grid that
 // represents the world
-type Location struct {
+type Loc struct {
 	Terrain *TerrainType
-	Height  int
+	Height, Depth  int
 }
 
 // Make returns a world of the given
@@ -40,7 +40,7 @@ func Make(w, h int) World {
 	return World{
 		W:    w,
 		H:    h,
-		locs: make([]Location, w*h),
+		locs: make([]Loc, w*h),
 	}
 }
 
@@ -48,13 +48,13 @@ func Make(w, h int) World {
 //
 // Unlike AtCoord(), this roution does not wrap the
 // x,y values around the boundaries of the grid.
-func (w *World) At(x, y int) *Location {
+func (w *World) At(x, y int) *Loc {
 	return &w.locs[x*w.H+y]
 }
 
 // AtCoord returns a pointer to the location at
 // the given world coordinate.
-func (w *World) AtCoord(x, y int) *Location {
+func (w *World) AtCoord(x, y int) *Loc {
 	return &w.locs[w.CoordToIndex(x, y)]
 }
 
@@ -99,7 +99,7 @@ func (w *World) Write(out io.Writer) (err error) {
 		if l.Terrain == nil {
 			panic("Nil terrain")
 		}
-		if _, err = fmt.Fprintf(out, " %d %c", l.Height, l.Terrain.Char); err != nil {
+		if _, err = fmt.Fprintf(out, " %c %d %d", l.Terrain.Char, l.Height, l.Depth); err != nil {
 			return
 		}
 	}
@@ -124,9 +124,9 @@ func Read(in io.Reader) (_ World, err error) {
 
 	w := Make(width, height)
 	for i := range w.locs {
-		var ht int
+		var ht, dp int
 		var ch uint8
-		if n, err = fmt.Fscanf(in, " %d %c", &ht, &ch); n != 2 || err != nil {
+		if n, err = fmt.Fscanf(in, " %c %d %d", &ch, &ht, &dp); n != 2 || err != nil {
 			if err == nil {
 				err = fmt.Errorf("Failed to scan location %d", i)
 			}
@@ -141,8 +141,9 @@ func Read(in io.Reader) (_ World, err error) {
 				i, ch)
 			return
 		}
-		w.locs[i].Height = ht
 		w.locs[i].Terrain = &Terrain[int(ch)]
+		w.locs[i].Height = ht
+		w.locs[i].Depth = dp
 	}
 
 	return w, nil
