@@ -10,7 +10,7 @@ import (
 var (
 	outFile = flag.String("o", "world.png", "The output file")
 	echo    = flag.Bool("e", false, "Echo the world to standard output")
-	depth = flag.Bool("d", false, "Draw water depth")
+	depth = flag.Bool("d", true, "Draw water depth")
 )
 
 func main() {
