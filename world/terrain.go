@@ -18,9 +18,11 @@ var Terrain = []TerrainType{
 	// Grass-land
 	int('g'): {'g', color.RGBA{0, 255, 0, 255}},
 	// Mountain
-	int('m'): {'m', color.RGBA{128, 128, 128, 255}},
+	int('m'): {'m', color.RGBA{196, 196, 196, 255}},
 	// Water
 	int('w'): {'w', color.RGBA{0, 0, 255, 255}},
 	// Lava
 	int('l'): {'l', color.RGBA{255, 0, 0, 255}},
+	// Desert
+	int('d'): {'d', color.RGBA{255, 255, 0, 255}},
 }
