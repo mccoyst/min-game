@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	// mtnMin is the minimum value above which the
-	// terrain is mountains.
-	mtnMin = world.MaxHeight * 0.90
+	// minMountain is the minimum value at and above which
+	// terrain will initalize to mountain.
+	minMountain = world.MaxHeight * 0.90
 
 	// minWaterFrac and maxWaterFrac define the minimum and
 	// maximum amount of water that will be flooded into the
@@ -52,6 +52,26 @@ func doTerrain(w *world.World) {
 	}
 }
 
+// initTerrain initializes the world's terrain by
+// setting it to water or mountain depending
+// on its height.
+func initTerrain(w *world.World) {
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			l := w.At(x, y)
+			if l.Height < 0 {
+				l.Height = 0
+			}
+			if l.Height > world.MaxHeight {
+				l.Height = world.MaxHeight
+			}
+			if float64(l.Height) >= minMountain {
+				l.Terrain = &world.Terrain['m']
+			}
+		}
+	}
+}
+
 // addWater adds water to the world by flooding some local
 // minima with water.
 func addWater(w *world.World, tmap topoMap) {
@@ -70,40 +90,30 @@ func addWater(w *world.World, tmap topoMap) {
 		if min.terrain == &world.Terrain['w'] {
 			continue
 		}
-
+	
 		amt := rand.Intn(maxHeight-1)+1
 		ht := min.height + amt
-		sz := min.floodSize(ht, &world.Terrain['w'])
-		for (sz > maxFlood || waterSz + sz > maxWater) && ht > min.height {
+	
+		for ht > min.height {
+			fl := tmap.flood(min, ht)
+			sz := 0
+			for _, d := range fl {
+				if d.terrain != &world.Terrain['w'] {
+					sz += d.size
+				}
+			}
+			if sz <= maxFlood && waterSz + sz <= maxWater {
+				for _, d := range fl {
+					d.terrain = &world.Terrain['w']
+					d.depth += ht - d.height
+					d.height = ht
+				}
+				waterSz += sz
+			}
 			ht--
-			sz = min.floodSize(ht, &world.Terrain['w'])
-		}
-
-		if ht > min.height {
-			waterSz += min.flood(ht, &world.Terrain['w'])
 		}
 	}
 	fmt.Fprintln(os.Stderr, float64(waterSz)/float64(w.H*w.W)*100, "percent water")
-}
-
-// initTerrain initializes the world's terrain by
-// setting it to water or mountain depending
-// on its height.
-func initTerrain(w *world.World) {
-	for x := 0; x < w.W; x++ {
-		for y := 0; y < w.H; y++ {
-			l := w.At(x, y)
-			if l.Height < 0 {
-				l.Height = 0
-			}
-			if l.Height > world.MaxHeight {
-				l.Height = world.MaxHeight
-			}
-			if float64(l.Height) >= mtnMin {
-				l.Terrain = &world.Terrain['m']
-			}
-		}
-	}
 }
 
 // topoMap are a set of connected components.
@@ -116,6 +126,9 @@ type topoMap struct {
 // A contour is a connected set of locations that are
 // of the same height.
 type contour struct {
+	// id is the unique small int that names this contour.
+	id int
+
 	// size is the number of locations in this group.
 	size int
 
@@ -168,37 +181,18 @@ func (m topoMap) minima() (mins []*contour) {
 	return
 }
 
-// flood floods the contour and its neighbors to the given
-// height with the given terrain type and returns the
-// number of locations that were newly converted to this type.
-func (c *contour) flood(ht int, t *world.TerrainType) int {
-	n := 0
-	walk(c, func (c *contour) bool {
+// flood returns all of the contours that would flood
+// when raising the water to the given height from the
+// receiver.
+func (t topoMap) flood(c *contour, ht int) (fl []*contour) {
+	t.walk(c, func (c *contour) bool {
 		if c.height > ht {
 			return false
 		}
-		c.depth = ht - (c.height - c.depth)
-		c.height = ht
-		if c.terrain != t {
-			c.terrain = t
-			n += c.size
-		}
+		fl = append(fl, c)
 		return true
 	})
-	return n
-}
-
-// floodSize counts the number of locations that would be
-// affected by the flood without actually flooding.
-func (c *contour) floodSize(ht int, t *world.TerrainType) int {
-	n := 0
-	walk(c, func (c *contour) bool {
-		if c.height <= ht && c.terrain != t {
-			n += c.size
-		}
-		return c.height <= ht
-	})
-	return n
+	return
 }
 
 // walk traverses the contours out from the initial
@@ -206,11 +200,11 @@ func (c *contour) floodSize(ht int, t *world.TerrainType) int {
 // visited contour.  If foreach returns false then the
 // successors of the given contour are not traversed
 // unless they are reached via another path.
-func walk(init *contour, foreach func(*contour)bool) {
-	seen := make(map[*contour]bool)
+func (t topoMap) walk(init *contour, foreach func(*contour)bool) {
+	seen := make([]bool, len(t.conts))
 	var stack []*contour
 
-	seen[init] = true
+	seen[init.id] = true
 	stack = append(stack, init)
 	for len(stack) > 0 {
 		n := stack[len(stack)-1]
@@ -219,8 +213,8 @@ func walk(init *contour, foreach func(*contour)bool) {
 			continue
 		}
 		for _, kid := range n.adj {
-			if !seen[kid] {
-				seen[kid] = true
+			if !seen[kid.id] {
+				seen[kid.id] = true
 				stack = append(stack, kid)
 			}
 		}
@@ -306,6 +300,7 @@ func findContours(w *world.World, sets []djsets.Set) (comps []*contour) {
 				c.size++
 			default:
 				c := &contour{
+					id: len(comps),
 					size:    1,
 					height: loc.Height,
 					depth: loc.Depth,
