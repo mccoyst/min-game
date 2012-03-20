@@ -24,35 +24,35 @@ const (
 	floodMaxHeight = 0.25
 )
 
-// doTerrain clamps the heights of each cell and
-// assigns their terrains.
+// doTerrain is the main routine for assigning a
+// terrain value to each location.
 func doTerrain(w *world.World) {
 	initTerrain(w)
 	addWater(w)
 }
 
-// initTerrain initializes the world's terrain by
-// setting it to water or mountain depending
-// on its height.
+// initTerrain initializes the world's terrain.
+//
+// Currently terrain is all initialized to grass
+// land unless it is above a certain threshold
+// in which case it is made a mountain.
 func initTerrain(w *world.World) {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.At(x, y)
-			if l.Height < 0 {
-				l.Height = 0
-			}
-			if l.Height > world.MaxHeight {
-				l.Height = world.MaxHeight
-			}
 			if float64(l.Height) >= minMountain {
 				l.Terrain = &world.Terrain['m']
+			} else {
+				l.Terrain = &world.Terrain['g']
 			}
 		}
 	}
 }
 
-// addWater adds water to the world by flooding some local
-// minima with water.
+// addWater adds water to the world by flooding
+// some local minima to a random height.  The
+// percentage of the world that is flooded is based
+// by the minWaterFrac and maxWaterFrac constants.
 func addWater(w *world.World) {
 	tmap := makeTopoMap(w)
 	minWater := int(float64(w.W*w.H)*minWaterFrac)
@@ -92,7 +92,8 @@ func addWater(w *world.World) {
 			ht--
 		}
 	}
-	fmt.Fprintln(os.Stderr, float64(waterSz)/float64(w.H*w.W)*100, "percent water")
+	fmt.Fprintln(os.Stderr, float64(waterSz)/float64(w.H*w.W)*100,
+		"percent water")
 
 	// blit the water to the map
 	for x := 0; x < w.W; x++ {

@@ -20,13 +20,13 @@ const (
 	// of the normal distribution over mountain growths.
 	meanGrowth, stdevGrowth = 0, world.MaxHeight * 0.15
 
-	// conMin and covMax are the minimum and maximum
+	// conMin and maxCov are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
-	covMin, covMax = -0.5, 0.5
+	minCov, maxCov = -0.5, 0.5
 
 	// stdevMin and stdevMax are the minimum and
 	// maximum standard deviation of random Gaussians.
-	sdevMin, sdevMax = 10, 30
+	minStdev, maxStdev = 10, 30
 )
 
 var (
@@ -60,6 +60,7 @@ func main() {
 	for g := range gaussians(w, num) {
 		grow(w, g)
 	}
+	clampHeights(w)
 	doTerrain(w)
 
 	out := bufio.NewWriter(os.Stdout)
@@ -81,14 +82,30 @@ func main() {
 // with the given dimensions.
 func initWorld(width, height int) *world.World {
 	w := world.Make(width, height)
-	for i := 0; i < w.W; i++ {
-		for j := 0; j < w.H; j++ {
-			l := w.AtCoord(i, j)
-			l.Terrain = &world.Terrain['g']
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			l := w.AtCoord(x, y)
 			l.Height = (world.MaxHeight / 2) + 1
 		}
 	}
 	return &w
+}
+
+// clampHeights ensures that all locations have a
+// height that is within the allowable range.
+func clampHeights(w *world.World) {
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			l := w.At(x, y)
+			if l.Height < 0 {
+				l.Height = 0
+			}
+			if l.Height > world.MaxHeight {
+				l.Height = world.MaxHeight
+			}
+		}
+	}
+
 }
 
 // grow generates a random height for the mean
@@ -108,8 +125,9 @@ func grow(w *world.World, g *Gaussian2d) {
 	}
 }
 
-// gaussians makes some random Gaussians and
-// sends them out on the given channel.
+// gaussians returns a channel upon which the
+// given number of random Gaussians will be
+// sent.
 func gaussians(w *world.World, num int) <-chan *Gaussian2d {
 	ch := make(chan *Gaussian2d, 100)
 	go func() {
@@ -121,20 +139,21 @@ func gaussians(w *world.World, num int) <-chan *Gaussian2d {
 	return ch
 }
 
-// randomGaussian2d creates a random Gaussian2d
-// somewhere in the world and returns it.
+// randomGaussian2d returns a random Gaussian2d that
+// is generated using the maxStdev, minStdev, stdevGrowth,
+// meanGrowth, maxCov, and minCov constants.
 func randomGaussian2d(w *world.World) *Gaussian2d {
 	mx := rand.Float64() * float64(w.W)
 	my := rand.Float64() * float64(w.H)
 
-	sx := rand.Float64()*(sdevMax-sdevMin) + sdevMin
-	sy := rand.Float64()*(sdevMax-sdevMin) + sdevMin
+	sx := rand.Float64()*(maxStdev-minStdev) + minStdev
+	sy := rand.Float64()*(maxStdev-minStdev) + minStdev
 
 	ht := 0.0
 	for int(ht) == 0 {
 		ht = rand.NormFloat64()*stdevGrowth + meanGrowth
 	}
-	cov := rand.Float64()*(covMax-covMin) + covMin
+	cov := rand.Float64()*(maxCov-minCov) + minCov
 
 	return NewGaussian2d(mx, my, sx, sy, ht, cov)
 }

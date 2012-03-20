@@ -5,15 +5,16 @@ import (
 	"code.google.com/p/eaburns/djsets"
 )
 
-// topoMap are a set of connected components.
+// topoMap are a set of connected components of
+// equal heights.
 type topoMap struct {
 	sets []djsets.Set
 	stride int
 	conts []*contour
 }
 
-// A contour is a connected set of locations that are
-// of the same height.
+// A contour represents connected set of locations
+// that have the same height.
 type contour struct {
 	// id is the unique small int that names this contour.
 	id int
@@ -48,7 +49,8 @@ func makeTopoMap(w *world.World) topoMap {
 	return m
 }
 
-// find returns the contour on which the given x,y point resides.
+// getContour returns the contour on which the given
+// x,y point resides.
 func (m topoMap) getContour(x, y int) *contour {
 	return m.sets[x*m.stride+y].Find().Aux.(*contour)
 }
@@ -71,8 +73,8 @@ func (m topoMap) minima() (mins []*contour) {
 }
 
 // flood returns all of the contours that would flood
-// when raising the water to the given height from the
-// receiver.
+// when raising raising liquid to the given height
+// in the given contour.
 func (t topoMap) flood(c *contour, ht int) (fl []*contour) {
 	t.walk(c, func (c *contour) bool {
 		if c.height > ht {
@@ -87,8 +89,10 @@ func (t topoMap) flood(c *contour, ht int) (fl []*contour) {
 // walk traverses the contours out from the initial
 // in a depth-first order, calling foreach on each newly
 // visited contour.  If foreach returns false then the
-// successors of the given contour are not traversed
-// unless they are reached via another path.
+// successors of the given contour are not traversed on
+// this branch of the search and will only be encountered
+// if they are reached via another path along which foreach
+// always returns true.
 func (t topoMap) walk(init *contour, foreach func(*contour)bool) {
 	seen := make([]bool, len(t.conts))
 	var stack []*contour
@@ -110,8 +114,10 @@ func (t topoMap) walk(init *contour, foreach func(*contour)bool) {
 	}
 }
 
-// findSets returns a slice of the set structures for each location,
-// unioned into contours.
+// findSets returns a slice of set, one for each
+// location, that are unioned together such that
+// sets with matching canonical representations
+// all belong to the same contour.
 func findSets(w *world.World) (sets []djsets.Set) {
 	sets = make([]djsets.Set, w.W*w.H)
 
@@ -203,19 +209,19 @@ func findContours(w *world.World, sets []djsets.Set) (comps []*contour) {
 	return
 }
 
-// linkContours links the topoMap into a graph.
+// linkContours links adjacent contours.
 func linkContours(w *world.World, m topoMap) {
 	for x := 0; x < w.W-1; x++ {
 		for y := 0; y < w.H-1; y++ {
 			c := m.getContour(x, y)
 			if right := m.getContour(x+1, y); c != right {
-				link(c, right)
+				addLink(c, right)
 			}
 			if down := m.getContour(x, y+1); c != down {
-				link(c, down)
+				addLink(c, down)
 			}
 			if diag := m.getContour(x+1, y+1); c != diag {
-				link(c, diag)
+				addLink(c, diag)
 			}
 		}
 	}
@@ -225,13 +231,13 @@ func linkContours(w *world.World, m topoMap) {
 	for y := 0; y < w.H-1; y++ {
 		c := m.getContour(x, y)
 		if right := m.getContour(0, y); c != right {
-			link(c, right)
+			addLink(c, right)
 		}
 		if down := m.getContour(x, y); c != down {
-			link(c, down)
+			addLink(c, down)
 		}
 		if diag := m.getContour(0, y+1); c != diag {
-			link(c, diag)
+			addLink(c, diag)
 		}
 	}
 
@@ -240,33 +246,33 @@ func linkContours(w *world.World, m topoMap) {
 	for x := 0; x < w.W-1; x++ {
 		c := m.getContour(x, y)
 		if right := m.getContour(x, y+1); c != right {
-			link(c, right)
+			addLink(c, right)
 		}
 		if down := m.getContour(x, 0); c != down {
-			link(c, down)
+			addLink(c, down)
 		}
 		if diag := m.getContour(x+1, 0); c != diag {
-			link(c, diag)
+			addLink(c, diag)
 		}
 	}
 
 	// Bottom left corner
 	c := m.getContour(x, y)
 	if right := m.getContour(0, y); c != right {
-		link(c, right)
+		addLink(c, right)
 	}
 	if down := m.getContour(x, 0); c != down {
-		link(c, down)
+		addLink(c, down)
 	}
 	if diag := m.getContour(0, 0); c != diag {
-		link(c, diag)
+		addLink(c, diag)
 	}
 	return
 }
 
-// link adds a link between the two contours if
+// addLink adds a link between the two contours if
 // one did not already exist.
-func link(a, b *contour) {
+func addLink(a, b *contour) {
 	for _, l := range a.adj {
 		if l == b {
 			return
