@@ -17,12 +17,7 @@ const (
 	// minWaterFrac and maxWaterFrac define the minimum and
 	// maximum amount of water that will be flooded into the
 	// world.  Both are given as a fraction of the map size.
-	minWaterFrac, maxWaterFrac = 0.50, 0.75
-
-	// maxFloodFrac is the maximum amount of water that a
-	// single flood can add to the world given as a fraction of
-	// the world size.
-	maxFloodFrac = 0.15
+	minWaterFrac, maxWaterFrac = 0.40, 0.60
 
 	// floodMaxHeight is the maximum amount of water to flood
 	// into a minima given as fraction of the world.MaxHeight
@@ -78,7 +73,6 @@ func addWater(w *world.World, tmap topoMap) {
 	minWater := int(float64(w.W*w.H)*minWaterFrac)
 	maxWater := int(float64(w.W*w.H)*maxWaterFrac)
 	maxHeight := int(math.Floor(world.MaxHeight*floodMaxHeight))
-	maxFlood := int(float64(w.W*w.H)*maxFloodFrac)
 
 	waterSz := 0
 	mins := tmap.minima()
@@ -102,7 +96,7 @@ func addWater(w *world.World, tmap topoMap) {
 					sz += d.size
 				}
 			}
-			if sz <= maxFlood && waterSz + sz <= maxWater {
+			if waterSz + sz <= maxWater {
 				for _, d := range fl {
 					d.terrain = &world.Terrain['w']
 					d.depth += ht - d.height
