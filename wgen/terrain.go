@@ -12,7 +12,7 @@ import (
 const (
 	// minMountain is the minimum value at and above which
 	// terrain will initalize to mountain.
-	minMountain = world.MaxHeight * 0.90
+	minMountain = world.MaxHeight * 0.80
 
 	// minWaterFrac and maxWaterFrac define the minimum and
 	// maximum amount of water that will be flooded into the
