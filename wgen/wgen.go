@@ -1,13 +1,13 @@
 package main
 
 import (
+	"minima/world"
+	"runtime/pprof"
 	"bufio"
 	"flag"
 	"fmt"
 	"math/rand"
-	"minima/world"
 	"os"
-	"runtime/pprof"
 	"time"
 )
 
@@ -85,7 +85,7 @@ func initWorld(width, height int) *world.World {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.AtCoord(x, y)
-			l.Height = (world.MaxHeight / 2) + 1
+			l.Height = world.MaxHeight/4 + 1
 		}
 	}
 	return &w
