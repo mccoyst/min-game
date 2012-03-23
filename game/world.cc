@@ -1,12 +1,19 @@
 #include "world.hpp"
 #include "game.hpp"
+#include <ui.hpp>
 #include <limits>
+
+std::shared_ptr<ui::Img> World::Terrain::Img(ui::Ui &ui) {
+	if (!img.get())
+		img = ui.LoadImg(resrc);
+	return img;
+}
 
 World::TerrainType::TerrainType() {
 	t.resize(255);
-	t['w'] = Terrain('w');
-	t['g'] = Terrain('g');
-	t['m'] = Terrain('m');
+	t['w'] = Terrain('w', "resrc/Water.png");
+	t['g'] = Terrain('g', "resrc/Grass.png");
+	t['m'] = Terrain('m', "resrc/Mountain.png");
 }
 
 World::World(FILE *in) {
@@ -26,5 +33,15 @@ World::World(FILE *in) {
 		locs[i].height = h;
 		locs[i].depth = d;
 		locs[i].terrain = &terrain[c];
+	}
+}
+
+void World::Draw(ui::Ui &ui) {
+	for (unsigned int x = 0; x < ui.width.whole(); x++) {
+	for (unsigned int y = 0; y < ui.height.whole(); y++) {
+		const Loc &l = At(x, y);
+		ui.Draw(ui::Vec3(ui::Len(x), ui::Len(y), ui::Len(0)),
+			l.terrain->Img(ui));
+	}
 	}
 }
