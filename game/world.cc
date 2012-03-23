@@ -17,11 +17,13 @@ World::TerrainType::TerrainType() {
 }
 
 World::World(FILE *in) : xoff(0), yoff(0) {
-	int n = fscanf(in, "%u %u\n", &width, &height);
+	int n = fscanf(in, "%d %d\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
+	if (width <= 0 || height <= 0)
+		throw Failure("%d by %d is an invalid world size", width, height);
 	if (std::numeric_limits<unsigned int>::max() / width < height)
-		throw Failure("%u by %u is too big", width, height);
+		throw Failure("%d by %d is too big", width, height);
 
 	locs.resize(width*height);
 	for (unsigned int i = 0; i < width*height; i++) {
