@@ -56,6 +56,8 @@ SfmlImg::SfmlImg(const char *path){
 
 }
 
+namespace ui {
 std::unique_ptr<ui::Ui> OpenWindow(ui::Len w, ui::Len h, const char *title){
 	return std::unique_ptr<ui::Ui>(new SfmlUi(w, h, title));
 }
+};
