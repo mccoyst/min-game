@@ -16,7 +16,7 @@ World::TerrainType::TerrainType() {
 	t['m'] = Terrain('m', "resrc/Mountain.png");
 }
 
-World::World(FILE *in) {
+World::World(FILE *in) : xoff(0), yoff(0) {
 	int n = fscanf(in, "%u %u\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
@@ -37,11 +37,23 @@ World::World(FILE *in) {
 }
 
 void World::Draw(ui::Ui &ui) {
-	for (unsigned int x = 0; x < ui.width.whole(); x++) {
-	for (unsigned int y = 0; y < ui.height.whole(); y++) {
-		const Loc &l = At(x, y);
-		ui.Draw(ui::Vec3(ui::Len(x), ui::Len(y), ui::Len(0)),
-			l.terrain->Img(ui));
+	int w = ui.width.whole() / TileW;
+	int h = ui.height.whole() / TileH;
+
+	for (int x = -1; x <= w; x++) {
+	for (int y = -1; y <= h; y++) {
+		const Loc &l = AtCoord(
+			x - xoff/TileW,
+			y - yoff/TileH
+		);
+
+		ui::Vec3 v(
+			ui::Len(x*TileW + xoff%TileW),
+			ui::Len(y*TileH + yoff%TileH),
+			ui::Len(0)
+		);
+
+		ui.Draw(v, l.terrain->Img(ui));
 	}
 	}
 }

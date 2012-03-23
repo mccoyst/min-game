@@ -75,9 +75,11 @@ public:
 
 	virtual void Flip() = 0;
 	virtual void Clear() = 0;
+	virtual void Delay(float sec) = 0;
 
 	virtual std::shared_ptr<Img> LoadImg(const char *path) = 0;
 	virtual void Draw(const Vec3&, std::shared_ptr<Img> img) = 0;
+
 };
 
 // OpenWindow returns a new Ui object.

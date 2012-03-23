@@ -4,6 +4,13 @@
 #include <ui.hpp>
 
 struct World {
+
+	enum {
+		// TileW is the width (in pixels) of a tile.
+		TileW = 16,
+		// TileH is the height (in pixels) of a tile.
+		TileH = 16,
+	};
 	
 	// A Terrain represents a type of terrain in the world.
 	struct Terrain {
@@ -63,6 +70,9 @@ struct World {
 			y = height + y;
 		return At(x, y);
 	}
+
+	// x and y offset of the viewport.
+	int xoff, yoff;
 
 private:
 
