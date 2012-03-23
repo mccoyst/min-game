@@ -71,11 +71,23 @@ struct World {
 		return At(x, y);
 	}
 
-	// x and y offset of the viewport.
-	int xoff, yoff;
+	// Offset returns the current world offset.
+	std::pair<int,int> Offset() const {
+		return std::pair<int,int>(xoff, yoff);
+	}
+
+	// Scroll scrolls the world by the given delta;
+	void Scroll(int dx, int dy) {
+		xoff = (xoff + dx) % (width * TileW);
+		yoff = (yoff + dy) % (height * TileH);
+	}
 
 private:
 
 	std::vector<Loc> locs;
-	unsigned int width, height;
+
+	int width, height;
+
+	// x and y offset of the viewport.
+	int xoff, yoff;
 };

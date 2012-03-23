@@ -10,6 +10,7 @@ class ScreenStk;
 class Ui;
 class Control;
 class Img;
+struct Event;
 
 // Len is a fixed-point numeric type, scaled by Len::Scale;
 class Len{
@@ -77,9 +78,36 @@ public:
 	virtual void Clear() = 0;
 	virtual void Delay(float sec) = 0;
 
+	// PollEvent polls for events, returning true if the
+	// event was filled in and false if there were no
+	// events.
+	virtual bool PollEvent(Event&) = 0;
+
 	virtual std::shared_ptr<Img> LoadImg(const char *path) = 0;
 	virtual void Draw(const Vec3&, std::shared_ptr<Img> img) = 0;
+};
 
+struct Event {
+	enum {
+		MouseLeft,
+		MouseRight,
+		MouseCenter,
+	};
+
+	enum Type {
+		Closed,
+		MouseMoved,
+		MouseDown,
+		MouseUp
+/*,
+		KeyDown,
+		KeyUp
+*/
+	};
+
+	Type type;
+	int x, y;	// for MouseMoved, MouseDown, and MouseUp
+	int button;	// for {Key,Mouse}{Down,Up}
 };
 
 // OpenWindow returns a new Ui object.

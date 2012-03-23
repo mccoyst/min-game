@@ -13,6 +13,7 @@ public:
 	virtual void Flip();
 	virtual void Clear();
 	virtual void Delay(float);
+	virtual bool PollEvent(ui::Event&);
 
 	virtual std::shared_ptr<ui::Img> LoadImg(const char *path);
 	virtual void Draw(const ui::Vec3&, std::shared_ptr<ui::Img> img);
@@ -42,6 +43,35 @@ void SfmlUi::Delay(float sec){
 	c.Reset();
 	while (c.GetElapsedTime() < sec)
 		;
+}
+
+bool SfmlUi::PollEvent(ui::Event &e){
+	sf::Event sfe;
+	while (win.GetEvent(sfe)) {
+		switch (sfe.Type) {
+		case sf::Event::Closed:
+			e.type = ui::Event::Closed;
+			return true;
+	
+		case sf::Event::MouseButtonPressed:
+			e.type = ui::Event::MouseDown;
+			e.x = sfe.MouseButton.X;
+			e.y = sfe.MouseButton.Y;
+			return true;
+	
+		case sf::Event::MouseButtonReleased:
+			e.type = ui::Event::MouseUp;
+			e.x = sfe.MouseButton.X;
+			e.y = sfe.MouseButton.Y;
+			return true;
+	
+		case sf::Event::MouseMoved:
+			e.type = ui::Event::MouseMoved;
+			e.x = sfe.MouseMove.X;
+			e.y = sfe.MouseMove.Y;
+			return true;
+		}
+	}
 }
 
 std::shared_ptr<ui::Img> SfmlUi::LoadImg(const char *path){
