@@ -1,3 +1,6 @@
+#ifndef _UI_HPP_
+#define _UI_HPP_
+
 #include <memory>
 
 namespace ui{
@@ -64,13 +67,17 @@ bool operator != (Vec3, Vec3);
 // device input, and sound.
 class Ui{
 public:
+	Len width, height;
+
+	Ui(const Len &w, const Len &h) : width(w), height(h) { }
+
 	virtual ~Ui();
 
 	virtual void Flip() = 0;
 	virtual void Clear() = 0;
 
 	virtual std::shared_ptr<Img> LoadImg(const char *path) = 0;
-	virtual void Draw(std::shared_ptr<Img> img) = 0;
+	virtual void Draw(const Vec3&, std::shared_ptr<Img> img) = 0;
 };
 
 // OpenWindow returns a new Ui object.
@@ -235,3 +242,5 @@ inline bool operator != (Vec3 a, Vec3 b){
 }
 
 }
+
+#endif	// _UI_HPP_

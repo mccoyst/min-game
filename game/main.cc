@@ -2,9 +2,18 @@
 #include "world.hpp"
 
 int main(){
-	ui::Len width(640), height(480);
+	World world(stdin);
+
+	ui::Len width(40), height(30);
 	std::unique_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
-	World w(stdin);
+
+	win->Clear();
+	win->Flip();
+
+	world.Draw(*win);
+	win->Flip();
+
+	sleep(2);
 
 	return 0;
 }

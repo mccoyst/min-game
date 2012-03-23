@@ -14,7 +14,7 @@ public:
 	virtual void Clear();
 
 	virtual std::shared_ptr<ui::Img> LoadImg(const char *path);
-	virtual void Draw(std::shared_ptr<ui::Img> img);
+	virtual void Draw(const ui::Vec3&, std::shared_ptr<ui::Img> img);
 };
 
 struct SfmlImg : public ui::Img{
@@ -24,7 +24,8 @@ struct SfmlImg : public ui::Img{
 
 
 SfmlUi::SfmlUi(ui::Len w, ui::Len h, const char *title)
-	: win(sf::VideoMode(w.whole(), h.whole()), title){
+	: Ui(w, h),
+	win(sf::VideoMode(w.value(), h.value()), title){
 }
 
 void SfmlUi::Flip(){
@@ -39,12 +40,14 @@ std::shared_ptr<ui::Img> SfmlUi::LoadImg(const char *path){
 	return std::shared_ptr<ui::Img>(new SfmlImg(path));
 }
 
-void SfmlUi::Draw(std::shared_ptr<ui::Img> img){
+void SfmlUi::Draw(const ui::Vec3 &loc, std::shared_ptr<ui::Img> img){
 	SfmlImg *s = dynamic_cast<SfmlImg*>(img.get());
 	assert(s != nullptr);
 	//TODO: optimize this
 	sf::Sprite sprite;
 	sprite.SetImage(s->img);
+	sprite.SetX(loc.x.value());
+	sprite.SetY(loc.y.value());
 	win.Draw(sprite);
 }
 
