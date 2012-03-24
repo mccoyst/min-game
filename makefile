@@ -13,9 +13,12 @@ CXXFLAGS += \
 else
 CXX := g++
 LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
+CXXFLAGS += -Wall -Werror -std=c++0x
 endif
 
 UIDEP := sfml
+
+all: game/minima
 
 game/minima:\
 	game/main.o\
