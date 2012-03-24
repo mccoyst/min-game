@@ -210,14 +210,16 @@ inline Len &Len::operator -= (Len n){
 }
 
 inline Len &Len::operator *= (Len n){
-	auto m = static_cast<long long>(this->n) * n.n;
+	long long m = this->n;
+	m *= n.n;
 	m /= Scale;
 	this->n *= m;
 	return *this;
 }
 
 inline Len &Len::operator /= (Len n){
-	auto m = static_cast<long long>(this->n) * Scale;
+	long long m = this->n;
+	m *= Scale;
 	m /= n.n;
 	this->n = m;
 	return *this;
