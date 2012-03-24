@@ -1,0 +1,5 @@
+syntax: glob
+wgen/wgen
+wimg/wimg
+*.o
+*.a
