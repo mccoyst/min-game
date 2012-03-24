@@ -87,10 +87,9 @@ void SfmlUi::Draw(const ui::Vec3 &loc, std::shared_ptr<ui::Img> img){
 	SfmlImg *s = dynamic_cast<SfmlImg*>(img.get());
 	assert(s != nullptr);
 	//TODO: optimize this
-	sf::Sprite sprite;
-	sprite.SetImage(s->img);
-	sprite.SetX(loc.x.whole());
-	sprite.SetY(loc.y.whole());
+	sf::Vector2f pos(loc.x.whole(), loc.y.whole());
+	sf::Sprite sprite(s->img, pos);
+	sprite.SetBlendMode(sf::Blend::None);
 	win.Draw(sprite);
 }
 
