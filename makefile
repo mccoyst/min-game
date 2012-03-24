@@ -7,10 +7,13 @@ CXX := clang++ -fno-color-diagnostics -stdlib=libc++
 CXXFLAGS += -framework sfml-graphics
 else
 LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
+CXXFLAGS += -Wall -Werror -std=c++0x
 CXX := g++
 endif
 
 UIDEP := sfml
+
+all: game/minima
 
 game/minima:\
 	game/main.o\

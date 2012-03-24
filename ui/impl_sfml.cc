@@ -70,8 +70,11 @@ bool SfmlUi::PollEvent(ui::Event &e){
 			e.x = sfe.MouseMove.X;
 			e.y = sfe.MouseMove.Y;
 			return true;
+		default:
+			break;
 		}
 	}
+	return false;
 }
 
 std::shared_ptr<ui::Img> SfmlUi::LoadImg(const char *path){
@@ -82,10 +85,9 @@ void SfmlUi::Draw(const ui::Vec3 &loc, std::shared_ptr<ui::Img> img){
 	SfmlImg *s = dynamic_cast<SfmlImg*>(img.get());
 	assert(s != nullptr);
 	//TODO: optimize this
-	sf::Sprite sprite;
-	sprite.SetImage(s->img);
-	sprite.SetX(loc.x.whole());
-	sprite.SetY(loc.y.whole());
+	sf::Vector2f pos(loc.x.whole(), loc.y.whole());
+	sf::Sprite sprite(s->img, pos);
+	sprite.SetBlendMode(sf::Blend::None);
 	win.Draw(sprite);
 }
 

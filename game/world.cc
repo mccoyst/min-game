@@ -22,11 +22,11 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 		throw Failure("Failed to read width and height");
 	if (width <= 0 || height <= 0)
 		throw Failure("%d by %d is an invalid world size", width, height);
-	if (std::numeric_limits<unsigned int>::max() / width < height)
+	if (std::numeric_limits<int>::max() / width < height)
 		throw Failure("%d by %d is too big", width, height);
 
 	locs.resize(width*height);
-	for (unsigned int i = 0; i < width*height; i++) {
+	for (int i = 0; i < width*height; i++) {
 		char c;
 		int h, d;
 		n = fscanf(in, " %c %d %d", &c, &h, &d);
