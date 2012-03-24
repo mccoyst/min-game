@@ -70,8 +70,13 @@ bool SfmlUi::PollEvent(ui::Event &e){
 			e.x = sfe.MouseMove.X;
 			e.y = sfe.MouseMove.Y;
 			return true;
+
+		default:
+			// ignore
+			break;
 		}
 	}
+	return false;
 }
 
 std::shared_ptr<ui::Img> SfmlUi::LoadImg(const char *path){
@@ -97,8 +102,6 @@ SfmlImg::SfmlImg(const char *path){
 
 }
 
-namespace ui {
-std::unique_ptr<ui::Ui> OpenWindow(ui::Len w, ui::Len h, const char *title){
+std::unique_ptr<ui::Ui> ui::OpenWindow(ui::Len w, ui::Len h, const char *title){
 	return std::unique_ptr<ui::Ui>(new SfmlUi(w, h, title));
 }
-};

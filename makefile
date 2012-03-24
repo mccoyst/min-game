@@ -1,13 +1,18 @@
 CXXFLAGS :=-std=c++0x -I./include
+LDFLAGS :=
 
 OS := $(shell uname | sed 's/.*MINGW.*/win/')
 
 ifeq ($(OS),Darwin)
 CXX := clang++ -fno-color-diagnostics -stdlib=libc++
-CXXFLAGS += -framework sfml-graphics
+CXXFLAGS += \
+	-framework sfml-graphics \
+	-framework sfml-window \
+	-framework sfml-system \
+
 else
-LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
 CXX := g++
+LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
 endif
 
 UIDEP := sfml
@@ -18,14 +23,14 @@ game/minima:\
 	game/world.o\
 	ui/ui.a
 	@echo prog $@
-	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
+	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 game/world.o: game/world.hpp
 game/game.o: game/game.hpp
 
 ui/ui.a: ui/ui.o ui/impl_$(UIDEP).o
 	@echo lib ui
-	ar rsc $@ $^
+	@ar rsc $@ $^
 
 %.o: %.cc
 	$(CXX) -c -o $@ $(CXXFLAGS) $*.cc

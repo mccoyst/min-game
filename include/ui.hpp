@@ -210,17 +210,22 @@ inline Len &Len::operator -= (Len n){
 }
 
 inline Len &Len::operator *= (Len n){
-	this->n *= n.n;
+	auto m = static_cast<long long>(this->n) * n.n;
+	m /= Scale;
+	this->n *= m;
 	return *this;
 }
 
 inline Len &Len::operator /= (Len n){
-	this->n /= n.n;
+	auto m = static_cast<long long>(this->n) * Scale;
+	m /= n.n;
+	this->n = m;
 	return *this;
 }
 
 inline Len &Len::operator %= (Len n){
 	this->n %= n.n;
+	this->n *= Scale;
 	return *this;
 }
 
@@ -237,19 +242,19 @@ inline Len operator + (Len a, Len b){
 }
 
 inline Len operator - (Len a, Len b){
-	return a += b;
+	return a -= b;
 }
 
 inline Len operator * (Len a, Len b){
-	return a += b;
+	return a *= b;
 }
 
 inline Len operator / (Len a, Len b){
-	return a += b;
+	return a /= b;
 }
 
 inline Len operator % (Len a, Len b){
-	return a += b;
+	return a %= b;
 }
 
 inline bool operator == (Len a, Len b){
