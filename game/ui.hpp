@@ -80,6 +80,8 @@ struct Event {
 		KeyDownArrow,
 		KeyLeftArrow,
 		KeyRightArrow,
+		KeyLShift,
+		KeyRShift,
 	};
 
 	enum Type {
