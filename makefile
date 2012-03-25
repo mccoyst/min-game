@@ -22,9 +22,10 @@ else
 
 CXX:=g++
 #LDFLAGS+=-lsfml-graphics -lsfml-window -lsfml-system
+#OBJS+=game/impl_sfml.o
 LDFLAGS+=-lSDL -lSDL_image
-CXXFLAGS+=-Wall -Werror -std=c++0x
 OBJS+=game/impl_sdl.o
+CXXFLAGS+=-Wall -Werror -std=c++0x
 
 endif
 
