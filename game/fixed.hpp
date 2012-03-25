@@ -11,28 +11,28 @@ public:
 	Fixed(int n, int frac);
 	Fixed(const Fixed&);
 
-	Fixed &operator = (const Fixed&);
-	Fixed &operator += (const Fixed&Fixed);
-	Fixed &operator -= (const Fixed&Fixed);
-	Fixed &operator *= (const Fixed&Fixed);
-	Fixed &operator /= (const Fixed&Fixed);
-	Fixed &operator %= (const Fixed&);
+	Fixed &operator = (Fixed);
+	Fixed &operator += (Fixed);
+	Fixed &operator -= (Fixed);
+	Fixed &operator *= (Fixed);
+	Fixed &operator /= (Fixed);
+	Fixed &operator %= (Fixed);
 
 	int value() const;
 	int whole() const;
 };
 
-Fixed operator + (Fixed, const Fixed&);
-Fixed operator - (Fixed, const Fixed&);
-Fixed operator * (Fixed, const Fixed&);
-Fixed operator / (Fixed, const Fixed&);
-Fixed operator % (Fixed, const Fixed&);
-bool operator == (const Fixed&, const Fixed&);
-bool operator != (const Fixed&, const Fixed&);
-bool operator < (const Fixed&, const Fixed&);
-bool operator <= (const Fixed&, const Fixed&);
-bool operator > (const Fixed&, const Fixed&);
-bool operator >= (const Fixed&, const Fixed&);
+Fixed operator + (Fixed, Fixed);
+Fixed operator - (Fixed, Fixed);
+Fixed operator * (Fixed, Fixed);
+Fixed operator / (Fixed, Fixed);
+Fixed operator % (Fixed, Fixed);
+bool operator == (Fixed, Fixed);
+bool operator != (Fixed, Fixed);
+bool operator < (Fixed, Fixed);
+bool operator <= (Fixed, Fixed);
+bool operator > (Fixed, Fixed);
+bool operator >= (Fixed, Fixed);
 
 // Vec is a trio of Fixeds, representing a vector in 2D coords.
 struct Vec3{
@@ -44,12 +44,12 @@ struct Vec3{
 	Vec3 &operator = (const Vec3&);
 	Vec3 &operator += (const Vec3&);
 	Vec3 &operator -= (const Vec3&);
-	Vec3 &operator *= (const Fixed&);
+	Vec3 &operator *= (Fixed);
 };
 
 Vec3 operator + (Vec3, const Vec3&);
 Vec3 operator - (Vec3, const Vec3&);
-Vec3 operator * (Vec3, const Fixed&);
+Vec3 operator * (Vec3, Fixed);
 bool operator == (const Vec3&, const Vec3&);
 bool operator != (const Vec3&, const Vec3&);
 
@@ -67,22 +67,22 @@ inline Fixed::Fixed(const Fixed &b)
 	: n(b.n){
 }
 
-inline Fixed &Fixed::operator = (const Fixed &b){
+inline Fixed &Fixed::operator = (Fixed b){
 	this->n = b.n;
 	return *this;
 }
 
-inline Fixed &Fixed::operator += (const Fixed &n){
+inline Fixed &Fixed::operator += (Fixed n){
 	this->n += n.n;
 	return *this;
 }
 
-inline Fixed &Fixed::operator -= (const Fixed &n){
+inline Fixed &Fixed::operator -= (Fixed n){
 	this->n -= n.n;
 	return *this;
 }
 
-inline Fixed &Fixed::operator *= (const Fixed &n){
+inline Fixed &Fixed::operator *= (Fixed n){
 	long long m = this->n;
 	m *= n.n;
 	m /= Scale;
@@ -90,7 +90,7 @@ inline Fixed &Fixed::operator *= (const Fixed &n){
 	return *this;
 }
 
-inline Fixed &Fixed::operator /= (const Fixed &n){
+inline Fixed &Fixed::operator /= (Fixed n){
 	long long m = this->n;
 	m *= Scale;
 	m /= n.n;
@@ -98,7 +98,7 @@ inline Fixed &Fixed::operator /= (const Fixed &n){
 	return *this;
 }
 
-inline Fixed &Fixed::operator %= (const Fixed &n){
+inline Fixed &Fixed::operator %= (Fixed n){
 	this->n %= n.n;
 	return *this;
 }
@@ -111,47 +111,47 @@ inline int Fixed::whole() const{
 	return this->n / Scale;
 }
 
-inline Fixed operator + (Fixed a, const Fixed &b){
+inline Fixed operator + (Fixed a, Fixed b){
 	return a += b;
 }
 
-inline Fixed operator - (Fixed a, const Fixed &b){
+inline Fixed operator - (Fixed a, Fixed b){
 	return a -= b;
 }
 
-inline Fixed operator * (Fixed a, const Fixed &b){
+inline Fixed operator * (Fixed a, Fixed b){
 	return a *= b;
 }
 
-inline Fixed operator / (Fixed a, const Fixed &b){
+inline Fixed operator / (Fixed a, Fixed b){
 	return a /= b;
 }
 
-inline Fixed operator % (Fixed a, const Fixed &b){
+inline Fixed operator % (Fixed a, Fixed b){
 	return a %= b;
 }
 
-inline bool operator == (const Fixed &a, const Fixed &b){
+inline bool operator == (Fixed a, Fixed b){
 	return a.value() == b.value();
 }
 
-inline bool operator != (const Fixed &a, const Fixed &b){
+inline bool operator != (Fixed a, Fixed b){
 	return a.value() != b.value();
 }
 
-inline bool operator < (const Fixed &a, const Fixed &b){
+inline bool operator < (Fixed a, Fixed b){
 	return a.value() < b.value();
 }
 
-inline bool operator <= (const Fixed &a, const Fixed &b){
+inline bool operator <= (Fixed a, Fixed b){
 	return a.value() <= b.value();
 }
 
-inline bool operator > (const Fixed &a, const Fixed &b){
+inline bool operator > (Fixed a, Fixed b){
 	return a.value() > b.value();
 }
 
-inline bool operator >= (const Fixed &a, const Fixed &b){
+inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
 }
 
@@ -184,7 +184,7 @@ inline Vec3 &Vec3::operator -= (const Vec3 &v){
 	return *this;
 }
 
-inline Vec3 &Vec3::operator *= (const Fixed &n){
+inline Vec3 &Vec3::operator *= (Fixed n){
 	this->x *= n;
 	this->y *= n;
 	this->z *= n;
@@ -199,7 +199,7 @@ inline Vec3 operator - (Vec3 a, const Vec3 &b){
 	return a -= b;
 }
 
-inline Vec3 operator * (Vec3 v, const Fixed &n){
+inline Vec3 operator * (Vec3 v, Fixed n){
 	return v *= n;
 }
 
