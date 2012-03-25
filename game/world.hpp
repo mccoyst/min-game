@@ -5,6 +5,8 @@
 
 struct World {
 
+	// TileW and TileH are the size of the world cells
+	// in pixels.
 	static const Fixed TileW, TileH;
 	
 	// A Terrain represents a type of terrain in the world.
