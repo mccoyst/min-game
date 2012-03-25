@@ -44,21 +44,15 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 void World::Draw(ui::Ui &ui) {
 	Fixed w(ui.width / TileW);
 	Fixed h(ui.height / TileH);
+	Vec3 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
 	for (Fixed y(-1); y <= h; y += Fixed(1)) {
-		const Loc &l = AtCoord(
-			(x - xoff/TileW).whole(),
-			(y - yoff/TileH).whole()
-		);
-
-		Vec3 v(
-			x*TileW + xoff%TileW,
-			y*TileH + yoff%TileH,
-			Fixed(0)
-		);
-
-		ui.Draw(v, l.terrain->Img(ui));
+		int xcoord = (x - xoff/TileW).whole();
+		int ycoord = (y - yoff/TileH).whole();
+		const Loc &l = AtCoord(xcoord, ycoord);
+		Vec3 v(x*TileW, y*TileH, Fixed(0));
+		ui.Draw(v + offs, l.terrain->Img(ui));
 	}
 	}
 }

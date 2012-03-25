@@ -42,16 +42,16 @@ struct Vec3{
 	Vec3(const Vec3 &);
 
 	Vec3 &operator = (const Vec3&);
-	Vec3 &operator += (Vec3);
-	Vec3 &operator -= (Vec3);
-	Vec3 &operator *= (Fixed);
+	Vec3 &operator += (const Vec3&);
+	Vec3 &operator -= (const Vec3&);
+	Vec3 &operator *= (const Fixed&);
 };
 
-Vec3 operator + (Vec3, Vec3);
-Vec3 operator - (Vec3, Vec3);
-Vec3 operator * (Vec3, Fixed);
-bool operator == (Vec3, Vec3);
-bool operator != (Vec3, Vec3);
+Vec3 operator + (Vec3, const Vec3&);
+Vec3 operator - (Vec3, const Vec3&);
+Vec3 operator * (Vec3, const Fixed&);
+bool operator == (const Vec3&, const Vec3&);
+bool operator != (const Vec3&, const Vec3&);
 
 // Template and other inline definitions reside below.
 
@@ -155,7 +155,7 @@ inline bool operator >= (const Fixed &a, const Fixed &b){
 	return a.value() >= b.value();
 }
 
-inline Vec3::Vec3(Fixed x, Fixed y, Fixed z)
+inline Vec3::Vec3(Fixed x, Fixed y, Fixed z = Fixed(0))
 	: x(x), y(y), z(z){
 }
 
@@ -170,44 +170,44 @@ inline Vec3 &Vec3::operator = (const Vec3 &v){
 	return *this;
 }
 
-inline Vec3 &Vec3::operator += (Vec3 v){
+inline Vec3 &Vec3::operator += (const Vec3 &v){
 	this->x += v.x;
 	this->y += v.y;
 	this->z += v.z;
 	return *this;
 }
 
-inline Vec3 &Vec3::operator -= (Vec3 v){
+inline Vec3 &Vec3::operator -= (const Vec3 &v){
 	this->x -= v.x;
 	this->y -= v.y;
 	this->z -= v.z;
 	return *this;
 }
 
-inline Vec3 &Vec3::operator *= (Fixed n){
+inline Vec3 &Vec3::operator *= (const Fixed &n){
 	this->x *= n;
 	this->y *= n;
 	this->z *= n;
 	return *this;
 }
 
-inline Vec3 operator + (Vec3 a, Vec3 b){
+inline Vec3 operator + (Vec3 a, const Vec3 &b){
 	return a += b;
 }
 
-inline Vec3 operator - (Vec3 a, Vec3 b){
+inline Vec3 operator - (Vec3 a, const Vec3 &b){
 	return a -= b;
 }
 
-inline Vec3 operator * (Vec3 v, Fixed n){
+inline Vec3 operator * (Vec3 v, const Fixed &n){
 	return v *= n;
 }
 
-inline bool operator == (Vec3 a, Vec3 b){
+inline bool operator == (const Vec3 &a, const Vec3 &b){
 	return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
-inline bool operator != (Vec3 a, Vec3 b){
+inline bool operator != (const Vec3 &a, const Vec3 &b){
 	return !(a == b);
 }
 
