@@ -2,6 +2,8 @@
 #include "game.hpp"	// Fatal
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 class SdlUi : public ui::Ui {
 	SDL_Surface *win;
@@ -17,7 +19,9 @@ public:
 };
 
 struct SdlImg : public ui::Img {
-	SDL_Surface *surf;
+	GLuint texId;
+	unsigned int w, h;
+
 	SdlImg(const char*);
 	~SdlImg();
 };
@@ -25,10 +29,18 @@ struct SdlImg : public ui::Img {
 SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
-	Uint32 flags = SDL_SWSURFACE | SDL_DOUBLEBUF;
-	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, flags);
+	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
+
+	glEnable(GL_TEXTURE_2D);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	gluOrtho2D(0, w.whole(), 0, -h.whole());
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.0, -h.whole(), 0.0);
 }
 
 SdlUi::~SdlUi() {
@@ -37,12 +49,11 @@ SdlUi::~SdlUi() {
 }
 
 void SdlUi::Flip() {
-	SDL_Flip(win);
+	SDL_GL_SwapBuffers();
 }
 
 void SdlUi::Clear() {
-	Uint32 sc = SDL_MapRGB(win->format, 0, 0, 0);
-	SDL_FillRect(win, NULL, sc);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void SdlUi::Delay(float sec) {
@@ -105,22 +116,74 @@ bool SdlUi::PollEvent(ui::Event &e) {
 	return false;
 }
 
-void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> img) {
-	SDL_Rect dst;
-	dst.x = l.x.whole();
-	dst.y = l.y.whole();
-	SDL_Surface *surf = static_cast<SdlImg*>(img.get())->surf;
-	SDL_BlitSurface(surf, NULL, win, &dst);
+void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img) {
+	SdlImg *img = static_cast<SdlImg*>(_img.get());
+	float x = l.x.whole(), y = l.y.whole();
+
+	glBindTexture(GL_TEXTURE_2D, img->texId);
+
+	glBegin(GL_QUADS);
+	//Bottom-left vertex (corner)
+	glTexCoord2i(0, 0);
+	glVertex3f(x, y, 0);
+ 
+	//Bottom-right vertex (corner)
+	glTexCoord2i(1, 0);
+	glVertex3f(x+img->w, y, 0);
+ 
+	//Top-right vertex (corner)
+	glTexCoord2i(1, 1);
+	glVertex3f(x+img->w, y+img->h, 0);
+ 
+	//Top-left vertex (corner)
+	glTexCoord2i(0, 1);
+	glVertex3f(x, y+img->h, 0);
+	glEnd();
 }
 
 SdlImg::SdlImg(const char *path) {
-	surf = IMG_Load(path);
+	SDL_Surface *surf = IMG_Load(path);
 	if (!surf)
 		throw Failure("Failed to load image %s", path);
+	if ((surf->w & (surf->w - 1)) != 0)
+		throw Failure("Image width is not a power of 2");
+	if ((surf->h & (surf->h - 1)) != 0)
+		throw Failure("Image height is not a power of 2");
+
+	w = surf->w;
+	h = surf->h;
+
+	GLint pxSz = surf->format->BytesPerPixel;
+	GLenum texFormat = GL_BGRA;
+	switch (pxSz) {
+	case 4:
+		if (surf->format->Rmask == 0xFF)
+			texFormat = GL_RGBA;
+		break;
+	case 3:
+		if (surf->format->Rmask == 0xFF)
+			texFormat = GL_RGB;
+		else
+			texFormat = GL_BGR;
+		break;
+	default:
+		throw Failure("Bad image color type… apparently");
+	}
+
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
+ 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ 
+	glTexImage2D(GL_TEXTURE_2D, 0, pxSz, surf->w, surf->h, 0,
+		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
+
+	SDL_FreeSurface(surf);
 }
 
 SdlImg::~SdlImg() {
-	SDL_FreeSurface(surf);
+	glDeleteTextures(1, &texId);
 }
 
 std::shared_ptr<ui::Img> SdlUi::LoadImg(const char *path) {
