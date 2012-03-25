@@ -8,7 +8,7 @@ namespace{
 class SfmlUi : public ui::Ui{
 	sf::RenderWindow win;
 public:
-	SfmlUi(ui::Len w, ui::Len h, const char *title);
+	SfmlUi(Fixed w, Fixed h, const char *title);
 
 	virtual void Flip();
 	virtual void Clear();
@@ -16,7 +16,7 @@ public:
 	virtual bool PollEvent(ui::Event&);
 
 	virtual std::shared_ptr<ui::Img> LoadImg(const char *path);
-	virtual void Draw(const ui::Vec3&, std::shared_ptr<ui::Img> img);
+	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img> img);
 };
 
 struct SfmlImg : public ui::Img{
@@ -25,7 +25,7 @@ struct SfmlImg : public ui::Img{
 };
 
 
-SfmlUi::SfmlUi(ui::Len w, ui::Len h, const char *title)
+SfmlUi::SfmlUi(Fixed w, Fixed h, const char *title)
 	: Ui(w, h),
 	win(sf::VideoMode(w.whole(), h.whole()), title){
 }
@@ -83,7 +83,7 @@ std::shared_ptr<ui::Img> SfmlUi::LoadImg(const char *path){
 	return std::shared_ptr<ui::Img>(new SfmlImg(path));
 }
 
-void SfmlUi::Draw(const ui::Vec3 &loc, std::shared_ptr<ui::Img> img){
+void SfmlUi::Draw(const Vec3 &loc, std::shared_ptr<ui::Img> img){
 	SfmlImg *s = dynamic_cast<SfmlImg*>(img.get());
 	assert(s != nullptr);
 	//TODO: optimize this
@@ -101,6 +101,6 @@ SfmlImg::SfmlImg(const char *path){
 
 }
 
-std::unique_ptr<ui::Ui> ui::OpenWindow(ui::Len w, ui::Len h, const char *title){
+std::unique_ptr<ui::Ui> ui::OpenWindow(Fixed w, Fixed h, const char *title){
 	return std::unique_ptr<ui::Ui>(new SfmlUi(w, h, title));
 }

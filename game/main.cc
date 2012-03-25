@@ -5,7 +5,7 @@
 int main(){
 	World world(stdin);
 
-	ui::Len width(640), height(480);
+	Fixed width(640), height(480);
 	std::unique_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
 
 	bool drag = false;
@@ -32,7 +32,7 @@ int main(){
 			case ui::Event::MouseMoved:
 				if (!drag)
 					break;
-				world.Scroll(e.x - x0, e.y - y0);
+				world.Scroll(Fixed(e.x - x0), Fixed(e.y - y0));
 				x0 = e.x;
 				y0 = e.y;
 				break;

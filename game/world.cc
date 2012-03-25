@@ -9,6 +9,9 @@ std::shared_ptr<ui::Img> World::Terrain::Img(ui::Ui &ui) {
 	return img;
 }
 
+const Fixed World::TileW(16);
+const Fixed World::TileH(16);
+
 World::TerrainType::TerrainType() {
 	t.resize(255);
 	t['w'] = Terrain('w', "resrc/Water.png");
@@ -39,20 +42,20 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 }
 
 void World::Draw(ui::Ui &ui) {
-	int w = ui.width.whole() / TileW;
-	int h = ui.height.whole() / TileH;
+	Fixed w(ui.width / TileW);
+	Fixed h(ui.height / TileH);
 
-	for (int x = -1; x <= w; x++) {
-	for (int y = -1; y <= h; y++) {
+	for (Fixed x(-1); x <= w; x += Fixed(1)) {
+	for (Fixed y(-1); y <= h; y += Fixed(1)) {
 		const Loc &l = AtCoord(
-			x - xoff/TileW,
-			y - yoff/TileH
+			(x - xoff/TileW).whole(),
+			(y - yoff/TileH).whole()
 		);
 
-		ui::Vec3 v(
-			ui::Len(x*TileW + xoff%TileW),
-			ui::Len(y*TileH + yoff%TileH),
-			ui::Len(0)
+		Vec3 v(
+			x*TileW + xoff%TileW,
+			y*TileH + yoff%TileH,
+			Fixed(0)
 		);
 
 		ui.Draw(v, l.terrain->Img(ui));

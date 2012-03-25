@@ -5,12 +5,7 @@
 
 struct World {
 
-	enum {
-		// TileW is the width (in pixels) of a tile.
-		TileW = 16,
-		// TileH is the height (in pixels) of a tile.
-		TileH = 16,
-	};
+	static const Fixed TileW, TileH;
 	
 	// A Terrain represents a type of terrain in the world.
 	struct Terrain {
@@ -72,14 +67,14 @@ struct World {
 	}
 
 	// Offset returns the current world offset.
-	std::pair<int,int> Offset() const {
-		return std::pair<int,int>(xoff, yoff);
+	std::pair<Fixed,Fixed> Offset() const {
+		return std::pair<Fixed,Fixed>(xoff, yoff);
 	}
 
 	// Scroll scrolls the world by the given delta;
-	void Scroll(int dx, int dy) {
-		xoff = (xoff + dx) % (width * TileW);
-		yoff = (yoff + dy) % (height * TileH);
+	void Scroll(Fixed dx, Fixed dy) {
+		xoff = (xoff + dx) % (Fixed(width) * TileW);
+		yoff = (yoff + dy) % (Fixed(height) * TileH);
 	}
 
 private:
@@ -89,5 +84,5 @@ private:
 	int width, height;
 
 	// x and y offset of the viewport.
-	int xoff, yoff;
+	Fixed xoff, yoff;
 };
