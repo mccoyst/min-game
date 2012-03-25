@@ -45,6 +45,23 @@ void SfmlUi::Delay(float sec){
 		;
 }
 
+static bool getbutton(sf::Event &sfe, ui::Event &e) {
+	switch (sfe.MouseButton.Button) {
+	case sf::Mouse::Button::Left:
+		e.button = ui::Event::MouseLeft;
+		break;
+	case sf::Mouse::Button::Right:
+		e.button = ui::Event::MouseRight;
+;		break;
+	case sf::Mouse::Button::Middle:
+		e.button = ui::Event::MouseCenter;
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
 bool SfmlUi::PollEvent(ui::Event &e){
 	sf::Event sfe;
 	while (win.GetEvent(sfe)) {
@@ -57,12 +74,16 @@ bool SfmlUi::PollEvent(ui::Event &e){
 			e.type = ui::Event::MouseDown;
 			e.x = sfe.MouseButton.X;
 			e.y = sfe.MouseButton.Y;
+			if (!getbutton(sfe, e))
+				continue;
 			return true;
 	
 		case sf::Event::MouseButtonReleased:
 			e.type = ui::Event::MouseUp;
 			e.x = sfe.MouseButton.X;
 			e.y = sfe.MouseButton.Y;
+			if (!getbutton(sfe, e))
+				continue;
 			return true;
 	
 		case sf::Event::MouseMoved:

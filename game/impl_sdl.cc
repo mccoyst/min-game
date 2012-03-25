@@ -49,8 +49,8 @@ void SdlUi::Delay(float sec) {
 	SDL_Delay(sec * 1000);
 }
 
-static bool getbutton(SDL_Event *sdle, ui::Event &e) {
-	switch (sdle->button.button) {
+static bool getbutton(SDL_Event &sdle, ui::Event &e) {
+	switch (sdle.button.button) {
 	case SDL_BUTTON_LEFT:
 		e.button = ui::Event::MouseLeft;
 		break;
@@ -78,7 +78,7 @@ bool SdlUi::PollEvent(ui::Event &e) {
 			e.type = ui::Event::MouseDown;
 			e.x = sdle.button.x;
 			e.y = sdle.button.y;
-			if (!getbutton(&sdle, e))
+			if (!getbutton(sdle, e))
 				continue;
 			return true;
 
@@ -86,7 +86,7 @@ bool SdlUi::PollEvent(ui::Event &e) {
 			e.type = ui::Event::MouseUp;
 			e.x = sdle.button.x;
 			e.y = sdle.button.y;
-			if (!getbutton(&sdle, e))
+			if (!getbutton(sdle, e))
 				continue;
 			return true;
 
