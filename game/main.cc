@@ -18,7 +18,7 @@ int main(){
 	std::unique_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
 
 	bool drag = false;
-	Fixed scrollx(0), scrolly(0);
+	Fixed scrollx(0), scrolly(0), mul(1);
 	int x0 = 0, y0 = 0;
 
 	for ( ; ; ) {
@@ -71,6 +71,12 @@ int main(){
 				case ui::Event::KeyRightArrow:
 					scrollx = Fixed(0)-amt;
 					break;
+				case ui::Event::KeyLShift:
+				case ui::Event::KeyRShift:
+					if (e.type == ui::Event::KeyDown)
+						mul = Fixed(5);
+					else
+						mul = Fixed(1);
 				default:
 					// ignore
 					break;
@@ -83,7 +89,7 @@ int main(){
 			}
 		}
 
-		world.Scroll(scrollx, scrolly);
+		world.Scroll(scrollx*mul, scrolly*mul);
 
 		unsigned long t1 = win->Ticks();
 		if (t0 + FrameMsec > t1)

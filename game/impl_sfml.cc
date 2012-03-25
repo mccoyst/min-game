@@ -33,6 +33,7 @@ SfmlUi::SfmlUi(Fixed w, Fixed h, const char *title)
 	: Ui(w, h),
 	win(sf::VideoMode(w.whole(), h.whole()), title){
 	ticks.Reset();
+	win.EnableKeyRepeat(false);
 }
 
 void SfmlUi::Flip(){
@@ -61,7 +62,7 @@ static bool getbutton(sf::Event &sfe, ui::Event &e) {
 		break;
 	case sf::Mouse::Button::Right:
 		e.button = ui::Event::MouseRight;
-;		break;
+		break;
 	case sf::Mouse::Button::Middle:
 		e.button = ui::Event::MouseCenter;
 		break;
@@ -84,6 +85,12 @@ static bool getkey(sf::Event &sfe, ui::Event &e) {
 		break;
 	case sf::Key::Down:
 		e.button = ui::Event::KeyDownArrow;
+		break;
+	case sf::Key::LShift:
+		e.button = ui::Event::KeyLShift;
+		break;
+	case sf::Key::RShift:
+		e.button = ui::Event::KeyRShift;
 		break;
 	default:
 		if (sfe.Key.Code < 'a' || sfe.Key.Code > 'z')

@@ -103,6 +103,12 @@ static bool getkey(SDL_Event &sdle, ui::Event &e) {
 	case SDLK_RIGHT:
 		e.button = ui::Event::KeyRightArrow;
 		break;
+	case SDLK_RSHIFT:
+		e.button = ui::Event::KeyRShift;
+		break;
+	case SDLK_LSHIFT:
+		e.button = ui::Event::KeyLShift;
+		break;
 	default:
 		if (sdle.key.keysym.sym < 'a' || sdle.key.keysym.sym > 'z')
 			return false;
