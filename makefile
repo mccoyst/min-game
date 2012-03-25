@@ -23,11 +23,17 @@ LDFLAGS+=-lsfml-graphics -lsfml-window -lsfml-system
 CXXFLAGS+=-Wall -Werror -std=c++0x
 endif
 
-all: game/minima
+all: wgen/wgen wimg/wimg game/minima
 
 game/minima: $(OBJS)
 	@echo $@
 	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
+
+wgen/wgen: wgen/*.go
+	go build -o wgen/wgen ./wgen
+
+wimg/wimg: wimg/*.go
+	go build -o wimg/wimg ./wimg
 
 include $(OBJS:.o=.d)
 
@@ -44,7 +50,7 @@ include $(OBJS:.o=.d)
 	@$(CXX) -c -o $@ $(CXXFLAGS) $*.cc
 
 clean:
-	rm -f $(OBJS) game/minima
+	rm -f $(OBJS) game/minima wgen/wgen wimg/wimg
 
 nuke: clean
 	rm -f $(shell find . -not -iwholename \*.hg\* -name \*.d)
