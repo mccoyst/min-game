@@ -45,9 +45,13 @@ public:
 	// Clear draws black over the entire screen.
 	virtual void Clear() = 0;
 
-	// Delay waits for the specified number of seconds before
-	// returning.
-	virtual void Delay(float sec) = 0;
+	// Delay waits for the specified number of milli-seconds
+	// before returning.
+	virtual void Delay(unsigned long msec) = 0;
+
+	// Ticks returns the number of milliseconds since the Ui
+	// was created.
+	virtual unsigned long Ticks() = 0;
 
 	// PollEvent polls for events, returning true if the
 	// event was filled in and false if there were no

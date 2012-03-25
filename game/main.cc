@@ -2,6 +2,10 @@
 #include "world.hpp"
 #include <cstdio>
 
+enum {
+	FrameMsec = 20,
+};
+
 int main(){
 	World world(stdin);
 
@@ -12,6 +16,7 @@ int main(){
 	int x0 = 0, y0 = 0;
 
 	for ( ; ; ) {
+		unsigned long t0 = win->Ticks();
 		win->Clear();
 		world.Draw(*win);
 		win->Flip();
@@ -41,7 +46,9 @@ int main(){
 				goto out;
 			}
 		}
-		win->Delay(0.02);
+		unsigned long t1 = win->Ticks();
+		if (t0 + FrameMsec > t1)
+			win->Delay(t0 + FrameMsec - t1);
 	}
 
 out:

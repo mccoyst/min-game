@@ -7,12 +7,14 @@
 
 class SdlUi : public ui::Ui {
 	SDL_Surface *win;
+	unsigned long tick0;
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
 	~SdlUi();
 	virtual void Flip();
 	virtual void Clear();
-	virtual void Delay(float);
+	virtual void Delay(unsigned long);
+	virtual unsigned long Ticks();
 	virtual bool PollEvent(ui::Event&);
 	virtual std::shared_ptr<ui::Img> LoadImg(const char*);
 	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>);
@@ -31,6 +33,8 @@ struct SdlImg : public ui::Img {
 SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
+	tick0 = SDL_GetTicks();
+
 	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
@@ -60,8 +64,12 @@ void SdlUi::Clear() {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void SdlUi::Delay(float sec) {
-	SDL_Delay(sec * 1000);
+void SdlUi::Delay(unsigned long msec) {
+	SDL_Delay(msec);
+}
+
+unsigned long SdlUi::Ticks() {
+	return tick0 - SDL_GetTicks();
 }
 
 static bool getbutton(SDL_Event &sdle, ui::Event &e) {
