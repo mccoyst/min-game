@@ -16,6 +16,8 @@ public:
 	virtual bool PollEvent(ui::Event&);
 	virtual std::shared_ptr<ui::Img> LoadImg(const char*);
 	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>);
+	virtual void Shade(const Vec3&, const Vec3&, float);
+
 };
 
 struct SdlImg : public ui::Img {
@@ -34,6 +36,8 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 		throw Failure("Failed to set SDL video mode");
 
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -123,21 +127,32 @@ void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img) {
 	glBindTexture(GL_TEXTURE_2D, img->texId);
 
 	glBegin(GL_QUADS);
-	//Bottom-left vertex (corner)
 	glTexCoord2i(0, 0);
 	glVertex3f(x, y, 0);
- 
-	//Bottom-right vertex (corner)
 	glTexCoord2i(1, 0);
 	glVertex3f(x+img->w, y, 0);
- 
-	//Top-right vertex (corner)
 	glTexCoord2i(1, 1);
 	glVertex3f(x+img->w, y+img->h, 0);
- 
-	//Top-left vertex (corner)
 	glTexCoord2i(0, 1);
 	glVertex3f(x, y+img->h, 0);
+	glEnd();
+}
+
+void SdlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
+	float x = l.x.whole(), y = l.y.whole();
+	float w = sz.x.whole(), h = sz.y.whole();
+
+	if (f < 0)
+		f = 0;
+	if (f > 1)
+		f = 1;
+	glColor4f(0.5, 0.5, 0.5, f);
+
+	glBegin(GL_QUADS);
+	glVertex3f(x, y, 0);
+	glVertex3f(x+w, y, 0);
+	glVertex3f(x+w, y+h, 0);
+	glVertex3f(x, y+h, 0);
 	glEnd();
 }
 

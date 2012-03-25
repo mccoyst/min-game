@@ -8,6 +8,12 @@ struct World {
 	// TileW and TileH are the size of the world cells
 	// in pixels.
 	static const Fixed TileW, TileH;
+
+	enum {
+		// MaxHeight is the maximum value for the height
+		// of any location.  Heights are 0..MaxHeight.
+		MaxHeight = 19,
+	};
 	
 	// A Terrain represents a type of terrain in the world.
 	struct Terrain {

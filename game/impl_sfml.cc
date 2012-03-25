@@ -17,6 +17,8 @@ public:
 
 	virtual std::shared_ptr<ui::Img> LoadImg(const char *path);
 	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img> img);
+	virtual void Shade(const Vec3&, const Vec3&, float);
+
 };
 
 struct SfmlImg : public ui::Img{
@@ -114,6 +116,9 @@ void SfmlUi::Draw(const Vec3 &loc, std::shared_ptr<ui::Img> img){
 	win.Draw(sprite);
 }
 
+virtual void SfmlUi::Shade(const Vec3 &l, const Vec3 &sz, float) {
+	// Not yet implemented
+}
 
 SfmlImg::SfmlImg(const char *path){
 	//TODO: check return
