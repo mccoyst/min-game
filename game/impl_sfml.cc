@@ -71,6 +71,29 @@ static bool getbutton(sf::Event &sfe, ui::Event &e) {
 	return true;
 }
 
+static bool getkey(sf::Event &sfe, ui::Event &e) {
+	switch (sfe.Key.Code) {
+	case sf::Key::Left:
+		e.button = ui::Event::KeyLeftArrow;
+		break;
+	case sf::Key::Right:
+		e.button = ui::Event::KeyRightArrow;
+		break;
+	case sf::Key::Up:
+		e.button = ui::Event::KeyUpArrow;
+		break;
+	case sf::Key::Down:
+		e.button = ui::Event::KeyDownArrow;
+		break;
+	default:
+		if (sfe.Key.Code < 'a' || sfe.Key.Code > 'z')
+			return false;
+		e.button = sfe.Key.Code;
+	}
+
+	return true;
+}
+
 bool SfmlUi::PollEvent(ui::Event &e){
 	sf::Event sfe;
 	while (win.GetEvent(sfe)) {
@@ -99,6 +122,18 @@ bool SfmlUi::PollEvent(ui::Event &e){
 			e.type = ui::Event::MouseMoved;
 			e.x = sfe.MouseMove.X;
 			e.y = sfe.MouseMove.Y;
+			return true;
+
+		case sf::Event::KeyReleased:
+			e.type = ui::Event::KeyUp;
+			if (!getkey(sfe, e))
+				continue;
+			return true;
+
+		case sf::Event::KeyPressed:
+			e.type = ui::Event::KeyDown;
+			if (!getkey(sfe, e))
+				continue;
 			return true;
 
 		default:
