@@ -3,7 +3,6 @@ OBJS:=\
 	game/game.o\
 	game/world.o\
 	game/ui.o\
-	game/impl_sfml.o\
 
 CXXFLAGS:=-std=c++0x
 LDFLAGS:=
@@ -17,10 +16,16 @@ CXXFLAGS+=\
 	-framework sfml-windo\
 	-framework sfml-system \
 
+OBJS:=game/impl_sfml.o
+
 else
+
 CXX:=g++
-LDFLAGS+=-lsfml-graphics -lsfml-window -lsfml-system
+#LDFLAGS+=-lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS+=-lSDL -lSDL_image
 CXXFLAGS+=-Wall -Werror -std=c++0x
+OBJS+=game/impl_sdl.o
+
 endif
 
 all: wgen/wgen wimg/wimg game/minima
