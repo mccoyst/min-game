@@ -116,8 +116,13 @@ void SfmlUi::Draw(const Vec3 &loc, std::shared_ptr<ui::Img> img){
 	win.Draw(sprite);
 }
 
-virtual void SfmlUi::Shade(const Vec3 &l, const Vec3 &sz, float) {
-	// Not yet implemented
+void SfmlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
+	int x = l.x.whole(), y = l.y.whole();
+	int w = sz.x.whole(), h = sz.y.whole();
+	sf::Color c(0, 0, 0, 255*(1-f));
+	sf::Shape s = sf::Shape::Rectangle(x, y, x+w, y+h, c);
+	s.EnableOutline(false);
+	win.Draw(s);
 }
 
 SfmlImg::SfmlImg(const char *path){
