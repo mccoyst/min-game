@@ -2,9 +2,9 @@
 #include <cassert>
 
 ui::Ui::~Ui(){
-	Len n (22);
-	Len m (20);
-	assert(n + m == Len(42));
+	Fixed n (22);
+	Fixed m (20);
+	assert(n + m == Fixed(42));
 }
 
 ui::Img::~Img(){
