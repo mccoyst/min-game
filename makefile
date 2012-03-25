@@ -25,6 +25,9 @@ endif
 
 all: wgen/wgen wimg/wimg game/minima
 
+fetch:
+	go get -v $(shell go list ./...)
+
 game/minima: $(OBJS)
 	@echo $@
 	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
