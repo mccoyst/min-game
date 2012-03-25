@@ -1,6 +1,7 @@
 syntax: glob
 wgen/wgen
 wimg/wimg
+game/minima
 *.o
 *.a
 *.d
