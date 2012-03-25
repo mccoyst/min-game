@@ -35,6 +35,10 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 		n = fscanf(in, " %c %d %d", &c, &h, &d);
 		if (n != 3)
 			throw Failure("Failed to read a location %u", i);
+		if (h > MaxHeight || h < 0)
+			throw Failure("Location %u has invalid height %d", i, h);
+		if (d < 0 || d > h)
+			throw Failure("Location %u of height %d has invalid depth %d", i, h, d);
 		locs[i].height = h;
 		locs[i].depth = d;
 		locs[i].terrain = &terrain[c];
