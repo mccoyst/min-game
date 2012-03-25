@@ -89,6 +89,29 @@ static bool getbutton(SDL_Event &sdle, ui::Event &e) {
 	return true;
 }
 
+static bool getkey(SDL_Event &sdle, ui::Event &e) {
+	switch (sdle.key.keysym.sym) {
+	case SDLK_UP:
+		e.button = ui::Event::KeyUpArrow;
+		break;
+	case SDLK_DOWN:
+		e.button = ui::Event::KeyDownArrow;
+		break;
+	case SDLK_LEFT:
+		e.button = ui::Event::KeyLeftArrow;
+		break;
+	case SDLK_RIGHT:
+		e.button = ui::Event::KeyRightArrow;
+		break;
+	default:
+		if (sdle.key.keysym.sym < 'a' || sdle.key.keysym.sym > 'z')
+			return false;
+		e.button = sdle.key.keysym.sym;
+	}
+
+	return true;
+}
+
 bool SdlUi::PollEvent(ui::Event &e) {
 	SDL_Event sdle;
 	while (SDL_PollEvent(&sdle)) {
@@ -118,6 +141,18 @@ bool SdlUi::PollEvent(ui::Event &e) {
 			e.type = ui::Event::MouseMoved;
 			e.x = sdle.motion.x;
 			e.y = sdle.motion.y;
+			return true;
+
+		case SDL_KEYUP:
+			e.type = ui::Event::KeyUp;
+			if (!getkey(sdle, e))
+				continue;
+			return true;
+
+		case SDL_KEYDOWN:
+			e.type = ui::Event::KeyDown;
+			if (!getkey(sdle, e))
+				continue;
 			return true;
 
 		default:

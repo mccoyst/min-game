@@ -74,16 +74,12 @@ struct Event {
 		MouseCenter,
 	};
 
-	// The names of non-letter keys.  Just fill this
-	// in as needed.
+	// The names of non-letter keys.  Just fill this in as needed.
 	enum {
-		KeyReturn,
-		KeySpace,
-		KeyArrowUp,
-		KeyArrowDown,
-		KeyArrowLeft,
-		KeyArrowRight,
-		KeyEscape,
+		KeyUpArrow,
+		KeyDownArrow,
+		KeyLeftArrow,
+		KeyRightArrow,
 	};
 
 	enum Type {
@@ -108,7 +104,7 @@ struct Event {
 		// event except that it indicates that the button
 		// has been released.
 		MouseUp,
-/*,
+
 		// A KeyDown event indicates that a key has been
 		// pressed.  The button field indicates name of the
 		// key.  Letter keys are associated with their character
@@ -119,7 +115,7 @@ struct Event {
 		// A KeyUp event is the same as a KeyDown event
 		// except that it indicates that a key has been released.
 		KeyUp,
-*/
+
 	};
 
 	Type type;
