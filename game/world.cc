@@ -51,8 +51,11 @@ void World::Draw(ui::Ui &ui) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		Vec3 v(x*TileW, y*TileH, Fixed(0));
-		ui.Draw(v + offs, l.terrain->Img(ui));
+		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
+		ui.Draw(v, l.terrain->Img(ui));
+
+		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
+		ui.Shade(v, Vec3(TileW, TileH), f);
 	}
 	}
 }
