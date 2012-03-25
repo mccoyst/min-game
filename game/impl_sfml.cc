@@ -7,12 +7,14 @@ namespace{
 
 class SfmlUi : public ui::Ui{
 	sf::RenderWindow win;
+	sf::Clock ticks;
 public:
 	SfmlUi(Fixed w, Fixed h, const char *title);
 
 	virtual void Flip();
 	virtual void Clear();
-	virtual void Delay(float);
+	virtual void Delay(unsigned long);
+	virtual unsigned long Ticks();
 	virtual bool PollEvent(ui::Event&);
 
 	virtual std::shared_ptr<ui::Img> LoadImg(const char *path);
@@ -30,6 +32,7 @@ struct SfmlImg : public ui::Img{
 SfmlUi::SfmlUi(Fixed w, Fixed h, const char *title)
 	: Ui(w, h),
 	win(sf::VideoMode(w.whole(), h.whole()), title){
+	ticks.Reset();
 }
 
 void SfmlUi::Flip(){
@@ -40,11 +43,15 @@ void SfmlUi::Clear(){
 	win.Clear();
 }
 
-void SfmlUi::Delay(float sec){
+void SfmlUi::Delay(unsigned long msec){
 	sf::Clock c;
 	c.Reset();
-	while (c.GetElapsedTime() < sec)
+	while (c.GetElapsedTime() * 1000 < msec)
 		;
+}
+
+unsigned long SfmlUi::Ticks() {
+	return ticks.GetElapsedTime()*1000;
 }
 
 static bool getbutton(sf::Event &sfe, ui::Event &e) {
