@@ -13,10 +13,10 @@ ifeq ($(OS),Darwin)
 CXX:=clang++ -fno-color-diagnostics -stdlib=libc++
 CXXFLAGS+=\
 	-framework sfml-graphics\
-	-framework sfml-windo\
+	-framework sfml-window\
 	-framework sfml-system \
 
-OBJS:=game/impl_sfml.o
+UILIB:=sfml
 
 else
 
@@ -25,11 +25,17 @@ CXX:=g++
 #OBJS+=game/impl_sfml.o
 
 LDFLAGS+=-lSDL -lSDL_image -lGLU -lGL
-OBJS+=game/impl_sdl.o
+UILIB:=sdl
 
 CXXFLAGS+=-Wall -Werror -std=c++0x
 
 endif
+
+OBJS:=game/impl_$(UILIB).o\
+	game/game.o\
+	game/world.o\
+	game/main.o\
+	game/ui.o\
 
 all: wgen/wgen wimg/wimg game/minima
 
