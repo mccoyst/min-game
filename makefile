@@ -13,10 +13,10 @@ ifeq ($(OS),Darwin)
 CXX:=clang++ -fno-color-diagnostics -stdlib=libc++
 CXXFLAGS+=\
 	-framework sfml-graphics\
-	-framework sfml-windo\
+	-framework sfml-window\
 	-framework sfml-system \
 
-OBJS:=game/impl_sfml.o
+OBJS+=game/impl_sfml.o
 
 else
 
