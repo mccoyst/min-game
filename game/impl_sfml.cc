@@ -177,6 +177,7 @@ void SfmlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
 SfmlImg::SfmlImg(const char *path){
 	//TODO: check return
 	img.LoadFromFile(path);
+	img.SetSmooth(false);
 }
 
 }
