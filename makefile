@@ -16,7 +16,7 @@ CXXFLAGS+=\
 	-framework sfml-window\
 	-framework sfml-system \
 
-UILIB:=sfml
+OBJS+=game/impl_sfml.o
 
 else
 
@@ -30,12 +30,6 @@ UILIB:=sdl
 CXXFLAGS+=-Wall -Werror -std=c++0x
 
 endif
-
-OBJS:=game/impl_$(UILIB).o\
-	game/game.o\
-	game/world.o\
-	game/main.o\
-	game/ui.o\
 
 all: wgen/wgen wimg/wimg game/minima
 
