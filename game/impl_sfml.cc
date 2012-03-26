@@ -2,6 +2,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <cassert>
+#include <ctime>
+#include <cerrno>
 
 namespace{
 
@@ -45,10 +47,19 @@ void SfmlUi::Clear(){
 }
 
 void SfmlUi::Delay(unsigned long msec){
-	sf::Clock c;
-	c.Reset();
-	while (c.GetElapsedTime() * 1000 < msec)
-		;
+	struct timespec a, b;
+	struct timespec *ts = &a, *rem = &b;
+	ts->tv_sec = msec / 1000;
+	ts->tv_nsec = (msec % 1000) * 1000000;
+	int err = nanosleep(ts, rem);
+	while (err == -1 && errno == EINTR) {
+		struct timespec *tmp = ts;
+		ts = rem;
+		rem = tmp;
+		err = nanosleep(ts, rem);
+	}
+	if (err == -1)
+		abort();
 }
 
 unsigned long SfmlUi::Ticks() {
