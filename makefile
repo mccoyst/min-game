@@ -25,7 +25,7 @@ CXX:=g++
 #OBJS+=game/impl_sfml.o
 
 LDFLAGS+=-lSDL -lSDL_image -lGLU -lGL
-UILIB:=sdl
+OBJS+=game/impl_sdl.o
 
 CXXFLAGS+=-Wall -Werror -std=c++0x
 
