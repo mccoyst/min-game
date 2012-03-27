@@ -26,6 +26,7 @@ public:
 };
 
 struct SfmlImg : public ui::Img{
+	sf::Sprite sprite;
 	sf::Image img;
 	SfmlImg(const char *path);
 };
@@ -166,14 +167,12 @@ std::shared_ptr<ui::Img> SfmlUi::LoadImg(const char *path){
 	return std::shared_ptr<ui::Img>(new SfmlImg(path));
 }
 
-void SfmlUi::Draw(const Vec3 &loc, std::shared_ptr<ui::Img> img){
-	SfmlImg *s = dynamic_cast<SfmlImg*>(img.get());
-	assert(s != nullptr);
-	//TODO: optimize this
-	sf::Vector2f pos(loc.x.whole(), loc.y.whole());
-	sf::Sprite sprite(s->img, pos);
-	sprite.SetBlendMode(sf::Blend::None);
-	win.Draw(sprite);
+void SfmlUi::Draw(const Vec3 &loc, std::shared_ptr<ui::Img> _img){
+	SfmlImg *img = dynamic_cast<SfmlImg*>(_img.get());
+	assert(img != nullptr);
+	img->sprite.SetX(loc.x.whole());
+	img->sprite.SetY(loc.y.whole());
+	win.Draw(img->sprite);
 }
 
 void SfmlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
@@ -186,9 +185,11 @@ void SfmlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
 }
 
 SfmlImg::SfmlImg(const char *path){
-	//TODO: check return
+	//TODO: check return values
 	img.LoadFromFile(path);
 	img.SetSmooth(false);
+	sprite.SetImage(img);
+	sprite.SetBlendMode(sf::Blend::None);
 }
 
 }
