@@ -1,6 +1,7 @@
 #include "ui.hpp"
 #include "world.hpp"
 #include <cstdio>
+#include <google/profiler.h>
 
 enum {
 	// FrameMsec is the minimum frame time.
