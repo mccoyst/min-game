@@ -1,7 +1,7 @@
 #include "ui.hpp"
 #include "game.hpp"
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <cstdarg>
