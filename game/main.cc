@@ -2,7 +2,7 @@
 #include "world.hpp"
 #include "game.hpp"
 #include <cstdio>
-#include <SDL/SDL_main.h>
+#include <SDL_main.h>
 
 enum {
 	// FrameMsec is the minimum frame time.

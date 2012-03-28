@@ -13,7 +13,7 @@ OS := $(shell uname | sed 's/.*MINGW.*/win/')
 ifeq ($(OS),Darwin)
 CXX:=clang++ -fno-color-diagnostics -stdlib=libc++
 
-CXXFLAGS+=\
+HEADERFLAGS+=\
 	-I/Library/Frameworks/SDL.framework/Headers\
 	-I/Library/Frameworks/SDL_image.framework/Headers\
 	-I/Library/Frameworks/SDL_ttf.framework/Headers\
@@ -26,7 +26,9 @@ LDFLAGS +=\
 	-framework Foundation\
 	-framework Cocoa\
 
-OBJCFLAGS := $(LDFLAGS)
+CXXFLAGS += $(HEADERFLAGS)
+
+OBJCFLAGS := $(HEADERFLAGS)
 
 OBJCC := clang
 
@@ -39,7 +41,7 @@ LDFLAGS+=-lSDL -lSDL_image -lSDL_ttf -lGLU -lGL
 OBJS+=game/impl_sdl.o
 
 CXXFLAGS+=-Wall -Werror -std=c++0x\
-	-I/usr/local/include/SDL\
+	-I/usr/include/SDL\
 
 endif
 
@@ -50,7 +52,7 @@ fetch:
 
 game/minima: $(OBJS)
 	@echo $@
-	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS)
 
 wgen/wgen: wgen/*.go
 	go build -o wgen/wgen ./wgen
@@ -62,23 +64,23 @@ include $(OBJS:.o=.d)
 
 %.d: %.cc
 	@echo $@
-	./dep.sh g++ $(shell dirname $*) $(CXXFLAGS) $*.cc > $@
+	@./dep.sh g++ $(shell dirname $*) $(CXXFLAGS) $*.cc > $@
 
 %.d: %.c
 	@echo $@
-	./dep.sh gcc $(shell dirname $*) $(CFLAGS) $*.c > $@
+	@./dep.sh gcc $(shell dirname $*) $(CFLAGS) $*.c > $@
 
 %.d: %.m
 	@echo $@
-	./dep.sh gcc $(shell dirname $*) $(CFLAGS) $*.m > $@
+	@./dep.sh gcc $(shell dirname $*) $(CFLAGS) $*.m > $@
 
 %.o: %.cc
 	@echo $@
-	$(CXX) -c -o $@ $(CXXFLAGS) $*.cc
+	@$(CXX) -c -o $@ $(CXXFLAGS) $*.cc
 
 %.o: %.m
 	@echo $@
-	$(OBJCC) -c -o $@ $(OBJCFLAGS) $*.m
+	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $*.m
 
 clean:
 	rm -f $(OBJS) game/minima wgen/wgen wimg/wimg
