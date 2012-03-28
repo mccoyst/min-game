@@ -5,6 +5,9 @@
 #include <climits>
 #include <cstdlib>
 
+const Fixed World::TileW(16);
+const Fixed World::TileH(16);
+
 World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
 	char buf[PATH_MAX];
 	char *path = realpath(resrc, buf);
@@ -14,9 +17,6 @@ World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
 	if (!img)
 		throw Failure("Failed to load %s", path);
 }
-
-const Fixed World::TileW(16);
-const Fixed World::TileH(16);
 
 World::TerrainType::TerrainType() {
 	t.resize(255);
@@ -45,9 +45,11 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 			throw Failure("Location %u has invalid height %d", i, h);
 		if (d < 0 || d > h)
 			throw Failure("Location %u of height %d has invalid depth %d", i, h, d);
+		if (!terrain[c].ch)
+			throw Failure("Unknown terrain type %c", c);
 		locs[i].height = h;
 		locs[i].depth = d;
-		locs[i].terrain = &terrain[c];
+		locs[i].terrain = c;
 	}
 }
 
@@ -62,7 +64,7 @@ void World::Draw(ui::Ui &ui) {
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
-		ui.Draw(v, l.terrain->img);
+		ui.Draw(v, terrain[l.terrain].img);
 
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
 		ui.Shade(v, Vec3(TileW, TileH), f);

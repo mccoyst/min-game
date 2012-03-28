@@ -112,7 +112,6 @@ struct Event {
 		// A KeyUp event is the same as a KeyDown event
 		// except that it indicates that a key has been released.
 		KeyUp,
-
 	};
 
 	Type type;
