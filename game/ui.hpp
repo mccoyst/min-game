@@ -120,7 +120,7 @@ struct Event {
 };
 
 // OpenWindow returns a new Ui object.
-std::unique_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
+std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can

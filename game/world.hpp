@@ -45,7 +45,7 @@ struct World {
 	World(FILE*);
 
 	// Draw draws the world to the given window.
-	void Draw(ui::Ui&);
+	void Draw(std::shared_ptr<ui::Ui>);
 
 	// at returns the location at the given x,y in the grid.
 	//

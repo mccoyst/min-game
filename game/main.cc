@@ -16,7 +16,7 @@ enum {
 int main(){
 	try {
 		Fixed width(640), height(480);
-		std::unique_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
+		std::shared_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
 	
 		// Must create the world *after* the window because
 		// the world also loads some images.
@@ -29,7 +29,7 @@ int main(){
 		for ( ; ; ) {
 			unsigned long t0 = win->Ticks();
 			win->Clear();
-			world.Draw(*win);
+			world.Draw(win);
 			win->Flip();
 	
 			ui::Event e;

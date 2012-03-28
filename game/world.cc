@@ -53,9 +53,9 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 	}
 }
 
-void World::Draw(ui::Ui &ui) {
-	Fixed w(ui.width / TileW);
-	Fixed h(ui.height / TileH);
+void World::Draw(std::shared_ptr<ui::Ui> ui) {
+	Fixed w(ui->width / TileW);
+	Fixed h(ui->height / TileH);
 	Vec3 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
@@ -64,10 +64,10 @@ void World::Draw(ui::Ui &ui) {
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
-		ui.Draw(v, terrain[l.terrain].img);
+		ui->Draw(v, terrain[l.terrain].img);
 
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
-		ui.Shade(v, Vec3(TileW, TileH), f);
+		ui->Shade(v, Vec3(TileW, TileH), f);
 	}
 	}
 }

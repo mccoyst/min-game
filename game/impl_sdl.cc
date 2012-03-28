@@ -1,5 +1,5 @@
 #include "ui.hpp"
-#include "game.hpp"	// Fatal
+#include "game.hpp"
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <GL/gl.h>
@@ -253,6 +253,6 @@ std::shared_ptr<ui::Img> ui::LoadImg(const char *path) {
 	return std::shared_ptr<ui::Img>(new SdlImg(path));
 }
 
-std::unique_ptr<ui::Ui> ui::OpenWindow(Fixed w, Fixed h, const char *title) {
-	return std::unique_ptr<ui::Ui>(new SdlUi(w, h, title));
+std::shared_ptr<ui::Ui> ui::OpenWindow(Fixed w, Fixed h, const char *title) {
+	return std::shared_ptr<ui::Ui>(new SdlUi(w, h, title));
 }
