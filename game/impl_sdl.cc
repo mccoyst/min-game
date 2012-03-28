@@ -16,7 +16,6 @@ public:
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(ui::Event&);
-	virtual std::shared_ptr<ui::Img> LoadImg(const char*);
 	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>);
 	virtual void Shade(const Vec3&, const Vec3&, float);
 
@@ -250,7 +249,7 @@ SdlImg::~SdlImg() {
 	glDeleteTextures(1, &texId);
 }
 
-std::shared_ptr<ui::Img> SdlUi::LoadImg(const char *path) {
+std::shared_ptr<ui::Img> ui::LoadImg(const char *path) {
 	return std::shared_ptr<ui::Img>(new SdlImg(path));
 }
 

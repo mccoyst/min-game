@@ -2,11 +2,17 @@
 #include "game.hpp"
 #include "ui.hpp"
 #include <limits>
+#include <climits>
+#include <cstdlib>
 
-std::shared_ptr<ui::Img> World::Terrain::Img(ui::Ui &ui) {
-	if (!img.get())
-		img = ui.LoadImg(resrc);
-	return img;
+World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
+	char buf[PATH_MAX];
+	char *path = realpath(resrc, buf);
+	if (!path)
+		throw Failure("Failed to get the realpath for %s", resrc);
+	img = ui::LoadImg(path);
+	if (!img)
+		throw Failure("Failed to load %s", path);
 }
 
 const Fixed World::TileW(16);
@@ -56,7 +62,7 @@ void World::Draw(ui::Ui &ui) {
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
-		ui.Draw(v, l.terrain->Img(ui));
+		ui.Draw(v, l.terrain->img);
 
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
 		ui.Shade(v, Vec3(TileW, TileH), f);
