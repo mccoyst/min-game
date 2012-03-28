@@ -9,3 +9,6 @@ ui::Ui::~Ui(){
 
 ui::Img::~Img(){
 }
+
+ui::Font::~Font(){
+}
