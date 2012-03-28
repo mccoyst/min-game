@@ -5,8 +5,6 @@
 #include <SDL/SDL_ttf.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <climits>
-#include <cstdlib>
 #include <cstdarg>
 #include <cassert>
 
@@ -30,7 +28,9 @@ struct SdlImg : public ui::Img {
 	unsigned int w, h;
 
 	SdlImg(SDL_Surface*);
-	~SdlImg();
+	virtual ~SdlImg();
+	virtual unsigned int Width() { return w; }
+	virtual unsigned int Height() { return h; }
 };
 
 struct SdlFont : public ui::Font {
@@ -38,7 +38,7 @@ struct SdlFont : public ui::Font {
 	char r, g, b;
 
 	SdlFont(const char *, int, char, char, char);
-	~SdlFont();
+	virtual ~SdlFont();
 };
 
 SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
@@ -225,15 +225,7 @@ void SdlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
 	glEnd();
 }
 
-SdlImg::SdlImg(SDL_Surface *surf) {
-	if ((surf->w & (surf->w - 1)) != 0)
-		throw Failure("Image width is not a power of 2");
-	if ((surf->h & (surf->h - 1)) != 0)
-		throw Failure("Image height is not a power of 2");
-
-	w = surf->w;
-	h = surf->h;
-
+SdlImg::SdlImg(SDL_Surface *surf) : w(surf->w), h(surf->h) {
 	GLint pxSz = surf->format->BytesPerPixel;
 	GLenum texFormat = GL_BGRA;
 	switch (pxSz) {
@@ -265,13 +257,8 @@ SdlImg::~SdlImg() {
 	glDeleteTextures(1, &texId);
 }
 
-SdlFont::SdlFont(const char *relpath, int sz, char _r, char _g, char _b)
+SdlFont::SdlFont(const char *path, int sz, char _r, char _g, char _b)
 		: r(_r), g(_g), b(_b) {
-	char buf[PATH_MAX];
-	char *path = realpath(relpath, buf);
-	if (!path)
-		throw Failure("Failed to get the realpath for %s", relpath);
-
 	font = TTF_OpenFont(path, sz);
 	if (!font)
 		throw Failure("Failed to load font %s: %s", path, TTF_GetError());
@@ -285,18 +272,17 @@ std::shared_ptr<ui::Ui> ui::OpenWindow(Fixed w, Fixed h, const char *title) {
 	return std::shared_ptr<ui::Ui>(new SdlUi(w, h, title));
 }
 
-std::shared_ptr<ui::Img> ui::LoadImg(const char *relpath) {
-	char buf[PATH_MAX];
-	char *path = realpath(relpath, buf);
-	if (!path)
-		throw Failure("Failed to get the realpath for %s", relpath);
-
+std::shared_ptr<ui::Img> ui::LoadImg(const char *path) {
 	SDL_Surface *surf = IMG_Load(path);
 	if (!surf)
 		throw Failure("Failed to load image %s", path);
 	std::shared_ptr<ui::Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
 	return img;
+}
+
+std::shared_ptr<ui::Font> ui::LoadFont(const char *path, int sz, char r, char g, char b) {
+	return std::shared_ptr<ui::Font>(new SdlFont(path, sz, r, g, b));
 }
 
 std::shared_ptr<ui::Img> ui::RenderText(std::shared_ptr<ui::Font> f, const char *fmt, ...) {
@@ -314,8 +300,8 @@ std::shared_ptr<ui::Img> ui::RenderText(std::shared_ptr<ui::Font> f, const char 
 	c.g = font->g;
 	c.b = font->b;
 	SDL_Surface *surf = TTF_RenderUTF8_Blended(font->font, s, c);
-	if (surf)
-		throw Failure("Failed to render text");
+	if (!surf)
+		throw Failure("Failed to render text: %s", TTF_GetError());
 
 	std::shared_ptr<ui::Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
