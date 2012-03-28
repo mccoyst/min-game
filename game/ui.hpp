@@ -54,6 +54,17 @@ public:
 	virtual bool PollEvent(Event&) = 0;
 };
 
+// OpenWindow returns a new Ui object.
+std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
+
+// LoadImg returns an image pointer that has been
+// loaded from the given file path.  This pointer can
+// be used to draw to the window.
+std::shared_ptr<Img> LoadImg(const char*);
+
+// Img is the interface to a 2D image.
+struct Img{ virtual ~Img() = 0; };
+
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.
 //
@@ -118,17 +129,6 @@ struct Event {
 	int x, y;
 	int button;
 };
-
-// OpenWindow returns a new Ui object.
-std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
-
-// LoadImg returns an image pointer that has been
-// loaded from the given file path.  This pointer can
-// be used to draw to the window.
-std::shared_ptr<Img> LoadImg(const char*);
-
-// Img is the interface to a 2D image.
-struct Img{ virtual ~Img() = 0; };
 
 }	// namespace uikx
 

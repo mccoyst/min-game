@@ -2,20 +2,14 @@
 #include "game.hpp"
 #include "ui.hpp"
 #include <limits>
-#include <climits>
-#include <cstdlib>
 
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
 
 World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
-	char buf[PATH_MAX];
-	char *path = realpath(resrc, buf);
-	if (!path)
-		throw Failure("Failed to get the realpath for %s", resrc);
-	img = ui::LoadImg(path);
+	img = ui::LoadImg(resrc);
 	if (!img)
-		throw Failure("Failed to load %s", path);
+		throw Failure("Failed to load %s", resrc);
 }
 
 World::TerrainType::TerrainType() {

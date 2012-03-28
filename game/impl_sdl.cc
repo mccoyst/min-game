@@ -5,6 +5,8 @@
 #include <SDL/SDL_ttf.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <climits>
+#include <cstdlib>
 
 class SdlUi : public ui::Ui {
 	SDL_Surface *win;
@@ -19,7 +21,6 @@ public:
 	virtual bool PollEvent(ui::Event&);
 	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>);
 	virtual void Shade(const Vec3&, const Vec3&, float);
-
 };
 
 struct SdlImg : public ui::Img {
@@ -209,7 +210,12 @@ void SdlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
 	glEnd();
 }
 
-SdlImg::SdlImg(const char *path) {
+SdlImg::SdlImg(const char *relpath) {
+	char buf[PATH_MAX];
+	char *path = realpath(relpath, buf);
+	if (!path)
+		throw Failure("Failed to get the realpath for %s", relpath);
+
 	SDL_Surface *surf = IMG_Load(path);
 	if (!surf)
 		throw Failure("Failed to load image %s", path);
