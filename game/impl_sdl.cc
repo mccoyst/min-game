@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -37,6 +38,10 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
+
+	int imgflags = IMG_INIT_PNG;
+	if ((IMG_Init(imgflags) & imgflags) != imgflags)
+		throw Failure("Failed to initialize png support: %s", IMG_GetError());
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
