@@ -1,10 +1,8 @@
 #include "ui.hpp"
 #include "game.hpp"
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_ttf.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <SDL/SDL_opengl.h>
+#include <SDL_image.h>
 #include <climits>
 #include <cstdlib>
 

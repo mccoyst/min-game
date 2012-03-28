@@ -2,7 +2,7 @@
 #include "world.hpp"
 #include "game.hpp"
 #include <cstdio>
-#include <google/profiler.h>
+#include <SDL/SDL_main.h>
 
 enum {
 	// FrameMsec is the minimum frame time.
@@ -13,7 +13,7 @@ enum {
 	ScrollSpd = 10,
 };
 
-int main(){
+int main(int argc, char *argv[]){
 	try {
 		Fixed width(640), height(480);
 		std::shared_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
