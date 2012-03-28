@@ -3,14 +3,14 @@
 #include "ui.hpp"
 #include <limits>
 
-std::shared_ptr<ui::Img> World::Terrain::Img(ui::Ui &ui) {
-	if (!img.get())
-		img = ui.LoadImg(resrc);
-	return img;
-}
-
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
+
+World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
+	img = ui::LoadImg(resrc);
+	if (!img)
+		throw Failure("Failed to load %s", resrc);
+}
 
 World::TerrainType::TerrainType() {
 	t.resize(255);
@@ -39,15 +39,17 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 			throw Failure("Location %u has invalid height %d", i, h);
 		if (d < 0 || d > h)
 			throw Failure("Location %u of height %d has invalid depth %d", i, h, d);
+		if (!terrain[c].ch)
+			throw Failure("Unknown terrain type %c", c);
 		locs[i].height = h;
 		locs[i].depth = d;
-		locs[i].terrain = &terrain[c];
+		locs[i].terrain = c;
 	}
 }
 
-void World::Draw(ui::Ui &ui) {
-	Fixed w(ui.width / TileW);
-	Fixed h(ui.height / TileH);
+void World::Draw(std::shared_ptr<ui::Ui> ui) {
+	Fixed w(ui->width / TileW);
+	Fixed h(ui->height / TileH);
 	Vec3 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
@@ -56,10 +58,10 @@ void World::Draw(ui::Ui &ui) {
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
-		ui.Draw(v, l.terrain->Img(ui));
+		ui->Draw(v, terrain[l.terrain].img);
 
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
-		ui.Shade(v, Vec3(TileW, TileH), f);
+		ui->Shade(v, Vec3(TileW, TileH), f);
 	}
 	}
 }
