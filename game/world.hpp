@@ -36,8 +36,8 @@ struct World {
 
 	// A Loc represents a single cell of the world.
 	struct Loc {
-		int height, depth;
-		Terrain *terrain;
+		unsigned char height, depth;
+		char terrain;
 	};
 
 	// World constructs a new world by reading it from
