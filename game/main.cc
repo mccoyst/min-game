@@ -13,10 +13,13 @@ enum {
 	ScrollSpd = 10,
 };
 
+static void loadingText(std::shared_ptr<ui::Ui>);
+
 int main(int argc, char *argv[]){
 	try {
 		Fixed width(640), height(480);
 		std::shared_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
+		loadingText(win);
 	
 		// Must create the world *after* the window because
 		// the world also loads some images.
@@ -108,4 +111,16 @@ int main(int argc, char *argv[]){
 
 out:
 	return 0;
+}
+
+static void loadingText(std::shared_ptr<ui::Ui> win) {
+	std::shared_ptr<ui::Font> font = ui::LoadFont(
+		"resrc/prstartk.ttf", 16, 255, 255, 255
+	);
+	std::shared_ptr<ui::Img> img = ui::RenderText(
+		font, "Generating World"
+	);
+	win->Clear();
+	win->Draw(Vec3(Fixed(0), Fixed(0)), img);
+	win->Flip();
 }
