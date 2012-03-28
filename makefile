@@ -16,10 +16,12 @@ CXX:=clang++ -fno-color-diagnostics -stdlib=libc++
 CXXFLAGS+=\
 	-I/Library/Frameworks/SDL.framework/Headers\
 	-I/Library/Frameworks/SDL_image.framework/Headers\
+	-I/Library/Frameworks/SDL_ttf.framework/Headers\
 
 LDFLAGS +=\
 	-framework SDL\
 	-framework SDL_image\
+	-framework SDL_ttf\
 	-framework OpenGL\
 	-framework Foundation\
 	-framework Cocoa\
