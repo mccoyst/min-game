@@ -1,6 +1,7 @@
 #include "ui.hpp"
 #include "world.hpp"
 #include <cstdio>
+#include <SDL/SDL_main.h>
 
 enum {
 	// FrameMsec is the minimum frame time.
@@ -11,7 +12,7 @@ enum {
 	ScrollSpd = 10,
 };
 
-int main(){
+int main(int argc, char *argv[]){
 	World world(stdin);
 
 	Fixed width(640), height(480);
