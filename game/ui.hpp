@@ -57,13 +57,26 @@ public:
 // OpenWindow returns a new Ui object.
 std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 
+// Img is the interface to a 2D image.
+struct Img{
+	virtual ~Img() = 0;
+	virtual unsigned int Width() = 0;
+	virtual unsigned int Height() = 0;
+};
+
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can
 // be used to draw to the window.
 std::shared_ptr<Img> LoadImg(const char*);
 
-// Img is the interface to a 2D image.
-struct Img{ virtual ~Img() = 0; };
+// Font describes a text font, color, etc.
+struct Font{ virtual ~Font() = 0; };
+
+// LoadFont loads a font from a file with the given size and color.
+std::shared_ptr<Font> LoadFont(const char*, int, char, char, char);
+
+// RenderText renders the given text to an image.
+std::shared_ptr<Img> RenderText(std::shared_ptr<Font>, const char*, ...);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.

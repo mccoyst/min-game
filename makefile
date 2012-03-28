@@ -35,7 +35,7 @@ OBJS+=game/impl_sdl.o game/SDLMain.o
 else
 
 CXX:=g++
-LDFLAGS+=-lSDL -lSDL_image -lGLU -lGL
+LDFLAGS+=-lSDL -lSDL_image -lSDL_ttf -lGLU -lGL
 OBJS+=game/impl_sdl.o
 
 CXXFLAGS+=-Wall -Werror -std=c++0x\
