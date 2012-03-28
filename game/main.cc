@@ -13,10 +13,12 @@ enum {
 };
 
 int main(){
-	World world(stdin);
-
 	Fixed width(640), height(480);
 	std::unique_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
+
+	// Must create the world *after* the window because
+	// the world also loads some images.
+	World world(stdin);
 
 	bool drag = false;
 	Fixed scrollx(0), scrolly(0), mul(1);

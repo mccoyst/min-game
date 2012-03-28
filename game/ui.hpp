@@ -23,11 +23,6 @@ public:
 
 	virtual ~Ui();
 
-	// LoadImg returns an image pointer that has been
-	// loaded from the given file path.  This pointer can
-	// be used to draw to the window.
-	virtual std::shared_ptr<Img> LoadImg(const char *path) = 0;
-
 	// Draw draws the image to the back-buffer of the window.
 	// This image will not appear until the Flip() method is caled.
 	virtual void Draw(const Vec3&, std::shared_ptr<Img> img) = 0;
@@ -128,11 +123,13 @@ struct Event {
 // OpenWindow returns a new Ui object.
 std::unique_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 
+// LoadImg returns an image pointer that has been
+// loaded from the given file path.  This pointer can
+// be used to draw to the window.
+std::shared_ptr<Img> LoadImg(const char*);
+
 // Img is the interface to a 2D image.
-class Img{
-public:
-	virtual ~Img() = 0;
-};
+struct Img{ virtual ~Img() = 0; };
 
 }	// namespace uikx
 

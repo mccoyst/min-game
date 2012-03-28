@@ -17,17 +17,11 @@ struct World {
 	
 	// A Terrain represents a type of terrain in the world.
 	struct Terrain {
-		Terrain() : ch(0), resrc(0), img(0) { }
-		Terrain(char c, const char *r) : ch(c), resrc(r), img(0) { }
+		Terrain() : ch(0), img(0) { }
 
-		// Img returns the image for this terrain.
-		//
-		// The images are loaded lazily.
-		std::shared_ptr<ui::Img> Img(ui::Ui&);
+		Terrain(char, const char*);
 	
 		char ch;
-		const char *resrc;
-	private:
 		std::shared_ptr<ui::Img> img;
 	};
 	
