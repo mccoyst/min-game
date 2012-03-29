@@ -3,6 +3,7 @@ OBJS:=\
 	game/game.o\
 	game/world.o\
 	game/ui.o\
+	game/impl_sdl.o\
 
 CXXFLAGS:=-std=c++0x
 OBJCFLAGS := 
@@ -33,13 +34,12 @@ OBJCFLAGS := $(HEADERFLAGS)
 
 OBJCC := clang
 
-OBJS+=game/impl_sdl.o game/SDLMain.o
+OBJS += game/SDLMain.o
 
 else
 
 CXX:=g++
 LDFLAGS+=-lSDL -lSDL_image -lSDL_ttf -lGLU -lGL
-OBJS+=game/impl_sdl.o
 
 CXXFLAGS+=-Wall -Werror -std=c++0x\
 	-I/usr/include/SDL\
