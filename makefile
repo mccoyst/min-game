@@ -11,7 +11,7 @@ LDFLAGS:=
 OS := $(shell uname | sed 's/.*MINGW.*/win/')
 
 ifeq ($(OS),Darwin)
-CXX:=clang++ -fno-color-diagnostics -stdlib=libc++
+CXX:=clang++
 
 HEADERFLAGS+=\
 	-I/Library/Frameworks/SDL.framework/Headers\
@@ -19,6 +19,7 @@ HEADERFLAGS+=\
 	-I/Library/Frameworks/SDL_ttf.framework/Headers\
 
 LDFLAGS +=\
+	-stdlib=libc++\
 	-framework SDL\
 	-framework SDL_image\
 	-framework SDL_ttf\
@@ -26,7 +27,7 @@ LDFLAGS +=\
 	-framework Foundation\
 	-framework Cocoa\
 
-CXXFLAGS += $(HEADERFLAGS)
+CXXFLAGS += -fno-color-diagnostics -stdlib=libc++ $(HEADERFLAGS)
 
 OBJCFLAGS := $(HEADERFLAGS)
 
@@ -64,23 +65,19 @@ include $(OBJS:.o=.d)
 
 %.d: %.cc
 	@echo $@
-	@./dep.sh g++ $(shell dirname $*) $(CXXFLAGS) $*.cc > $@
-
-%.d: %.c
-	@echo $@
-	@./dep.sh gcc $(shell dirname $*) $(CFLAGS) $*.c > $@
+	@./dep.sh $(CXX) $(shell dirname $<) $(HEADERFLAGS) $< > $@
 
 %.d: %.m
 	@echo $@
-	@./dep.sh gcc $(shell dirname $*) $(CFLAGS) $*.m > $@
+	@./dep.sh $(OBJCC) $(shell dirname $<) $(HEADERFLAGS) $< > $@
 
 %.o: %.cc
 	@echo $@
-	@$(CXX) -c -o $@ $(CXXFLAGS) $*.cc
+	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
 %.o: %.m
 	@echo $@
-	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $*.m
+	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $<
 
 clean:
 	rm -f $(OBJS) game/minima wgen/wgen wimg/wimg

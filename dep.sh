@@ -10,9 +10,9 @@ shift 2
 
 case "$DIR" in
 "" | "." )
-	$PROG -MM -MG "$@" | sed -e 's@^\(.*\)\.o:@\1.d \1.o:@'
+	$PROG -MM "$@" | sed -e 's@^\(.*\)\.o:@\1.d \1.o:@'
 	;;
 * )
-	$PROG -MM -MG "$@" | sed -e "s@^\(.*\)\.o:@$DIR/\1.d $DIR/\1.o:@"
+	$PROG -MM "$@" | sed -e "s@^\(.*\)\.o:@$DIR/\1.d $DIR/\1.o:@"
 	;;
 esac
