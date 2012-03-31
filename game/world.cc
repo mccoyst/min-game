@@ -58,10 +58,8 @@ void World::Draw(std::shared_ptr<ui::Ui> ui) {
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
-		ui->Draw(v, terrain[l.terrain].img);
-
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
-		ui->Shade(v, Vec3(TileW, TileH), f);
+		ui->Draw(v, terrain[l.terrain].img, f);
 	}
 	}
 }
