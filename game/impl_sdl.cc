@@ -7,9 +7,21 @@
 #include <cstdarg>
 #include <cassert>
 
+namespace{
+extern const char *vshader_src;
+extern const char *fshader_src;
+GLuint make_buffer(GLenum target, const void *data, GLsizei size);
+GLuint make_shader(GLenum type, const char *src);
+GLuint make_program(GLuint vshader, GLuint fshader);
+}
+
 class SdlUi : public ui::Ui {
 	SDL_Surface *win;
 	unsigned long tick0;
+
+	GLuint vbuff, ebuff;
+	GLuint vshader, fshader, program;
+	GLint texloc, posloc, offsloc, shadeloc;
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
 	~SdlUi();
@@ -18,8 +30,7 @@ public:
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(ui::Event&);
-	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>);
-	virtual void Shade(const Vec3&, const Vec3&, float);
+	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>, float);
 };
 
 struct SdlImg : public ui::Img {
@@ -56,16 +67,35 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	if (TTF_Init() == -1)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	gluOrtho2D(0, w.whole(), 0, -h.whole());
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0.0, -h.whole(), 0.0);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.5);
+	gluOrtho2D(0, w.whole(), 0, h.whole());
+
+	GLfloat vertices[] = {
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		-1.0f, 1.0f,
+		1.0f, 1.0f,
+	};
+	GLushort elements[] = { 0, 1, 2, 3 };
+
+	vbuff = make_buffer(GL_ARRAY_BUFFER, vertices, sizeof(vertices));
+	ebuff = make_buffer(GL_ELEMENT_ARRAY_BUFFER, elements, sizeof(elements));
+
+	vshader = make_shader(GL_VERTEX_SHADER, vshader_src);
+	if(!vshader)
+		throw Failure("Failed to compile vertex shader");
+	fshader = make_shader(GL_FRAGMENT_SHADER, fshader_src);
+	if(!fshader)
+		throw Failure("Failed to compile fragment shader");
+	program = make_program(vshader, fshader);
+	if(!program)
+		throw Failure("Failed to link program");
+
+	texloc = glGetUniformLocation(program, "tex");
+	posloc = glGetAttribLocation(program, "position");
+	offsloc = glGetUniformLocation(program, "offset");
+	shadeloc = glGetUniformLocation(program, "shade");
 }
 
 SdlUi::~SdlUi() {
@@ -187,40 +217,25 @@ bool SdlUi::PollEvent(ui::Event &e) {
 	return false;
 }
 
-void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img) {
+void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img, float shade) {
 	SdlImg *img = static_cast<SdlImg*>(_img.get());
-	float x = l.x.whole(), y = l.y.whole();
+	if(shade < 0) shade = 0;
+	else if(shade > 1) shade = 1;
 
-	glBindTexture(GL_TEXTURE_2D, img->texId);
+	glUseProgram(program);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,img-> texId);
+	glUniform1i(texloc, 0);
 
-	glBegin(GL_QUADS);
-	glTexCoord2i(0, 0);
-	glVertex3f(x, y, 0);
-	glTexCoord2i(1, 0);
-	glVertex3f(x+img->w, y, 0);
-	glTexCoord2i(1, 1);
-	glVertex3f(x+img->w, y+img->h, 0);
-	glTexCoord2i(0, 1);
-	glVertex3f(x, y+img->h, 0);
-	glEnd();
-}
+	glUniform2f(offsloc, l.x.whole(), l.y.whole());
+	glUniform1f(shadeloc, shade);
 
-void SdlUi::Shade(const Vec3 &l, const Vec3 &sz, float f) {
-	float x = l.x.whole(), y = l.y.whole();
-	float w = sz.x.whole(), h = sz.y.whole();
-
-	if (f < 0)
-		f = 0;
-	if (f > 1)
-		f = 1;
-	glColor4f(0.5, 0.5, 0.5, f);
-
-	glBegin(GL_QUADS);
-	glVertex3f(x, y, 0);
-	glVertex3f(x+w, y, 0);
-	glVertex3f(x+w, y+h, 0);
-	glVertex3f(x, y+h, 0);
-	glEnd();
+	glBindBuffer(GL_ARRAY_BUFFER, vbuff);
+	glVertexAttribPointer(posloc, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat[2]), 0);
+	glEnableVertexAttribArray(posloc);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebuff);
+	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+	glDisableVertexAttribArray(posloc);
 }
 
 SdlImg::SdlImg(SDL_Surface *surf) : w(surf->w), h(surf->h) {
@@ -304,4 +319,86 @@ std::shared_ptr<ui::Img> ui::RenderText(std::shared_ptr<ui::Font> f, const char 
 	std::shared_ptr<ui::Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
 	return img;
+}
+
+
+namespace{
+GLuint make_buffer(GLenum target, const void *data, GLsizei size){
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(target, buffer);
+	glBufferData(target, size, data, GL_STATIC_DRAW);
+	return buffer;
+}
+
+GLuint make_shader(GLenum type, const char *src){
+	GLint len = strlen(src);
+	GLuint shader;
+	GLint shader_ok;
+
+	shader = glCreateShader(type);
+	glShaderSource(shader, 1, &src, &len);
+	glCompileShader(shader);
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
+	if(!shader_ok){
+		GLint log_len;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
+		char *log = new char[len];
+		glGetShaderInfoLog(shader, log_len, NULL, log);
+		fprintf(stderr, "Shader error: %s", log);
+		delete [] log;
+		glDeleteShader(shader);
+		return 0;
+	}
+	return shader;
+}
+
+GLuint make_program(GLuint vshader, GLuint fshader){
+	GLint program_ok;
+
+	GLuint program = glCreateProgram();
+	glAttachShader(program, vshader);
+	glAttachShader(program, fshader);
+	glLinkProgram(program);
+	glGetProgramiv(program, GL_LINK_STATUS, &program_ok);
+	if(!program_ok){
+		GLint log_len;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
+		char *log = new char[log_len];
+		glGetProgramInfoLog(program, log_len, NULL, log);
+		fprintf(stderr, "Program error: %s", log);
+		delete [] log;
+		glDeleteProgram(program);
+		return 0;
+	}
+	return program;
+}
+
+const char *vshader_src = 
+	"#version 120\n"
+	"attribute vec2 position;"
+	"varying vec2 texcoord;"
+	"uniform vec2 offset;"
+	""
+	"void main()"
+	"{"
+	"	vec4 trans = vec4(8*position+offset, 0.0, 1.0);"
+	"	gl_Position = gl_ModelViewProjectionMatrix * trans;"
+	"	texcoord = position * vec2(0.5) + vec2(0.5);"
+	"	texcoord = vec2(texcoord.x, 1.0 - texcoord.y);"
+	"}"
+	;
+
+const char *fshader_src =
+	"#version 120\n"
+	"uniform sampler2D tex;"
+	"uniform float shade;"
+	"varying vec2 texcoord;"
+	
+	"void main()"
+	"{"
+		"vec4 tc = texture2D(tex, texcoord);"
+	"	gl_FragColor = vec4(tc.rgb*shade, tc.a);"
+	"}"
+	;
 }

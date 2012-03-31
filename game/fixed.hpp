@@ -22,6 +22,7 @@ public:
 	int whole() const;
 };
 
+Fixed operator - (Fixed);
 Fixed operator + (Fixed, Fixed);
 Fixed operator - (Fixed, Fixed);
 Fixed operator * (Fixed, Fixed);
@@ -108,6 +109,10 @@ inline int Fixed::value() const{
 
 inline int Fixed::whole() const{
 	return this->n / Scale;
+}
+
+inline Fixed operator - (Fixed a){
+	return Fixed(0) - a;
 }
 
 inline Fixed operator + (Fixed a, Fixed b){

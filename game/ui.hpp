@@ -25,13 +25,9 @@ public:
 
 	// Draw draws the image to the back-buffer of the window.
 	// This image will not appear until the Flip() method is caled.
-	virtual void Draw(const Vec3&, std::shared_ptr<Img> img) = 0;
-
-	// Shade shades a portion of the window.  The first argument
-	// is the x,y, the second argument is the width and height and
-	// the 3rd argument is an alpha value between 0 (dark) and
+	// the shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	virtual void Shade(const Vec3&, const Vec3&, float) = 0;
+	virtual void Draw(const Vec3&, std::shared_ptr<Img> img, float shade = 1) = 0;
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
