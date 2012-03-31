@@ -69,7 +69,6 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 }
 
 SdlUi::~SdlUi() {
-	SDL_FreeSurface(win);
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
