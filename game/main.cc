@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) try{
 			case ui::Event::MouseMoved:
 				if (!drag)
 					break;
-				world.Scroll(Fixed(e.x - x0), -Fixed(e.y - y0));
+				world.Scroll(Fixed(e.x - x0), Fixed(e.y - y0));
 				x0 = e.x;
 				y0 = e.y;
 				break;
@@ -67,10 +67,10 @@ int main(int argc, char *argv[]) try{
 
 				switch (e.button) {
 				case ui::Event::KeyDownArrow:
-					scrolly = amt;
+					scrolly = -amt;
 					break;
 				case ui::Event::KeyUpArrow:
-					scrolly = -amt;
+					scrolly = amt;
 					break;
 				case ui::Event::KeyLeftArrow:
 					scrollx = amt;
