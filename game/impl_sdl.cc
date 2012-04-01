@@ -21,7 +21,7 @@ class SdlUi : public ui::Ui {
 
 	GLuint vbuff, ebuff;
 	GLuint vshader, fshader, program;
-	GLint texloc, posloc, offsloc, shadeloc;
+	GLint texloc, posloc, offsloc, shadeloc, dimsloc;
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
 	~SdlUi();
@@ -72,9 +72,9 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	gluOrtho2D(0, w.whole(), 0, h.whole());
 
 	GLfloat vertices[] = {
-		-1.0f, -1.0f, 0, 1,
-		1.0f, -1.0f, 1, 1,
-		-1.0f, 1.0f, 0, 0,
+		0.0f, 0.0f, 0, 1,
+		1.0f, 0.0f, 1, 1,
+		0.0f, 1.0f, 0, 0,
 		1.0f, 1.0f, 1, 0,
 	};
 	GLushort elements[] = { 0, 1, 2, 3 };
@@ -96,6 +96,7 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	posloc = glGetAttribLocation(program, "position");
 	offsloc = glGetUniformLocation(program, "offset");
 	shadeloc = glGetUniformLocation(program, "shade");
+	dimsloc = glGetUniformLocation(program, "dims");
 }
 
 SdlUi::~SdlUi() {
@@ -229,6 +230,7 @@ void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img, float shade) {
 
 	glUniform2f(offsloc, l.x.whole(), l.y.whole());
 	glUniform1f(shadeloc, shade);
+	glUniform2f(dimsloc, img->w, img->h);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbuff);
 	glVertexAttribPointer(posloc, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat[4]), 0);
@@ -379,10 +381,12 @@ const char *vshader_src =
 	"attribute vec4 position;"
 	"varying vec2 texcoord;"
 	"uniform vec2 offset;"
+	"uniform vec2 dims;"
 	""
 	"void main()"
 	"{"
-	"	vec4 trans = vec4(8*position.rg+offset, 0.0, 1.0);"
+	"	vec2 p = vec2(position.x*dims.x, position.y*dims.y);"
+	"	vec4 trans = vec4(p+offset, 0.0, 1.0);"
 	"	gl_Position = gl_ModelViewProjectionMatrix * trans;"
 	"	texcoord = position.ba;"
 	"}"
