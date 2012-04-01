@@ -228,7 +228,7 @@ void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img, float shade) {
 	glBindTexture(GL_TEXTURE_2D,img-> texId);
 	glUniform1i(texloc, 0);
 
-	glUniform2f(offsloc, l.x.whole(), height.whole() - l.y.whole());
+	glUniform2f(offsloc, l.x.whole(), l.y.whole());
 	glUniform1f(shadeloc, shade);
 	glUniform2f(dimsloc, img->w, img->h);
 

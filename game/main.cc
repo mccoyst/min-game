@@ -67,10 +67,10 @@ int main(int argc, char *argv[]) try{
 
 				switch (e.button) {
 				case ui::Event::KeyDownArrow:
-					scrolly = -amt;
+					scrolly = amt;
 					break;
 				case ui::Event::KeyUpArrow:
-					scrolly = amt;
+					scrolly = -amt;
 					break;
 				case ui::Event::KeyLeftArrow:
 					scrollx = amt;
