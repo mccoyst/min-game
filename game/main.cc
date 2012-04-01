@@ -24,7 +24,7 @@ static void loadingText(std::shared_ptr<Ui>);
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
-	Fixed width(640), height(480);
+	Fixed width(800), height(600);
 	std::shared_ptr<Ui> win(OpenWindow(width, height, "Minima"));
 	loadingText(win);
 
