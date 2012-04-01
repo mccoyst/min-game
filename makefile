@@ -41,7 +41,7 @@ else
 CXX:=g++
 LDFLAGS+=-lSDL -lSDL_image -lSDL_ttf -lGLU -lGL
 HEADERFLAGS := -I/usr/include/SDL
-CXXFLAGS+=-Wall -Werror -std=c++0x -DGL_GLEXT_PROTOTYPES $(HEADERFLAGS)
+CXXFLAGS+=-Wall -Werror -DGL_GLEXT_PROTOTYPES $(HEADERFLAGS)
 
 endif
 
