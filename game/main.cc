@@ -115,9 +115,7 @@ static void loadingText(std::shared_ptr<ui::Ui> win) {
 	std::shared_ptr<ui::Font> font = ui::LoadFont(
 		"resrc/prstartk.ttf", 16, 255, 255, 255
 	);
-	std::shared_ptr<ui::Img> img = ui::RenderText(
-		font, "Generating World"
-	);
+	std::shared_ptr<ui::Img> img = font->Render("Generating World");
 	win->Clear();
 	win->Draw(Vec3(Fixed(0), Fixed(0)), img);
 	win->Flip();

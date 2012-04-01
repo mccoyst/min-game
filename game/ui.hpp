@@ -66,13 +66,15 @@ struct Img{
 std::shared_ptr<Img> LoadImg(const char*);
 
 // Font describes a text font, color, etc.
-struct Font{ virtual ~Font() = 0; };
+struct Font{
+	virtual ~Font() = 0;
+
+	// Render renders the given text to an image using this font.
+	virtual std::shared_ptr<Img> Render(const char*, ...) = 0;
+};
 
 // LoadFont loads a font from a file with the given size and color.
 std::shared_ptr<Font> LoadFont(const char*, int, char, char, char);
-
-// RenderText renders the given text to an image.
-std::shared_ptr<Img> RenderText(std::shared_ptr<Font>, const char*, ...);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.
