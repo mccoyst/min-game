@@ -19,8 +19,13 @@ enum {
 // heigth of each tile on it.
 bool drawHeights;
 
+// drawFps, when set to true, draws the frames per-second on
+// the screen.
+bool drawFps;
+
 static void parseArgs(int, char*[]);
 static void loadingText(std::shared_ptr<Ui>);
+static void doFps(std::shared_ptr<Ui>, unsigned long);
 
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
@@ -41,10 +46,15 @@ int main(int argc, char *argv[]) try{
 	double meanTime = 0;
 	unsigned long nFrames = 0;
 	unsigned long t0 = win->Ticks();
+	unsigned long t1 = t0;
 
 	for ( ; ; ) {
+		unsigned long frameTime = t1 - t0;
+		t0 = t1;
+
 		win->Clear();
 		world.Draw(win);
+		doFps(win, frameTime);
 		win->Flip();
 
 		Event e;
@@ -111,13 +121,11 @@ int main(int argc, char *argv[]) try{
 
 		world.Scroll(scrollx*mul, scrolly*mul);
 
-		unsigned long t1 = win->Ticks();
-		assert (t1 >= t0);
+		t1 = win->Ticks();
 		nFrames++;
 		meanTime = meanTime + (t1-t0 - meanTime)/nFrames;
 		if (t0 + FrameMsec > t1)
 			win->Delay(t0 + FrameMsec - t1);
-		t0 = t1;
 	}
 
 out:
@@ -135,6 +143,8 @@ static void parseArgs(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-heights") == 0)
 			drawHeights = true;
+		else if (strcmp(argv[i], "-fps") == 0)
+			drawFps = true;
 	}
 }
 
@@ -146,4 +156,15 @@ static void loadingText(std::shared_ptr<Ui> win) {
 	win->Clear();
 	win->Draw(Vec3(Fixed(0), Fixed(0)), img);
 	win->Flip();
+}
+
+static void doFps(std::shared_ptr<Ui> win, unsigned long msec) {
+	if (!drawFps)
+		return;
+
+	static std::shared_ptr<Font> font;
+	if (!font)
+		font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
+	unsigned long rate = 1.0 / (msec / 1000.0);
+	win->Draw(Vec3(Fixed(0), Fixed(0)), font->Render("%lu fps", rate));
 }
