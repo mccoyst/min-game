@@ -7,7 +7,7 @@ const Fixed World::TileW(16);
 const Fixed World::TileH(16);
 
 World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
-	img = ui::LoadImg(resrc);
+	img = LoadImg(resrc);
 	if (!img)
 		throw Failure("Failed to load %s", resrc);
 }
@@ -47,7 +47,7 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 	}
 }
 
-void World::Draw(std::shared_ptr<ui::Ui> ui) {
+void World::Draw(std::shared_ptr<Ui> ui) {
 	Fixed w(ui->width / TileW);
 	Fixed h(ui->height / TileH);
 	Vec3 offs(xoff%TileW, yoff%TileW);

@@ -1,14 +1,14 @@
 #include "ui.hpp"
 #include <cassert>
 
-ui::Ui::~Ui(){
+Ui::~Ui(){
 	Fixed n (22);
 	Fixed m (20);
 	assert(n + m == Fixed(42));
 }
 
-ui::Img::~Img(){
+Img::~Img(){
 }
 
-ui::Font::~Font(){
+Font::~Font(){
 }

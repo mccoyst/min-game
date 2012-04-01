@@ -1,10 +1,7 @@
-#ifndef _UI_HPP_
-#define _UI_HPP_
+#pragma once
 
 #include <memory>
 #include "fixed.hpp"
-
-namespace ui{
 
 class Ui;
 class Img;
@@ -140,7 +137,3 @@ struct Event {
 	int x, y;
 	int button;
 };
-
-}	// namespace uikx
-
-#endif	// _UI_HPP_

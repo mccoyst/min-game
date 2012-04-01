@@ -15,7 +15,7 @@ GLuint make_shader(GLenum type, const char *src);
 GLuint make_program(GLuint vshader, GLuint fshader);
 }
 
-class SdlUi : public ui::Ui {
+class SdlUi : public Ui {
 	SDL_Surface *win;
 	unsigned long tick0;
 
@@ -29,11 +29,11 @@ public:
 	virtual void Clear();
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
-	virtual bool PollEvent(ui::Event&);
-	virtual void Draw(const Vec3&, std::shared_ptr<ui::Img>, float);
+	virtual bool PollEvent(Event&);
+	virtual void Draw(const Vec3&, std::shared_ptr<Img>, float);
 };
 
-struct SdlImg : public ui::Img {
+struct SdlImg : public Img {
 	GLuint texId;
 	unsigned int w, h;
 
@@ -43,13 +43,13 @@ struct SdlImg : public ui::Img {
 	virtual unsigned int Height() { return h; }
 };
 
-struct SdlFont : public ui::Font {
+struct SdlFont : public Font {
 	TTF_Font *font;
 	char r, g, b;
 
 	SdlFont(const char *, int, char, char, char);
 	virtual ~SdlFont();
-	virtual std::shared_ptr<ui::Img> Render(const char*, ...);
+	virtual std::shared_ptr<Img> Render(const char*, ...);
 };
 
 SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
@@ -122,16 +122,16 @@ unsigned long SdlUi::Ticks() {
 	return tick0 - SDL_GetTicks();
 }
 
-static bool getbutton(SDL_Event &sdle, ui::Event &e) {
+static bool getbutton(SDL_Event &sdle, Event &e) {
 	switch (sdle.button.button) {
 	case SDL_BUTTON_LEFT:
-		e.button = ui::Event::MouseLeft;
+		e.button = Event::MouseLeft;
 		break;
 	case SDL_BUTTON_RIGHT:
-		e.button = ui::Event::MouseRight;
+		e.button = Event::MouseRight;
 		break;
 	case SDL_BUTTON_MIDDLE:
-		e.button = ui::Event::MouseCenter;
+		e.button = Event::MouseCenter;
 		break;
 	default:
 		return false;
@@ -139,25 +139,25 @@ static bool getbutton(SDL_Event &sdle, ui::Event &e) {
 	return true;
 }
 
-static bool getkey(SDL_Event &sdle, ui::Event &e) {
+static bool getkey(SDL_Event &sdle, Event &e) {
 	switch (sdle.key.keysym.sym) {
 	case SDLK_UP:
-		e.button = ui::Event::KeyUpArrow;
+		e.button = Event::KeyUpArrow;
 		break;
 	case SDLK_DOWN:
-		e.button = ui::Event::KeyDownArrow;
+		e.button = Event::KeyDownArrow;
 		break;
 	case SDLK_LEFT:
-		e.button = ui::Event::KeyLeftArrow;
+		e.button = Event::KeyLeftArrow;
 		break;
 	case SDLK_RIGHT:
-		e.button = ui::Event::KeyRightArrow;
+		e.button = Event::KeyRightArrow;
 		break;
 	case SDLK_RSHIFT:
-		e.button = ui::Event::KeyRShift;
+		e.button = Event::KeyRShift;
 		break;
 	case SDLK_LSHIFT:
-		e.button = ui::Event::KeyLShift;
+		e.button = Event::KeyLShift;
 		break;
 	default:
 		if (sdle.key.keysym.sym < 'a' || sdle.key.keysym.sym > 'z')
@@ -168,16 +168,16 @@ static bool getkey(SDL_Event &sdle, ui::Event &e) {
 	return true;
 }
 
-bool SdlUi::PollEvent(ui::Event &e) {
+bool SdlUi::PollEvent(Event &e) {
 	SDL_Event sdle;
 	while (SDL_PollEvent(&sdle)) {
 		switch (sdle.type) {
 		case SDL_QUIT:
-			e.type = ui::Event::Closed;
+			e.type = Event::Closed;
 			return true;
 
 		case SDL_MOUSEBUTTONDOWN:
-			e.type = ui::Event::MouseDown;
+			e.type = Event::MouseDown;
 			e.x = sdle.button.x;
 			e.y = sdle.button.y;
 			if (!getbutton(sdle, e))
@@ -185,7 +185,7 @@ bool SdlUi::PollEvent(ui::Event &e) {
 			return true;
 
 		case SDL_MOUSEBUTTONUP:
-			e.type = ui::Event::MouseUp;
+			e.type = Event::MouseUp;
 			e.x = sdle.button.x;
 			e.y = sdle.button.y;
 			if (!getbutton(sdle, e))
@@ -194,19 +194,19 @@ bool SdlUi::PollEvent(ui::Event &e) {
 
 
 		case SDL_MOUSEMOTION:
-			e.type = ui::Event::MouseMoved;
+			e.type = Event::MouseMoved;
 			e.x = sdle.motion.x;
 			e.y = sdle.motion.y;
 			return true;
 
 		case SDL_KEYUP:
-			e.type = ui::Event::KeyUp;
+			e.type = Event::KeyUp;
 			if (!getkey(sdle, e))
 				continue;
 			return true;
 
 		case SDL_KEYDOWN:
-			e.type = ui::Event::KeyDown;
+			e.type = Event::KeyDown;
 			if (!getkey(sdle, e))
 				continue;
 			return true;
@@ -219,7 +219,7 @@ bool SdlUi::PollEvent(ui::Event &e) {
 	return false;
 }
 
-void SdlUi::Draw(const Vec3 &l, std::shared_ptr<ui::Img> _img, float shade) {
+void SdlUi::Draw(const Vec3 &l, std::shared_ptr<Img> _img, float shade) {
 	SdlImg *img = static_cast<SdlImg*>(_img.get());
 	if(shade < 0) shade = 0;
 	else if(shade > 1) shade = 1;
@@ -284,7 +284,7 @@ SdlFont::~SdlFont() {
 	TTF_CloseFont(font);
 }
 
-std::shared_ptr<ui::Img> SdlFont::Render(const char *fmt, ...) {
+std::shared_ptr<Img> SdlFont::Render(const char *fmt, ...) {
 	char s[256];
 	va_list ap;
 	va_start(ap, fmt);
@@ -299,26 +299,26 @@ std::shared_ptr<ui::Img> SdlFont::Render(const char *fmt, ...) {
 	if (!surf)
 		throw Failure("Failed to render text: %s", TTF_GetError());
 
-	std::shared_ptr<ui::Img> img(new SdlImg(surf));
+	std::shared_ptr<Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
 	return img;
 }
 
-std::shared_ptr<ui::Ui> ui::OpenWindow(Fixed w, Fixed h, const char *title) {
-	return std::shared_ptr<ui::Ui>(new SdlUi(w, h, title));
+std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title) {
+	return std::shared_ptr<Ui>(new SdlUi(w, h, title));
 }
 
-std::shared_ptr<ui::Img> ui::LoadImg(const char *path) {
+std::shared_ptr<Img> LoadImg(const char *path) {
 	SDL_Surface *surf = IMG_Load(path);
 	if (!surf)
 		throw Failure("Failed to load image %s", path);
-	std::shared_ptr<ui::Img> img(new SdlImg(surf));
+	std::shared_ptr<Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
 	return img;
 }
 
-std::shared_ptr<ui::Font> ui::LoadFont(const char *path, int sz, char r, char g, char b) {
-	return std::shared_ptr<ui::Font>(new SdlFont(path, sz, r, g, b));
+std::shared_ptr<Font> LoadFont(const char *path, int sz, char r, char g, char b) {
+	return std::shared_ptr<Font>(new SdlFont(path, sz, r, g, b));
 }
 
 namespace{
