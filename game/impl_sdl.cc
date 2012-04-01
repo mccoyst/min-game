@@ -49,6 +49,7 @@ struct SdlFont : public ui::Font {
 
 	SdlFont(const char *, int, char, char, char);
 	virtual ~SdlFont();
+	virtual std::shared_ptr<ui::Img> Render(const char*, ...);
 };
 
 SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
@@ -283,6 +284,26 @@ SdlFont::~SdlFont() {
 	TTF_CloseFont(font);
 }
 
+std::shared_ptr<ui::Img> SdlFont::Render(const char *fmt, ...) {
+	char s[256];
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(s, sizeof(s), fmt, ap);
+	va_end(ap);
+
+	SDL_Color c;
+	c.r = r;
+	c.g = g;
+	c.b = b;
+	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s, c);
+	if (!surf)
+		throw Failure("Failed to render text: %s", TTF_GetError());
+
+	std::shared_ptr<ui::Img> img(new SdlImg(surf));
+	SDL_FreeSurface(surf);
+	return img;
+}
+
 std::shared_ptr<ui::Ui> ui::OpenWindow(Fixed w, Fixed h, const char *title) {
 	return std::shared_ptr<ui::Ui>(new SdlUi(w, h, title));
 }
@@ -299,30 +320,6 @@ std::shared_ptr<ui::Img> ui::LoadImg(const char *path) {
 std::shared_ptr<ui::Font> ui::LoadFont(const char *path, int sz, char r, char g, char b) {
 	return std::shared_ptr<ui::Font>(new SdlFont(path, sz, r, g, b));
 }
-
-std::shared_ptr<ui::Img> ui::RenderText(std::shared_ptr<ui::Font> f, const char *fmt, ...) {
-	SdlFont *font = dynamic_cast<SdlFont*>(f.get());
-	assert (font);
-
-	char s[256];
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(s, sizeof(s), fmt, ap);
-	va_end(ap);
-
-	SDL_Color c;
-	c.r = font->r;
-	c.g = font->g;
-	c.b = font->b;
-	SDL_Surface *surf = TTF_RenderUTF8_Blended(font->font, s, c);
-	if (!surf)
-		throw Failure("Failed to render text: %s", TTF_GetError());
-
-	std::shared_ptr<ui::Img> img(new SdlImg(surf));
-	SDL_FreeSurface(surf);
-	return img;
-}
-
 
 namespace{
 GLuint make_buffer(GLenum target, const void *data, GLsizei size){
