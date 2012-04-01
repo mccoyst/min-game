@@ -32,7 +32,7 @@ func (w *worldImg) Bounds() image.Rectangle {
 // At implements the At() method of the
 // image.Image interface.
 func (w *worldImg) At(x, y int) color.Color {
-	loc := w.World.At(x, y)
+	loc := w.World.At(x, w.H - y - 1)
 	ht := loc.Height
 	if w.depth {
 		ht -= loc.Depth

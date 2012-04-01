@@ -54,10 +54,10 @@ game/minima: $(OBJS)
 	@echo $@
 	@$(CXX) -o $@ $^ $(LDFLAGS)
 
-wgen/wgen: wgen/*.go
+wgen/wgen: wgen/*.go world/*.go
 	go build -o wgen/wgen ./wgen
 
-wimg/wimg: wimg/*.go
+wimg/wimg: wimg/*.go world/*.go
 	go build -o wimg/wimg ./wimg
 
 include $(OBJS:.o=.d)
