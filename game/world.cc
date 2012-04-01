@@ -5,6 +5,7 @@
 
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
+const Vec3 World::TileSz(TileW, TileH);
 
 World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
 	img = LoadImg(resrc);
@@ -17,6 +18,11 @@ World::TerrainType::TerrainType() {
 	t['w'] = Terrain('w', "resrc/Water.png");
 	t['g'] = Terrain('g', "resrc/Grass.png");
 	t['m'] = Terrain('m', "resrc/Mountain.png");
+
+	std::shared_ptr<Font> f = LoadFont("resrc/retganon.ttf", 12, 128, 128, 128);
+	htImg.resize(World::MaxHeight);
+	for (int i = 0; i < World::MaxHeight; i++)
+		htImg[i] = f->Render("%d", i);
 }
 
 World::World(FILE *in) : xoff(0), yoff(0) {
@@ -48,6 +54,7 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 }
 
 void World::Draw(std::shared_ptr<Ui> ui) {
+	extern bool drawHeights;	// main.cc
 	Fixed w(ui->width / TileW);
 	Fixed h(ui->height / TileH);
 	Vec3 offs(xoff%TileW, yoff%TileW);
@@ -60,6 +67,12 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
 		ui->Draw(v, terrain[l.terrain].img, f);
+
+		if (!drawHeights)
+			continue;
+
+		std::shared_ptr<Img> txt = terrain.heightImg(l.height);
+		ui->Draw(v, txt);
 	}
 	}
 }

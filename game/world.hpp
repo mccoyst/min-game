@@ -9,6 +9,9 @@ struct World {
 	// in pixels.
 	static const Fixed TileW, TileH;
 
+	// A Vec3 with the width and height of a tile.
+	static const Vec3 TileSz;
+
 	enum {
 		// MaxHeight is the maximum value for the height
 		// of any location.  Heights are 0..MaxHeight.
@@ -29,9 +32,17 @@ struct World {
 	// character representation of the Terrain.
 	struct TerrainType {
 		std::vector<Terrain> t;
+		std::vector< std::shared_ptr<Img> > htImg;
 	public:
 		TerrainType();
+
+		// operator[] returns the terrain with the given character
+		// representation.
 		Terrain &operator[](int i) { return t[i]; }
+
+		// heightImg returns an image containing the text for
+		// the given height value.
+		std::shared_ptr<Img> heightImg(int ht) { return htImg[ht]; }
 	} terrain;
 
 	// A Loc represents a single cell of the world.

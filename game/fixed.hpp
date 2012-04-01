@@ -46,11 +46,13 @@ struct Vec3{
 	Vec3 &operator += (const Vec3&);
 	Vec3 &operator -= (const Vec3&);
 	Vec3 &operator *= (Fixed);
+	Vec3 &operator /= (Fixed);
 };
 
 Vec3 operator + (Vec3, const Vec3&);
 Vec3 operator - (Vec3, const Vec3&);
 Vec3 operator * (Vec3, Fixed);
+Vec3 operator / (Vec3, Fixed);
 bool operator == (const Vec3&, const Vec3&);
 bool operator != (const Vec3&, const Vec3&);
 
@@ -195,6 +197,13 @@ inline Vec3 &Vec3::operator *= (Fixed n){
 	return *this;
 }
 
+inline Vec3 &Vec3::operator /= (Fixed n){
+	this->x /= n;
+	this->y /= n;
+	this->z /= n;
+	return *this;
+}
+
 inline Vec3 operator + (Vec3 a, const Vec3 &b){
 	return a += b;
 }
@@ -205,6 +214,10 @@ inline Vec3 operator - (Vec3 a, const Vec3 &b){
 
 inline Vec3 operator * (Vec3 v, Fixed n){
 	return v *= n;
+}
+
+inline Vec3 operator / (Vec3 v, Fixed n){
+	return v /= n;
 }
 
 inline bool operator == (const Vec3 &a, const Vec3 &b){

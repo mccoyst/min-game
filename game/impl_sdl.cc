@@ -35,12 +35,11 @@ public:
 
 struct SdlImg : public Img {
 	GLuint texId;
-	unsigned int w, h;
+	Vec3 sz;
 
 	SdlImg(SDL_Surface*);
 	virtual ~SdlImg();
-	virtual unsigned int Width() { return w; }
-	virtual unsigned int Height() { return h; }
+	virtual Vec3 Size() const { return sz; }
 };
 
 struct SdlFont : public Font {
@@ -231,7 +230,7 @@ void SdlUi::Draw(const Vec3 &l, std::shared_ptr<Img> _img, float shade) {
 
 	glUniform2f(offsloc, l.x.whole(), l.y.whole());
 	glUniform1f(shadeloc, shade);
-	glUniform2f(dimsloc, img->w, img->h);
+	glUniform2f(dimsloc, img->sz.x.whole(), img->sz.y.whole());
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbuff);
 	glVertexAttribPointer(posloc, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat[4]), 0);
@@ -241,7 +240,7 @@ void SdlUi::Draw(const Vec3 &l, std::shared_ptr<Img> _img, float shade) {
 	glDisableVertexAttribArray(posloc);
 }
 
-SdlImg::SdlImg(SDL_Surface *surf) : w(surf->w), h(surf->h) {
+SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 	GLint pxSz = surf->format->BytesPerPixel;
 	GLenum texFormat = GL_BGRA;
 	switch (pxSz) {

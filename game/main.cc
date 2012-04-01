@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "game.hpp"
 #include <cstdio>
+#include <cstring>
 #include <SDL_main.h>
 
 enum {
@@ -13,9 +14,16 @@ enum {
 	ScrollSpd = 10,
 };
 
+// drawHeights, when set to true makes the world draw the
+// heigth of each tile on it.
+bool drawHeights;
+
+static void parseArgs(int, char*[]);
 static void loadingText(std::shared_ptr<Ui>);
 
 int main(int argc, char *argv[]) try{
+	parseArgs(argc, argv);
+
 	Fixed width(640), height(480);
 	std::shared_ptr<Ui> win(OpenWindow(width, height, "Minima"));
 	loadingText(win);
@@ -109,6 +117,13 @@ out:
 	fputs(f.msg, stdout);
 	fputc('\n', stdout);
 	return 1;
+}
+
+static void parseArgs(int argc, char *argv[]) {
+	for (int i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-heights") == 0)
+			drawHeights = true;
+	}
 }
 
 static void loadingText(std::shared_ptr<Ui> win) {
