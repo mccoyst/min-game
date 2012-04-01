@@ -22,7 +22,7 @@ struct World {
 		Terrain(char, const char*);
 	
 		char ch;
-		std::shared_ptr<ui::Img> img;
+		std::shared_ptr<Img> img;
 	};
 	
 	// terrain is an array of Terrain indexed by the
@@ -45,7 +45,7 @@ struct World {
 	World(FILE*);
 
 	// Draw draws the world to the given window.
-	void Draw(std::shared_ptr<ui::Ui>);
+	void Draw(std::shared_ptr<Ui>);
 
 	// at returns the location at the given x,y in the grid.
 	//

@@ -13,11 +13,11 @@ enum {
 	ScrollSpd = 10,
 };
 
-static void loadingText(std::shared_ptr<ui::Ui>);
+static void loadingText(std::shared_ptr<Ui>);
 
 int main(int argc, char *argv[]) try{
 	Fixed width(640), height(480);
-	std::shared_ptr<ui::Ui> win(ui::OpenWindow(width, height, "Minima"));
+	std::shared_ptr<Ui> win(OpenWindow(width, height, "Minima"));
 	loadingText(win);
 
 	// Must create the world *after* the window because
@@ -34,25 +34,25 @@ int main(int argc, char *argv[]) try{
 		world.Draw(win);
 		win->Flip();
 
-		ui::Event e;
+		Event e;
 		while (win->PollEvent(e)) {
 			Fixed amt(0);
 			switch (e.type) {
-			case ui::Event::Closed:
+			case Event::Closed:
 				goto out;
 
-			case ui::Event::MouseDown:
+			case Event::MouseDown:
 				scrollx = scrolly = Fixed(0);
 				drag = true;
 				x0 = e.x;
 				y0 = e.y;
 				break;
 
-			case ui::Event::MouseUp:
+			case Event::MouseUp:
 				drag = false;
 				break;
 
-			case ui::Event::MouseMoved:
+			case Event::MouseMoved:
 				if (!drag)
 					break;
 				world.Scroll(Fixed(e.x - x0), Fixed(y0 - e.y));
@@ -60,27 +60,27 @@ int main(int argc, char *argv[]) try{
 				y0 = e.y;
 				break;
 
-			case ui::Event::KeyDown:
-			case ui::Event::KeyUp:
-				if (e.type == ui::Event::KeyDown)
+			case Event::KeyDown:
+			case Event::KeyUp:
+				if (e.type == Event::KeyDown)
 					amt = Fixed(ScrollSpd);
 
 				switch (e.button) {
-				case ui::Event::KeyDownArrow:
+				case Event::KeyDownArrow:
 					scrolly = amt;
 					break;
-				case ui::Event::KeyUpArrow:
+				case Event::KeyUpArrow:
 					scrolly = -amt;
 					break;
-				case ui::Event::KeyLeftArrow:
+				case Event::KeyLeftArrow:
 					scrollx = amt;
 					break;
-				case ui::Event::KeyRightArrow:
+				case Event::KeyRightArrow:
 					scrollx = -amt;
 					break;
-				case ui::Event::KeyLShift:
-				case ui::Event::KeyRShift:
-					if (e.type == ui::Event::KeyDown)
+				case Event::KeyLShift:
+				case Event::KeyRShift:
+					if (e.type == Event::KeyDown)
 						mul = Fixed(5);
 					else
 						mul = Fixed(1);
@@ -111,11 +111,11 @@ out:
 	return 1;
 }
 
-static void loadingText(std::shared_ptr<ui::Ui> win) {
-	std::shared_ptr<ui::Font> font = ui::LoadFont(
+static void loadingText(std::shared_ptr<Ui> win) {
+	std::shared_ptr<Font> font = LoadFont(
 		"resrc/prstartk.ttf", 16, 255, 255, 255
 	);
-	std::shared_ptr<ui::Img> img = font->Render("Generating World");
+	std::shared_ptr<Img> img = font->Render("Generating World");
 	win->Clear();
 	win->Draw(Vec3(Fixed(0), Fixed(0)), img);
 	win->Flip();
