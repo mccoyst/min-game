@@ -53,7 +53,7 @@ void World::Draw(std::shared_ptr<ui::Ui> ui) {
 	Vec3 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
-	for (Fixed y(-1); y <= h; y += Fixed(1)) {
+	for (Fixed y(-1); y <= h + Fixed(1); y += Fixed(1)) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
