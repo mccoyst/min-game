@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) try{
 	// Compute the mean frame time.
 	double meanTime = 0;
 	unsigned long nFrames = 0;
+	unsigned long t0 = win->Ticks();
 
 	for ( ; ; ) {
-		unsigned long t0 = win->Ticks();
 		win->Clear();
 		world.Draw(win);
 		win->Flip();
@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) try{
 		meanTime = meanTime + (t1-t0 - meanTime)/nFrames;
 		if (t0 + FrameMsec > t1)
 			win->Delay(t0 + FrameMsec - t1);
+		t0 = t1;
 	}
 
 out:

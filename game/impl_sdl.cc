@@ -17,7 +17,6 @@ GLuint make_program(GLuint vshader, GLuint fshader);
 
 class SdlUi : public Ui {
 	SDL_Surface *win;
-	unsigned long tick0;
 
 	GLuint vbuff, ebuff;
 	GLuint vshader, fshader, program;
@@ -54,7 +53,6 @@ struct SdlFont : public Font {
 SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
-	tick0 = SDL_GetTicks();
 
 	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
@@ -118,7 +116,7 @@ void SdlUi::Delay(unsigned long msec) {
 }
 
 unsigned long SdlUi::Ticks() {
-	return SDL_GetTicks() - tick0;
+	return SDL_GetTicks();
 }
 
 static bool getbutton(SDL_Event &sdle, Event &e) {
