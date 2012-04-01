@@ -19,7 +19,7 @@ class SdlUi : public Ui {
 	SDL_Surface *win;
 	unsigned long tick0;
 
-	GLuint vbuff, ebuff;
+	GLuint vbuff;
 	GLuint vshader, fshader, program;
 	GLint texloc, posloc, offsloc, shadeloc, dimsloc;
 public:
@@ -77,10 +77,8 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 		0.0f, 1.0f, 0, 0,
 		1.0f, 1.0f, 1, 0,
 	};
-	GLushort elements[] = { 0, 1, 2, 3 };
 
 	vbuff = make_buffer(GL_ARRAY_BUFFER, vertices, sizeof(vertices));
-	ebuff = make_buffer(GL_ELEMENT_ARRAY_BUFFER, elements, sizeof(elements));
 
 	vshader = make_shader(GL_VERTEX_SHADER, vshader_src);
 	if(!vshader)
@@ -235,8 +233,7 @@ void SdlUi::Draw(const Vec3 &l, std::shared_ptr<Img> _img, float shade) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbuff);
 	glVertexAttribPointer(posloc, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat[4]), 0);
 	glEnableVertexAttribArray(posloc);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebuff);
-	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glDisableVertexAttribArray(posloc);
 }
 
@@ -261,8 +258,8 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 	glGenTextures(1, &texId);
 	glBindTexture(GL_TEXTURE_2D, texId);
  
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
  
 	glTexImage2D(GL_TEXTURE_2D, 0, pxSz, surf->w, surf->h, 0,
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
