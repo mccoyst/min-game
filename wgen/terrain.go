@@ -92,8 +92,7 @@ func addWater(w *world.World) {
 			ht--
 		}
 	}
-	fmt.Fprintln(os.Stderr, float64(waterSz)/float64(w.H*w.W)*100,
-		"percent water")
+	fmt.Fprintf(os.Stderr, "%.2f%% water\n", float64(waterSz)/float64(w.H*w.W)*100)
 
 	// blit the water to the map
 	for x := 0; x < w.W; x++ {
