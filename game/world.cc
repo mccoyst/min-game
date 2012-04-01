@@ -20,8 +20,8 @@ World::TerrainType::TerrainType() {
 	t['m'] = Terrain('m', "resrc/Mountain.png");
 
 	std::shared_ptr<Font> f = LoadFont("resrc/retganon.ttf", 12, 128, 128, 128);
-	htImg.resize(World::MaxHeight);
-	for (int i = 0; i < World::MaxHeight; i++)
+	htImg.resize(World::MaxHeight+1);
+	for (int i = 0; i <= World::MaxHeight; i++)
 		htImg[i] = f->Render("%d", i);
 }
 
