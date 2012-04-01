@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) try{
 	// the world also loads some images.
 	World world(stdin);
 
+	bool running = true;
 	bool drag = false;
 	Fixed scrollx(0), scrolly(0), mul(1);
 	int x0 = 0, y0 = 0;
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) try{
 	unsigned long t0 = win->Ticks();
 	unsigned long t1 = t0;
 
-	for ( ; ; ) {
+	while(running){
 		unsigned long frameTime = t1 - t0;
 		t0 = t1;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) try{
 			Fixed amt(0);
 			switch (e.type) {
 			case Event::Closed:
-				goto out;
+				running = false;
 
 			case Event::MouseDown:
 				scrollx = scrolly = Fixed(0);
@@ -130,7 +131,6 @@ int main(int argc, char *argv[]) try{
 			win->Delay(t0 + FrameMsec - t1);
 	}
 
-out:
 	printf("%lu frames\n", nFrames);
 	printf("Mean frame time: %g msec\n", meanTime);
 
