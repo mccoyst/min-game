@@ -39,6 +39,10 @@ int main(int argc, char *argv[]) try{
 	// Must create the world *after* the window because
 	// the world also loads some images.
 	World world(stdin);
+	world.Center(win, world.x0, world.y0);
+
+	std::shared_ptr<Img> guy = LoadImg("resrc/Astronaut.png");
+	Vec3 guyloc(Fixed(world.x0) * World::TileW, Fixed(world.y0) * World::TileH);
 
 	bool running = true;
 	bool drag = false;
@@ -57,6 +61,7 @@ int main(int argc, char *argv[]) try{
 
 		win->Clear();
 		world.Draw(win);
+		win->Draw(guyloc + world.Offset(), guy);
 		doFps(win, font, frameTime);
 		win->Flip();
 

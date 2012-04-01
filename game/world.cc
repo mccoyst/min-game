@@ -51,6 +51,10 @@ World::World(FILE *in) : xoff(0), yoff(0) {
 		locs[i].depth = d;
 		locs[i].terrain = c;
 	}
+
+	n = fscanf(in, " %d %d", &x0, &y0);
+	if (n != 2)
+		throw Failure("Failed to read the start location");
 }
 
 void World::Draw(std::shared_ptr<Ui> ui) {
