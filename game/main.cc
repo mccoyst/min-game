@@ -136,8 +136,8 @@ int main(int argc, char *argv[]) try{
 
 	return 0;
 }catch (const Failure &f) {
-	fputs(f.msg, stdout);
-	fputc('\n', stdout);
+	fputs(f.msg, stderr);
+	fputc('\n', stderr);
 	return 1;
 }
 
