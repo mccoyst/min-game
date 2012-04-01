@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 #include <SDL_main.h>
 
 enum {
@@ -35,6 +36,10 @@ int main(int argc, char *argv[]) try{
 	bool drag = false;
 	Fixed scrollx(0), scrolly(0), mul(1);
 	int x0 = 0, y0 = 0;
+
+	// Compute the mean frame time.
+	double meanTime = 0;
+	unsigned long nFrames = 0;
 
 	for ( ; ; ) {
 		unsigned long t0 = win->Ticks();
@@ -107,11 +112,17 @@ int main(int argc, char *argv[]) try{
 		world.Scroll(scrollx*mul, scrolly*mul);
 
 		unsigned long t1 = win->Ticks();
+		assert (t1 >= t0);
+		nFrames++;
+		meanTime = meanTime + (t1-t0 - meanTime)/nFrames;
 		if (t0 + FrameMsec > t1)
 			win->Delay(t0 + FrameMsec - t1);
 	}
 
 out:
+	printf("%lu frames\n", nFrames);
+	printf("Mean frame time: %g msec\n", meanTime);
+
 	return 0;
 }catch (const Failure &f) {
 	fputs(f.msg, stdout);

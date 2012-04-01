@@ -118,7 +118,7 @@ void SdlUi::Delay(unsigned long msec) {
 }
 
 unsigned long SdlUi::Ticks() {
-	return tick0 - SDL_GetTicks();
+	return SDL_GetTicks() - tick0;
 }
 
 static bool getbutton(SDL_Event &sdle, Event &e) {
