@@ -53,8 +53,7 @@ std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 // Img is the interface to a 2D image.
 struct Img{
 	virtual ~Img() = 0;
-	virtual unsigned int Width() = 0;
-	virtual unsigned int Height() = 0;
+	virtual Vec3 Size() const = 0;
 };
 
 // LoadImg returns an image pointer that has been
