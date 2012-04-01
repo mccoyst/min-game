@@ -14,10 +14,15 @@ const (
 // World is the main container for the world
 // representation of minima.
 type World struct {
+	// W and H are the width and height of the world's
+	// location grid.
 	W, H int
 
 	// locs is the grid of world locations.
 	locs []Loc
+
+	// X0 and Y0 are the start location.
+	X0, Y0 int
 }
 
 // A Loc is a cell in the grid that
@@ -105,6 +110,7 @@ func (w *World) Write(out io.Writer) (err error) {
 	}
 
 	fmt.Fprintln(out)
+	fmt.Fprintln(out, w.X0, w.Y0)
 
 	return
 }
@@ -145,6 +151,8 @@ func Read(in io.Reader) (_ World, err error) {
 		w.locs[i].Height = ht
 		w.locs[i].Depth = dp
 	}
+
+	fmt.Fscanln(in, &w.X0, &w.Y0)
 
 	return w, nil
 }

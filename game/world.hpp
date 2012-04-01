@@ -80,8 +80,8 @@ struct World {
 	}
 
 	// Offset returns the current world offset.
-	std::pair<Fixed,Fixed> Offset() const {
-		return std::pair<Fixed,Fixed>(xoff, yoff);
+	Vec3 Offset() const {
+		return Vec3(xoff, yoff);
 	}
 
 	// Scroll scrolls the world by the given delta;
@@ -89,6 +89,22 @@ struct World {
 		xoff = (xoff + dx) % (Fixed(width) * TileW);
 		yoff = (yoff + dy) % (Fixed(height) * TileH);
 	}
+
+	// Center changes the world's scroll offset so that the location
+	// at the given x,y coordinate is centered.
+	void Center(std::shared_ptr<Ui> win, int x, int y) {
+		x %= width;
+		if (x < 0)
+			x = width + x;
+		y %= height;
+		if (y < 0)
+			y = height + y;
+		xoff = win->width/Fixed(2) - (Fixed(x) * TileW);
+		yoff = win->height/Fixed(2) - (Fixed(y) * TileH);
+	}
+
+	// The location of the start tile.
+	int x0, y0;
 
 private:
 
