@@ -24,15 +24,17 @@ bool drawHeights;
 bool drawFps;
 
 static void parseArgs(int, char*[]);
-static void loadingText(std::shared_ptr<Ui>);
-static void doFps(std::shared_ptr<Ui>, unsigned long);
+static void loadingText(std::shared_ptr<Ui>, std::shared_ptr<Font>);
+static void doFps(std::shared_ptr<Ui>, std::shared_ptr<Font>, unsigned long);
 
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
 	Fixed width(800), height(600);
 	std::shared_ptr<Ui> win(OpenWindow(width, height, "Minima"));
-	loadingText(win);
+
+	std::shared_ptr<Font> font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
+	loadingText(win, font);
 
 	// Must create the world *after* the window because
 	// the world also loads some images.
@@ -54,7 +56,7 @@ int main(int argc, char *argv[]) try{
 
 		win->Clear();
 		world.Draw(win);
-		doFps(win, frameTime);
+		doFps(win, font, frameTime);
 		win->Flip();
 
 		Event e;
@@ -148,23 +150,17 @@ static void parseArgs(int argc, char *argv[]) {
 	}
 }
 
-static void loadingText(std::shared_ptr<Ui> win) {
-	std::shared_ptr<Font> font = LoadFont(
-		"resrc/prstartk.ttf", 16, 255, 255, 255
-	);
+static void loadingText(std::shared_ptr<Ui> win, std::shared_ptr<Font> font) {
 	std::shared_ptr<Img> img = font->Render("Generating World");
 	win->Clear();
 	win->Draw(Vec3(Fixed(0), Fixed(0)), img);
 	win->Flip();
 }
 
-static void doFps(std::shared_ptr<Ui> win, unsigned long msec) {
+static void doFps(std::shared_ptr<Ui> win, std::shared_ptr<Font> font,
+		unsigned long msec) {
 	if (!drawFps)
 		return;
-
-	static std::shared_ptr<Font> font;
-	if (!font)
-		font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
 	unsigned long rate = 1.0 / (msec / 1000.0);
 	win->Draw(Vec3(Fixed(0), Fixed(0)), font->Render("%lu fps", rate));
 }
