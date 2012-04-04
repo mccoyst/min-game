@@ -1,5 +1,4 @@
-#ifndef _LEN_HPP_
-#define _LEN_HPP_
+#pragma once
 
 // Fixed is a fixed-point numeric type, scaled by Fixed::Scale;
 class Fixed{
@@ -222,5 +221,3 @@ inline bool operator == (const Vec2 &a, const Vec2 &b){
 inline bool operator != (const Vec2 &a, const Vec2 &b){
 	return !(a == b);
 }
-
-#endif	// _LEN_HPP_
