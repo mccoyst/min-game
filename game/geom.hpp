@@ -8,7 +8,7 @@ struct Isection {
 
 	// This constructor creates an intersection that represents
 	// no intersection.
-	Isection() : overlap(Fixed(0), Fixed(0)) { }
+	Isection() : overlap(Fixed(-1), Fixed(-1)) { }
 
 	// This constructor creates an intersection with the given
 	// amount of overlap.
@@ -17,11 +17,13 @@ struct Isection {
 	// Converting an intersection to a bool tests if there even
 	// was an intersection.
 	operator bool() {
-		return overlap.x.IsZero() && overlap.y.IsZero();
+		return overlap.x < Fixed(0) || overlap.y < Fixed(0);
 	}
 
 	// Area is the area of overlap for this intersection.
-	Fixed Area() const { return overlap.x * overlap.y; }
+	Fixed Area() const {
+		return overlap.x * overlap.y;
+	}
 };
 
 // A Bbox is a bounding box that can be used for collision
@@ -46,7 +48,7 @@ struct Bbox {
 
 	// Isect returns the intersection between the two bounding boxes.
 	Isection Isect(const Bbox &o) const {
-		Vec2 overlap(Fixed(0), Fixed(0));
+		Vec2 overlap(Fixed(-1), Fixed(-1));
 		if (Fixed::Between(o.min.x, o.max.x, max.x))
 			overlap.x = max.x - o.min.x;
 		else if (Fixed::Between(min.x, max.x, o.max.x))
