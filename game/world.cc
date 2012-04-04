@@ -4,8 +4,6 @@
 #include "ui.hpp"
 #include <limits>
 
-static float shade(const World::Loc&);
-
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
 const Vec2 World::TileSz(TileW, TileH);
@@ -74,7 +72,7 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
-		ui->Draw(v, terrain[l.terrain].img, shade(l));
+		ui->Draw(v, terrain[l.terrain].img, l.Shade());
 
 		if (!drawHeights)
 			continue;
@@ -90,9 +88,9 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 //
 // The shade value is computed by linear interpolation
 // between 0=minSh and MaxHeight=1.
-static float shade(const World::Loc &l) {
+float World::Loc::Shade() const{
 	// minSh is the minimum shade value.
 	static const float minSh = 0.25;
 	static const float slope = (1 - minSh) / World::MaxHeight;
-	return slope*(l.height - l.depth) + minSh;
+	return slope*(this->height - this->depth) + minSh;
 }
