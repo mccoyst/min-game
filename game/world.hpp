@@ -51,6 +51,8 @@ struct World {
 	struct Loc {
 		unsigned char height, depth;
 		char terrain;
+
+		float Shade() const;
 	};
 
 	// World constructs a new world by reading it from
