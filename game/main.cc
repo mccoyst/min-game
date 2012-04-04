@@ -1,6 +1,7 @@
 #include "ui.hpp"
 #include "world.hpp"
 #include "game.hpp"
+#include "geom.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cassert>
