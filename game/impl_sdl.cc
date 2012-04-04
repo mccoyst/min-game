@@ -79,14 +79,8 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	vbuff = make_buffer(GL_ARRAY_BUFFER, vertices, sizeof(vertices));
 
 	vshader = make_shader(GL_VERTEX_SHADER, vshader_src);
-	if(!vshader)
-		throw Failure("Failed to compile vertex shader");
 	fshader = make_shader(GL_FRAGMENT_SHADER, fshader_src);
-	if(!fshader)
-		throw Failure("Failed to compile fragment shader");
 	program = make_program(vshader, fshader);
-	if(!program)
-		throw Failure("Failed to link program");
 
 	texloc = glGetUniformLocation(program, "tex");
 	posloc = glGetAttribLocation(program, "position");
@@ -330,18 +324,27 @@ GLuint make_shader(GLenum type, const char *src){
 	GLint shader_ok;
 
 	shader = glCreateShader(type);
+	if (!shader)
+		throw Failure("Failed to create a shader");
 	glShaderSource(shader, 1, &src, &len);
 	glCompileShader(shader);
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
 	if(!shader_ok){
-		GLint log_len;
+		GLint log_len = 0;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
-		char *log = new char[len];
-		glGetShaderInfoLog(shader, log_len, NULL, log);
-		fprintf(stderr, "Shader error: %s", log);
-		delete [] log;
+		char *log;
+		if (log_len > 0) {
+			log = new char[log_len];
+			glGetShaderInfoLog(shader, log_len, NULL, log);
+		} else {
+			log = (char*) "<no message>";
+		}
+		Failure fail("Failed to compile shader: %s", log);
 		glDeleteShader(shader);
-		return 0;
+		if (log_len > 0)
+			delete [] log;
+		throw fail;
+		abort();
 	}
 	return shader;
 }
@@ -350,6 +353,8 @@ GLuint make_program(GLuint vshader, GLuint fshader){
 	GLint program_ok;
 
 	GLuint program = glCreateProgram();
+	if (!program)
+		throw Failure("Failed to create a program");
 	glAttachShader(program, vshader);
 	glAttachShader(program, fshader);
 	glLinkProgram(program);
@@ -357,12 +362,19 @@ GLuint make_program(GLuint vshader, GLuint fshader){
 	if(!program_ok){
 		GLint log_len;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
-		char *log = new char[log_len];
-		glGetProgramInfoLog(program, log_len, NULL, log);
-		fprintf(stderr, "Program error: %s", log);
-		delete [] log;
+		char *log;
+		if (log_len > 0) {
+			log = new char[log_len];
+			glGetProgramInfoLog(program, log_len, NULL, log);
+		} else {
+			log = (char*) "<no message>";
+		}
+		Failure fail("Failed to link program: %s", log);
+		if (log_len > 0)
+			delete [] log;
 		glDeleteProgram(program);
-		return 0;
+		throw fail;
+		abort();
 	}
 	return program;
 }
