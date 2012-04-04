@@ -343,7 +343,6 @@ GLuint make_shader(GLenum type, const char *src){
 		if (log_len > 0)
 			delete [] log;
 		throw fail;
-		abort();
 	}
 	return shader;
 }
@@ -373,7 +372,6 @@ GLuint make_program(GLuint vshader, GLuint fshader){
 			delete [] log;
 		glDeleteProgram(program);
 		throw fail;
-		abort();
 	}
 	return program;
 }
