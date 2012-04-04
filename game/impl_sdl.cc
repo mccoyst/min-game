@@ -5,7 +5,6 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <cstdarg>
-#include <cassert>
 
 namespace{
 extern const char *vshader_src;
