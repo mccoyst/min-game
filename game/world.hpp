@@ -9,8 +9,8 @@ struct World {
 	// in pixels.
 	static const Fixed TileW, TileH;
 
-	// A Vec3 with the width and height of a tile.
-	static const Vec3 TileSz;
+	// A Vec2 with the width and height of a tile.
+	static const Vec2 TileSz;
 
 	enum {
 		// MaxHeight is the maximum value for the height
@@ -80,8 +80,8 @@ struct World {
 	}
 
 	// Offset returns the current world offset.
-	Vec3 Offset() const {
-		return Vec3(xoff, yoff);
+	Vec2 Offset() const {
+		return Vec2(xoff, yoff);
 	}
 
 	// Scroll scrolls the world by the given delta;

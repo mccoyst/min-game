@@ -36,25 +36,25 @@ bool operator > (Fixed, Fixed);
 bool operator >= (Fixed, Fixed);
 
 // Vec is a trio of Fixeds, representing a vector in 2D coords.
-struct Vec3{
-	Fixed x, y, z;
+struct Vec2{
+	Fixed x, y;
 
-	Vec3(Fixed x, Fixed y, Fixed z);
-	Vec3(const Vec3 &);
+	Vec2(Fixed x, Fixed y);
+	Vec2(const Vec2 &);
 
-	Vec3 &operator = (const Vec3&);
-	Vec3 &operator += (const Vec3&);
-	Vec3 &operator -= (const Vec3&);
-	Vec3 &operator *= (Fixed);
-	Vec3 &operator /= (Fixed);
+	Vec2 &operator = (const Vec2&);
+	Vec2 &operator += (const Vec2&);
+	Vec2 &operator -= (const Vec2&);
+	Vec2 &operator *= (Fixed);
+	Vec2 &operator /= (Fixed);
 };
 
-Vec3 operator + (Vec3, const Vec3&);
-Vec3 operator - (Vec3, const Vec3&);
-Vec3 operator * (Vec3, Fixed);
-Vec3 operator / (Vec3, Fixed);
-bool operator == (const Vec3&, const Vec3&);
-bool operator != (const Vec3&, const Vec3&);
+Vec2 operator + (Vec2, const Vec2&);
+Vec2 operator - (Vec2, const Vec2&);
+Vec2 operator * (Vec2, Fixed);
+Vec2 operator / (Vec2, Fixed);
+bool operator == (const Vec2&, const Vec2&);
+bool operator != (const Vec2&, const Vec2&);
 
 // Template and other inline definitions reside below.
 
@@ -161,70 +161,65 @@ inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
 }
 
-inline Vec3::Vec3(Fixed x, Fixed y, Fixed z = Fixed(0))
-	: x(x), y(y), z(z){
+inline Vec2::Vec2(Fixed x, Fixed y)
+	: x(x), y(y){
 }
 
-inline Vec3::Vec3(const Vec3 &v)
-	: x(v.x), y(v.y), z(v.z){
+inline Vec2::Vec2(const Vec2 &v)
+	: x(v.x), y(v.y){
 }
 
-inline Vec3 &Vec3::operator = (const Vec3 &v){
+inline Vec2 &Vec2::operator = (const Vec2 &v){
 	this->x = v.x;
 	this->y = v.y;
-	this->z = v.z;
 	return *this;
 }
 
-inline Vec3 &Vec3::operator += (const Vec3 &v){
+inline Vec2 &Vec2::operator += (const Vec2 &v){
 	this->x += v.x;
 	this->y += v.y;
-	this->z += v.z;
 	return *this;
 }
 
-inline Vec3 &Vec3::operator -= (const Vec3 &v){
+inline Vec2 &Vec2::operator -= (const Vec2 &v){
 	this->x -= v.x;
 	this->y -= v.y;
-	this->z -= v.z;
 	return *this;
 }
 
-inline Vec3 &Vec3::operator *= (Fixed n){
+inline Vec2 &Vec2::operator *= (Fixed n){
 	this->x *= n;
 	this->y *= n;
-	this->z *= n;
 	return *this;
 }
 
-inline Vec3 &Vec3::operator /= (Fixed n){
+inline Vec2 &Vec2::operator /= (Fixed n){
 	this->x /= n;
 	this->y /= n;
-	this->z /= n;
 	return *this;
 }
 
-inline Vec3 operator + (Vec3 a, const Vec3 &b){
+inline Vec2 operator + (Vec2 a, const Vec2 &b){
 	return a += b;
 }
 
-inline Vec3 operator - (Vec3 a, const Vec3 &b){
+inline Vec2 operator - (Vec2 a, const Vec2 &b){
 	return a -= b;
 }
 
-inline Vec3 operator * (Vec3 v, Fixed n){
+inline Vec2 operator * (Vec2 v, Fixed n){
 	return v *= n;
 }
 
-inline Vec3 operator / (Vec3 v, Fixed n){
+inline Vec2 operator / (Vec2 v, Fixed n){
 	return v /= n;
 }
 
-inline bool operator == (const Vec3 &a, const Vec3 &b){
-	return a.x == b.x && a.y == b.y && a.z == b.z;
+inline bool operator == (const Vec2 &a, const Vec2 &b){
+	return a.x == b.x && a.y == b.y;
 }
 
-inline bool operator != (const Vec3 &a, const Vec3 &b){
+inline bool operator != (const Vec2 &a, const Vec2 &b){
 	return !(a == b);
 }
 

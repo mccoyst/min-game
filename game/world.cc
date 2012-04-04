@@ -5,7 +5,7 @@
 
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
-const Vec3 World::TileSz(TileW, TileH);
+const Vec2 World::TileSz(TileW, TileH);
 
 World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
 	img = LoadImg(resrc);
@@ -61,14 +61,14 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 	extern bool drawHeights;	// main.cc
 	Fixed w(ui->width / TileW);
 	Fixed h(ui->height / TileH);
-	Vec3 offs(xoff%TileW, yoff%TileW);
+	Vec2 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
 	for (Fixed y(-1); y <= h + Fixed(1); y += Fixed(1)) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		Vec3 v = Vec3(x*TileW, y*TileH, Fixed(0)) + offs;
+		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
 		float f = (l.height-l.depth+MaxHeight) / (2.0*MaxHeight);
 		ui->Draw(v, terrain[l.terrain].img, f);
 

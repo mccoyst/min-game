@@ -24,7 +24,7 @@ public:
 	// This image will not appear until the Flip() method is caled.
 	// the shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	virtual void Draw(const Vec3&, std::shared_ptr<Img> img, float shade = 1) = 0;
+	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1) = 0;
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
@@ -53,7 +53,7 @@ std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 // Img is the interface to a 2D image.
 struct Img{
 	virtual ~Img() = 0;
-	virtual Vec3 Size() const = 0;
+	virtual Vec2 Size() const = 0;
 };
 
 // LoadImg returns an image pointer that has been
