@@ -70,6 +70,10 @@ struct World {
 		return locs.at(x*size.y.whole()+y);
 	}
 
+	const Loc &At(unsigned x, unsigned y) const{
+		return locs.at(x*size.y.whole() + y);
+	}
+
 	// atcoord returns the location at the given world
 	// coordinate taking into account wrapping around
 	// the ends.

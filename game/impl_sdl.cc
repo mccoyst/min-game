@@ -9,6 +9,8 @@
 namespace{
 extern const char *vshader_src;
 extern const char *fshader_src;
+extern const char *world_vshader;
+extern const char *world_fshader;
 GLuint make_buffer(GLenum target, const void *data, GLsizei size);
 GLuint make_shader(GLenum type, const char *src);
 GLuint make_program(GLuint vshader, GLuint fshader);
@@ -20,6 +22,12 @@ class SdlUi : public Ui {
 	GLuint vbuff;
 	GLuint vshader, fshader, program;
 	GLint texloc, posloc, offsloc, shadeloc, dimsloc;
+
+	struct{
+		GLuint vbuff;
+		GLuint program;
+		GLint texloc, posloc, idloc, shadeloc, offsloc;
+	} world;
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
 	~SdlUi();
@@ -29,6 +37,8 @@ public:
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(Event&);
 	virtual void Draw(const Vec2&, std::shared_ptr<Img>, float);
+	virtual void SetWorld(const World&);
+	virtual void DrawWorld();
 };
 
 struct SdlImg : public Img {
@@ -86,6 +96,15 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	offsloc = glGetUniformLocation(program, "offset");
 	shadeloc = glGetUniformLocation(program, "shade");
 	dimsloc = glGetUniformLocation(program, "dims");
+
+	auto wv = make_shader(GL_VERTEX_SHADER, world_vshader);
+	auto wf = make_shader(GL_FRAGMENT_SHADER, world_fshader);
+	world.program = make_program(vshader, fshader);
+	world.posloc = glGetAttribLocation(world.program, "position");
+	world.idloc = glGetAttribLocation(world.program, "texid");
+	world.shadeloc = glGetAttribLocation(world.program, "shade");
+	world.offsloc = glGetUniformLocation(world.program, "offset");
+	world.texloc = glGetUniformLocation(world.program, "texes");
 }
 
 SdlUi::~SdlUi() {
@@ -256,6 +275,14 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
 }
 
+void SdlUi::SetWorld(const World &w){
+
+}
+
+void SdlUi::DrawWorld(){
+
+}
+
 SdlImg::~SdlImg() {
 	glDeleteTextures(1, &texId);
 }
@@ -404,4 +431,43 @@ const char *fshader_src =
 	"	gl_FragColor = vec4(tc.rgb*shade, tc.a);"
 	"}"
 	;
+
+const char *world_vshader =
+	"#version 120\n"
+	""
+	"attribute vec4 position;"
+	"attribute float texid;"
+	"attribute float shade;"
+	""
+	"varying vec2 texCoord;"
+	"varying float texId;"
+	"varying float texShade;"
+	""
+	"uniform vec2 offset;"
+	""
+	"void main(){"
+	"	vec4 trans = vec4(position.xy + offset, 0.0, 1.0);"
+	"	gl_Position = gl_ModelViewProjectionMatrix * trans;"
+	""
+	"	texCoord = position.zw;"
+	"	texId = texid;"
+	"	texShade = shade;"
+	"}"
+	;
+
+const char *world_fshader =
+	"#version 120\n"
+	""
+	"varying vec2 texCoord;"
+	"varying float texId;"
+	"varying float texShade;"
+	""
+	"uniform sampler2D texes[3];"
+	""
+	"void main(){"
+	"	vec4 c = texture2D(texes[int(texId)], texCoord);"
+	"	gl_FragColor = vec4(c.rgb*texShade, c.a);"
+	"}"
+	;
+
 }

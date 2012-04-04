@@ -6,6 +6,7 @@
 class Ui;
 class Img;
 struct Event;
+struct World;
 
 // Ui is the interface to a user interface window, including graphics,
 // device input, and sound.
@@ -25,6 +26,14 @@ public:
 	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
 	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1) = 0;
+
+	// SetWorld sets the world for DrawWorld().
+	// TODO: Generalize these concepts so we can draw more things
+	// as tiles.
+	virtual void SetWorld(const World&) = 0;
+
+	// DrawWorld draws the surface of the planet, as set by SetWorld().
+	virtual void DrawWorld() = 0;
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
