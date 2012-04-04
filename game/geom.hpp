@@ -1,6 +1,7 @@
 #pragma once
 
 #include "world.hpp"
+#include <cassert>
 
 // An Isection holds information about an intersection.
 struct Isection {
@@ -33,7 +34,7 @@ struct Bbox {
 
 	// Bbox constructs a new bounding box with the given
 	// minimum and maximum points.
-	Bbox(const Vec2 &mn, const Vec2 &mx) : min(mn), max(mx) {
+	Bbox(const World &w, const Vec2 &mn, const Vec2 &mx) : min(mn), max(mx) {
 		if (min.x > max.x) {
 			Fixed t = max.x;
 			max.x = min.x;
@@ -44,20 +45,38 @@ struct Bbox {
 			max.y = min.y;
 			min.y = t;
 		}
+		normalize(w);
 	}
 
 	// Isect returns the intersection between the two bounding boxes.
-	Isection Isect(const Bbox &o) const {
+	Isection Isect(const World &w, const Bbox &o) const {
+		assert (min < w.size);
+		assert (max >= Vec2::Zero);
+		assert (o.min < w.size);
+		assert (o.max >= Vec2::Zero);
+
 		Vec2 overlap(Fixed(-1), Fixed(-1));
 		if (Fixed::Between(o.min.x, o.max.x, max.x))
 			overlap.x = max.x - o.min.x;
 		else if (Fixed::Between(min.x, max.x, o.max.x))
 			overlap.x = o.max.x - min.x;
+		else if (max.x >= w.size.x && o.max.x < w.size.x &&
+			Fixed::Between(o.min.x, o.max.x, max.x % w.size.x))
+			overlap.x = o.max.x - max.x % w.size.x;
+		else if (o.max.x >= w.size.x && max.x < w.size.x &&
+			Fixed::Between(min.x, max.x, o.max.x % w.size.x))
+			overlap.x = o.max.x - min.x % w.size.x;
 
 		if (Fixed::Between(o.min.y, o.max.y, max.y))
 			overlap.y = max.y - o.min.y;
 		else if (Fixed::Between(min.y, max.y, o.max.y))
 			overlap.y = o.max.y - min.y;
+		else if (max.y >= w.size.y && o.max.y < w.size.y &&
+			Fixed::Between(o.min.y, o.max.y, max.y % w.size.y))
+			overlap.y = max.y - o.min.y % w.size.y;
+		else if (o.max.y >= w.size.y && max.y < w.size.y &&
+			Fixed::Between(min.y, max.y, o.max.y % w.size.y))
+			overlap.y = o.max.y - max.y % w.size.y;
 
 		return Isection(overlap);
 	}
@@ -66,7 +85,17 @@ struct Bbox {
 	// point is always within the world's (0,0)--(width-1,height-1).
 	void Move(const World &w, const Vec2 &d) {
 		min += d;
-		if (min.x > w.size.x) {
+		max.x += d.x;
+		normalize(w);
+	}
+
+private:
+
+	// normalize ensures that the minimum coordinate is
+	// within the (0,0)--w.size while the maximum coordinate
+	// is allowed to pass off of the end of the world.
+	void normalize(const World &w) {
+		if (min.x >= w.size.x) {
 			Fixed width = max.x - min.x;
 			min.x %= w.size.x;
 			max.x = min.x + width;
@@ -74,11 +103,9 @@ struct Bbox {
 			Fixed width = max.x - min.x;
 			min.x = w.size.x + (min.x % w.size.x);
 			max.x = min.x + width;
-		} else {
-			max.x += d.x;
 		}
 
-		if (min.y > w.size.y) {
+		if (min.y >= w.size.y) {
 			Fixed height = max.y - min.y;
 			min.y %= w.size.y;
 			max.y = min.y + height;
@@ -86,8 +113,7 @@ struct Bbox {
 			Fixed height = max.y - min.y;
 			min.y = w.size.y + (min.y % w.size.y);
 			max.y = min.y + height;
-		} else {
-			max.y += d.y;
 		}
+		assert (min < w.size);
 	}
 };
