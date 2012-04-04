@@ -21,8 +21,8 @@ public:
 	virtual ~Ui();
 
 	// Draw draws the image to the back-buffer of the window.
-	// This image will not appear until the Flip() method is caled.
-	// the shade argument is an alpha value between 0 (dark) and
+	// This image will not appear until the Flip() method is called.
+	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
 	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1) = 0;
 
