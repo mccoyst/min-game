@@ -85,7 +85,7 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 // shade returns the shade value for the given location
 // which is based on its height and depth.
 //
-// The shade value is computed by linearlly interpolating
+// The shade value is computed by linear interpolation
 // between 0=minSh and MaxHeight=1.
 static float shade(const World::Loc &l) {
 	// minSh is the minimum shade value.
