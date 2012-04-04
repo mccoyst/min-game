@@ -1,5 +1,6 @@
 #include "ui.hpp"
 #include "game.hpp"
+#include "world.hpp"
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
@@ -275,8 +276,65 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
 }
 
-void SdlUi::SetWorld(const World &w){
+namespace{
+	struct TileVert{
+		float pos[4];
+		unsigned char tileid;
+		float shade;
+	};
 
+	int tid(char t){
+		if(t == 'w') return 0;
+		if(t == 'g') return 1;
+		if(t == 'm') return 2;
+		throw Failure("Invalid tile char");
+	}
+}
+
+void SdlUi::SetWorld(const World &w){
+	int tilew = World::TileW.whole();
+	int tileh = World::TileH.whole();
+
+	std::vector<TileVert> verts;
+
+	for(auto y = 0U; y < w.size.y.whole(); y++){
+	for(auto x = 0U; x < w.size.x.whole(); x++){
+		auto l = w.At(x, y);
+		auto px = x*tilew;
+		auto py = y*tileh;
+		auto id = tid(l.terrain);
+		auto s = l.Shade();
+
+		TileVert tv0 = {
+			{ px, py, 0, 1 },
+			id, s
+		};
+		TileVert tv1 = {
+			{ px, py + tileh, 1, 1 },
+			id, s
+		};
+		TileVert tv2 = {
+			{ px + tilew, py, 0, 0 },
+			id, s
+		};
+		TileVert tv3 = {
+			{ px + tilew, py + tileh, 1, 0 },
+			id, s
+		};
+
+		// lower triangle
+		verts.push_back(tv0);
+		verts.push_back(tv1);
+		verts.push_back(tv2);
+		// upper triangle
+		verts.push_back(tv2);
+		verts.push_back(tv3);
+		verts.push_back(tv1);
+	}
+	}
+
+	glDeleteBuffers(1, &world.vbuff);
+	world.vbuff = make_buffer(GL_ARRAY_BUFFER, verts.data(), verts.size()*sizeof(TileVert));
 }
 
 void SdlUi::DrawWorld(){
