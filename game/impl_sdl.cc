@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <cstdarg>
+#include <cstddef>
 
 namespace{
 extern const char *vshader_src;
@@ -368,13 +369,16 @@ void SdlUi::DrawWorld(const Vec2 &l){
 
 	glBindBuffer(GL_ARRAY_BUFFER, world.vbuff);
 
-	glVertexAttribPointer(world.posloc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(world.posloc, 4, GL_FLOAT, GL_FALSE,
+		sizeof(TileVert), (void*)offsetof(TileVert, pos));
 	glEnableVertexAttribArray(world.posloc);
 
-	glVertexAttribPointer(world.idloc, 1, GL_BYTE, GL_FALSE, 0, 0);
+	glVertexAttribPointer(world.idloc, 1, GL_UNSIGNED_BYTE, GL_FALSE,
+		sizeof(TileVert), (void*)offsetof(TileVert, tileid));
 	glEnableVertexAttribArray(world.idloc);
 
-	glVertexAttribPointer(world.shadeloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(world.shadeloc, 1, GL_FLOAT, GL_FALSE,
+		sizeof(TileVert), (void*)offsetof(TileVert, shade));
 	glEnableVertexAttribArray(world.shadeloc);
 
 	glDrawArrays(GL_TRIANGLES, 0, world.nverts);
