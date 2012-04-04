@@ -1,6 +1,7 @@
 #include "ui.hpp"
 #include "world.hpp"
 #include "game.hpp"
+#include "geom.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cassert>
@@ -31,9 +32,9 @@ int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
 	Fixed width(800), height(600);
-	std::shared_ptr<Ui> win(OpenWindow(width, height, "Minima"));
+	auto win(OpenWindow(width, height, "Minima"));
 
-	std::shared_ptr<Font> font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
+	auto font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
 	loadingText(win, font);
 
 	// Must create the world *after* the window because
@@ -41,8 +42,8 @@ int main(int argc, char *argv[]) try{
 	World world(stdin);
 	world.Center(win, world.x0, world.y0);
 
-	std::shared_ptr<Img> guy = LoadImg("resrc/Astronaut.png");
-	Vec3 guyloc(Fixed(world.x0) * World::TileW, Fixed(world.y0) * World::TileH);
+	auto guy = LoadImg("resrc/Astronaut.png");
+	Vec2 guyloc(Fixed(world.x0) * World::TileW, Fixed(world.y0) * World::TileH);
 
 	bool running = true;
 	bool drag = false;
@@ -156,9 +157,9 @@ static void parseArgs(int argc, char *argv[]) {
 }
 
 static void loadingText(std::shared_ptr<Ui> win, std::shared_ptr<Font> font) {
-	std::shared_ptr<Img> img = font->Render("Generating World");
+	auto img = font->Render("Generating World");
 	win->Clear();
-	win->Draw(Vec3(Fixed(0), Fixed(0)), img);
+	win->Draw(Vec2(Fixed(0), Fixed(0)), img);
 	win->Flip();
 }
 
@@ -167,5 +168,5 @@ static void doFps(std::shared_ptr<Ui> win, std::shared_ptr<Font> font,
 	if (!drawFps)
 		return;
 	unsigned long rate = 1.0 / (msec / 1000.0);
-	win->Draw(Vec3(Fixed(0), Fixed(0)), font->Render("%lu fps", rate));
+	win->Draw(Vec2(Fixed(0), Fixed(0)), font->Render("%lu fps", rate));
 }

@@ -1,4 +1,6 @@
 #include <cstdio>
+#pragma once
+
 #include <vector>
 #include <memory>
 #include "ui.hpp"
@@ -9,8 +11,8 @@ struct World {
 	// in pixels.
 	static const Fixed TileW, TileH;
 
-	// A Vec3 with the width and height of a tile.
-	static const Vec3 TileSz;
+	// A Vec2 with the width and height of a tile.
+	static const Vec2 TileSz;
 
 	enum {
 		// MaxHeight is the maximum value for the height
@@ -63,7 +65,7 @@ struct World {
 	// This routine doesn't wrap around at the limits of
 	// the world.
 	Loc &At(unsigned int x, unsigned int y) {
-		return locs.at(x*height+y);
+		return locs.at(x*size.y.whole()+y);
 	}
 
 	// atcoord returns the location at the given world
@@ -80,8 +82,8 @@ struct World {
 	}
 
 	// Offset returns the current world offset.
-	Vec3 Offset() const {
-		return Vec3(xoff, yoff);
+	Vec2 Offset() const {
+		return Vec2(xoff, yoff);
 	}
 
 	// Scroll scrolls the world by the given delta;
@@ -103,8 +105,11 @@ struct World {
 		yoff = win->height/Fixed(2) - (Fixed(y) * TileH);
 	}
 
-	// The location of the start tile.
+	// The indices of the start tile.
 	int x0, y0;
+
+	// The world's dimensions.
+	Vec2 size;
 
 private:
 
