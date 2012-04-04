@@ -31,9 +31,9 @@ int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
 	Fixed width(800), height(600);
-	std::shared_ptr<Ui> win(OpenWindow(width, height, "Minima"));
+	auto win(OpenWindow(width, height, "Minima"));
 
-	std::shared_ptr<Font> font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
+	auto font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
 	loadingText(win, font);
 
 	// Must create the world *after* the window because
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) try{
 	World world(stdin);
 	world.Center(win, world.x0, world.y0);
 
-	std::shared_ptr<Img> guy = LoadImg("resrc/Astronaut.png");
+	auto guy = LoadImg("resrc/Astronaut.png");
 	Vec2 guyloc(Fixed(world.x0) * World::TileW, Fixed(world.y0) * World::TileH);
 
 	bool running = true;
@@ -156,7 +156,7 @@ static void parseArgs(int argc, char *argv[]) {
 }
 
 static void loadingText(std::shared_ptr<Ui> win, std::shared_ptr<Font> font) {
-	std::shared_ptr<Img> img = font->Render("Generating World");
+	auto img = font->Render("Generating World");
 	win->Clear();
 	win->Draw(Vec2(Fixed(0), Fixed(0)), img);
 	win->Flip();
