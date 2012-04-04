@@ -27,7 +27,9 @@ class SdlUi : public Ui {
 	struct{
 		GLuint vbuff;
 		GLuint program;
-		GLint texloc, posloc, idloc, shadeloc, offsloc;
+		GLint texloc[3], posloc, idloc, shadeloc, offsloc;
+		GLuint nverts;
+		std::shared_ptr<Img> texes[3];
 	} world;
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
@@ -39,7 +41,7 @@ public:
 	virtual bool PollEvent(Event&);
 	virtual void Draw(const Vec2&, std::shared_ptr<Img>, float);
 	virtual void SetWorld(const World&);
-	virtual void DrawWorld();
+	virtual void DrawWorld(const Vec2&);
 };
 
 struct SdlImg : public Img {
@@ -105,7 +107,9 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	world.idloc = glGetAttribLocation(world.program, "texid");
 	world.shadeloc = glGetAttribLocation(world.program, "shade");
 	world.offsloc = glGetUniformLocation(world.program, "offset");
-	world.texloc = glGetUniformLocation(world.program, "texes");
+	world.texloc[0] = glGetUniformLocation(world.program, "texes[0]");
+	world.texloc[1] = glGetUniformLocation(world.program, "texes[1]");
+	world.texloc[2] = glGetUniformLocation(world.program, "texes[2]");
 }
 
 SdlUi::~SdlUi() {
@@ -335,10 +339,48 @@ void SdlUi::SetWorld(const World &w){
 
 	glDeleteBuffers(1, &world.vbuff);
 	world.vbuff = make_buffer(GL_ARRAY_BUFFER, verts.data(), verts.size()*sizeof(TileVert));
+	world.nverts = verts.size();
+
+	world.texes[0] = w.terrain['w'].img;
+	world.texes[1] = w.terrain['g'].img;
+	world.texes[2] = w.terrain['m'].img;
 }
 
-void SdlUi::DrawWorld(){
+void SdlUi::DrawWorld(const Vec2 &l){
+	glUseProgram(world.program);
 
+	auto i = static_cast<SdlImg*>(world.texes[0].get());
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, i->texId);
+	glUniform1i(world.texloc[0], 0);
+
+	i = static_cast<SdlImg*>(world.texes[1].get());
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, i->texId);
+	glUniform1i(world.texloc[1], 1);
+
+	i = static_cast<SdlImg*>(world.texes[2].get());
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, i->texId);
+	glUniform1i(world.texloc[2], 2);
+
+	glUniform2f(offsloc, l.x.whole(), l.y.whole());
+
+	glBindBuffer(GL_ARRAY_BUFFER, world.vbuff);
+
+	glVertexAttribPointer(world.posloc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(world.posloc);
+
+	glVertexAttribPointer(world.idloc, 1, GL_BYTE, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(world.idloc);
+
+	glVertexAttribPointer(world.shadeloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(world.shadeloc);
+
+	glDrawArrays(GL_TRIANGLES, 0, world.nverts);
+	glDisableVertexAttribArray(world.shadeloc);
+	glDisableVertexAttribArray(world.idloc);
+	glDisableVertexAttribArray(world. posloc);
 }
 
 SdlImg::~SdlImg() {

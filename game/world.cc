@@ -66,21 +66,7 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 	Fixed h(ui->height / TileH);
 	Vec2 offs(xoff%TileW, yoff%TileW);
 
-	for (Fixed x(-1); x <= w; x += Fixed(1)) {
-	for (Fixed y(-1); y <= h + Fixed(1); y += Fixed(1)) {
-		int xcoord = (x - xoff/TileW).whole();
-		int ycoord = (y - yoff/TileH).whole();
-		const Loc &l = AtCoord(xcoord, ycoord);
-		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
-		ui->Draw(v, terrain[l.terrain].img, l.Shade());
-
-		if (!drawHeights)
-			continue;
-
-		auto txt = terrain.heightImg(l.height);
-		ui->Draw(v, txt);
-	}
-	}
+	ui->DrawWorld(offs);
 }
 
 // shade returns the shade value for the given location
