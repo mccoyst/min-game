@@ -34,7 +34,7 @@ bool operator <= (Fixed, Fixed);
 bool operator > (Fixed, Fixed);
 bool operator >= (Fixed, Fixed);
 
-// Vec is a trio of Fixeds, representing a vector in 2D coords.
+// Vec is a tuple of Fixeds, representing a vector in 2D coords.
 struct Vec2{
 	Fixed x, y;
 
