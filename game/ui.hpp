@@ -33,7 +33,7 @@ public:
 	virtual void SetWorld(const World&) = 0;
 
 	// DrawWorld draws the surface of the planet, as set by SetWorld().
-	virtual void DrawWorld() = 0;
+	virtual void DrawWorld(const Vec2&) = 0;
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.

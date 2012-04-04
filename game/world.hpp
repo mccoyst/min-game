@@ -41,6 +41,7 @@ struct World {
 		// operator[] returns the terrain with the given character
 		// representation.
 		Terrain &operator[](int i) { return t[i]; }
+		const Terrain &operator [] (int i) const { return t[i]; }
 
 		// heightImg returns an image containing the text for
 		// the given height value.
