@@ -34,7 +34,7 @@ struct Bbox {
 
 	// Bbox constructs a new bounding box with the given
 	// minimum and maximum points.
-	Bbox(const Vec2 &mn, const Vec2 &mx) : min(mn), max(mx) {
+	Bbox(const World &w, const Vec2 &mn, const Vec2 &mx) : min(mn), max(mx) {
 		if (min.x > max.x) {
 			Fixed t = max.x;
 			max.x = min.x;
@@ -45,6 +45,7 @@ struct Bbox {
 			max.y = min.y;
 			min.y = t;
 		}
+		normalize(w);
 	}
 
 	// Isect returns the intersection between the two bounding boxes.
@@ -84,7 +85,16 @@ struct Bbox {
 	// point is always within the world's (0,0)--(width-1,height-1).
 	void Move(const World &w, const Vec2 &d) {
 		min += d;
+		max.x += d.x;
+		normalize(w);
+	}
 
+private:
+
+	// normalize ensures that the minimum coordinate is
+	// within the (0,0)--w.size while the maximum coordinate
+	// is allowed to pass off of the end of the world.
+	void normalize(const World &w) {
 		if (min.x >= w.size.x) {
 			Fixed width = max.x - min.x;
 			min.x %= w.size.x;
@@ -93,8 +103,6 @@ struct Bbox {
 			Fixed width = max.x - min.x;
 			min.x = w.size.x + (min.x % w.size.x);
 			max.x = min.x + width;
-		} else {
-			max.x += d.x;
 		}
 
 		if (min.y >= w.size.y) {
@@ -105,10 +113,7 @@ struct Bbox {
 			Fixed height = max.y - min.y;
 			min.y = w.size.y + (min.y % w.size.y);
 			max.y = min.y + height;
-		} else {
-			max.y += d.y;
 		}
-
 		assert (min < w.size);
 	}
 };
