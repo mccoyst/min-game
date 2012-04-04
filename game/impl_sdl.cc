@@ -29,16 +29,16 @@ public:
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(Event&);
-	virtual void Draw(const Vec3&, std::shared_ptr<Img>, float);
+	virtual void Draw(const Vec2&, std::shared_ptr<Img>, float);
 };
 
 struct SdlImg : public Img {
 	GLuint texId;
-	Vec3 sz;
+	Vec2 sz;
 
 	SdlImg(SDL_Surface*);
 	virtual ~SdlImg();
-	virtual Vec3 Size() const { return sz; }
+	virtual Vec2 Size() const { return sz; }
 };
 
 struct SdlFont : public Font {
@@ -214,7 +214,7 @@ bool SdlUi::PollEvent(Event &e) {
 	return false;
 }
 
-void SdlUi::Draw(const Vec3 &l, std::shared_ptr<Img> _img, float shade) {
+void SdlUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	SdlImg *img = static_cast<SdlImg*>(_img.get());
 	if(shade < 0) shade = 0;
 	else if(shade > 1) shade = 1;
