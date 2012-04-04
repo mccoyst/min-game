@@ -1,4 +1,6 @@
 #include <cstdio>
+#pragma once
+
 #include <vector>
 #include <memory>
 #include "ui.hpp"
@@ -63,7 +65,7 @@ struct World {
 	// This routine doesn't wrap around at the limits of
 	// the world.
 	Loc &At(unsigned int x, unsigned int y) {
-		return locs.at(x*height+y);
+		return locs.at(x*size.y.whole()+y);
 	}
 
 	// atcoord returns the location at the given world
@@ -103,8 +105,11 @@ struct World {
 		yoff = win->height/Fixed(2) - (Fixed(y) * TileH);
 	}
 
-	// The location of the start tile.
+	// The indices of the start tile.
 	int x0, y0;
+
+	// The world's dimensions.
+	Vec2 size;
 
 private:
 
