@@ -5,7 +5,6 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <cstdarg>
-#include <cassert>
 
 namespace{
 extern const char *vshader_src;
@@ -223,7 +222,7 @@ void SdlUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	glUniform2f(dimsloc, img->sz.x.whole(), img->sz.y.whole());
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbuff);
-	glVertexAttribPointer(posloc, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat[4]), 0);
+	glVertexAttribPointer(posloc, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posloc);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glDisableVertexAttribArray(posloc);
