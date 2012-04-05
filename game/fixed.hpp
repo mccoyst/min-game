@@ -10,9 +10,6 @@ public:
 	Fixed(int n, int frac);
 	Fixed(const Fixed&);
 
-	// IsZero is a fast test for zeroness.
-	bool IsZero() const;
-
 	// Between returns true if the 3rd argument is
 	// between the first two.
 	static bool Between(Fixed, Fixed, Fixed);
@@ -80,10 +77,6 @@ inline Fixed::Fixed(int n, int frac)
 
 inline Fixed::Fixed(const Fixed &b)
 	: n(b.n){
-}
-
-inline bool Fixed::IsZero() const {
-	return n == 0;
 }
 
 static inline bool Between(Fixed min, Fixed max, Fixed x) {
