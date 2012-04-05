@@ -311,11 +311,6 @@ namespace{
 		if(t == 'm') return 2;
 		throw Failure("Invalid tile char");
 	}
-
-	void dtvp(int i, TileVert tv){
-//		fprintf(stderr, "v%d (%.2f, %.2f, %.2f, %.2f), %d, %.2f\n", i,
-//			tv.pos[0], tv.pos[1], tv.pos[2], tv.pos[3], tv.tileid, tv.shade);
-	}
 }
 
 void SdlUi::SetWorld(const World &w){
@@ -356,18 +351,12 @@ void SdlUi::SetWorld(const World &w){
 
 		// lower triangle
 		verts->push_back(tv0);
-		dtvp(0, tv0);
 		verts->push_back(tv1);
-		dtvp(1, tv1);
 		verts->push_back(tv2);
-		dtvp(2, tv2);
 		// upper triangle
 		verts->push_back(tv2);
-		dtvp(2, tv2);
 		verts->push_back(tv1);
-		dtvp(1, tv1);
 		verts->push_back(tv3);
-		dtvp(3, tv3);
 
 		if(verts->size() > maxbuff-32){
 			allverts.push_back(std::vector<TileVert>());
@@ -381,23 +370,9 @@ void SdlUi::SetWorld(const World &w){
 	world.nverts.clear();
 
 	for(auto &verts : allverts){
-		fprintf(stderr, "Adding %lu verts\n", verts.size());
-		world.vbuffs.push_back(make_buffer(GL_ARRAY_BUFFER, verts.data(), verts.size()*sizeof(TileVert)));
+		world.vbuffs.push_back(make_buffer(GL_ARRAY_BUFFER,
+			verts.data(), verts.size()*sizeof(TileVert)));
 		world.nverts.push_back(verts.size());
-
-		char *p = reinterpret_cast<char*>(verts.data());
-		typedef GLfloat (*pp)[4];
-		pp pos = reinterpret_cast<pp>(p + offsetof(TileVert, pos));
-		GLubyte *id = reinterpret_cast<GLubyte*>(p + offsetof(TileVert, tileid));
-		GLfloat *shade = reinterpret_cast<GLfloat*>(p + offsetof(TileVert, shade));
-		fprintf(stderr, "Example data 0: { %.2f, %.2f, %.2f, %.2f }, %d, %.2f\n",
-			(*pos)[0], (*pos)[1], (*pos)[2], (*pos)[3], *id, *shade);
-		p += sizeof(TileVert);
-		pos = reinterpret_cast<pp>(p + offsetof(TileVert, pos));
-		id = reinterpret_cast<GLubyte*>(p + offsetof(TileVert, tileid));
-		shade = reinterpret_cast<GLfloat*>(p + offsetof(TileVert, shade));
-		fprintf(stderr, "Example data 1: { %.2f, %.2f, %.2f, %.2f }, %d, %.2f\n",
-			(*pos)[0], (*pos)[1], (*pos)[2], (*pos)[3], *id, *shade);
 	}
 
 	world.texes[0] = w.terrain['w'].img;
@@ -507,7 +482,6 @@ GLuint make_buffer(GLenum target, const void *data, GLsizei size){
 	glGenBuffers(1, &buffer);
 	glBindBuffer(target, buffer);
 	glBufferData(target, size, data, GL_STATIC_DRAW);
-fprintf(stderr, "Made buffer %u of size %d\n", buffer, size);
 	return buffer;
 }
 
@@ -617,7 +591,7 @@ const char *world_vshader =
 	"	gl_Position = gl_ModelViewProjectionMatrix * trans;"
 	""
 	"	texCoord = position.ba;"
-	"	texId = in_texid * 1.0;"
+	"	texId = in_texid;"
 	"	texShade = shade;"
 	"}"
 	;
