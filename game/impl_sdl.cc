@@ -7,6 +7,8 @@
 #include <SDL_ttf.h>
 #include <cstdarg>
 #include <cstddef>
+#include <cassert>
+#include <cstdio>
 
 namespace{
 extern const char *vshader_src;
@@ -26,10 +28,10 @@ class SdlUi : public Ui {
 	GLint texloc, posloc, offsloc, shadeloc, dimsloc;
 
 	struct{
-		GLuint vbuff;
+		std::vector<GLuint> vbuffs;
 		GLuint program;
 		GLint texloc[3], posloc, idloc, shadeloc, offsloc;
-		GLuint nverts;
+		std::vector<GLuint> nverts;
 		std::shared_ptr<Img> texes[3];
 	} world;
 public:
@@ -71,6 +73,12 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
 
+	fprintf(stderr, "Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
+		glGetString(GL_VENDOR),
+		glGetString(GL_RENDERER),
+		glGetString(GL_VERSION),
+		glGetString(GL_SHADING_LANGUAGE_VERSION));
+
 	int imgflags = IMG_INIT_PNG;
 	if ((IMG_Init(imgflags) & imgflags) != imgflags)
 		throw Failure("Failed to initialize png support: %s", IMG_GetError());
@@ -103,14 +111,21 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 
 	auto wv = make_shader(GL_VERTEX_SHADER, world_vshader);
 	auto wf = make_shader(GL_FRAGMENT_SHADER, world_fshader);
-	world.program = make_program(vshader, fshader);
+	world.program = make_program(wv, wf);
 	world.posloc = glGetAttribLocation(world.program, "position");
-	world.idloc = glGetAttribLocation(world.program, "texid");
+	assert(world.posloc != -1);
+	world.idloc = glGetAttribLocation(world.program, "in_texid");
+	assert(world.idloc != -1);
 	world.shadeloc = glGetAttribLocation(world.program, "shade");
+	assert(world.shadeloc != -1);
 	world.offsloc = glGetUniformLocation(world.program, "offset");
+	assert(world.offsloc != -1);
 	world.texloc[0] = glGetUniformLocation(world.program, "texes[0]");
+	assert(world.texloc[0] != -1);
 	world.texloc[1] = glGetUniformLocation(world.program, "texes[1]");
+	assert(world.texloc[1] != -1);
 	world.texloc[2] = glGetUniformLocation(world.program, "texes[2]");
+	assert(world.texloc[2] != -1);
 }
 
 SdlUi::~SdlUi() {
@@ -124,6 +139,8 @@ void SdlUi::Flip() {
 }
 
 void SdlUi::Clear() {
+	glClearColor(1.0f, 0.5f, 0.5f, 1.0f);
+
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -283,16 +300,21 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 
 namespace{
 	struct TileVert{
-		float pos[4];
-		unsigned char tileid;
-		float shade;
+		GLfloat pos[4];
+		GLubyte tileid;
+		GLfloat shade;
 	};
 
-	int tid(char t){
+	GLubyte tid(char t){
 		if(t == 'w') return 0;
 		if(t == 'g') return 1;
 		if(t == 'm') return 2;
 		throw Failure("Invalid tile char");
+	}
+
+	void dtvp(int i, TileVert tv){
+//		fprintf(stderr, "v%d (%.2f, %.2f, %.2f, %.2f), %d, %.2f\n", i,
+//			tv.pos[0], tv.pos[1], tv.pos[2], tv.pos[3], tv.tileid, tv.shade);
 	}
 }
 
@@ -300,7 +322,12 @@ void SdlUi::SetWorld(const World &w){
 	int tilew = World::TileW.whole();
 	int tileh = World::TileH.whole();
 
-	std::vector<TileVert> verts;
+	std::vector<std::vector<TileVert>> allverts;
+	allverts.push_back(std::vector<TileVert>());
+	auto *verts = &allverts[allverts.size()-1];
+
+	int maxbuff;
+	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &maxbuff);
 
 	for(auto y = 0U; y < w.size.y.whole(); y++){
 	for(auto x = 0U; x < w.size.x.whole(); x++){
@@ -328,19 +355,50 @@ void SdlUi::SetWorld(const World &w){
 		};
 
 		// lower triangle
-		verts.push_back(tv0);
-		verts.push_back(tv1);
-		verts.push_back(tv2);
+		verts->push_back(tv0);
+		dtvp(0, tv0);
+		verts->push_back(tv1);
+		dtvp(1, tv1);
+		verts->push_back(tv2);
+		dtvp(2, tv2);
 		// upper triangle
-		verts.push_back(tv2);
-		verts.push_back(tv3);
-		verts.push_back(tv1);
+		verts->push_back(tv2);
+		dtvp(2, tv2);
+		verts->push_back(tv1);
+		dtvp(1, tv1);
+		verts->push_back(tv3);
+		dtvp(3, tv3);
+
+		if(verts->size() > maxbuff-32){
+			allverts.push_back(std::vector<TileVert>());
+			verts = &allverts[allverts.size()-1];
+		}
 	}
 	}
 
-	glDeleteBuffers(1, &world.vbuff);
-	world.vbuff = make_buffer(GL_ARRAY_BUFFER, verts.data(), verts.size()*sizeof(TileVert));
-	world.nverts = verts.size();
+	glDeleteBuffers(world.vbuffs.size(), world.vbuffs.data());
+	world.vbuffs.clear();
+	world.nverts.clear();
+
+	for(auto &verts : allverts){
+		fprintf(stderr, "Adding %lu verts\n", verts.size());
+		world.vbuffs.push_back(make_buffer(GL_ARRAY_BUFFER, verts.data(), verts.size()*sizeof(TileVert)));
+		world.nverts.push_back(verts.size());
+
+		char *p = reinterpret_cast<char*>(verts.data());
+		typedef GLfloat (*pp)[4];
+		pp pos = reinterpret_cast<pp>(p + offsetof(TileVert, pos));
+		GLubyte *id = reinterpret_cast<GLubyte*>(p + offsetof(TileVert, tileid));
+		GLfloat *shade = reinterpret_cast<GLfloat*>(p + offsetof(TileVert, shade));
+		fprintf(stderr, "Example data 0: { %.2f, %.2f, %.2f, %.2f }, %d, %.2f\n",
+			(*pos)[0], (*pos)[1], (*pos)[2], (*pos)[3], *id, *shade);
+		p += sizeof(TileVert);
+		pos = reinterpret_cast<pp>(p + offsetof(TileVert, pos));
+		id = reinterpret_cast<GLubyte*>(p + offsetof(TileVert, tileid));
+		shade = reinterpret_cast<GLfloat*>(p + offsetof(TileVert, shade));
+		fprintf(stderr, "Example data 1: { %.2f, %.2f, %.2f, %.2f }, %d, %.2f\n",
+			(*pos)[0], (*pos)[1], (*pos)[2], (*pos)[3], *id, *shade);
+	}
 
 	world.texes[0] = w.terrain['w'].img;
 	world.texes[1] = w.terrain['g'].img;
@@ -365,26 +423,30 @@ void SdlUi::DrawWorld(const Vec2 &l){
 	glBindTexture(GL_TEXTURE_2D, i->texId);
 	glUniform1i(world.texloc[2], 2);
 
-	glUniform2f(offsloc, l.x.whole(), l.y.whole());
+	glUniform2f(world.offsloc, l.x.whole(), l.y.whole());
 
-	glBindBuffer(GL_ARRAY_BUFFER, world.vbuff);
+	int n = 0;
+	for(auto b : world.vbuffs){
+		glBindBuffer(GL_ARRAY_BUFFER, b);
 
-	glVertexAttribPointer(world.posloc, 4, GL_FLOAT, GL_FALSE,
-		sizeof(TileVert), (void*)offsetof(TileVert, pos));
-	glEnableVertexAttribArray(world.posloc);
+		glVertexAttribPointer(world.posloc, 4, GL_FLOAT, GL_FALSE,
+			sizeof(TileVert), (void*)offsetof(TileVert, pos));
+		glEnableVertexAttribArray(world.posloc);
 
-	glVertexAttribPointer(world.idloc, 1, GL_UNSIGNED_BYTE, GL_FALSE,
-		sizeof(TileVert), (void*)offsetof(TileVert, tileid));
-	glEnableVertexAttribArray(world.idloc);
+		glVertexAttribPointer(world.idloc, 1, GL_UNSIGNED_BYTE, GL_TRUE,
+			sizeof(TileVert), (void*)offsetof(TileVert, tileid));
+		glEnableVertexAttribArray(world.idloc);
+	
+		glVertexAttribPointer(world.shadeloc, 1, GL_FLOAT, GL_FALSE,
+			sizeof(TileVert), (void*)offsetof(TileVert, shade));
+		glEnableVertexAttribArray(world.shadeloc);
 
-	glVertexAttribPointer(world.shadeloc, 1, GL_FLOAT, GL_FALSE,
-		sizeof(TileVert), (void*)offsetof(TileVert, shade));
-	glEnableVertexAttribArray(world.shadeloc);
-
-	glDrawArrays(GL_TRIANGLES, 0, world.nverts);
-	glDisableVertexAttribArray(world.shadeloc);
-	glDisableVertexAttribArray(world.idloc);
-	glDisableVertexAttribArray(world. posloc);
+		glDrawArrays(GL_TRIANGLES, 0, world.nverts[n]);
+		glDisableVertexAttribArray(world.shadeloc);
+		glDisableVertexAttribArray(world.idloc);
+		glDisableVertexAttribArray(world.posloc);
+		n++;
+	}
 }
 
 SdlImg::~SdlImg() {
@@ -445,6 +507,7 @@ GLuint make_buffer(GLenum target, const void *data, GLsizei size){
 	glGenBuffers(1, &buffer);
 	glBindBuffer(target, buffer);
 	glBufferData(target, size, data, GL_STATIC_DRAW);
+fprintf(stderr, "Made buffer %u of size %d\n", buffer, size);
 	return buffer;
 }
 
@@ -540,7 +603,7 @@ const char *world_vshader =
 	"#version 120\n"
 	""
 	"attribute vec4 position;"
-	"attribute float texid;"
+	"attribute float in_texid;"
 	"attribute float shade;"
 	""
 	"varying vec2 texCoord;"
@@ -553,8 +616,8 @@ const char *world_vshader =
 	"	vec4 trans = vec4(position.xy + offset, 0.0, 1.0);"
 	"	gl_Position = gl_ModelViewProjectionMatrix * trans;"
 	""
-	"	texCoord = position.zw;"
-	"	texId = texid;"
+	"	texCoord = position.ba;"
+	"	texId = in_texid * 1.0;"
 	"	texShade = shade;"
 	"}"
 	;
