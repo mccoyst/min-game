@@ -5,7 +5,7 @@ OBJS:=\
 	game/ui.o\
 	game/impl_sdl.o\
 
-CXXFLAGS:=-std=c++0x
+CXXFLAGS:=-std=c++0x -Wall
 OBJCFLAGS := 
 LDFLAGS:=
 
@@ -28,7 +28,7 @@ LDFLAGS +=\
 	-framework Foundation\
 	-framework Cocoa\
 
-CXXFLAGS += -fno-color-diagnostics -stdlib=libc++ -Wall $(HEADERFLAGS)
+CXXFLAGS += -fno-color-diagnostics -stdlib=libc++ $(HEADERFLAGS)
 
 OBJCFLAGS := $(HEADERFLAGS)
 
@@ -41,7 +41,7 @@ else
 CXX:=g++
 LDFLAGS+=-lSDL -lSDL_image -lSDL_ttf -lGLU -lGL
 HEADERFLAGS := -I/usr/include/SDL
-CXXFLAGS+=-Wall -Werror -DGL_GLEXT_PROTOTYPES $(HEADERFLAGS)
+CXXFLAGS+=-Werror -DGL_GLEXT_PROTOTYPES $(HEADERFLAGS)
 
 endif
 
