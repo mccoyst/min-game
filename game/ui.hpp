@@ -60,7 +60,8 @@ public:
 std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 
 // Img is the interface to a 2D image.
-struct Img{
+class Img{
+public:
 	virtual ~Img() = 0;
 	virtual Vec2 Size() const = 0;
 };
