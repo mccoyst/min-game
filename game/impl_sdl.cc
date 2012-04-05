@@ -324,8 +324,8 @@ void SdlUi::SetWorld(const World &w){
 	int maxbuff;
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &maxbuff);
 
-	for(auto y = 0; y < w.size.y.whole(); y++){
-	for(auto x = 0; x < w.size.x.whole(); x++){
+	for(auto y = 0.0f; y < w.size.y.whole(); y++){
+	for(auto x = 0.0f; x < w.size.x.whole(); x++){
 		auto l = w.At(x, y);
 		auto px = x*tilew;
 		auto py = y*tileh;
@@ -358,7 +358,7 @@ void SdlUi::SetWorld(const World &w){
 		verts->push_back(tv1);
 		verts->push_back(tv3);
 
-		if(verts->size() > maxbuff-32){
+		if(verts->size() > (unsigned int) maxbuff-32){
 			allverts.push_back(std::vector<TileVert>());
 			verts = &allverts[allverts.size()-1];
 		}
