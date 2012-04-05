@@ -324,8 +324,8 @@ void SdlUi::SetWorld(const World &w){
 	int maxbuff;
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &maxbuff);
 
-	for(auto y = 0U; y < w.size.y.whole(); y++){
-	for(auto x = 0U; x < w.size.x.whole(); x++){
+	for(auto y = 0; y < w.size.y.whole(); y++){
+	for(auto x = 0; x < w.size.x.whole(); x++){
 		auto l = w.At(x, y);
 		auto px = x*tilew;
 		auto py = y*tileh;

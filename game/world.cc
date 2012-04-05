@@ -61,7 +61,7 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
 }
 
 void World::Draw(std::shared_ptr<Ui> ui) {
-	extern bool drawHeights;	// main.cc
+//	extern bool drawHeights;	// main.cc
 	Vec2 offs(xoff, yoff);
 
 	ui->DrawWorld(offs);

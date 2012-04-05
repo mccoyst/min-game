@@ -28,7 +28,7 @@ LDFLAGS +=\
 	-framework Foundation\
 	-framework Cocoa\
 
-CXXFLAGS += -fno-color-diagnostics -stdlib=libc++ $(HEADERFLAGS)
+CXXFLAGS += -fno-color-diagnostics -stdlib=libc++ -Wall $(HEADERFLAGS)
 
 OBJCFLAGS := $(HEADERFLAGS)
 
