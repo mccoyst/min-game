@@ -215,29 +215,17 @@ void SdlUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	else if (shade > 1)
 		shade = 1;
 
-	if (shade > 0) {
-		glColor4f(1, 1, 1, 1);
-		glBegin(GL_QUADS);
-		glTexCoord2i(0, 0);
-		glVertex3f(x, y, 0);
-		glTexCoord2i(1, 0);
-		glVertex3f(x+w, y, 0);
-		glTexCoord2i(1, 1);
-		glVertex3f(x+w, y-h, 0);
-		glTexCoord2i(0, 1);
-		glVertex3f(x, y-h, 0);
-		glEnd();
-	}
-
-	if (shade < 1) {
-		glColor4f(0, 0, 0, 1 - shade);
-		glBegin(GL_QUADS);
-		glVertex3f(x, y, 0);
-		glVertex3f(x+w, y, 0);
-		glVertex3f(x+w, y-h, 0);
-		glVertex3f(x, y-h, 0);
-		glEnd();
-	}
+	glColor4f(shade, shade, shade, 1);
+	glBegin(GL_QUADS);
+	glTexCoord2i(0, 1);
+	glVertex3f(x, y, 0);
+	glTexCoord2i(1, 1);
+	glVertex3f(x+w, y, 0);
+	glTexCoord2i(1, 0);
+	glVertex3f(x+w, y+h, 0);
+	glTexCoord2i(0, 0);
+	glVertex3f(x, y+h, 0);
+	glEnd();
 }
 
 SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
