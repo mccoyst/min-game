@@ -1,8 +1,8 @@
 #include "ui.hpp"
 #include "game.hpp"
 #include "world.hpp"
+#include "opengl.hpp"
 #include <SDL.h>
-#include <SDL_opengl.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <cstdarg>
@@ -10,17 +10,7 @@
 #include <cassert>
 #include <cstdio>
 
-namespace{
-extern const char *vshader_src;
-extern const char *fshader_src;
-extern const char *world_vshader;
-extern const char *world_fshader;
-GLuint make_buffer(GLenum target, const void *data, GLsizei size);
-GLuint make_shader(GLenum type, const char *src);
-GLuint make_program(GLuint vshader, GLuint fshader);
-}
-
-class SdlUi : public Ui {
+class SdlUi : public OpenGLUi {
 	SDL_Surface *win;
 
 public:
@@ -34,12 +24,10 @@ public:
 	virtual void Draw(const Vec2&, std::shared_ptr<Img>, float);
 };
 
-struct SdlImg : public Img {
-	GLuint texId;
+struct SdlImg : public OpenGLImg {
 	Vec2 sz;
-
 	SdlImg(SDL_Surface*);
-	virtual ~SdlImg();
+	virtual ~SdlImg() { }
 	virtual Vec2 Size() const { return sz; }
 };
 
@@ -52,7 +40,7 @@ struct SdlFont : public Font {
 	virtual std::shared_ptr<Img> Render(const char*, ...);
 };
 
-SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
+SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
 
@@ -73,15 +61,7 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h) {
 	if (TTF_Init() == -1)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	gluOrtho2D(0, w.whole(), 0, h.whole());
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	InitOpenGL();
 }
 
 SdlUi::~SdlUi() {
@@ -104,6 +84,10 @@ void SdlUi::Delay(unsigned long msec) {
 
 unsigned long SdlUi::Ticks() {
 	return SDL_GetTicks();
+}
+
+void SdlUi::Draw(const Vec2 &loc, std::shared_ptr<Img> img, float shade) {
+	OpenGLUi::Draw(loc, img, shade);
 }
 
 static bool getbutton(SDL_Event &sdle, Event &e) {
@@ -203,31 +187,6 @@ bool SdlUi::PollEvent(Event &e) {
 	return false;
 }
 
-void SdlUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
-	SdlImg *img = static_cast<SdlImg*>(_img.get());
-	float x = l.x.whole(), y = l.y.whole();
-	float w = img->sz.x.whole(), h = img->sz.y.whole();
-
-	glBindTexture(GL_TEXTURE_2D, img->texId);
-
-	if (shade < 0)
-		shade = 0;
-	else if (shade > 1)
-		shade = 1;
-
-	glColor4f(shade, shade, shade, 1);
-	glBegin(GL_QUADS);
-	glTexCoord2i(0, 1);
-	glVertex3f(x, y, 0);
-	glTexCoord2i(1, 1);
-	glVertex3f(x+w, y, 0);
-	glTexCoord2i(1, 0);
-	glVertex3f(x+w, y+h, 0);
-	glTexCoord2i(0, 0);
-	glVertex3f(x, y+h, 0);
-	glEnd();
-}
-
 SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 	GLint pxSz = surf->format->BytesPerPixel;
 	GLenum texFormat = GL_BGRA;
@@ -246,18 +205,14 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 		throw Failure("Bad image color type… apparently");
 	}
 
-	glGenTextures(1, &texId);
-	glBindTexture(GL_TEXTURE_2D, texId);
+	glGenTextures(1, &texid);
+	glBindTexture(GL_TEXTURE_2D, texid);
  
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
  
 	glTexImage2D(GL_TEXTURE_2D, 0, pxSz, surf->w, surf->h, 0,
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
-}
-
-SdlImg::~SdlImg() {
-	glDeleteTextures(1, &texId);
 }
 
 SdlFont::SdlFont(const char *path, int sz, char _r, char _g, char _b)

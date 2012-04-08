@@ -3,6 +3,7 @@ OBJS:=\
 	game/game.o\
 	game/world.o\
 	game/ui.o\
+	game/opengl.o\
 	game/impl_sdl.o\
 
 CXXFLAGS:=-std=c++0x -Wall
