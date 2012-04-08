@@ -8,17 +8,11 @@ const Fixed World::TileW(16);
 const Fixed World::TileH(16);
 const Vec2 World::TileSz(TileW, TileH);
 
-World::Terrain::Terrain(char c, const char *resrc) : ch(c) {
-	img = LoadImg(resrc);
-	if (!img)
-		throw Failure("Failed to load %s", resrc);
-}
-
 World::TerrainType::TerrainType() {
 	t.resize(255);
-	t['w'] = Terrain('w', "resrc/Water.png");
-	t['g'] = Terrain('g', "resrc/Grass.png");
-	t['m'] = Terrain('m', "resrc/Mountain.png");
+	t['g'] = Terrain('g', 0);
+	t['w'] = Terrain('w', 1);
+	t['m'] = Terrain('m', 2);
 
 	auto f = LoadFont("resrc/retganon.ttf", 12, 128, 128, 128);
 	htImg.resize(World::MaxHeight+1);
@@ -61,23 +55,19 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
 }
 
 void World::Draw(std::shared_ptr<Ui> ui) {
-	extern bool drawHeights;	// main.cc
 	Fixed w(ui->width / TileW);
 	Fixed h(ui->height / TileH);
 	Vec2 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
-	for (Fixed y(-1); y <= h + Fixed(1); y += Fixed(1)) {
+	for (Fixed y(-1); y <= h; y += Fixed(1)) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
-		ui->Draw(v, terrain[l.terrain].img, l.Shade());
-
-		if (drawHeights)
-			ui->Draw(v, terrain.heightImg(l.height));
+		ui->SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain].tile, l.Shade());
 	}
 	}
+	ui->DrawTiles(offs - Vec2(TileW, TileH));
 }
 
 // shade returns the shade value for the given location

@@ -27,6 +27,15 @@ public:
 	// 1 (light).
 	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1) = 0;
 
+	// InitTiles initializes the tiles sheet.
+	virtual void InitTiles(int, int, int, int, std::shared_ptr<Img>) = 0;
+
+	// SetTile sets the tile image and shade for the given tile.
+	virtual void SetTile(int, int, int, float) = 0;
+
+	// DrawTiles draws the tiles at the given offset.
+	virtual void DrawTiles(const Vec2&) = 0;
+
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
 	virtual void Flip() = 0;
