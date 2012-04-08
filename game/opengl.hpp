@@ -13,7 +13,7 @@ struct OpenGLUi : public Ui {
 	// This image will not appear until the Flip() method is called.
 	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1) = 0;
+	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
 };
 
 struct OpenGLImg : public Img {
