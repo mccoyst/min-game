@@ -8,8 +8,12 @@
 #include <SDL_main.h>
 
 enum {
-	// FrameMsec is the minimum frame time.
+	// FrameMsec is the minimum frame time in msec.
 	FrameMsec = 20,
+
+	// FpsTime is the time in msec between redrawing the
+	// frame rate.
+	FpsTime = 500,
 
 	// ScrollSpd is the amount to scroll per-frame
 	// when an arrow key is held.
@@ -26,7 +30,6 @@ bool drawFps;
 
 static void parseArgs(int, char*[]);
 static void loadingText(std::shared_ptr<Ui>, std::shared_ptr<Font>);
-static void doFps(std::shared_ptr<Ui>, std::shared_ptr<Font>, unsigned long);
 
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
@@ -61,15 +64,26 @@ int main(int argc, char *argv[]) try{
 	unsigned long t0 = win->Ticks();
 	unsigned long t1 = t0;
 
+	// Drawing frames per second
+	unsigned long lastFpsTime = 0, lastFpsFrames = 0;
+	std::shared_ptr<Img> fps;
+
 	while(running){
-		unsigned long now = win->Ticks();
-		unsigned long frameTime = now - t0;
-		t0 = now;
+		unsigned long t0 = win->Ticks();
 
 		win->Clear();
 		world.Draw(win);
 		win->Draw(guyloc + world.Offset(), guy);
-		doFps(win, font, frameTime);
+
+		if (drawFps && lastFpsTime + FpsTime <= t0) {
+			unsigned long rate = (nFrames - lastFpsFrames)/(FpsTime / 1000.0);
+			fps = font->Render("%lu fps", rate);
+			lastFpsTime = t0;
+			lastFpsFrames = nFrames;
+		}
+		if (drawFps && fps)
+			win->Draw(Vec2(Fixed(0), Fixed(0)), fps);
+
 		win->Flip();
 
 		Event e;
@@ -167,12 +181,4 @@ static void loadingText(std::shared_ptr<Ui> win, std::shared_ptr<Font> font) {
 	win->Clear();
 	win->Draw(Vec2(Fixed(0), Fixed(0)), img);
 	win->Flip();
-}
-
-static void doFps(std::shared_ptr<Ui> win, std::shared_ptr<Font> font,
-		unsigned long msec) {
-	if (!drawFps)
-		return;
-	unsigned long rate = 1.0 / (msec / 1000.0);
-	win->Draw(Vec2(Fixed(0), Fixed(0)), font->Render("%lu fps", rate));
 }
