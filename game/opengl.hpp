@@ -9,6 +9,9 @@ struct OpenGLUi : public Ui {
 	// InitOpenGL initializes OpenGL for drawing stuff.
 	void InitOpenGL();
 
+	// Clear clears the screen.
+	void Clear();
+
 	// Draw draws the image to the back-buffer of the window.
 	// This image will not appear until the Flip() method is called.
 	// The shade argument is an alpha value between 0 (dark) and

@@ -25,6 +25,10 @@ void OpenGLUi::InitOpenGL() {
 	glLoadIdentity();
 }
 
+void OpenGLUi::Clear() {
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void OpenGLUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	OpenGLImg *img = static_cast<OpenGLImg*>(_img.get());
 	float x = l.x.whole(), y = l.y.whole();

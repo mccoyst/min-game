@@ -17,7 +17,6 @@ public:
 	SdlUi(Fixed w, Fixed h, const char *title);
 	~SdlUi();
 	virtual void Flip();
-	virtual void Clear();
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(Event&);
@@ -71,10 +70,6 @@ SdlUi::~SdlUi() {
 
 void SdlUi::Flip() {
 	SDL_GL_SwapBuffers();
-}
-
-void SdlUi::Clear() {
-	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void SdlUi::Delay(unsigned long msec) {
