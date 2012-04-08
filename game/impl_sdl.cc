@@ -59,6 +59,8 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 	if (TTF_Init() == -1)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 	InitOpenGL();
 }
 
