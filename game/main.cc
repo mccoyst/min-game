@@ -62,8 +62,9 @@ int main(int argc, char *argv[]) try{
 	unsigned long t1 = t0;
 
 	while(running){
-		unsigned long frameTime = t1 - t0;
-		t0 = t1;
+		unsigned long now = win->Ticks();
+		unsigned long frameTime = now - t0;
+		t0 = now;
 
 		win->Clear();
 		world.Draw(win);
