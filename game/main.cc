@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) try{
 	World world(stdin);
 	world.Center(win, world.x0, world.y0);
 	win->InitTiles((win->width/World::TileW).whole() + 2,
-			(win->height/World::TileH).whole() + 2,
+			(win->height/World::TileH).whole() + 3,
 			World::TileW.whole(),
 			World::TileH.whole(),
 			LoadImg("resrc/tiles.png"));
