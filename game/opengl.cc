@@ -61,6 +61,7 @@ void OpenGLUi::DrawTiles(const Vec2 &offs) {
 
 	glBindTexture(GL_TEXTURE_2D,
 		static_cast<OpenGLImg*>(tileImgs.get())->texid);
+	glDisable(GL_BLEND);
 
 	glBegin(GL_QUADS);
 
@@ -91,6 +92,7 @@ void OpenGLUi::DrawTiles(const Vec2 &offs) {
 	}
 
 	glEnd();
+	glEnable(GL_BLEND);
 }
 
 OpenGLImg::~OpenGLImg() {
