@@ -42,6 +42,8 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
 
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
@@ -58,8 +60,6 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 
 	if (TTF_Init() == -1)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	InitOpenGL();
 }
