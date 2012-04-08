@@ -6,7 +6,7 @@ OBJS:=\
 	game/opengl.o\
 	game/impl_sdl.o\
 
-CXXFLAGS:=-std=c++0x -Wall
+CXXFLAGS:=-std=c++0x -Wall -O3
 OBJCFLAGS := 
 LDFLAGS:=
 

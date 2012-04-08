@@ -22,12 +22,11 @@ struct World {
 	
 	// A Terrain represents a type of terrain in the world.
 	struct Terrain {
-		Terrain() : ch(0), img(0) { }
-
-		Terrain(char, const char*);
+		Terrain() : ch(0) { }
+		Terrain(char c, int t) : ch(c), tile(t) {}
 	
 		char ch;
-		std::shared_ptr<Img> img;
+		int tile;
 	};
 	
 	// terrain is an array of Terrain indexed by the

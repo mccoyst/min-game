@@ -41,6 +41,11 @@ int main(int argc, char *argv[]) try{
 	// the world also loads some images.
 	World world(stdin);
 	world.Center(win, world.x0, world.y0);
+	win->InitTiles((win->width/World::TileW).whole() + 2,
+			(win->height/World::TileH).whole() + 2,
+			World::TileW.whole(),
+			World::TileH.whole(),
+			LoadImg("resrc/tiles.png"));
 
 	auto guy = LoadImg("resrc/Astronaut.png");
 	Vec2 guyloc(Fixed(world.x0) * World::TileW, Fixed(world.y0) * World::TileH);

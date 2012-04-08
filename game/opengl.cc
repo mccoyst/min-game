@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include <SDL_opengl.h>
 #include <cstring>
+#include <cassert>
 
 namespace{
 extern const char *vshader_src;
@@ -51,6 +52,44 @@ void OpenGLUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	glVertex3f(x+w, y+h, 0);
 	glTexCoord2i(0, 0);
 	glVertex3f(x, y+h, 0);
+	glEnd();
+}
+
+void OpenGLUi::DrawTiles(const Vec2 &offs) {
+	int xoff = offs.x.whole(), yoff = offs.y.whole();
+	double tilesWidth = tileImgs->Size().x.whole();
+
+	glBindTexture(GL_TEXTURE_2D,
+		static_cast<OpenGLImg*>(tileImgs.get())->texid);
+
+	glBegin(GL_QUADS);
+
+	for (int x = 0; x < sheetw; x++) {
+	for (int y = 0; y < sheeth; y++) {
+		float sh = shades.at(x * sheeth + y);
+		glColor4f(sh, sh, sh, 1);
+
+		double t0 = tiles.at(x * sheeth + y)*tilew / tilesWidth;
+		double t1 = t0 + tilew/tilesWidth;
+		assert (t0 >= 0);
+		assert (t0 <= 1);
+		assert (t1 >= 0);
+		assert (t1 <= 1);
+
+		glTexCoord2d(t0, 0);
+		glVertex3f(x*tilew+xoff, y*tileh+yoff, 0);
+
+		glTexCoord2d(t1, 0);
+		glVertex3f((x+1)*tilew+xoff, y*tileh+yoff, 0);
+
+		glTexCoord2d(t1, 1);
+		glVertex3f((x+1)*tilew+xoff, (y+1)*tileh+yoff, 0);
+
+		glTexCoord2d(t0, 1);
+		glVertex3f(x*tilew+xoff, (y+1)*tileh+yoff, 0);
+	}
+	}
+
 	glEnd();
 }
 
