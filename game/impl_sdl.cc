@@ -21,7 +21,6 @@ public:
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(Event&);
-	virtual void Draw(const Vec2&, std::shared_ptr<Img>, float);
 };
 
 struct SdlImg : public OpenGLImg {
@@ -84,10 +83,6 @@ void SdlUi::Delay(unsigned long msec) {
 
 unsigned long SdlUi::Ticks() {
 	return SDL_GetTicks();
-}
-
-void SdlUi::Draw(const Vec2 &loc, std::shared_ptr<Img> img, float shade) {
-	OpenGLUi::Draw(loc, img, shade);
 }
 
 static bool getbutton(SDL_Event &sdle, Event &e) {
