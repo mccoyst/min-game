@@ -6,7 +6,7 @@
 #
 PROG="$1"
 DIR="$2"
-shift 2
+shift 3
 
 case "$DIR" in
 "" | "." )
