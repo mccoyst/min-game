@@ -10,33 +10,20 @@ struct OpenGLUi : public Ui {
 	// InitOpenGL initializes OpenGL for drawing stuff.
 	void InitOpenGL();
 
-	// Clear clears the screen.
 	void Clear();
 
-	// Draw draws the image to the back-buffer of the window.
-	// This image will not appear until the Flip() method is called.
-	// The shade argument is an alpha value between 0 (dark) and
-	// 1 (light).
+	virtual void DrawLine(const Vec2&, const Vec2&, const Color&);
+	virtual void FillRect(const Vec2&, const Vec2&, const Color&);
+	virtual void DrawRect(const Vec2&, const Vec2&, const Color&);
 	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
 
-	// InitTiles initializes the tiles.
-	virtual void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img) {
-		tileImgs = img;
-		sheetw = w;
-		sheeth = h;
-		tilew = tw;
-		tileh = th;
-		tiles.resize(w*h);
-		shades.resize(w*h);
-	}
+	virtual void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
 
-	// SetTile sets the tile image number for the given tile.
 	virtual void SetTile(int x, int y, int tile, float shade) {
 		tiles.at(x * sheeth + y) = tile;
 		shades.at(x * sheeth + y) = shade;
 	}
 
-	// DrawTiles draws the tiles at the given offset.
 	virtual void DrawTiles(const Vec2&);
 
 private:

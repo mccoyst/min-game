@@ -5,8 +5,8 @@
 
 class Ui;
 class Img;
+struct Color;
 struct Event;
-struct World;
 
 // Ui is the interface to a user interface window, including graphics,
 // device input, and sound.
@@ -20,6 +20,23 @@ public:
 	Ui(const Fixed &w, const Fixed &h) : width(w), height(h) { }
 
 	virtual ~Ui();
+
+	// DrawLine draws the given line on the screen.
+	// 
+	// This is probably slow so just use it for debugging stuff.
+	virtual void DrawLine(const Vec2&, const Vec2&, const Color&) = 0;
+
+	// FillRect fills the given rectangle (specified by lower left
+	// vertex, and width/height) with some color.
+	// 
+	// This is probably slow so just use it for debugging stuff.
+	virtual void FillRect(const Vec2&, const Vec2&, const Color&) = 0;
+
+	// DrawRect outlines the given rectangle (specified by lower left
+	// vertex, and width/height) with some color.
+	// 
+	// This is probably slow so just use it for debugging stuff.
+	virtual void DrawRect(const Vec2&, const Vec2&, const Color&) = 0;
 
 	// Draw draws the image to the back-buffer of the window.
 	// This image will not appear until the Flip() method is called.
@@ -59,6 +76,12 @@ public:
 
 // OpenWindow returns a new Ui object.
 std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
+
+struct Color {
+	Color(unsigned char _r, unsigned char _g, unsigned char _b,
+		unsigned char _a = 255) : r(_r), g(_g), b(_b), a(_a) { }
+	unsigned char r, g, b, a;
+};
 
 // Img is the interface to a 2D image.
 class Img{
