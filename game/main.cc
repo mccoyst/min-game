@@ -75,14 +75,6 @@ int main(int argc, char *argv[]) try{
 		world.Draw(win);
 		win->Draw(guyloc + world.Offset(), guy);
 
-		win->DrawRect(Vec2(Fixed(10), Fixed(10)),
-			Vec2(Fixed(10), Fixed(10)),
-			Color(255, 0, 0));
-
-		win->FillRect(Vec2(Fixed(20), Fixed(20)),
-			Vec2(Fixed(10), Fixed(10)),
-			Color(0, 255, 0));
-
 		if (drawFps && lastFpsTime + FpsTime <= t0) {
 			unsigned long rate = (nFrames - lastFpsFrames)/(FpsTime / 1000.0);
 			fps = font->Render("%lu fps", rate);
