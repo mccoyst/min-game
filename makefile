@@ -1,8 +1,10 @@
 OBJS:=\
 	game/main.o\
+	game/fixed.o\
 	game/game.o\
 	game/world.o\
 	game/ui.o\
+	game/screen.o\
 	game/opengl.o\
 	game/impl_sdl.o\
 
