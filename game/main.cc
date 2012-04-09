@@ -2,23 +2,11 @@
 #include "world.hpp"
 #include "game.hpp"
 #include "geom.hpp"
+#include "screen.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cassert>
 #include <SDL_main.h>
-
-enum {
-	// FrameMsec is the minimum frame time in msec.
-	FrameMsec = 20,
-
-	// FpsTime is the time in msec between redrawing the
-	// frame rate.
-	FpsTime = 500,
-
-	// ScrollSpd is the amount to scroll per-frame
-	// when an arrow key is held.
-	ScrollSpd = 10,
-};
 
 // drawHeights, when set to true makes the world draw the
 // heigth of each tile on it.
@@ -43,124 +31,14 @@ int main(int argc, char *argv[]) try{
 	// Must create the world *after* the window because
 	// the world also loads some images.
 	World world(stdin);
-	world.Center(win, world.x0, world.y0);
-	win->InitTiles((win->width/World::TileW).whole() + 2,
-			(win->height/World::TileH).whole() + 3,
-			World::TileW.whole(),
-			World::TileH.whole(),
-			LoadImg("resrc/tiles.png"));
 
-	auto guy = LoadImg("resrc/Astronaut.png");
-	Vec2 guyloc(Fixed(world.x0) * World::TileW, Fixed(world.y0) * World::TileH);
-
-	bool running = true;
-	bool drag = false;
-	Fixed scrollx(0), scrolly(0), mul(1);
-	int x0 = 0, y0 = 0;
-
-	// Compute the mean frame time.
-	double meanTime = 0;
-	unsigned long nFrames = 0;
-	unsigned long t0 = win->Ticks();
-	unsigned long t1 = t0;
-
-	// Drawing frames per second
-	unsigned long lastFpsTime = 0, lastFpsFrames = 0;
-	std::shared_ptr<Img> fps;
-
-	while(running){
-		unsigned long t0 = win->Ticks();
-
-		win->Clear();
-		world.Draw(win);
-		win->Draw(guyloc + world.Offset(), guy);
-
-		if (drawFps && lastFpsTime + FpsTime <= t0) {
-			unsigned long rate = (nFrames - lastFpsFrames)/(FpsTime / 1000.0);
-			fps = font->Render("%lu fps", rate);
-			lastFpsTime = t0;
-			lastFpsFrames = nFrames;
-		}
-		if (drawFps && fps)
-			win->Draw(Vec2(Fixed(0), Fixed(0)), fps);
-
-		win->Flip();
-
-		Event e;
-		while (win->PollEvent(e)) {
-			Fixed amt(0);
-			switch (e.type) {
-			case Event::Closed:
-				running = false;
-
-			case Event::MouseDown:
-				scrollx = scrolly = Fixed(0);
-				drag = true;
-				x0 = e.x;
-				y0 = e.y;
-				break;
-
-			case Event::MouseUp:
-				drag = false;
-				break;
-
-			case Event::MouseMoved:
-				if (!drag)
-					break;
-				world.Scroll(Fixed(e.x - x0), Fixed(y0 - e.y));
-				x0 = e.x;
-				y0 = e.y;
-				break;
-
-			case Event::KeyDown:
-			case Event::KeyUp:
-				if (e.type == Event::KeyDown)
-					amt = Fixed(ScrollSpd);
-
-				switch (e.button) {
-				case Event::KeyDownArrow:
-					scrolly = amt;
-					break;
-				case Event::KeyUpArrow:
-					scrolly = -amt;
-					break;
-				case Event::KeyLeftArrow:
-					scrollx = amt;
-					break;
-				case Event::KeyRightArrow:
-					scrollx = -amt;
-					break;
-				case Event::KeyLShift:
-				case Event::KeyRShift:
-					if (e.type == Event::KeyDown)
-						mul = Fixed(5);
-					else
-						mul = Fixed(1);
-				default:
-					// ignore
-					break;
-				}
-				break;				
-	
-			default:
-				// ignore
-				break;
-			}
-		}
-
-		world.Scroll(scrollx*mul, scrolly*mul);
-
-		t1 = win->Ticks();
-		nFrames++;
-		meanTime = meanTime + (t1-t0 - meanTime)/nFrames;
-		if (t0 + FrameMsec > t1)
-			win->Delay(t0 + FrameMsec - t1);
-	}
-
-	printf("%lu frames\n", nFrames);
-	printf("Mean frame time: %g msec\n", meanTime);
+	ScreenStack stk(win);
+	stk.SetDrawFps(drawFps);
+	stk.Push(std::shared_ptr<Screen>(new ExploreScreen(win, world)));
+	stk.Run();
 
 	return 0;
+
 }catch (const Failure &f) {
 	fputs(f.msg, stderr);
 	fputc('\n', stderr);
