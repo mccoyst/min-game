@@ -30,6 +30,45 @@ void OpenGLUi::Clear() {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void OpenGLUi::DrawLine(const Vec2 &s, const Vec2 &e, const Color &c) {
+	glColor4f(c.r/255.0, c.g/255.0, c.b/255.0, c.a/255.0);
+	glLineWidth(1);
+	glBegin(GL_LINES);
+	glVertex2i(s.x.whole(), s.y.whole());
+	glVertex2i(e.x.whole(), e.y.whole());
+	glEnd();
+}
+
+void OpenGLUi::FillRect(const Vec2 &l, const Vec2 &sz, const Color &c) {
+	float x = l.x.whole(), y = l.y.whole();
+	float w = sz.x.whole(), h = sz.y.whole();
+
+	glColor4f(c.r/255.0, c.g/255.0, c.b/255.0, c.a/255.0);
+	glLineWidth(1);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	glBegin(GL_POLYGON);
+	glVertex2i(x, y);
+	glVertex2i(x, y+h);
+	glVertex2i(x+w, y+h);
+	glVertex2i(x+w, y);
+	glEnd();
+}
+
+void OpenGLUi::DrawRect(const Vec2 &l, const Vec2 &sz, const Color &c) {
+	float x = l.x.whole(), y = l.y.whole();
+	float w = sz.x.whole(), h = sz.y.whole();
+
+	glColor4f(c.r/255.0, c.g/255.0, c.b/255.0, c.a/255.0);
+	glLineWidth(1);
+	glBegin(GL_LINE_STRIP);
+	glVertex2i(x, y);
+	glVertex2i(x, y+h);
+	glVertex2i(x+w, y+h);
+	glVertex2i(x+w, y);
+	glVertex2i(x, y);
+	glEnd();
+}
+
 void OpenGLUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	OpenGLImg *img = static_cast<OpenGLImg*>(_img.get());
 	float x = l.x.whole(), y = l.y.whole();
@@ -53,6 +92,18 @@ void OpenGLUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	glTexCoord2i(0, 0);
 	glVertex3f(x, y+h, 0);
 	glEnd();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void OpenGLUi::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img) {
+		tileImgs = img;
+		sheetw = w;
+		sheeth = h;
+		tilew = tw;
+		tileh = th;
+		tiles.resize(w*h);
+		shades.resize(w*h);
 }
 
 void OpenGLUi::DrawTiles(const Vec2 &offs) {
@@ -93,6 +144,7 @@ void OpenGLUi::DrawTiles(const Vec2 &offs) {
 
 	glEnd();
 	glEnable(GL_BLEND);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 OpenGLImg::~OpenGLImg() {
