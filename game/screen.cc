@@ -2,23 +2,11 @@
 #include <cassert>
 #include <cstdio>
 
-// Screen0 is the initial screen.  It does nothing but clear the screen.
-struct Screen0 : public Screen {
-
-	virtual ~Screen0() { }
-
-	virtual void Update(ScreenStack&) { }
-
-	virtual void Draw(std::shared_ptr<Ui> win) { }
-
-	virtual void Handle(ScreenStack&, Event&) { }
-};
-
 Screen::~Screen() { }
 
-ScreenStack::ScreenStack(std::shared_ptr<Ui> w)
+ScreenStack::ScreenStack(std::shared_ptr<Ui> w, std::shared_ptr<Screen> screen0)
 		: win(w), drawFps(false), nFrames(0), meanFrame(0) {
-	stk.push_back(std::shared_ptr<Screen>(new Screen0()));
+	stk.push_back(std::shared_ptr<Screen>(screen0));
 }
 
 void ScreenStack::Run() {
