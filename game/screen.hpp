@@ -5,7 +5,7 @@
 struct Screen;
 
 struct ScreenStack {
-	ScreenStack(std::shared_ptr<Ui>);
+	ScreenStack(std::shared_ptr<Ui>, std::shared_ptr<Screen>);
 	~ScreenStack();
 	void Run();
 	void Push(std::shared_ptr<Screen>);

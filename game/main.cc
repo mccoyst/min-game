@@ -32,9 +32,8 @@ int main(int argc, char *argv[]) try{
 	// the world also loads some images.
 	World world(stdin);
 
-	ScreenStack stk(win);
+	ScreenStack stk(win, std::shared_ptr<Screen>(new ExploreScreen(win, world)));
 	stk.SetDrawFps(drawFps);
-	stk.Push(std::shared_ptr<Screen>(new ExploreScreen(win, world)));
 	stk.Run();
 
 	return 0;
