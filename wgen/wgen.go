@@ -62,6 +62,7 @@ func main() {
 	}
 	clampHeights(w)
 	doTerrain(w)
+	placeStart(w)
 
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
@@ -156,4 +157,29 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	cov := rand.Float64()*(maxCov-minCov) + minCov
 
 	return NewGaussian2d(mx, my, sx, sy, ht, cov)
+}
+
+// placeStart places the start location on a random grass tile.
+func placeStart(w *world.World) {
+	var grass []int
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			loc := w.At(x, y)
+			if loc.Terrain == &world.Terrain[int('g')] {
+				grass = append(grass, x*w.H + y)
+			}
+		}
+	}
+
+	if len(grass) == 0 {
+		return
+	}
+
+	ind := rand.Intn(len(grass))
+	w.X0 = grass[ind] / w.H
+	w.Y0 = grass[ind] % w.H
+
+	if w.At(w.X0, w.Y0).Terrain != &world.Terrain[int('g')] {
+		panic("Start location is not grass")
+	}
 }
