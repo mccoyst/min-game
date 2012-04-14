@@ -12,10 +12,6 @@
 // heigth of each tile on it.
 bool drawHeights;
 
-// drawFps, when set to true, draws the frames per-second on
-// the screen.
-bool drawFps;
-
 static void parseArgs(int, char*[]);
 static void loadingText(std::shared_ptr<Ui>, std::shared_ptr<Font>);
 
@@ -33,7 +29,6 @@ int main(int argc, char *argv[]) try{
 	World world(stdin);
 
 	ScreenStack stk(win, std::shared_ptr<Screen>(new ExploreScreen(win, world)));
-	stk.SetDrawFps(drawFps);
 	stk.Run();
 
 	return 0;
@@ -48,8 +43,6 @@ static void parseArgs(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-heights") == 0)
 			drawHeights = true;
-		else if (strcmp(argv[i], "-fps") == 0)
-			drawFps = true;
 	}
 }
 

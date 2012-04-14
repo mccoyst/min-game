@@ -28,7 +28,9 @@ void ExploreScreen::Update(ScreenStack&) {
 }
 
 void ExploreScreen::Draw(std::shared_ptr<Ui> win) {
+	win->Clear();
 	world.Draw(win);
+	win->Flip();
 }
 
 void ExploreScreen::Handle(ScreenStack&, Event &e) {
