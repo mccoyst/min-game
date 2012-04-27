@@ -19,20 +19,24 @@ High-level Gameplay
 ------------
 
 Astronaut: Walks around, picks things up, puts things down. Can cross
-any surface, with varying success. Has a limited inventory.
+           any surface, with varying success. Has a limited
+           inventory. Items in inventory can change navigation success
+           (rope helps ascent / descent, etc)
 
 Capsule: Home base, storage, oxygen, requires materials to fix (random)
 
-Tools: Portable teleporter, sensor, portable teleporter pair, more…
+Tools: Portable teleporter, sensor, portable teleporter pair,
+       pick-ax, bottle, more ...
 
-Materials: Stones, metals, other elements
+Materials: Stones, metals, water, other elements
 
-Survive: Wild animals can deplete LIFE. Time away from capsule depletes AIR.
-Space suit has up to 3 AIR tanks (start with 1). LIFE does not recover without
-MEDICINE.
+Survive: Wild animals can deplete LIFE. Time away from capsule
+         depletes AIR.  Space suit has up to 3 AIR tanks (start with
+         1). LIFE does not recover without MEDICINE.  Thirst and
+         hunger?
 
 Data: More data = better score, comments at end of game. Observe and
-interacte with things in the world to add to datalog.
+      interact with things in the world to add to datalog.
 
 Wildlife: Cows, other normal & docile animals. Lions, other normal & carnivorous
-animals. "Unknowns"…
+          animals. "Unknowns"… Other marooned spacemen?  Natives?
