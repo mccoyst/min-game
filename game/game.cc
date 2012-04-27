@@ -83,7 +83,7 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 			// ignore
 			break;
 		}
-		break;				
+		break;
 
 	default:
 		// ignore

@@ -8,7 +8,7 @@ struct Failure {
 };
 
 struct ExploreScreen : public Screen {
-	
+
 	enum {
 		// ScrollSpd is the amount to scroll per-frame
 		// when an arrow key is held.
