@@ -18,7 +18,7 @@ const (
 
 	// meanGroth and stdevGrowth are the parameters
 	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxHeight * 0.15
+	meanGrowth, stdevGrowth = 0, world.MaxElevation * 0.15
 
 	// conMin and maxCov are the minimum and maximum
 	// Gaussian2d covariance of random Gaussian2ds.
@@ -86,7 +86,7 @@ func initWorld(width, height int) *world.World {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.AtCoord(x, y)
-			l.Height = world.MaxHeight/4 + 1
+			l.Elevation = world.MaxElevation/4 + 1
 		}
 	}
 	return &w
@@ -98,11 +98,11 @@ func clampHeights(w *world.World) {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.At(x, y)
-			if l.Height < 0 {
-				l.Height = 0
+			if l.Elevation < 0 {
+				l.Elevation = 0
 			}
-			if l.Height > world.MaxHeight {
-				l.Height = world.MaxHeight
+			if l.Elevation > world.MaxElevation {
+				l.Elevation = world.MaxElevation
 			}
 		}
 	}
@@ -121,7 +121,7 @@ func grow(w *world.World, g *Gaussian2d) {
 		for y := ymin; y < ymax; y++ {
 			l := w.AtCoord(x, y)
 			p := g.PDF(float64(x), float64(y))
-			l.Height = l.Height + int(p)
+			l.Elevation = l.Elevation + int(p)
 		}
 	}
 }
