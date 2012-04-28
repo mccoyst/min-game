@@ -19,13 +19,18 @@ const (
 	// world.  Both are given as a fraction of the map size.
 	minWaterFrac, maxWaterFrac = 0.40, 0.60
 
+	// minLavaFrac and maxLavaFrac define the minimum and
+	// maximum amount of lava that will be flooded into the
+	// world.  Both are given as a fraction of the map size.
+	minLavaFrac, maxLavaFrac = 0.005, 0.01
+
 	// floodMaxElevation is the maximum amount of water to flood
 	// into a minima given as fraction of the world.MaxElevation
 	floodMaxElevation = 0.25
 
 	// minForrestFrac and maxForrestFrac give rough bounds on the
 	// amount of forrest that can be added to the world.
-	minForrestFrac, maxForrestFrac = 0.2, 0.3
+	minForrestFrac, maxForrestFrac = 0.08, 0.15
 
 	// seedFrac specifies the number of seed forrest.  This is given
 	// as a fraction of the number of grass contours.
@@ -36,8 +41,26 @@ const (
 // terrain value to each location.
 func doTerrain(w *world.World) {
 	initTerrain(w)
-	addWater(w)
+
+	// add lava before water because water is more important and
+	// it may flood over the lava.
+	addLiquid(w, 'l', minLavaFrac, maxLavaFrac)
+	addLiquid(w, 'w', minWaterFrac, maxWaterFrac)
 	growTrees(w)
+
+	counts := make([]int, len(world.Terrain))
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			counts[int(w.At(x, y).Terrain.Char)]++
+		}
+	}
+	for i, count := range counts {
+		t := &world.Terrain[i]
+		if t.Char != 0 {
+			fmt.Fprintf(os.Stderr, "%.2f%% %s\n",
+				float64(count)/float64(w.H*w.W)*100, t.Name)
+		}
+	}
 }
 
 // initTerrain initializes the world's terrain.
@@ -58,24 +81,24 @@ func initTerrain(w *world.World) {
 	}
 }
 
-// addWater adds water to the world by flooding
-// some local minima to a random height.  The
-// percentage of the world that is flooded is based
-// by the minWaterFrac and maxWaterFrac constants.
-func addWater(w *world.World) {
+// addLiquid adds some liquid (given by ch)  to the
+// world by flooding some local minima to a random
+// height.  The  percentage of the world that is flooded is
+// based on the minFrac and maxFrac parameters.
+func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 	tmap := makeTopoMap(w)
-	minWater := int(float64(w.W*w.H)*minWaterFrac)
-	maxWater := int(float64(w.W*w.H)*maxWaterFrac)
+	minNum := int(float64(w.W*w.H)*minFrac)
+	maxNum := int(float64(w.W*w.H)*maxFrac)
 	maxHeight := int(math.Floor(world.MaxElevation*floodMaxElevation))
 
-	waterSz := 0
+	n := 0
 	mins := tmap.minima()
-	for len(mins) > 0 && waterSz < minWater {
+	for len(mins) > 0 && n < minNum {
 		i := rand.Intn(len(mins))
 		min := mins[i]
 		mins[i], mins = mins[len(mins)-1], mins[:len(mins)-1]
 
-		if min.terrain == &world.Terrain['w'] {
+		if min.terrain.Char != 'g' {
 			continue
 		}
 	
@@ -86,24 +109,20 @@ func addWater(w *world.World) {
 			fl := tmap.flood(min, ht)
 			sz := 0
 			for _, d := range fl {
-				if d.terrain != &world.Terrain['w'] {
-					sz += d.size
-				}
+				sz += d.size
 			}
-			if waterSz + sz <= maxWater {
+			if n + sz <= maxNum {
 				for _, d := range fl {
-					d.terrain = &world.Terrain['w']
+					d.terrain = &world.Terrain[ch]
 					d.depth += ht - d.height
 					d.height = ht
 				}
-				waterSz += sz
+				n += sz
 			}
 			ht--
 		}
 	}
-	fmt.Fprintf(os.Stderr, "%.2f%% water\n", float64(waterSz)/float64(w.H*w.W)*100)
 
-	// blit the water to the map
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			c := tmap.getContour(x, y)
@@ -121,8 +140,6 @@ type point struct{
 
 // growTrees changes forrest tiles into grass tiles.
 func growTrees(w *world.World) {
-	frac := rand.Float64() * (maxForrestFrac - minForrestFrac) + minForrestFrac
-
 	tmap := makeTopoMap(w)
 	var grass []*contour
 	for _, c := range tmap.conts {
@@ -137,8 +154,10 @@ func growTrees(w *world.World) {
 		grass[i], grass[j] = grass[j], grass[i]
 	}
 
-	// get some seed locations.
 	n := 0
+	frac := rand.Float64() * (maxForrestFrac - minForrestFrac) + minForrestFrac
+
+	// get some seed locations.
 	seeds := grass[:int(float64(w.W)*float64(w.H)*frac*seedFrac)]
 	for _, s := range seeds {
 		s.terrain = &world.Terrain['f']
@@ -146,12 +165,13 @@ func growTrees(w *world.World) {
 	}
 
 	min := int(frac * float64(w.W) * float64(w.H))
+	max := int(maxForrestFrac * float64(w.W) * float64(w.H))
 	for len(seeds) > 0 && n < min {
 		i := rand.Intn(len(seeds))
 		c := seeds[i]
 		var adj []*contour
 		for _, a := range c.adj {
-			if a.terrain.Char == 'g' {
+			if a.terrain.Char == 'g' && n + a.size < max {
 				adj = append(adj, a)
 			}
 		}
@@ -164,8 +184,6 @@ func growTrees(w *world.World) {
 		c.terrain = &world.Terrain['f']
 		seeds = append(seeds, c)
 	}
-
-	fmt.Fprintf(os.Stderr, "%.2f%% forrest\n", float64(n)/float64(w.H*w.W)*100)
 
 	// blit the forrest to the map
 	for x := 0; x < w.W; x++ {
