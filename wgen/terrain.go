@@ -24,7 +24,7 @@ const (
 	floodMaxHeight = 0.25
 
 	// forrestFrac is the fraction of the world covered by forrest.
-	forrestFrac = 0.2
+	minForrestFrac, maxForrestFrac = 0.1, 0.2
 
 	// seedFrac is the fraction of the number of forrest tiles that
 	// are seeds (randomly choosen grass land to conver to
@@ -125,7 +125,8 @@ type point struct{
 
 // growTrees changes forrest tiles into grass tiles.
 func growTrees(w *world.World) {
-	totalForrest := int(float64(w.W)*float64(w.H)*forrestFrac)
+	frac := rand.Float64()*(maxForrestFrac-minForrestFrac) + minForrestFrac
+	totalForrest := int(float64(w.W)*float64(w.H)*frac)
 
 	// build the seed locations.
 	grass := grassLocs(w)
