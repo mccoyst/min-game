@@ -33,11 +33,11 @@ func (w *worldImg) Bounds() image.Rectangle {
 // image.Image interface.
 func (w *worldImg) At(x, y int) color.Color {
 	loc := w.World.At(x, w.H - y - 1)
-	ht := loc.Height
+	el := loc.Elevation
 	if w.depth {
-		ht -= loc.Depth
+		el -= loc.Depth
 	}
-	f := float64(ht+MaxHeight) / (2 * MaxHeight)
+	f := float64(el+MaxElevation) / (2 * MaxElevation)
 	if f > 1 {
 		panic("Color factor is >1 in worldImg.At")
 	}

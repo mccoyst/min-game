@@ -125,13 +125,13 @@ func findSets(w *world.World) (sets []djsets.Set) {
 		for y := 0; y < w.H-1; y++ {
 			loc := w.At(x, y)
 			set := &sets[x*w.H+y]
-			if right := w.At(x+1, y); loc.Height == right.Height {
+			if right := w.At(x+1, y); loc.Height() == right.Height() {
 				set.Union(&sets[(x+1)*w.H+y])
 			}
-			if down := w.At(x, y+1); loc.Height == down.Height {
+			if down := w.At(x, y+1); loc.Height() == down.Height() {
 				set.Union(&sets[x*w.H+y+1])
 			}
-			if diag := w.At(x+1, y+1); loc.Height == diag.Height {
+			if diag := w.At(x+1, y+1); loc.Height() == diag.Height() {
 				set.Union(&sets[(x+1)*w.H+y+1])
 			}
 		}
@@ -142,13 +142,13 @@ func findSets(w *world.World) (sets []djsets.Set) {
 	for y := 0; y < w.H-1; y++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
-		if right := w.At(0, y); loc.Height == right.Height {
+		if right := w.At(0, y); loc.Height() == right.Height() {
 			set.Union(&sets[y])
 		}
-		if down := w.At(x, y+1); loc.Height == down.Height {
+		if down := w.At(x, y+1); loc.Height() == down.Height() {
 			set.Union(&sets[x*w.H+y+1])
 		}
-		if diag := w.At(0, y+1); loc.Height == diag.Height {
+		if diag := w.At(0, y+1); loc.Height() == diag.Height() {
 			set.Union(&sets[y+1])
 		}
 	}
@@ -158,13 +158,13 @@ func findSets(w *world.World) (sets []djsets.Set) {
 	for x := 0; x < w.W-1; x++ {
 		loc := w.At(x, y)
 		set := &sets[x*w.H+y]
-		if right := w.At(x+1, y); loc.Height == right.Height {
+		if right := w.At(x+1, y); loc.Height() == right.Height() {
 			set.Union(&sets[x*w.H+y])
 		}
-		if down := w.At(x, 0); loc.Height == down.Height {
+		if down := w.At(x, 0); loc.Height()== down.Height() {
 			set.Union(&sets[x*w.H])
 		}
-		if diag := w.At(x+1, 0); loc.Height == diag.Height {
+		if diag := w.At(x+1, 0); loc.Height() == diag.Height() {
 			set.Union(&sets[(x+1)*w.H])
 		}
 	}
@@ -172,13 +172,13 @@ func findSets(w *world.World) (sets []djsets.Set) {
 	// Bottom left corner
 	loc := w.At(x, y)
 	set := &sets[x*w.H+y]
-	if right := w.At(0, y); loc.Height == right.Height {
+	if right := w.At(0, y); loc.Height() == right.Height() {
 		set.Union(&sets[y])
 	}
-	if down := w.At(x, 0); loc.Height == down.Height {
+	if down := w.At(x, 0); loc.Height() == down.Height() {
 		set.Union(&sets[x*w.H])
 	}
-	if diag := w.At(0, 0); loc.Height == diag.Height {
+	if diag := w.At(0, 0); loc.Height() == diag.Height() {
 		set.Union(&sets[0])
 	}
 	return
@@ -197,7 +197,8 @@ func findContours(w *world.World, sets []djsets.Set) (comps []*contour) {
 				c := &contour{
 					id: len(comps),
 					size:    1,
-					height: loc.Height,
+					terrain: loc.Terrain,
+					height: loc.Elevation,
 					depth: loc.Depth,
 					set:     set,
 				}
