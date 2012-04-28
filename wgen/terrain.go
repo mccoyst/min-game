@@ -23,13 +23,12 @@ const (
 	// into a minima given as fraction of the world.MaxElevation
 	floodMaxElevation = 0.25
 
-	// forrestFrac is the fraction of the world covered by forrest.
-	minForrestFrac, maxForrestFrac = 0.2, 0.4
+	// minForrestFrac and maxForrestFrac give rough bounds on the
+	// amount of forrest that can be added to the world.
+	minForrestFrac, maxForrestFrac = 0.2, 0.3
 
-	// seedFrac is the fraction of the number of forrest tiles that
-	// are seeds (randomly choosen grass land to conver to
-	// forrest).  The remainder of the forrest tiles are 'grown' by
-	// selecting a tile adjacent to a seed.
+	// seedFrac specifies the number of seed forrest.  This is given
+	// as a fraction of the number of grass contours.
 	seedFrac = 0.005
 )
 
@@ -122,7 +121,7 @@ type point struct{
 
 // growTrees changes forrest tiles into grass tiles.
 func growTrees(w *world.World) {
-	frac := rand.Float64()*(maxForrestFrac-minForrestFrac) + minForrestFrac
+	frac := rand.Float64() * (maxForrestFrac - minForrestFrac) + minForrestFrac
 
 	tmap := makeTopoMap(w)
 	var grass []*contour
@@ -138,13 +137,34 @@ func growTrees(w *world.World) {
 		grass[i], grass[j] = grass[j], grass[i]
 	}
 
-	// build the seed locations.
+	// get some seed locations.
 	n := 0
 	seeds := grass[:int(float64(w.W)*float64(w.H)*frac*seedFrac)]
 	for _, s := range seeds {
 		s.terrain = &world.Terrain['f']
 		n += s.size
 	}
+
+	min := int(frac * float64(w.W) * float64(w.H))
+	for len(seeds) > 0 && n < min {
+		i := rand.Intn(len(seeds))
+		c := seeds[i]
+		var adj []*contour
+		for _, a := range c.adj {
+			if a.terrain.Char == 'g' {
+				adj = append(adj, a)
+			}
+		}
+		if len(adj) == 0 {
+			seeds[i], seeds = seeds[len(seeds)-1], seeds[:len(seeds)-1]
+			continue
+		}
+		c = adj[rand.Intn(len(adj))]
+		n += c.size
+		c.terrain = &world.Terrain['f']
+		seeds = append(seeds, c)
+	}
+
 	fmt.Fprintf(os.Stderr, "%.2f%% forrest\n", float64(n)/float64(w.H*w.W)*100)
 
 	// blit the forrest to the map
