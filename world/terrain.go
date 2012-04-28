@@ -8,6 +8,7 @@ import (
 // terrain.
 type TerrainType struct {
 	Char  uint8      // character representation
+	Name string	// 
 	Color color.RGBA // color at the highest altitude
 }
 
@@ -16,15 +17,15 @@ type TerrainType struct {
 // unique character.
 var Terrain = []TerrainType{
 	// Grass-land
-	int('g'): {'g', color.RGBA{0, 255, 0, 255}},
+	int('g'): {'g', "grass", color.RGBA{0, 255, 0, 255}},
 	// Mountain
-	int('m'): {'m', color.RGBA{196, 196, 196, 255}},
+	int('m'): {'m', "mountain", color.RGBA{196, 196, 196, 255}},
 	// Water
-	int('w'): {'w', color.RGBA{0, 0, 255, 255}},
+	int('w'): {'w', "water", color.RGBA{0, 0, 255, 255}},
 	// Lava
-	int('l'): {'l', color.RGBA{255, 0, 0, 255}},
+	int('l'): {'l', "lava", color.RGBA{255, 0, 0, 255}},
 	// Desert
-	int('d'): {'d', color.RGBA{255, 255, 0, 255}},
+	int('d'): {'d', "desert", color.RGBA{255, 255, 0, 255}},
 	// Forrest
-	int('f'): {'f', color.RGBA{0, 200, 128, 255}},
+	int('f'): {'f', "forrest", color.RGBA{0, 200, 128, 255}},
 }
