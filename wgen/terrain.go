@@ -30,7 +30,7 @@ const (
 	// are seeds (randomly choosen grass land to conver to
 	// forrest).  The remainder of the forrest tiles are 'grown' by
 	// selecting a tile adjacent to a seed.
-	seedFrac = 0.001
+	seedFrac = 0.0005
 )
 
 // doTerrain is the main routine for assigning a
