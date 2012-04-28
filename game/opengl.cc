@@ -128,16 +128,16 @@ void OpenGLUi::DrawTiles(const Vec2 &offs) {
 		assert (t1 >= 0);
 		assert (t1 <= 1);
 
-		glTexCoord2d(t0, 0);
+		glTexCoord2d(t0, 1);
 		glVertex3f(x*tilew+xoff, y*tileh+yoff, 0);
 
-		glTexCoord2d(t1, 0);
+		glTexCoord2d(t1, 1);
 		glVertex3f((x+1)*tilew+xoff, y*tileh+yoff, 0);
 
-		glTexCoord2d(t1, 1);
+		glTexCoord2d(t1, 0);
 		glVertex3f((x+1)*tilew+xoff, (y+1)*tileh+yoff, 0);
 
-		glTexCoord2d(t0, 1);
+		glTexCoord2d(t0, 0);
 		glVertex3f(x*tilew+xoff, (y+1)*tileh+yoff, 0);
 	}
 	}
