@@ -149,8 +149,8 @@ func growTrees(w *world.World) {
 	}
 
 	// scramble
-	for i := 0; i < len(grass); i++ {
-		j := rand.Intn(len(grass))
+	for i := 0; i < len(grass)-1; i++ {
+		j := rand.Intn(len(grass)-i) + i
 		grass[i], grass[j] = grass[j], grass[i]
 	}
 
