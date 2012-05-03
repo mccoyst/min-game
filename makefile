@@ -67,11 +67,11 @@ include $(OBJS:.o=.d)
 
 %.d: %.cc
 	@echo $@
-	@./dep.sh $(CXX) $(shell dirname $<) $(HEADERFLAGS) $< > $@
+	@./dep.sh $(CXX) $(shell dirname $<) $(CXXFLAGS) $< > $@
 
 %.d: %.m
 	@echo $@
-	@./dep.sh $(OBJCC) $(shell dirname $<) $(HEADERFLAGS) $< > $@
+	@./dep.sh $(OBJCC) $(shell dirname $<) $(OBJCFLAGS) $< > $@
 
 %.o: %.cc
 	@echo $@
