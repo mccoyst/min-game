@@ -65,7 +65,7 @@ wimg/wimg: wimg/*.go world/*.go
 
 include $(OBJS:.o=.d)
 
-%.d: %.cc
+%.d: %.cpp
 	@echo $@
 	@./dep.sh $(CXX) $(shell dirname $<) $(CXXFLAGS) $< > $@
 
@@ -73,7 +73,7 @@ include $(OBJS:.o=.d)
 	@echo $@
 	@./dep.sh $(OBJCC) $(shell dirname $<) $(OBJCFLAGS) $< > $@
 
-%.o: %.cc
+%.o: %.cpp
 	@echo $@
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
