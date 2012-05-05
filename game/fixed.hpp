@@ -39,7 +39,8 @@ bool operator > (Fixed, Fixed);
 bool operator >= (Fixed, Fixed);
 
 // Vec is a tuple of Fixeds, representing a vector in 2D coords.
-struct Vec2{
+class Vec2{
+public:
 	Fixed x, y;
 
 	Vec2(Fixed x, Fixed y);

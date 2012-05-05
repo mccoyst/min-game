@@ -6,7 +6,8 @@
 #include <cassert>
 
 // An Isection holds information about an intersection.
-struct Isection {
+class Isection {
+public:
 	Vec2 overlap;
 
 	// This constructor creates an intersection that represents
@@ -31,7 +32,8 @@ struct Isection {
 
 // A Bbox is a bounding box that can be used for collision
 // detection, among other things.
-struct Bbox {
+class Bbox {
+public:
 	Vec2 min, sz;
 
 	// Bbox constructs a new bounding box with the given

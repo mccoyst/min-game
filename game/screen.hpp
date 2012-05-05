@@ -2,9 +2,10 @@
 #include "ui.hpp"
 #include <vector>
 
-struct Screen;
+class Screen;
 
-struct ScreenStack {
+class ScreenStack {
+public:
 	// Creates a new screen stack with the given initial screen.
 	ScreenStack(std::shared_ptr<Ui>, std::shared_ptr<Screen>);
 
@@ -33,7 +34,8 @@ private:
 	double meanFrame;
 };
 
-struct Screen {
+class Screen {
+public:
 	virtual ~Screen();
 
 	// Draw draws the screen.  The Screen is responsable for
