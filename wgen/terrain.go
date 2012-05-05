@@ -4,27 +4,21 @@ import (
 	"minima/world"
 	"math/rand"
 	"math"
-
 )
 
 const (
 	// minMountain is the minimum value at and above which
 	// terrain will initalize to mountain.
-	minMountain = world.MaxElevation * 0.80
+	minMountain = world.MaxElevation * 0.75
 
 	// minWaterFrac and maxWaterFrac define the minimum and
 	// maximum amount of water that will be flooded into the
 	// world.  Both are given as a fraction of the map size.
-	minWaterFrac, maxWaterFrac = 0.40, 0.60
-
-	// minLavaFrac and maxLavaFrac define the minimum and
-	// maximum amount of lava that will be flooded into the
-	// world.  Both are given as a fraction of the map size.
-	minLavaFrac, maxLavaFrac = 0.005, 0.01
+	minWaterFrac, maxWaterFrac = 0.50, 0.60
 
 	// floodMaxElevation is the maximum amount of water to flood
 	// into a minima given as fraction of the world.MaxElevation
-	floodMaxElevation = 0.25
+	floodMaxElevation = 0.2
 
 	// minForrestFrac and maxForrestFrac give rough bounds on the
 	// amount of forrest that can be added to the world.
@@ -77,7 +71,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 	tmap := makeTopoMap(w)
 	minNum := int(float64(w.W*w.H)*minFrac)
 	maxNum := int(float64(w.W*w.H)*maxFrac)
-	maxHeight := int(math.Floor(world.MaxElevation*floodMaxElevation))
+	maxHeight := int(math.Ceil(world.MaxElevation*floodMaxElevation))
 
 	n := 0
 	mins := tmap.minima()
@@ -89,8 +83,11 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 		if min.terrain.Char != 'g' {
 			continue
 		}
-	
-		amt := rand.Intn(maxHeight-1)+1
+
+		amt := 1
+		if (maxHeight > 1) {
+			amt = rand.Intn(maxHeight-1)+1
+		}
 		ht := min.height + amt
 	
 		for ht > min.height {
@@ -106,6 +103,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 					d.height = ht
 				}
 				n += sz
+				break
 			}
 			ht--
 		}
