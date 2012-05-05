@@ -3,8 +3,8 @@
 #include <SDL_opengl.h>
 #include <vector>
 
-struct OpenGLUi : public Ui {
-
+class OpenGLUi : public Ui {
+public:
 	OpenGLUi(Fixed w, Fixed h) : Ui(w, h) { }
 
 	// InitOpenGL initializes OpenGL for drawing stuff.
@@ -37,7 +37,8 @@ private:
 	std::vector<float> shades;
 };
 
-struct OpenGLImg : public Img {
+class OpenGLImg : public Img {
+public:
 	GLuint texid;
 	virtual ~OpenGLImg();
 };

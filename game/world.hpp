@@ -5,8 +5,8 @@
 #include <memory>
 #include "ui.hpp"
 
-struct World {
-
+class World {
+public:
 	// TileW and TileH are the size of the world cells
 	// in pixels.
 	static const Fixed TileW, TileH;
@@ -31,7 +31,7 @@ struct World {
 	
 	// terrain is an array of Terrain indexed by the
 	// character representation of the Terrain.
-	struct TerrainType {
+	class TerrainType {
 		std::vector<Terrain> t;
 		std::vector< std::shared_ptr<Img> > htImg;
 	public:
