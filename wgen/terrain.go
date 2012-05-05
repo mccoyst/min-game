@@ -1,9 +1,9 @@
 package main
 
 import (
-	"minima/world"
-	"math/rand"
 	"math"
+	"math/rand"
+	"minima/world"
 )
 
 // doTerrain is the main routine for assigning a
@@ -13,14 +13,14 @@ func doTerrain(w *world.World) {
 	initTerrain(w)
 	finish()
 
-	sz := float64(w.W*w.H)
+	sz := float64(w.W * w.H)
 	start("Adding oceans")
-	ht := int(math.Ceil(world.MaxElevation*0.2))
+	ht := int(math.Ceil(world.MaxElevation * 0.2))
 	addLiquid(w, 'w', int(sz*0.01), int(sz*0.4), int(sz*0.45), int(sz*0.6), ht)
 	finish()
 
 	start("Adding lakes")
-	ht = int(math.Ceil(world.MaxElevation*0.1))
+	ht = int(math.Ceil(world.MaxElevation * 0.1))
 	addLiquid(w, 'w', 7, int(sz*0.01), int(sz*0.05), int(sz*0.8), ht)
 	finish()
 
@@ -35,7 +35,7 @@ func doTerrain(w *world.World) {
 // land unless it is above a certain threshold
 // in which case it is made a mountain.
 func initTerrain(w *world.World) {
-	const minMountain = world.MaxElevation * 0.75	
+	const minMountain = world.MaxElevation * 0.75
 
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
@@ -68,8 +68,8 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 		}
 
 		amt := 1
-		if (maxHt > 1) {
-			amt = rand.Intn(maxHt-1)+1
+		if maxHt > 1 {
+			amt = rand.Intn(maxHt-1) + 1
 		}
 		hts := make([]int, amt)
 		for i := range hts {
@@ -115,7 +115,7 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 	}
 }
 
-type point struct{
+type point struct {
 	x, y int
 }
 
@@ -137,7 +137,7 @@ func growTrees(w *world.World) {
 
 	n := 0
 	const minForrestFrac, maxForrestFrac = 0.08, 0.15
-	frac := rand.Float64() * (maxForrestFrac - minForrestFrac) + minForrestFrac
+	frac := rand.Float64()*(maxForrestFrac-minForrestFrac) + minForrestFrac
 
 	// get some seed locations.
 	const seedFrac = 0.005
@@ -154,7 +154,7 @@ func growTrees(w *world.World) {
 		c := seeds[i]
 		var adj []*contour
 		for _, a := range c.adj {
-			if a.terrain.Char == 'g' && n + a.size < max {
+			if a.terrain.Char == 'g' && n+a.size < max {
 				adj = append(adj, a)
 			}
 		}
