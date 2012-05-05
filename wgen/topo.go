@@ -1,16 +1,16 @@
 package main
 
 import (
-	"minima/world"
 	"code.google.com/p/eaburns/djsets"
+	"minima/world"
 )
 
 // topoMap are a set of connected components of
 // equal heights.
 type topoMap struct {
-	sets []djsets.Set
+	sets   []djsets.Set
 	stride int
-	conts []*contour
+	conts  []*contour
 }
 
 // A contour represents connected set of locations
@@ -40,10 +40,10 @@ type contour struct {
 // topoMap returns a topological map of the world.
 func makeTopoMap(w *world.World) topoMap {
 	sets := findSets(w)
-	m := topoMap {
+	m := topoMap{
 		stride: w.H,
-		sets: sets,
-		conts: findContours(w, sets),
+		sets:   sets,
+		conts:  findContours(w, sets),
 	}
 	linkContours(w, m)
 	return m
@@ -76,7 +76,7 @@ func (m topoMap) minima() (mins []*contour) {
 // when raising raising liquid to the given height
 // in the given contour.
 func (t topoMap) flood(c *contour, ht int) (fl []*contour) {
-	t.walk(c, func (c *contour) bool {
+	t.walk(c, func(c *contour) bool {
 		if c.height > ht {
 			return false
 		}
@@ -93,7 +93,7 @@ func (t topoMap) flood(c *contour, ht int) (fl []*contour) {
 // this branch of the search and will only be encountered
 // if they are reached via another path along which foreach
 // always returns true.
-func (t topoMap) walk(init *contour, foreach func(*contour)bool) {
+func (t topoMap) walk(init *contour, foreach func(*contour) bool) {
 	seen := make([]bool, len(t.conts))
 	var stack []*contour
 
@@ -161,7 +161,7 @@ func findSets(w *world.World) (sets []djsets.Set) {
 		if right := w.At(x+1, y); loc.Height() == right.Height() {
 			set.Union(&sets[x*w.H+y])
 		}
-		if down := w.At(x, 0); loc.Height()== down.Height() {
+		if down := w.At(x, 0); loc.Height() == down.Height() {
 			set.Union(&sets[x*w.H])
 		}
 		if diag := w.At(x+1, 0); loc.Height() == diag.Height() {
@@ -195,11 +195,11 @@ func findContours(w *world.World, sets []djsets.Set) (comps []*contour) {
 				c.size++
 			default:
 				c := &contour{
-					id: len(comps),
+					id:      len(comps),
 					size:    1,
 					terrain: loc.Terrain,
-					height: loc.Elevation,
-					depth: loc.Depth,
+					height:  loc.Elevation,
+					depth:   loc.Depth,
 					set:     set,
 				}
 				set.Aux = c

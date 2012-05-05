@@ -1,13 +1,13 @@
 package main
 
 import (
-	"minima/world"
-	"runtime/pprof"
 	"bufio"
 	"flag"
 	"fmt"
 	"math/rand"
+	"minima/world"
 	"os"
+	"runtime/pprof"
 	"time"
 )
 
@@ -23,7 +23,7 @@ var (
 	seed       = flag.Int64("seed", 0, "Random seed: 0 == use time")
 	cpuprofile = flag.String("cprof", "", "Write cpu profile to file")
 	memprofile = flag.String("mprof", "", "Write mem profile to file")
-	quiet = flag.Bool("q", false, "Silence all output")
+	quiet      = flag.Bool("q", false, "Silence all output")
 )
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 		*seed = int64(time.Now().Nanosecond())
 	}
 	rand.Seed(*seed)
-	if (!*quiet) {
+	if !*quiet {
 		fmt.Fprintln(os.Stderr, "seed", *seed)
 	}
 
@@ -76,7 +76,7 @@ func main() {
 		}
 		pprof.WriteHeapProfile(f)
 	}
-	if (*quiet) {
+	if *quiet {
 		return
 	}
 
@@ -104,7 +104,7 @@ func initWorld(width, height int) *world.World {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.AtCoord(x, y)
-			l.Elevation = world.MaxElevation/2
+			l.Elevation = world.MaxElevation / 2
 		}
 	}
 	return &w
@@ -198,7 +198,7 @@ func placeStart(w *world.World) {
 		for y := 0; y < w.H; y++ {
 			loc := w.At(x, y)
 			if loc.Terrain == &world.Terrain[int('g')] {
-				grass = append(grass, x*w.H + y)
+				grass = append(grass, x*w.H+y)
 			}
 		}
 	}
@@ -227,17 +227,17 @@ var (
 // start prints the format and starts a timer.
 // Don't use a newline at the end of the format.
 func start(f string, vs ...interface{}) {
-	if (*quiet) {
+	if *quiet {
 		return
 	}
-	fmt.Fprintf(os.Stderr, f + "… ", vs...)
+	fmt.Fprintf(os.Stderr, f+"… ", vs...)
 	startTime = time.Now()
 }
 
 // finish prints the time since the last call to start followed
 // by a newline.
 func finish() {
-	if (*quiet) {
+	if *quiet {
 		return
 	}
 	fmt.Fprintf(os.Stderr, "%s\n", time.Since(startTime))
