@@ -13,8 +13,15 @@ func doTerrain(w *world.World) {
 	initTerrain(w)
 	finish()
 
-	start("Adding water")
-	addLiquid(w, 'w', 0.4, 0.55)
+	sz := float64(w.W*w.H)
+	start("Adding oceans")
+	ht := int(math.Ceil(world.MaxElevation*0.2))
+	addLiquid(w, 'w', int(sz*0.2), int(sz*0.4), int(sz*0.45), int(sz*0.6), ht)
+	finish()
+
+	start("Adding lakes")
+	ht = int(math.Ceil(world.MaxElevation*0.1))
+	addLiquid(w, 'w', 7, int(sz*0.01), int(sz*0.05), int(sz*0.8), ht)
 	finish()
 
 	start("Growing forrests")
@@ -46,19 +53,12 @@ func initTerrain(w *world.World) {
 // world by flooding some local minima to a random
 // height.  The  percentage of the world that is flooded is
 // based on the minFrac and maxFrac parameters.
-func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
-	const minPoolSize = 7
-	tmap := makeTopoMap(w)
-	minNum := int(float64(w.W*w.H)*minFrac)
-	maxNum := int(float64(w.W*w.H)*maxFrac)
-	num := (maxNum-minNum)/2 + minNum
-	maxHeight := int(math.Ceil(world.MaxElevation*0.2))
-
+func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) {
 	nLiquid := 0
+	tmap := makeTopoMap(w)
+
 	mins := tmap.minima()
-	triesLeft := len(mins)/2
-	for len(mins) > 0 && nLiquid < num && triesLeft > 0 {
-		triesLeft--
+	for len(mins) > 0 && nLiquid < minAmt {
 		i := rand.Intn(len(mins))
 		min := mins[i]
 		mins[i], mins = mins[len(mins)-1], mins[:len(mins)-1]
@@ -68,12 +68,19 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 		}
 
 		amt := 1
-		if (maxHeight > 1) {
-			amt = rand.Intn(maxHeight-1)+1
+		if (maxHt > 1) {
+			amt = rand.Intn(maxHt-1)+1
 		}
-		ht := min.height + amt
-	
-		for ht > 0 {
+		hts := make([]int, amt)
+		for i := range hts {
+			hts[i] = min.height + i
+		}
+		for i := 0; i < len(hts)-1; i++ {
+			j := rand.Intn(len(hts)-i) + i
+			hts[i], hts[j] = hts[j], hts[i]
+		}
+
+		for _, ht := range hts {
 			fl := tmap.flood(min, ht)
 			sz := 0
 			for _, c := range fl {
@@ -81,11 +88,13 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 					sz += c.size
 				}
 			}
-			if sz < minPoolSize || nLiquid + sz > num {
+			switch {
+			case sz > maxSz || nLiquid+sz > maxAmt:
 				ht--
 				continue
+			case sz < minSz:
+				break
 			}
-
 			for _, c := range fl {
 				c.terrain = &world.Terrain[ch]
 				c.depth += ht - c.height
