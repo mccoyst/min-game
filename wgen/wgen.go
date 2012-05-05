@@ -14,19 +14,7 @@ import (
 const (
 	// gaussFact is the number of Gaussians given as
 	// a factor of the map size.
-	gaussFact = 0.002
-
-	// meanGroth and stdevGrowth are the parameters
-	// of the normal distribution over mountain growths.
-	meanGrowth, stdevGrowth = 0, world.MaxElevation * 0.15
-
-	// conMin and maxCov are the minimum and maximum
-	// Gaussian2d covariance of random Gaussian2ds.
-	minCov, maxCov = -0.5, 0.5
-
-	// stdevMin and stdevMax are the minimum and
-	// maximum standard deviation of random Gaussians.
-	minStdev, maxStdev = 10, 30
+	gaussFact = 0.003
 )
 
 var (
@@ -116,7 +104,7 @@ func initWorld(width, height int) *world.World {
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.AtCoord(x, y)
-			l.Elevation = world.MaxElevation/4 + 1
+			l.Elevation = world.MaxElevation/2
 		}
 	}
 	return &w
@@ -138,6 +126,20 @@ func clampHeights(w *world.World) {
 	}
 
 }
+
+const (
+	// meanGroth and stdevGrowth are the parameters
+	// of the normal distribution over mountain growths.
+	meanGrowth, stdevGrowth = 0, world.MaxElevation * 0.125
+
+	// minCov and maxCov are the minimum and maximum
+	// Gaussian2d covariance of random Gaussian2ds.
+	minCov, maxCov = -0.5, 0.5
+
+	// minStdev and maxStdev are the minimum and
+	// maximum standard deviation of random Gaussians.
+	minStdev, maxStdev = 3, 30
+)
 
 // grow generates a random height for the mean
 // of the given Gaussian2d and grows the world
