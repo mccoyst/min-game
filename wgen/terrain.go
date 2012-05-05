@@ -16,7 +16,7 @@ func doTerrain(w *world.World) {
 	sz := float64(w.W*w.H)
 	start("Adding oceans")
 	ht := int(math.Ceil(world.MaxElevation*0.2))
-	addLiquid(w, 'w', int(sz*0.2), int(sz*0.4), int(sz*0.45), int(sz*0.6), ht)
+	addLiquid(w, 'w', int(sz*0.01), int(sz*0.4), int(sz*0.45), int(sz*0.6), ht)
 	finish()
 
 	start("Adding lakes")
@@ -88,11 +88,10 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 					sz += c.size
 				}
 			}
-			switch {
-			case sz > maxSz || nLiquid+sz > maxAmt:
+			if sz > maxSz || nLiquid+sz > maxAmt {
 				ht--
 				continue
-			case sz < minSz:
+			} else if sz < minSz {
 				break
 			}
 			for _, c := range fl {
