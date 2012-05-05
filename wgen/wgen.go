@@ -50,7 +50,7 @@ func main() {
 	w := initWorld(*width, *height)
 	num := int(float64(w.W*w.H) * gaussFact)
 	for g := range gaussians(w, num) {
-		grow(w, g)
+		growLand(w, g)
 	}
 	clampHeights(w)
 	finish()
@@ -141,10 +141,10 @@ const (
 	minStdev, maxStdev = 3, 30
 )
 
-// grow generates a random height for the mean
+// growLand generates a random height for the mean
 // of the given Gaussian2d and grows the world
 // around it.
-func grow(w *world.World, g *Gaussian2d) {
+func growLand(w *world.World, g *Gaussian2d) {
 	const s = 2.0 // standard deviations to grow around
 	xmin, xmax := int(g.Mx-s*g.Sx), int(g.Mx+s*g.Sx)
 	ymin, ymax := int(g.My-s*g.Sy), int(g.My+s*g.Sy)

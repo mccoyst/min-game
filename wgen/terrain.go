@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"minima/world"
+	"strings"
 )
 
 // doTerrain is the main routine for assigning a
@@ -24,8 +25,12 @@ func doTerrain(w *world.World) {
 	addLiquid(w, 'w', 7, int(sz*0.01), int(sz*0.05), int(sz*0.8), ht)
 	finish()
 
-	start("Growing forrests")
-	growTrees(w)
+	start("Adding forests")
+	growTerrain(w, "g", 'f', int(sz*0.2), int(sz*0.25), 0.005)
+	finish()
+
+	start("Adding desert")
+	growTerrain(w, "gf", 'd', int(sz*0.04), int(sz*0.08), 0.0002)
 	finish()
 }
 
@@ -119,42 +124,43 @@ type point struct {
 	x, y int
 }
 
-// growTrees changes forrest tiles into grass tiles.
-func growTrees(w *world.World) {
+// growTerrain changes tiles into other terrain
+func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, seedFrac float64) {
+	total := rand.Intn(maxSz-minSz) + minSz
 	tmap := makeTopoMap(w)
-	var grass []*contour
+	var land []*contour
 	for _, c := range tmap.conts {
-		if c.terrain.Char == 'g' {
-			grass = append(grass, c)
+		if strings.ContainsRune(fertile, rune(c.terrain.Char)) {
+			land = append(land, c)
 		}
 	}
 
 	// scramble
-	for i := 0; i < len(grass)-1; i++ {
-		j := rand.Intn(len(grass)-i) + i
-		grass[i], grass[j] = grass[j], grass[i]
+	for i := 0; i < len(land)-1; i++ {
+		j := rand.Intn(len(land)-i) + i
+		land[i], land[j] = land[j], land[i]
 	}
 
-	n := 0
-	const minForrestFrac, maxForrestFrac = 0.08, 0.15
-	frac := rand.Float64()*(maxForrestFrac-minForrestFrac) + minForrestFrac
-
 	// get some seed locations.
-	const seedFrac = 0.005
-	seeds := grass[:int(float64(w.W)*float64(w.H)*frac*seedFrac)]
+	n := 0
+	nSeeds := int(float64(total)*seedFrac)
+	if nSeeds == 0 {
+		nSeeds = 1
+	}
+	seeds := land[:nSeeds]
 	for _, s := range seeds {
-		s.terrain = &world.Terrain['f']
+		s.terrain = &world.Terrain[ch]
 		n += s.size
 	}
 
-	min := int(frac * float64(w.W) * float64(w.H))
-	max := int(maxForrestFrac * float64(w.W) * float64(w.H))
-	for len(seeds) > 0 && n < min {
+	for len(seeds) > 0 && n < minSz {
 		i := rand.Intn(len(seeds))
 		c := seeds[i]
 		var adj []*contour
 		for _, a := range c.adj {
-			if a.terrain.Char == 'g' && n+a.size < max {
+
+			if strings.ContainsRune(fertile, rune(a.terrain.Char)) &&
+					n+a.size < maxSz {
 				adj = append(adj, a)
 			}
 		}
@@ -164,11 +170,10 @@ func growTrees(w *world.World) {
 		}
 		c = adj[rand.Intn(len(adj))]
 		n += c.size
-		c.terrain = &world.Terrain['f']
+		c.terrain = &world.Terrain[ch]
 		seeds = append(seeds, c)
 	}
 
-	// blit the forrest to the map
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			c := tmap.getContour(x, y)

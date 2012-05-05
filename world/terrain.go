@@ -27,5 +27,5 @@ var Terrain = []TerrainType{
 	// Desert
 	int('d'): {'d', "desert", color.RGBA{255, 255, 0, 255}},
 	// Forrest
-	int('f'): {'f', "forrest", color.RGBA{0, 200, 128, 255}},
+	int('f'): {'f', "forest", color.RGBA{0, 200, 128, 255}},
 }
