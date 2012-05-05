@@ -1,8 +1,11 @@
 package world
 
 import (
+	"bufio"
 	"fmt"
 	"io"
+	"os"
+	"unicode"
 )
 
 const (
@@ -110,12 +113,12 @@ func (w *World) Write(out io.Writer) (err error) {
 		if l.Terrain == nil {
 			panic("Nil terrain")
 		}
-		if _, err = fmt.Fprintf(out, " %c %d %d", l.Terrain.Char, l.Elevation, l.Depth); err != nil {
+		_, err = fmt.Fprintf(out, "%c %d %d\n", l.Terrain.Char, l.Elevation, l.Depth)
+		if err != nil {
 			return
 		}
 	}
 
-	fmt.Fprintln(out)
 	fmt.Fprintln(out, w.X0, w.Y0)
 
 	return
@@ -125,12 +128,15 @@ func (w *World) Write(out io.Writer) (err error) {
 // and returns it.  If an error is encountered then
 // the error is returned as the second argument and
 // the zero-world is returned as the first.
-func Read(in io.Reader) (_ World, err error) {
-	var width, height, n int
-	if n, err = fmt.Fscanln(in, &width, &height); n != 2 || err != nil {
-		if err == nil {
-			err = fmt.Errorf("Failed to scan width and height")
-		}
+func Read(in *bufio.Reader) (_ World, err error) {
+	line, err := readLine(in)
+	if err != nil {
+		return
+	}
+	var width, height int
+	_, err = fmt.Sscanln(line, &width, &height)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "failed to scan", line)
 		return
 	}
 
@@ -138,10 +144,13 @@ func Read(in io.Reader) (_ World, err error) {
 	for i := range w.locs {
 		var el, dp int
 		var ch uint8
-		if n, err = fmt.Fscanf(in, " %c %d %d", &ch, &el, &dp); n != 3 || err != nil {
-			if err == nil {
-				err = fmt.Errorf("Failed to scan location %d", i)
-			}
+		line, err = readLine(in)
+		if err != nil {
+			return
+		}
+		_, err = fmt.Sscanf(line, "%c %d %d", &ch, &el, &dp)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "failed to scan", line)
 			return
 		}
 		if el < 0 || el > MaxElevation {
@@ -158,7 +167,36 @@ func Read(in io.Reader) (_ World, err error) {
 		w.locs[i].Depth = dp
 	}
 
-	fmt.Fscanln(in, &w.X0, &w.Y0)
+	line, err = readLine(in)
+	if err != nil {
+		return
+	}
+	_, err = fmt.Sscanln(line, &w.X0, &w.Y0)
+	return w, err
+}
 
-	return w, nil
+func readLine(in *bufio.Reader) (string, error) {
+	for {
+		r, _, err := in.ReadRune()
+		if err != nil {
+			return "", err
+		}
+		in.UnreadRune()
+	
+		if !unicode.IsSpace(r) && r != '#' {
+			bytes, prefix, err := in.ReadLine()
+			if prefix {
+				err = fmt.Errorf("Line is too long")
+			}
+			return string(bytes), err
+		}
+		_, prefix, err := in.ReadLine()
+		for prefix && err == nil {
+			_, prefix, err = in.ReadLine()
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+	panic("Unreachable")
 }
