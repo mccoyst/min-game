@@ -35,6 +35,7 @@ var (
 	seed       = flag.Int64("seed", 0, "Random seed: 0 == use time")
 	cpuprofile = flag.String("cprof", "", "Write cpu profile to file")
 	memprofile = flag.String("mprof", "", "Write mem profile to file")
+	quiet = flag.Bool("q", false, "Silence all output")
 )
 
 func main() {
@@ -53,22 +54,32 @@ func main() {
 		*seed = int64(time.Now().Nanosecond())
 	}
 	rand.Seed(*seed)
-	fmt.Fprintln(os.Stderr, "seed", *seed)
-	w := initWorld(*width, *height)
+	if (!*quiet) {
+		fmt.Fprintln(os.Stderr, "seed", *seed)
+	}
 
+	start("Generating elevations")
+	w := initWorld(*width, *height)
 	num := int(float64(w.W*w.H) * gaussFact)
 	for g := range gaussians(w, num) {
 		grow(w, g)
 	}
 	clampHeights(w)
-	doTerrain(w)
-	placeStart(w)
+	finish()
 
+	doTerrain(w)
+
+	start("Placing start location")
+	placeStart(w)
+	finish()
+
+	start("Writing the world")
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
 	if err := w.Write(out); err != nil {
 		panic(err)
 	}
+	finish()
 
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
@@ -76,6 +87,25 @@ func main() {
 			panic(err)
 		}
 		pprof.WriteHeapProfile(f)
+	}
+	if (*quiet) {
+		return
+	}
+
+	fmt.Fprintln(os.Stderr, "Total time:", time.Since(firstTime))
+
+	counts := make([]int, len(world.Terrain))
+	for x := 0; x < w.W; x++ {
+		for y := 0; y < w.H; y++ {
+			counts[int(w.At(x, y).Terrain.Char)]++
+		}
+	}
+	for i, count := range counts {
+		t := &world.Terrain[i]
+		if t.Char != 0 {
+			fmt.Fprintf(os.Stderr, "%.2f%% %s\n",
+				float64(count)/float64(w.H*w.W)*100, t.Name)
+		}
 	}
 }
 
@@ -182,4 +212,35 @@ func placeStart(w *world.World) {
 	if w.At(w.X0, w.Y0).Terrain != &world.Terrain[int('g')] {
 		panic("Start location is not grass")
 	}
+}
+
+var (
+	// firstTime is the start time of the entire program.
+	firstTime time.Time
+
+	// startTime tracks the time of the last call to start.
+	startTime time.Time
+)
+
+// start prints the format and starts a timer.
+// Don't use a newline at the end of the format.
+func start(f string, vs ...interface{}) {
+	if (*quiet) {
+		return
+	}
+	fmt.Fprintf(os.Stderr, f + "… ", vs...)
+	startTime = time.Now()
+}
+
+// finish prints the time since the last call to start followed
+// by a newline.
+func finish() {
+	if (*quiet) {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "%s\n", time.Since(startTime))
+}
+
+func init() {
+	firstTime = time.Now()
 }

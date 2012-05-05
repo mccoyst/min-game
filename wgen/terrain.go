@@ -4,8 +4,6 @@ import (
 	"minima/world"
 	"math/rand"
 	"math"
-	"fmt"
-	"os"
 
 )
 
@@ -40,27 +38,17 @@ const (
 // doTerrain is the main routine for assigning a
 // terrain value to each location.
 func doTerrain(w *world.World) {
+	start("Initializing terrain")
 	initTerrain(w)
+	finish()
 
-	// add lava before water because water is more important and
-	// it may flood over the lava.
-	addLiquid(w, 'l', minLavaFrac, maxLavaFrac)
+	start("Adding water")
 	addLiquid(w, 'w', minWaterFrac, maxWaterFrac)
-	growTrees(w)
+	finish()
 
-	counts := make([]int, len(world.Terrain))
-	for x := 0; x < w.W; x++ {
-		for y := 0; y < w.H; y++ {
-			counts[int(w.At(x, y).Terrain.Char)]++
-		}
-	}
-	for i, count := range counts {
-		t := &world.Terrain[i]
-		if t.Char != 0 {
-			fmt.Fprintf(os.Stderr, "%.2f%% %s\n",
-				float64(count)/float64(w.H*w.W)*100, t.Name)
-		}
-	}
+	start("Growing forrests")
+	growTrees(w)
+	finish()
 }
 
 // initTerrain initializes the world's terrain.
