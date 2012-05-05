@@ -1,14 +1,15 @@
 #pragma once
 #include "screen.hpp"
-struct World;
+class World;
 
-struct Failure {
+class Failure {
+public:
 	Failure(const char *, ...);
 	char msg[128];
 };
 
-struct ExploreScreen : public Screen {
-
+class ExploreScreen : public Screen {
+public:
 	enum {
 		// ScrollSpd is the amount to scroll per-frame
 		// when an arrow key is held.
