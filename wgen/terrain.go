@@ -14,7 +14,7 @@ func doTerrain(w *world.World) {
 	finish()
 
 	start("Adding water")
-	addLiquid(w, 'w', 0.5, 0.6)
+	addLiquid(w, 'w', 0.4, 0.55)
 	finish()
 
 	start("Growing forrests")
@@ -50,11 +50,12 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 	tmap := makeTopoMap(w)
 	minNum := int(float64(w.W*w.H)*minFrac)
 	maxNum := int(float64(w.W*w.H)*maxFrac)
+	num := (maxNum-minNum)/2 + minNum
 	maxHeight := int(math.Ceil(world.MaxElevation*0.2))
 
 	n := 0
 	mins := tmap.minima()
-	for len(mins) > 0 && n < minNum {
+	for len(mins) > 0 && n < num {
 		i := rand.Intn(len(mins))
 		min := mins[i]
 		mins[i], mins = mins[len(mins)-1], mins[:len(mins)-1]
@@ -69,7 +70,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 		}
 		ht := min.height + amt
 	
-		for ht > min.height {
+		for ht > 0 {
 			fl := tmap.flood(min, ht)
 			sz := 0
 			for _, c := range fl {
@@ -77,10 +78,11 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 					sz += c.size
 				}
 			}
-			if n + sz > maxNum {
+			if n + sz > num {
 				ht--
 				continue
 			}
+
 			for _, c := range fl {
 				c.terrain = &world.Terrain[ch]
 				c.depth += ht - c.height
