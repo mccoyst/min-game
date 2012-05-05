@@ -72,19 +72,22 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 		for ht > min.height {
 			fl := tmap.flood(min, ht)
 			sz := 0
-			for _, d := range fl {
-				sz += d.size
-			}
-			if n + sz <= maxNum {
-				for _, d := range fl {
-					d.terrain = &world.Terrain[ch]
-					d.depth += ht - d.height
-					d.height = ht
+			for _, c := range fl {
+				if c.terrain != &world.Terrain[ch] {
+					sz += c.size
 				}
-				n += sz
-				break
 			}
-			ht--
+			if n + sz > maxNum {
+				ht--
+				continue
+			}
+			for _, c := range fl {
+				c.terrain = &world.Terrain[ch]
+				c.depth += ht - c.height
+				c.height = ht
+			}
+			n += sz
+			break
 		}
 	}
 
