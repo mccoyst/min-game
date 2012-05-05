@@ -47,6 +47,7 @@ func initTerrain(w *world.World) {
 // height.  The  percentage of the world that is flooded is
 // based on the minFrac and maxFrac parameters.
 func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
+	const minPoolSize = 7
 	tmap := makeTopoMap(w)
 	minNum := int(float64(w.W*w.H)*minFrac)
 	maxNum := int(float64(w.W*w.H)*maxFrac)
@@ -78,7 +79,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 					sz += c.size
 				}
 			}
-			if n + sz > num {
+			if sz < minPoolSize || n + sz > num {
 				ht--
 				continue
 			}
