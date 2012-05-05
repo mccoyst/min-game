@@ -54,9 +54,11 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 	num := (maxNum-minNum)/2 + minNum
 	maxHeight := int(math.Ceil(world.MaxElevation*0.2))
 
-	n := 0
+	nLiquid := 0
 	mins := tmap.minima()
-	for len(mins) > 0 && n < num {
+	triesLeft := len(mins)/2
+	for len(mins) > 0 && nLiquid < num && triesLeft > 0 {
+		triesLeft--
 		i := rand.Intn(len(mins))
 		min := mins[i]
 		mins[i], mins = mins[len(mins)-1], mins[:len(mins)-1]
@@ -79,7 +81,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 					sz += c.size
 				}
 			}
-			if sz < minPoolSize || n + sz > num {
+			if sz < minPoolSize || nLiquid + sz > num {
 				ht--
 				continue
 			}
@@ -89,7 +91,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 				c.depth += ht - c.height
 				c.height = ht
 			}
-			n += sz
+			nLiquid += sz
 			break
 		}
 	}
