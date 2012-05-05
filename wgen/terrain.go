@@ -6,29 +6,6 @@ import (
 	"math"
 )
 
-const (
-	// minMountain is the minimum value at and above which
-	// terrain will initalize to mountain.
-	minMountain = world.MaxElevation * 0.75
-
-	// minWaterFrac and maxWaterFrac define the minimum and
-	// maximum amount of water that will be flooded into the
-	// world.  Both are given as a fraction of the map size.
-	minWaterFrac, maxWaterFrac = 0.50, 0.60
-
-	// floodMaxElevation is the maximum amount of water to flood
-	// into a minima given as fraction of the world.MaxElevation
-	floodMaxElevation = 0.2
-
-	// minForrestFrac and maxForrestFrac give rough bounds on the
-	// amount of forrest that can be added to the world.
-	minForrestFrac, maxForrestFrac = 0.08, 0.15
-
-	// seedFrac specifies the number of seed forrest.  This is given
-	// as a fraction of the number of grass contours.
-	seedFrac = 0.005
-)
-
 // doTerrain is the main routine for assigning a
 // terrain value to each location.
 func doTerrain(w *world.World) {
@@ -37,7 +14,7 @@ func doTerrain(w *world.World) {
 	finish()
 
 	start("Adding water")
-	addLiquid(w, 'w', minWaterFrac, maxWaterFrac)
+	addLiquid(w, 'w', 0.5, 0.6)
 	finish()
 
 	start("Growing forrests")
@@ -51,6 +28,8 @@ func doTerrain(w *world.World) {
 // land unless it is above a certain threshold
 // in which case it is made a mountain.
 func initTerrain(w *world.World) {
+	const minMountain = world.MaxElevation * 0.75	
+
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.At(x, y)
@@ -71,7 +50,7 @@ func addLiquid(w *world.World, ch uint8, minFrac, maxFrac float64) {
 	tmap := makeTopoMap(w)
 	minNum := int(float64(w.W*w.H)*minFrac)
 	maxNum := int(float64(w.W*w.H)*maxFrac)
-	maxHeight := int(math.Ceil(world.MaxElevation*floodMaxElevation))
+	maxHeight := int(math.Ceil(world.MaxElevation*0.2))
 
 	n := 0
 	mins := tmap.minima()
@@ -141,9 +120,11 @@ func growTrees(w *world.World) {
 	}
 
 	n := 0
+	const minForrestFrac, maxForrestFrac = 0.08, 0.15
 	frac := rand.Float64() * (maxForrestFrac - minForrestFrac) + minForrestFrac
 
 	// get some seed locations.
+	const seedFrac = 0.005
 	seeds := grass[:int(float64(w.W)*float64(w.H)*frac*seedFrac)]
 	for _, s := range seeds {
 		s.terrain = &world.Terrain['f']
