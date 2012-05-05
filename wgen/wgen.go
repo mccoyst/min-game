@@ -42,6 +42,7 @@ func main() {
 		*seed = int64(time.Now().Nanosecond())
 	}
 	rand.Seed(*seed)
+	fmt.Println("# seed", *seed)
 	if !*quiet {
 		fmt.Fprintln(os.Stderr, "seed", *seed)
 	}

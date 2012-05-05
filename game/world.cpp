@@ -4,6 +4,8 @@
 #include "ui.hpp"
 #include <limits>
 
+static char *readLine(FILE*);
+
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
 const Vec2 World::TileSz(TileW, TileH);
@@ -14,7 +16,7 @@ World::TerrainType::TerrainType() {
 	t['w'] = Terrain('w', 1);
 	t['m'] = Terrain('m', 2);
 	t['f'] = Terrain('f', 3);
-	t['l'] = Terrain('l', 4);
+	t['d'] = Terrain('d', 4);
 
 	auto f = LoadFont("resrc/retganon.ttf", 12, 128, 128, 128);
 	htImg.resize(World::MaxHeight+1);
@@ -23,7 +25,7 @@ World::TerrainType::TerrainType() {
 }
 
 World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
-	int n = fscanf(in, "%d %d\n", &width, &height);
+	int n = sscanf(readLine(in), "%d %d\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
 	if (width <= 0 || height <= 0)
@@ -37,7 +39,7 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
 	for (int i = 0; i < width*height; i++) {
 		char c;
 		int h, d;
-		n = fscanf(in, " %c %d %d", &c, &h, &d);
+		n = sscanf(readLine(in), " %c %d %d", &c, &h, &d);
 		if (n != 3)
 			throw Failure("Failed to read a location %u", i);
 		if (h > MaxHeight || h < 0)
@@ -51,7 +53,7 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
 		locs[i].terrain = c;
 	}
 
-	n = fscanf(in, " %d %d", &x0, &y0);
+	n = sscanf(readLine(in), " %d %d", &x0, &y0);
 	if (n != 2)
 		throw Failure("Failed to read the start location");
 }
@@ -98,4 +100,20 @@ float World::Loc::Shade() const{
 	static const float minSh = 0.25;
 	static const float slope = (1 - minSh) / World::MaxHeight;
 	return slope*(this->height - this->depth) + minSh;
+}
+
+static char *readLine(FILE *in) {
+	static char line[4096];
+	for (;;) {
+		if (fgets(line, sizeof(line), in) == NULL) {
+			if (ferror(in)) {
+				throw Failure("Error reading the world");
+			}
+			throw Failure("Unexpected EOF reading the world");
+		}
+		if (line[0] == '#' || line[0] == '\n' || line[0] == '\r') {
+			continue;
+		}
+		return line;
+	}
 }
