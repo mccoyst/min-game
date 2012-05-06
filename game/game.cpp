@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "world.hpp"
+#include "keyMap.hpp"
 #include <cstdarg>
 #include <cstdio>
 
@@ -61,20 +62,20 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 			amt = Fixed(ScrollSpd);
 
 		switch (e.button) {
-		case Event::KeyDownArrow:
+		case KeyMap::KeyDownArrow:
 			scroll.y = amt;
 			break;
-		case Event::KeyUpArrow:
+		case KeyMap::KeyUpArrow:
 			scroll.y = -amt;
 			break;
-		case Event::KeyLeftArrow:
+		case KeyMap::KeyLeftArrow:
 			scroll.x = amt;
 			break;
-		case Event::KeyRightArrow:
+		case KeyMap::KeyRightArrow:
 			scroll.x = -amt;
 			break;
-		case Event::KeyLShift:
-		case Event::KeyRShift:
+		case KeyMap::KeyLShift:
+		case KeyMap::KeyRShift:
 			if (e.type == Event::KeyDown)
 				mul = Fixed(5);
 			else
