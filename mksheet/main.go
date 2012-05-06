@@ -30,7 +30,7 @@ func main() {
 		destrect = image.Rect(0, 0, dims0.Dx()*len(tiles), dims0.Dy())
 	} else {
 		w = min(*width, len(tiles))
-		h = len(tiles)/w
+		h = len(tiles) / w
 		destrect = image.Rect(0, 0, dims0.Dx()*w, dims0.Dy()*h)
 	}
 	dest := image.NewRGBA(destrect)
@@ -52,14 +52,14 @@ func main() {
 	outname := tiles[len(tiles)-1]
 	out, err := os.Create(outname)
 	if err != nil {
-		os.Stderr.WriteString("Error creating \""+outname+"\": "+err.Error())
+		os.Stderr.WriteString("Error creating \"" + outname + "\": " + err.Error())
 		os.Exit(1)
 	}
 	defer out.Close()
 
 	err = png.Encode(out, dest)
 	if err != nil {
-		os.Stderr.WriteString("Error encoding \""+outname+"\": "+err.Error())
+		os.Stderr.WriteString("Error encoding \"" + outname + "\": " + err.Error())
 		os.Exit(1)
 	}
 }
@@ -67,20 +67,22 @@ func main() {
 func readImg(file string) image.Image {
 	tile, err := os.Open(file)
 	if err != nil {
-		os.Stderr.WriteString("Error opening \""+file+"\": "+err.Error())
+		os.Stderr.WriteString("Error opening \"" + file + "\": " + err.Error())
 		os.Exit(1)
 	}
 	defer tile.Close()
 
 	img, _, err := image.Decode(tile)
 	if err != nil {
-		os.Stderr.WriteString("Error decoding \""+file+"\": "+err.Error())
+		os.Stderr.WriteString("Error decoding \"" + file + "\": " + err.Error())
 		os.Exit(1)
 	}
 	return img
 }
 
 func min(a, b int) int {
-	if a < b { return a }
+	if a < b {
+		return a
+	}
 	return b
 }
