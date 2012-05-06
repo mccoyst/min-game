@@ -39,9 +39,10 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
 	for (int i = 0; i < width*height; i++) {
 		char c;
 		int h, d;
-		n = sscanf(readLine(in), " %c %d %d", &c, &h, &d);
+		char *line = readLine(in);
+		n = sscanf(line, " %c %d %d", &c, &h, &d);
 		if (n != 3)
-			throw Failure("Failed to read a location %u", i);
+			throw Failure("Failed to read a location %u,line [%s]", i, line);
 		if (h > MaxHeight || h < 0)
 			throw Failure("Location %u has invalid height %d", i, h);
 		if (d < 0 || d > h)
