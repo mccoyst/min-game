@@ -1,7 +1,7 @@
 #pragma once
 
 // The names of non-letter keys.  Just fill this in as needed.
-struct KeyMap {
+namespace KeyMap {
 	enum {
 		UpArrow,
 		DownArrow,
@@ -12,5 +12,4 @@ struct KeyMap {
 
 		NumKeys,
 	};
-
-};
+}
