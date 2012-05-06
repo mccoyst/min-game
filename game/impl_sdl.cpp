@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "opengl.hpp"
+#include "keyMap.hpp"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -102,22 +103,22 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 static bool getkey(SDL_Event &sdle, Event &e) {
 	switch (sdle.key.keysym.sym) {
 	case SDLK_UP:
-		e.button = Event::KeyUpArrow;
+		e.button = KeyMap::KeyUpArrow;
 		break;
 	case SDLK_DOWN:
-		e.button = Event::KeyDownArrow;
+		e.button = KeyMap::KeyDownArrow;
 		break;
 	case SDLK_LEFT:
-		e.button = Event::KeyLeftArrow;
+		e.button = KeyMap::KeyLeftArrow;
 		break;
 	case SDLK_RIGHT:
-		e.button = Event::KeyRightArrow;
+		e.button = KeyMap::KeyRightArrow;
 		break;
 	case SDLK_RSHIFT:
-		e.button = Event::KeyRShift;
+		e.button = KeyMap::KeyRShift;
 		break;
 	case SDLK_LSHIFT:
-		e.button = Event::KeyLShift;
+		e.button = KeyMap::KeyLShift;
 		break;
 	default:
 		if (sdle.key.keysym.sym < 'a' || sdle.key.keysym.sym > 'z')
@@ -199,10 +200,10 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 
 	glGenTextures(1, &texid);
 	glBindTexture(GL_TEXTURE_2D, texid);
- 
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
- 
+
 	glTexImage2D(GL_TEXTURE_2D, 0, pxSz, surf->w, surf->h, 0,
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
 }
