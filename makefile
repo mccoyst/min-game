@@ -9,7 +9,7 @@ OBJS:=\
 	game/impl_sdl.o\
 
 CXXFLAGS:=-std=c++0x -Wall -O3
-OBJCFLAGS := 
+OBJCFLAGS :=
 LDFLAGS:=
 
 OS := $(shell uname | sed 's/.*MINGW.*/win/')

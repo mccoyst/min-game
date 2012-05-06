@@ -22,19 +22,19 @@ public:
 	virtual ~Ui();
 
 	// DrawLine draws the given line on the screen.
-	// 
+	//
 	// This is probably slow so just use it for debugging stuff.
 	virtual void DrawLine(const Vec2&, const Vec2&, const Color&) = 0;
 
 	// FillRect fills the given rectangle (specified by lower left
 	// vertex, and width/height) with some color.
-	// 
+	//
 	// This is probably slow so just use it for debugging stuff.
 	virtual void FillRect(const Vec2&, const Vec2&, const Color&) = 0;
 
 	// DrawRect outlines the given rectangle (specified by lower left
 	// vertex, and width/height) with some color.
-	// 
+	//
 	// This is probably slow so just use it for debugging stuff.
 	virtual void DrawRect(const Vec2&, const Vec2&, const Color&) = 0;
 
@@ -119,16 +119,6 @@ struct Event {
 		MouseLeft,
 		MouseRight,
 		MouseCenter,
-	};
-
-	// The names of non-letter keys.  Just fill this in as needed.
-	enum {
-		KeyUpArrow,
-		KeyDownArrow,
-		KeyLeftArrow,
-		KeyRightArrow,
-		KeyLShift,
-		KeyRShift,
 	};
 
 	enum Type {
