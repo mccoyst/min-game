@@ -103,22 +103,22 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 static bool getkey(SDL_Event &sdle, Event &e) {
 	switch (sdle.key.keysym.sym) {
 	case SDLK_UP:
-		e.button = KeyMap::KeyUpArrow;
+		e.button = KeyMap::UpArrow;
 		break;
 	case SDLK_DOWN:
-		e.button = KeyMap::KeyDownArrow;
+		e.button = KeyMap::DownArrow;
 		break;
 	case SDLK_LEFT:
-		e.button = KeyMap::KeyLeftArrow;
+		e.button = KeyMap::LeftArrow;
 		break;
 	case SDLK_RIGHT:
-		e.button = KeyMap::KeyRightArrow;
+		e.button = KeyMap::RightArrow;
 		break;
 	case SDLK_RSHIFT:
-		e.button = KeyMap::KeyRShift;
+		e.button = KeyMap::RShift;
 		break;
 	case SDLK_LSHIFT:
-		e.button = KeyMap::KeyLShift;
+		e.button = KeyMap::LShift;
 		break;
 	default:
 		if (sdle.key.keysym.sym < 'a' || sdle.key.keysym.sym > 'z')
