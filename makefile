@@ -8,6 +8,13 @@ OBJS:=\
 	game/opengl.o\
 	game/impl_sdl.o\
 
+TILES :=\
+	Grass.png\
+	Water.png\
+	Mountain.png\
+	Tree.png\
+	Desert.png\
+
 CXXFLAGS:=-std=c++0x -Wall -O3
 OBJCFLAGS :=
 LDFLAGS:=
@@ -48,7 +55,14 @@ CXXFLAGS+=-Werror -DGL_GLEXT_PROTOTYPES $(HEADERFLAGS)
 
 endif
 
-all: wgen/wgen wimg/wimg game/minima
+TARGS :=\
+	wgen/wgen\
+	wimg/wimg\
+	game/minima\
+	mksheet/mksheet\
+	resrc/tiles.png\
+
+all: $(TARGS)
 
 fetch:
 	go get -v $(shell go list ./...)
@@ -62,6 +76,12 @@ wgen/wgen: wgen/*.go world/*.go
 
 wimg/wimg: wimg/*.go world/*.go
 	go install ./wimg && touch $@
+
+mksheet/mksheet: mksheet/*.go
+	go install ./mksheet && touch $@
+
+resrc/tiles.png: $(TILES:%=resrc/%)
+	mksheet $^ $@
 
 include $(OBJS:.o=.d)
 
@@ -82,7 +102,7 @@ include $(OBJS:.o=.d)
 	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $<
 
 clean:
-	rm -f $(OBJS) game/minima wgen/wgen wimg/wimg
+	rm -f $(OBJS) $(TARGS)
 
 nuke: clean
 	rm -f $(shell find . -not -iwholename \*.hg\* -name \*.d)
