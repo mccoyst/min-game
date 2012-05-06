@@ -1,3 +1,4 @@
+// Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 // Usage: mksheet src0 src1 src2 … dest
 // All source images are assumed to have the same dimensions.
 package main
