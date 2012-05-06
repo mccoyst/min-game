@@ -18,6 +18,7 @@ World::TerrainType::TerrainType() {
 	t['m'] = Terrain('m', 2);
 	t['f'] = Terrain('f', 3);
 	t['d'] = Terrain('d', 4);
+	t['i'] = Terrain('i', 5);
 
 	auto f = LoadFont("resrc/retganon.ttf", 12, 128, 128, 128);
 	htImg.resize(World::MaxHeight+1);

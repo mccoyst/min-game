@@ -33,6 +33,10 @@ func doTerrain(w *world.World) {
 	start("Adding desert")
 	growTerrain(w, "gf", 'd', int(sz*0.04), int(sz*0.08), 0.0002)
 	finish()
+
+	start("Adding glacier")
+	growTerrain(w, "gf", 'i', int(sz*0.04), int(sz*0.08), 0.0002)
+	finish()
 }
 
 // initTerrain initializes the world's terrain.

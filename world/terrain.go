@@ -17,16 +17,11 @@ type TerrainType struct {
 // representations, indexed by the terrain type's
 // unique character.
 var Terrain = []TerrainType{
-	// Grass-land
 	int('g'): {'g', "grass", color.RGBA{0, 255, 0, 255}},
-	// Mountain
 	int('m'): {'m', "mountain", color.RGBA{196, 196, 196, 255}},
-	// Water
 	int('w'): {'w', "water", color.RGBA{0, 0, 255, 255}},
-	// Lava
 	int('l'): {'l', "lava", color.RGBA{255, 0, 0, 255}},
-	// Desert
 	int('d'): {'d', "desert", color.RGBA{255, 255, 0, 255}},
-	// Forrest
 	int('f'): {'f', "forest", color.RGBA{0, 200, 128, 255}},
+	int('i'): {'i', "glacier", color.RGBA{196, 196, 255, 255}},
 }
