@@ -62,20 +62,20 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 			amt = Fixed(ScrollSpd);
 
 		switch (e.button) {
-		case KeyMap::KeyDownArrow:
+		case KeyMap::DownArrow:
 			scroll.y = amt;
 			break;
-		case KeyMap::KeyUpArrow:
+		case KeyMap::UpArrow:
 			scroll.y = -amt;
 			break;
-		case KeyMap::KeyLeftArrow:
+		case KeyMap::LeftArrow:
 			scroll.x = amt;
 			break;
-		case KeyMap::KeyRightArrow:
+		case KeyMap::RightArrow:
 			scroll.x = -amt;
 			break;
-		case KeyMap::KeyLShift:
-		case KeyMap::KeyRShift:
+		case KeyMap::LShift:
+		case KeyMap::RShift:
 			if (e.type == Event::KeyDown)
 				mul = Fixed(5);
 			else
