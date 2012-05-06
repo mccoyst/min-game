@@ -36,6 +36,7 @@ void ExploreScreen::Draw(std::shared_ptr<Ui> win) {
 }
 
 void ExploreScreen::Handle(ScreenStack&, Event &e) {
+	using namespace keys;
 	Fixed amt(0);
 	switch (e.type) {
 	case Event::MouseDown:
@@ -63,20 +64,20 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 			amt = Fixed(ScrollSpd);
 
 		switch (e.button) {
-		case KeyMap::DownArrow:
+		case DownArrow:
 			scroll.y = amt;
 			break;
-		case KeyMap::UpArrow:
+		case UpArrow:
 			scroll.y = -amt;
 			break;
-		case KeyMap::LeftArrow:
+		case LeftArrow:
 			scroll.x = amt;
 			break;
-		case KeyMap::RightArrow:
+		case RightArrow:
 			scroll.x = -amt;
 			break;
-		case KeyMap::LShift:
-		case KeyMap::RShift:
+		case LShift:
+		case RShift:
 			if (e.type == Event::KeyDown)
 				mul = Fixed(5);
 			else
