@@ -1,5 +1,6 @@
 #include "keyHandler.hpp"
 #include <cassert>
+#include <SDL.h>
 using namespace std;
 
 KeyHandler::KeyHandler(){
