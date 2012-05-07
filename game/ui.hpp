@@ -152,9 +152,14 @@ struct Event {
 		// that are defined in an enumeration.
 		KeyDown,
 
+		// fakes a key down because a key has been held.
+		SimulatedKeyDown,
+
 		// A KeyUp event is the same as a KeyDown event
 		// except that it indicates that a key has been released.
 		KeyUp,
+
+
 	};
 
 	Type type;
