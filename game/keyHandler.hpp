@@ -1,22 +1,19 @@
+// Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 /**
- * \file keyHandler.hpp
- *
  * Handle input from the keyboard
  *
  * Take keydown events, store keys pressed in a stack, with the last key
  * pressed active (ie hold left, tap right, then left is still active)
  * Could be used for key combinations as well, maybe also combos by passing
  * a window over the top of the stack.
- *
- * \author seabass
- * \date 05-05-2012
  */
 
 #pragma once
 
 #include "keyMap.hpp"
-#include <SDL.h>
 #include <stack>
+
+union SDL_Event;
 
 class KeyHandler {
 public:

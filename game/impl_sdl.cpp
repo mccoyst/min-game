@@ -15,7 +15,7 @@
 
 class SdlUi : public OpenGLUi {
 	SDL_Surface *win;
-	KeyHandler *kh;
+	KeyHandler kh;
 
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
@@ -66,14 +66,12 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 
 	InitOpenGL();
-	kh = new KeyHandler();
 }
 
 SdlUi::~SdlUi() {
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
-	delete kh;
 }
 
 void SdlUi::Flip() {
@@ -148,7 +146,7 @@ bool SdlUi::PollEvent(Event &e) {
 		case SDL_KEYUP:
 		case SDL_KEYDOWN:
 			keydown = (sdle.type == SDL_KEYDOWN)? true : false;
-			e.button = kh->HandleStroke(sdle,keydown);
+			e.button = kh.HandleStroke(sdle,keydown);
 			e.type = keydown ? Event::KeyDown : Event::KeyUp;
 			simulatedLast = false;
 			toRet = true;
@@ -158,8 +156,8 @@ bool SdlUi::PollEvent(Event &e) {
 			break;
 		}
 	}
-	if(!toRet && kh->KeysDown() > 0 && !simulatedLast){
-		e.button = kh->ActiveKey();
+	if(!toRet && kh.KeysDown() > 0 && !simulatedLast){
+		e.button = kh.ActiveKey();
 		e.type = Event::KeyDown;
 		toRet = true;
 		simulatedLast = true;

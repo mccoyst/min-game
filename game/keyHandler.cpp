@@ -1,6 +1,7 @@
+// Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "keyHandler.hpp"
 #include <cassert>
-using namespace std;
+#include <SDL.h>
 
 KeyHandler::KeyHandler(){
 	for(int i = 0; i < keymap::NumKeys; i++)
