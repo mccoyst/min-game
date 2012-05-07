@@ -1,3 +1,4 @@
+// Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "keyHandler.hpp"
 #include <cassert>
 #include <SDL.h>
