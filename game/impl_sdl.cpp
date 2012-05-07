@@ -32,7 +32,6 @@ public:
 	void PrintKey(int k);
 
 private:
-	const static int MAX_PRESS = 3;
 	bool keyState[Event::NumKeys];
 	std::stack<int> pressedOrder;
 
