@@ -1,7 +1,6 @@
 #include "keyHandler.hpp"
 #include <cassert>
 #include <SDL.h>
-using namespace std;
 
 KeyHandler::KeyHandler(){
 	for(int i = 0; i < keymap::NumKeys; i++)
