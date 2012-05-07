@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "keyMap.hpp"
+#include "ui.hpp"
 #include <stack>
 
 union SDL_Event;
@@ -36,7 +36,7 @@ public:
 
 private:
 	const static int MAX_PRESS = 3;
-	bool keyState[keymap::NumKeys];
+	bool keyState[Event::NumKeys];
 	std::stack<int> pressedOrder;
 
 	/* in the event that more than n-keys are depressed, we need to start
