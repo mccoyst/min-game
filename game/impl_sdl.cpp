@@ -3,7 +3,6 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "opengl.hpp"
-#include "keyMap.hpp"
 #include "keyHandler.hpp"
 #include <SDL.h>
 #include <SDL_image.h>

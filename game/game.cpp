@@ -1,7 +1,7 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "game.hpp"
 #include "world.hpp"
-#include "keyMap.hpp"
+#include "ui.hpp"
 #include <cstdarg>
 #include <cstdio>
 
@@ -36,7 +36,6 @@ void ExploreScreen::Draw(std::shared_ptr<Ui> win) {
 }
 
 void ExploreScreen::Handle(ScreenStack&, Event &e) {
-	using namespace keymap;
 	Fixed amt(0);
 	switch (e.type) {
 	case Event::MouseDown:
@@ -63,25 +62,25 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 		if (e.type == Event::KeyDown) amt = Fixed(ScrollSpd);
 		else amt = Fixed(0);
 		switch (e.button) {
-		case DownArrow:
+		case Event::DownArrow:
 			scroll.y = amt;
 			break;
-		case UpArrow:
+		case Event::UpArrow:
 			scroll.y = -amt;
 			break;
-		case LeftArrow:
+		case Event::LeftArrow:
 			scroll.x = amt;
 			break;
-		case RightArrow:
+		case Event::RightArrow:
 			scroll.x = -amt;
 			break;
-		case LShift:
-		case RShift:
+		case Event::LShift:
+		case Event::RShift:
 			if (e.type == Event::KeyDown)
 				mul = Fixed(5);
 			else
 				mul = Fixed(1);
-		case None:
+		case Event::None:
 			scroll.x = Fixed(0);
 			scroll.y = Fixed(0);
 		default:

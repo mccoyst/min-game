@@ -4,7 +4,7 @@
 #include <SDL.h>
 
 KeyHandler::KeyHandler(){
-	for(int i = 0; i < keymap::NumKeys; i++)
+	for(int i = 0; i < Event::NumKeys; i++)
 		keyState[i] = false;
 }
 
@@ -15,7 +15,7 @@ int KeyHandler::KeysDown(){
 
 
 bool KeyHandler::IsPressed(int i){
-	if(i >= 0 && i < keymap::NumKeys)
+	if(i >= 0 && i < Event::NumKeys)
 		return keyState[i];
 	else return false;
 }
@@ -23,67 +23,65 @@ bool KeyHandler::IsPressed(int i){
 
 int KeyHandler::ActiveKey(){
 	if(pressedOrder.empty())
-		return keymap::None;
+		return Event::None;
 	else
 		return pressedOrder.top();
 }
 
 void KeyHandler::PrintKey(int k){
-	using namespace keymap;
 	switch (k){
-	case UpArrow:
+	case Event::UpArrow:
 		fprintf(stderr, "UP\n");
 		break;
-	case DownArrow:
+	case Event::DownArrow:
 		fprintf(stderr, "DOWN\n");
 		break;
-	case LeftArrow:
+	case Event::LeftArrow:
 		fprintf(stderr, "LEFT\n");
 		break;
-	case RightArrow:
+	case Event::RightArrow:
 		fprintf(stderr, "RIGHT\n");
 		break;
-	case LShift:
-	case RShift:
+	case Event::LShift:
+	case Event::RShift:
 		fprintf(stderr, "SHIFT\n");
 		break;
-	case Invalid:
-		fprintf(stderr, "Invalid Key!\n");
-		break;
-	case None:
+	case Event::None:
 		fprintf(stderr, "No Key!\n");
+		break;
+	default:
+		fprintf(stderr, "Invalid Key!\n");
 		break;
 	}
 }
 
 int KeyHandler::HandleStroke(SDL_Event &sdle, bool keydown){
-	using namespace keymap;
-	int key = Invalid;
+	int key = Event::None;
 
 	switch(sdle.key.keysym.sym){
         case SDLK_UP:
-		key = UpArrow;
+		key = Event::UpArrow;
 		break;
 	case SDLK_DOWN:
-		key = DownArrow;
+		key = Event::DownArrow;
 		break;
 	case SDLK_LEFT:
-		key = LeftArrow;
+		key = Event::LeftArrow;
 		break;
 	case SDLK_RIGHT:
-		key = RightArrow;
+		key = Event::RightArrow;
 		break;
 	case SDLK_RSHIFT:
-		key = RShift;
+		key = Event::RShift;
 		break;
 	case SDLK_LSHIFT:
-		key = LShift;
+		key = Event::LShift;
 		break;
 	default:
-		return Invalid;
+		return Event::None;
 	}
 
-	if (key < NumKeys) keyState[key] = keydown;
+	if (key < Event::NumKeys) keyState[key] = keydown;
 	if(keydown && IsStackable(key)) pressedOrder.push(key);
 	else FixStack();
 	return key;
@@ -91,15 +89,14 @@ int KeyHandler::HandleStroke(SDL_Event &sdle, bool keydown){
 
 
 void KeyHandler::PollKeyboard(){
-	using namespace keymap;
 	Uint8 *keystate = SDL_GetKeyState(NULL);
 
-	keyState[LShift] = keystate[SDLK_LSHIFT];
-	keyState[RShift] = keystate[SDLK_RSHIFT];
-	keyState[RightArrow] = keystate[SDLK_RIGHT];
-	keyState[LeftArrow] = keystate[SDLK_LEFT];
-	keyState[UpArrow] = keystate[SDLK_UP];
-	keyState[DownArrow] = keystate[SDLK_DOWN];
+	keyState[Event::LShift] = keystate[SDLK_LSHIFT];
+	keyState[Event::RShift] = keystate[SDLK_RSHIFT];
+	keyState[Event::RightArrow] = keystate[SDLK_RIGHT];
+	keyState[Event::LeftArrow] = keystate[SDLK_LEFT];
+	keyState[Event::UpArrow] = keystate[SDLK_UP];
+	keyState[Event::DownArrow] = keystate[SDLK_DOWN];
 }
 
 void KeyHandler::FixStack(){
@@ -111,7 +108,7 @@ void KeyHandler::FixStack(){
 
 
 bool KeyHandler::IsStackable(int k){
-	if (k == keymap::LShift || k == keymap::RShift)
+	if (k == Event::LShift || k == Event::RShift)
 		return false;
 	else return true;
 }
