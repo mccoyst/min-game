@@ -102,7 +102,7 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 }
 
 static bool getkey(SDL_Event &sdle, Event &e) {
-	using namespace keys;
+	using namespace keymap;
 	switch (sdle.key.keysym.sym) {
 	case SDLK_UP:
 		e.button = UpArrow;
