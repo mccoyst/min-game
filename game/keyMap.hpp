@@ -13,5 +13,6 @@ namespace keymap {
 
 		NumKeys,
 		Invalid,
+		None,
 	};
 }

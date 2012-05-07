@@ -60,9 +60,8 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 
 	case Event::KeyDown:
 	case Event::KeyUp:
-		if (e.type == Event::KeyDown)
-			amt = Fixed(ScrollSpd);
-
+		if (e.type == Event::KeyDown) amt = Fixed(ScrollSpd);
+		else amt = Fixed(0);
 		switch (e.button) {
 		case DownArrow:
 			scroll.y = amt;
@@ -82,6 +81,9 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 				mul = Fixed(5);
 			else
 				mul = Fixed(1);
+		case None:
+			scroll.x = Fixed(0);
+			scroll.y = Fixed(0);
 		default:
 			// ignore
 			break;

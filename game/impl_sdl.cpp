@@ -4,6 +4,7 @@
 #include "world.hpp"
 #include "opengl.hpp"
 #include "keyMap.hpp"
+#include "keyHandler.hpp"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -14,6 +15,7 @@
 
 class SdlUi : public OpenGLUi {
 	SDL_Surface *win;
+	KeyHandler *kh;
 
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
@@ -50,7 +52,7 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
 
-	fprintf(stderr, "Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
+	fprintf(stderr,"Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
 	glGetString(GL_VENDOR),
 	glGetString(GL_RENDERER),
 	glGetString(GL_VERSION),
@@ -64,12 +66,14 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 
 	InitOpenGL();
+	kh = new KeyHandler();
 }
 
 SdlUi::~SdlUi() {
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
+	delete kh;
 }
 
 void SdlUi::Flip() {
@@ -101,38 +105,13 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 	return true;
 }
 
-static bool getkey(SDL_Event &sdle, Event &e) {
-	using namespace keymap;
-	switch (sdle.key.keysym.sym) {
-	case SDLK_UP:
-		e.button = UpArrow;
-		break;
-	case SDLK_DOWN:
-		e.button = DownArrow;
-		break;
-	case SDLK_LEFT:
-		e.button = LeftArrow;
-		break;
-	case SDLK_RIGHT:
-		e.button = RightArrow;
-		break;
-	case SDLK_RSHIFT:
-		e.button = RShift;
-		break;
-	case SDLK_LSHIFT:
-		e.button = LShift;
-		break;
-	default:
-		if (sdle.key.keysym.sym < 'a' || sdle.key.keysym.sym > 'z')
-			return false;
-		e.button = sdle.key.keysym.sym;
-	}
-
-	return true;
-}
 
 bool SdlUi::PollEvent(Event &e) {
 	SDL_Event sdle;
+	bool keydown;
+	bool toRet = false;
+	static Event lastEvent;
+
 	while (SDL_PollEvent(&sdle)) {
 		switch (sdle.type) {
 		case SDL_QUIT:
@@ -145,7 +124,7 @@ bool SdlUi::PollEvent(Event &e) {
 			e.y = sdle.button.y;
 			if (!getbutton(sdle, e))
 				continue;
-			return true;
+			toRet = true;
 
 		case SDL_MOUSEBUTTONUP:
 			e.type = Event::MouseUp;
@@ -153,30 +132,37 @@ bool SdlUi::PollEvent(Event &e) {
 			e.y = sdle.button.y;
 			if (!getbutton(sdle, e))
 				continue;
-			return true;
+			toRet = true;
 
 
 		case SDL_MOUSEMOTION:
 			e.type = Event::MouseMoved;
 			e.x = sdle.motion.x;
 			e.y = sdle.motion.y;
-			return true;
+			toRet = true;
 
 		case SDL_KEYUP:
-			e.type = Event::KeyUp;
-			if (!getkey(sdle, e))
-				continue;
-			return true;
-
 		case SDL_KEYDOWN:
-			e.type = Event::KeyDown;
-			if (!getkey(sdle, e))
-				continue;
-			return true;
+			keydown = (sdle.type == SDL_KEYDOWN)? true : false;
+			e.button = kh->HandleStroke(sdle,keydown);
+			e.type = keydown ? Event::KeyDown : Event::KeyUp;
+			toRet = true;
 
 		default:
 			// ignore
 			break;
+		}
+	}
+	if(!toRet && kh->KeysDown() > 0){
+		e.button = kh->ActiveKey();
+		e.type = Event::KeyDown;
+		toRet = true;
+	}
+	if(toRet){
+		if (e.type != lastEvent.type || e.button != lastEvent.button ||
+			e.x != lastEvent.x || e.y != lastEvent.y){
+			lastEvent = e;
+			return true;
 		}
 	}
 	return false;
