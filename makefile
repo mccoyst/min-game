@@ -8,7 +8,6 @@ OBJS:=\
 	game/screen.o\
 	game/opengl.o\
 	game/impl_sdl.o\
-	game/keyHandler.o\
 
 TILES :=\
 	Grass.png\
