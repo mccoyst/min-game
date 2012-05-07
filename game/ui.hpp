@@ -122,6 +122,18 @@ struct Event {
 		MouseCenter,
 	};
 
+	enum {
+		None,
+		UpArrow,
+		DownArrow,
+		LeftArrow,
+		RightArrow,
+		LShift,
+		RShift,
+
+		NumKeys,
+	};
+
 	enum Type {
 		// A Closed event indicates that the window
 		// has been closed.  This event has no other
