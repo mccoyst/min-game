@@ -2,7 +2,7 @@
 #pragma once
 
 // The names of non-letter keys.  Just fill this in as needed.
-namespace keys {
+namespace keymap {
 	enum {
 		UpArrow,
 		DownArrow,
@@ -12,5 +12,6 @@ namespace keys {
 		RShift,
 
 		NumKeys,
+		Invalid,
 	};
 }

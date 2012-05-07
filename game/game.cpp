@@ -36,7 +36,7 @@ void ExploreScreen::Draw(std::shared_ptr<Ui> win) {
 }
 
 void ExploreScreen::Handle(ScreenStack&, Event &e) {
-	using namespace keys;
+	using namespace keymap;
 	Fixed amt(0);
 	switch (e.type) {
 	case Event::MouseDown:
