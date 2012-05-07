@@ -15,8 +15,9 @@
 #pragma once
 
 #include "keyMap.hpp"
-#include <SDL.h>
 #include <stack>
+
+union SDL_Event;
 
 class KeyHandler {
 public:
