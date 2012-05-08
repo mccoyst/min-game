@@ -22,7 +22,7 @@ public:
 	// Ui constructs a new user interface that consists
 	// of a window with the given width and height.
 	Ui(Fixed w, Fixed h, const char *title);
-
+	Ui(Ui &&u);
 	~Ui();
 
 	// DrawLine draws the given line on the screen.
@@ -77,9 +77,6 @@ public:
 	// events.
 	bool PollEvent(Event&);
 };
-
-// OpenWindow returns a new Ui object.
-std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title);
 
 struct Color {
 	Color(unsigned char _r, unsigned char _g, unsigned char _b,

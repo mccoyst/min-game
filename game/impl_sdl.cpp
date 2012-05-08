@@ -101,6 +101,10 @@ Ui::Ui(Fixed w, Fixed h, const char *title)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 }
 
+Ui::Ui(Ui &&u)
+	:  impl(u.impl.release()), width(u.width), height(u.height){
+}
+
 Ui::~Ui(){
 }
 
@@ -285,10 +289,6 @@ std::shared_ptr<Img> SdlFont::Render(const char *fmt, ...) {
 	std::shared_ptr<Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
 	return img;
-}
-
-std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title) {
-	return std::shared_ptr<Ui>(new Ui(w, h, title));
 }
 
 std::shared_ptr<Img> LoadImg(const char *path) {
