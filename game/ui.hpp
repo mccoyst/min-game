@@ -13,66 +13,69 @@ struct Event;
 // device input, and sound.
 class Ui{
 public:
+	struct Impl;
+	std::unique_ptr<Impl> impl;
+
 	// width and height are the dimensions of the window.
 	Fixed width, height;
 
 	// Ui constructs a new user interface that consists
 	// of a window with the given width and height.
-	Ui(const Fixed &w, const Fixed &h) : width(w), height(h) { }
+	Ui(Fixed w, Fixed h, const char *title);
 
-	virtual ~Ui();
+	~Ui();
 
 	// DrawLine draws the given line on the screen.
 	//
 	// This is probably slow so just use it for debugging stuff.
-	virtual void DrawLine(const Vec2&, const Vec2&, const Color&) = 0;
+	void DrawLine(const Vec2&, const Vec2&, const Color&);
 
 	// FillRect fills the given rectangle (specified by lower left
 	// vertex, and width/height) with some color.
 	//
 	// This is probably slow so just use it for debugging stuff.
-	virtual void FillRect(const Vec2&, const Vec2&, const Color&) = 0;
+	void FillRect(const Vec2&, const Vec2&, const Color&);
 
 	// DrawRect outlines the given rectangle (specified by lower left
 	// vertex, and width/height) with some color.
 	//
 	// This is probably slow so just use it for debugging stuff.
-	virtual void DrawRect(const Vec2&, const Vec2&, const Color&) = 0;
+	void DrawRect(const Vec2&, const Vec2&, const Color&);
 
 	// Draw draws the image to the back-buffer of the window.
 	// This image will not appear until the Flip() method is called.
 	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1) = 0;
+	void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
 
 	// InitTiles initializes the tiles sheet.
-	virtual void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>) = 0;
+	void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
 
 	// SetTile sets the tile image and shade for the given tile.
-	virtual void SetTile(int x, int y, int tile, float shade) = 0;
+	void SetTile(int x, int y, int tile, float shade);
 
 	// DrawTiles draws the tiles at the given offset.
-	virtual void DrawTiles(const Vec2&) = 0;
+	void DrawTiles(const Vec2&);
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
-	virtual void Flip() = 0;
+	void Flip();
 
 	// Clear draws black over the entire screen.
-	virtual void Clear() = 0;
+	void Clear();
 
 	// Delay waits for the specified number of milli-seconds
 	// before returning.
-	virtual void Delay(unsigned long msec) = 0;
+	void Delay(unsigned long msec);
 
 	// Ticks returns the number of milliseconds since the Ui
 	// was created.
-	virtual unsigned long Ticks() = 0;
+	unsigned long Ticks();
 
 	// PollEvent polls for events, returning true if the
 	// event was filled in and false if there were no
 	// events.
-	virtual bool PollEvent(Event&) = 0;
+	bool PollEvent(Event&);
 };
 
 // OpenWindow returns a new Ui object.
