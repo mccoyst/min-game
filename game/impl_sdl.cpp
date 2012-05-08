@@ -46,26 +46,11 @@ private:
 	bool IsStackable(int k);
 };
 
-class SdlUi : public Ui {
+struct Ui::Impl {
 	SDL_Surface *win;
 	KeyHandler kh;
 	OpenGLUi gl;
-
-public:
-	SdlUi(Fixed w, Fixed h, const char *title);
-	~SdlUi();
-	virtual void DrawLine(const Vec2&, const Vec2&, const Color&);
-	virtual void FillRect(const Vec2&, const Vec2&, const Color&);
-	virtual void DrawRect(const Vec2&, const Vec2&, const Color&);
-	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
-	virtual void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
-	virtual void SetTile(int x, int y, int tile, float shade);
-	virtual void DrawTiles(const Vec2&);
-	virtual void Flip();
-	virtual void Clear();
-	virtual void Delay(unsigned long);
-	virtual unsigned long Ticks();
-	virtual bool PollEvent(Event&);
+	Impl(Fixed w, Fixed h, const char *t);
 };
 
 struct SdlImg : public OpenGLImg {
@@ -96,7 +81,12 @@ static SDL_Surface *init_sdl(Fixed w, Fixed h){
 	return win;
 }
 
-SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h), win(init_sdl(w, h)), gl(w, h) {
+Ui::Impl::Impl(Fixed w, Fixed h, const char *title)
+	: win(init_sdl(w, h)), gl(w, h) {
+}
+
+Ui::Ui(Fixed w, Fixed h, const char *title)
+	: impl(new Impl(w, h, title)), width(w), height(h) {
 	fprintf(stderr,"Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
 	glGetString(GL_VENDOR),
 	glGetString(GL_RENDERER),
@@ -111,53 +101,50 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h), win(init_sdl(w, h)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 }
 
-SdlUi::~SdlUi() {
-	TTF_Quit();
-	IMG_Quit();
-	SDL_Quit();
+Ui::~Ui(){
 }
 
-void SdlUi::DrawLine(const Vec2 &a, const Vec2 &b, const Color &c){
-	gl.DrawLine(a, b, c);
+void Ui::DrawLine(const Vec2 &a, const Vec2 &b, const Color &c){
+	impl->gl.DrawLine(a, b, c);
 }
 
-void SdlUi::FillRect(const Vec2 &a, const Vec2 &b, const Color &c){
-	gl.FillRect(a, b, c);
+void Ui::FillRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	impl->gl.FillRect(a, b, c);
 }
 
-void SdlUi::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
-	gl.DrawRect(a, b, c);
+void Ui::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	impl->gl.DrawRect(a, b, c);
 }
 
-void SdlUi::Draw(const Vec2 &p, std::shared_ptr<Img> img, float shade){
-	gl.Draw(p, img, shade);
+void Ui::Draw(const Vec2 &p, std::shared_ptr<Img> img, float shade){
+	impl->gl.Draw(p, img, shade);
 }
 
-void SdlUi::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img){
-	gl.InitTiles(w, h, tw, th, img);
+void Ui::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img){
+	impl->gl.InitTiles(w, h, tw, th, img);
 }
 
-void SdlUi::SetTile(int x, int y, int tile, float shade){
-	gl.SetTile(x, y, tile, shade);
+void Ui::SetTile(int x, int y, int tile, float shade){
+	impl->gl.SetTile(x, y, tile, shade);
 }
 
-void SdlUi::DrawTiles(const Vec2 &p){
-	gl.DrawTiles(p);
+void Ui::DrawTiles(const Vec2 &p){
+	impl->gl.DrawTiles(p);
 }
 
-void SdlUi::Flip() {
+void Ui::Flip() {
 	SDL_GL_SwapBuffers();
 }
 
-void SdlUi::Clear(){
-	gl.Clear();
+void Ui::Clear(){
+	impl->gl.Clear();
 }
 
-void SdlUi::Delay(unsigned long msec) {
+void Ui::Delay(unsigned long msec) {
 	SDL_Delay(msec);
 }
 
-unsigned long SdlUi::Ticks() {
+unsigned long Ui::Ticks() {
 	return SDL_GetTicks();
 }
 
@@ -179,7 +166,7 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 }
 
 
-bool SdlUi::PollEvent(Event &e) {
+bool Ui::PollEvent(Event &e) {
 	SDL_Event sdle;
 	bool keydown;
 	bool toRet = false;
@@ -221,7 +208,7 @@ bool SdlUi::PollEvent(Event &e) {
 		case SDL_KEYUP:
 		case SDL_KEYDOWN:
 			keydown = (sdle.type == SDL_KEYDOWN)? true : false;
-			e.button = kh.HandleStroke(sdle,keydown);
+			e.button = impl->kh.HandleStroke(sdle,keydown);
 			e.type = keydown ? Event::KeyDown : Event::KeyUp;
 			simulatedLast = false;
 			toRet = true;
@@ -231,8 +218,8 @@ bool SdlUi::PollEvent(Event &e) {
 			break;
 		}
 	}
-	if(!toRet && kh.KeysDown() > 0 && !simulatedLast){
-		e.button = kh.ActiveKey();
+	if(!toRet && impl->kh.KeysDown() > 0 && !simulatedLast){
+		e.button = impl->kh.ActiveKey();
 		e.type = Event::KeyDown;
 		toRet = true;
 		simulatedLast = true;
@@ -301,7 +288,7 @@ std::shared_ptr<Img> SdlFont::Render(const char *fmt, ...) {
 }
 
 std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title) {
-	return std::shared_ptr<Ui>(new SdlUi(w, h, title));
+	return std::shared_ptr<Ui>(new Ui(w, h, title));
 }
 
 std::shared_ptr<Img> LoadImg(const char *path) {
