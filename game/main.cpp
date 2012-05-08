@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
 	Fixed width(800), height(600);
-	auto win(OpenWindow(width, height, "Minima"));
+	auto win = std::make_shared<Ui>(width, height, "Minima");
 
 	auto font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
 	loadingText(win, font);
