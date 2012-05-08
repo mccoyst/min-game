@@ -46,14 +46,23 @@ private:
 	bool IsStackable(int k);
 };
 
-class SdlUi : public OpenGLUi {
+class SdlUi : public Ui {
 	SDL_Surface *win;
 	KeyHandler kh;
+	OpenGLUi gl;
 
 public:
 	SdlUi(Fixed w, Fixed h, const char *title);
 	~SdlUi();
+	virtual void DrawLine(const Vec2&, const Vec2&, const Color&);
+	virtual void FillRect(const Vec2&, const Vec2&, const Color&);
+	virtual void DrawRect(const Vec2&, const Vec2&, const Color&);
+	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
+	virtual void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
+	virtual void SetTile(int x, int y, int tile, float shade);
+	virtual void DrawTiles(const Vec2&);
 	virtual void Flip();
+	virtual void Clear();
 	virtual void Delay(unsigned long);
 	virtual unsigned long Ticks();
 	virtual bool PollEvent(Event&);
@@ -75,16 +84,19 @@ struct SdlFont : public Font {
 	virtual std::shared_ptr<Img> Render(const char*, ...);
 };
 
-SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
+static SDL_Surface *init_sdl(Fixed w, Fixed h){
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
+	SDL_Surface *win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
+	return win;
+}
 
+SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : Ui(w, h), win(init_sdl(w, h)), gl(w, h) {
 	fprintf(stderr,"Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
 	glGetString(GL_VENDOR),
 	glGetString(GL_RENDERER),
@@ -97,8 +109,6 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 
 	if (TTF_Init() == -1)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
-
-	InitOpenGL();
 }
 
 SdlUi::~SdlUi() {
@@ -107,8 +117,40 @@ SdlUi::~SdlUi() {
 	SDL_Quit();
 }
 
+void SdlUi::DrawLine(const Vec2 &a, const Vec2 &b, const Color &c){
+	gl.DrawLine(a, b, c);
+}
+
+void SdlUi::FillRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	gl.FillRect(a, b, c);
+}
+
+void SdlUi::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	gl.DrawRect(a, b, c);
+}
+
+void SdlUi::Draw(const Vec2 &p, std::shared_ptr<Img> img, float shade){
+	gl.Draw(p, img, shade);
+}
+
+void SdlUi::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img){
+	gl.InitTiles(w, h, tw, th, img);
+}
+
+void SdlUi::SetTile(int x, int y, int tile, float shade){
+	gl.SetTile(x, y, tile, shade);
+}
+
+void SdlUi::DrawTiles(const Vec2 &p){
+	gl.DrawTiles(p);
+}
+
 void SdlUi::Flip() {
 	SDL_GL_SwapBuffers();
+}
+
+void SdlUi::Clear(){
+	gl.Clear();
 }
 
 void SdlUi::Delay(unsigned long msec) {

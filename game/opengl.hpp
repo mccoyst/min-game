@@ -4,28 +4,25 @@
 #include <SDL_opengl.h>
 #include <vector>
 
-class OpenGLUi : public Ui {
+class OpenGLUi {
 public:
-	OpenGLUi(Fixed w, Fixed h) : Ui(w, h) { }
-
-	// InitOpenGL initializes OpenGL for drawing stuff.
-	void InitOpenGL();
+	OpenGLUi(Fixed, Fixed);
 
 	void Clear();
 
-	virtual void DrawLine(const Vec2&, const Vec2&, const Color&);
-	virtual void FillRect(const Vec2&, const Vec2&, const Color&);
-	virtual void DrawRect(const Vec2&, const Vec2&, const Color&);
-	virtual void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
+	void DrawLine(const Vec2&, const Vec2&, const Color&);
+	void FillRect(const Vec2&, const Vec2&, const Color&);
+	void DrawRect(const Vec2&, const Vec2&, const Color&);
+	void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
 
-	virtual void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
+	void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
 
-	virtual void SetTile(int x, int y, int tile, float shade) {
+	void SetTile(int x, int y, int tile, float shade) {
 		tiles.at(x * sheeth + y) = tile;
 		shades.at(x * sheeth + y) = shade;
 	}
 
-	virtual void DrawTiles(const Vec2&);
+	void DrawTiles(const Vec2&);
 
 private:
 	std::shared_ptr<Img> tileImgs;
