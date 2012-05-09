@@ -46,17 +46,11 @@ private:
 	bool IsStackable(int k);
 };
 
-class SdlUi : public OpenGLUi {
+struct Ui::Impl {
 	SDL_Surface *win;
 	KeyHandler kh;
-
-public:
-	SdlUi(Fixed w, Fixed h, const char *title);
-	~SdlUi();
-	virtual void Flip();
-	virtual void Delay(unsigned long);
-	virtual unsigned long Ticks();
-	virtual bool PollEvent(Event&);
+	OpenGLUi gl;
+	Impl(Fixed w, Fixed h, const char *t);
 };
 
 struct SdlImg : public OpenGLImg {
@@ -75,16 +69,24 @@ struct SdlFont : public Font {
 	virtual std::shared_ptr<Img> Render(const char*, ...);
 };
 
-SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
+static SDL_Surface *init_sdl(Fixed w, Fixed h){
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
+	SDL_Surface *win = SDL_SetVideoMode(w.whole(), h.whole(), 0, SDL_OPENGL);
 	if (!win)
 		throw Failure("Failed to set SDL video mode");
+	return win;
+}
 
+Ui::Impl::Impl(Fixed w, Fixed h, const char *title)
+	: win(init_sdl(w, h)), gl(w, h) {
+}
+
+Ui::Ui(Fixed w, Fixed h, const char *title)
+	: impl(new Impl(w, h, title)), width(w), height(h) {
 	fprintf(stderr,"Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
 	glGetString(GL_VENDOR),
 	glGetString(GL_RENDERER),
@@ -97,25 +99,56 @@ SdlUi::SdlUi(Fixed w, Fixed h, const char *title) : OpenGLUi(w, h) {
 
 	if (TTF_Init() == -1)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
-
-	InitOpenGL();
 }
 
-SdlUi::~SdlUi() {
-	TTF_Quit();
-	IMG_Quit();
-	SDL_Quit();
+Ui::Ui(Ui &&u)
+	:  impl(u.impl.release()), width(u.width), height(u.height){
 }
 
-void SdlUi::Flip() {
+Ui::~Ui(){
+}
+
+void Ui::DrawLine(const Vec2 &a, const Vec2 &b, const Color &c){
+	impl->gl.DrawLine(a, b, c);
+}
+
+void Ui::FillRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	impl->gl.FillRect(a, b, c);
+}
+
+void Ui::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	impl->gl.DrawRect(a, b, c);
+}
+
+void Ui::Draw(const Vec2 &p, std::shared_ptr<Img> img, float shade){
+	impl->gl.Draw(p, img, shade);
+}
+
+void Ui::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img){
+	impl->gl.InitTiles(w, h, tw, th, img);
+}
+
+void Ui::SetTile(int x, int y, int tile, float shade){
+	impl->gl.SetTile(x, y, tile, shade);
+}
+
+void Ui::DrawTiles(const Vec2 &p){
+	impl->gl.DrawTiles(p);
+}
+
+void Ui::Flip() {
 	SDL_GL_SwapBuffers();
 }
 
-void SdlUi::Delay(unsigned long msec) {
+void Ui::Clear(){
+	impl->gl.Clear();
+}
+
+void Ui::Delay(unsigned long msec) {
 	SDL_Delay(msec);
 }
 
-unsigned long SdlUi::Ticks() {
+unsigned long Ui::Ticks() {
 	return SDL_GetTicks();
 }
 
@@ -137,7 +170,7 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 }
 
 
-bool SdlUi::PollEvent(Event &e) {
+bool Ui::PollEvent(Event &e) {
 	SDL_Event sdle;
 	bool keydown;
 	bool toRet = false;
@@ -179,7 +212,7 @@ bool SdlUi::PollEvent(Event &e) {
 		case SDL_KEYUP:
 		case SDL_KEYDOWN:
 			keydown = (sdle.type == SDL_KEYDOWN)? true : false;
-			e.button = kh.HandleStroke(sdle,keydown);
+			e.button = impl->kh.HandleStroke(sdle,keydown);
 			e.type = keydown ? Event::KeyDown : Event::KeyUp;
 			simulatedLast = false;
 			toRet = true;
@@ -189,8 +222,8 @@ bool SdlUi::PollEvent(Event &e) {
 			break;
 		}
 	}
-	if(!toRet && kh.KeysDown() > 0 && !simulatedLast){
-		e.button = kh.ActiveKey();
+	if(!toRet && impl->kh.KeysDown() > 0 && !simulatedLast){
+		e.button = impl->kh.ActiveKey();
 		e.type = Event::KeyDown;
 		toRet = true;
 		simulatedLast = true;
@@ -256,10 +289,6 @@ std::shared_ptr<Img> SdlFont::Render(const char *fmt, ...) {
 	std::shared_ptr<Img> img(new SdlImg(surf));
 	SDL_FreeSurface(surf);
 	return img;
-}
-
-std::shared_ptr<Ui> OpenWindow(Fixed w, Fixed h, const char *title) {
-	return std::shared_ptr<Ui>(new SdlUi(w, h, title));
 }
 
 std::shared_ptr<Img> LoadImg(const char *path) {
