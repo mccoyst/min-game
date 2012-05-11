@@ -191,6 +191,7 @@ bool Ui::PollEvent(Event &e) {
 				continue;
 			simulatedLast = false;
 			toRet = true;
+			break;
 
 		case SDL_MOUSEBUTTONUP:
 			e.type = Event::MouseUp;
@@ -200,7 +201,7 @@ bool Ui::PollEvent(Event &e) {
 				continue;
 			simulatedLast = false;
 			toRet = true;
-
+			break;
 
 		case SDL_MOUSEMOTION:
 			e.type = Event::MouseMoved;
@@ -208,6 +209,7 @@ bool Ui::PollEvent(Event &e) {
 			e.y = sdle.motion.y;
 			simulatedLast = false;
 			toRet = true;
+			break;
 
 		case SDL_KEYUP:
 		case SDL_KEYDOWN:
@@ -216,6 +218,7 @@ bool Ui::PollEvent(Event &e) {
 			e.type = keydown ? Event::KeyDown : Event::KeyUp;
 			simulatedLast = false;
 			toRet = true;
+			break;
 
 		default:
 			// ignore
@@ -401,5 +404,5 @@ void KeyHandler::FixStack(){
 bool KeyHandler::IsStackable(int k){
 	if (k == Event::LShift || k == Event::RShift)
 		return false;
-	else return true;
+	return true;
 }
