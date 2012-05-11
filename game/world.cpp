@@ -61,11 +61,11 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
 		throw Failure("Failed to read the start location");
 }
 
-void World::Draw(std::shared_ptr<Ui> ui) {
+void World::Draw(Ui &ui) {
 	extern bool drawHeights;
 
-	Fixed w(ui->width / TileW);
-	Fixed h(ui->height / TileH);
+	Fixed w(ui.width / TileW);
+	Fixed h(ui.height / TileH);
 	Vec2 offs(xoff%TileW, yoff%TileW);
 
 	for (Fixed x(-1); x <= w; x += Fixed(1)) {
@@ -73,10 +73,10 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		ui->SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain].tile, l.Shade());
+		ui.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain].tile, l.Shade());
 	}
 	}
-	ui->DrawTiles(offs - Vec2(TileW, TileH));
+	ui.DrawTiles(offs - Vec2(TileW, TileH));
 
 	if (!drawHeights)
 		return;
@@ -88,7 +88,7 @@ void World::Draw(std::shared_ptr<Ui> ui) {
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
 		auto txt = terrain.heightImg(l.height);
-		ui->Draw(v, txt);
+		ui.Draw(v, txt);
 	}
 	}
 }

@@ -17,13 +17,13 @@ public:
 		ScrollSpd = 10,
 	};
 
-	ExploreScreen(std::shared_ptr<Ui>, World &);
+	ExploreScreen(Ui &, World &);
 
 	virtual ~ExploreScreen();
 
 	virtual void Update(ScreenStack&);
 
-	virtual void Draw(std::shared_ptr<Ui>);
+	virtual void Draw(Ui &);
 
 	virtual void Handle(ScreenStack&, Event&);
 

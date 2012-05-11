@@ -12,11 +12,11 @@ Failure::Failure(const char *fmt, ...) {
 	va_end(ap);
 }
 
-ExploreScreen::ExploreScreen(std::shared_ptr<Ui> win, World &w) :
+ExploreScreen::ExploreScreen(Ui &win, World &w) :
 		world(w), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
 	world.Center(win, world.x0, world.y0);
-	win->InitTiles((win->width/World::TileW).whole() + 2,
-			(win->height/World::TileH).whole() + 3,
+	win.InitTiles((win.width/World::TileW).whole() + 2,
+			(win.height/World::TileH).whole() + 3,
 			World::TileW.whole(),
 			World::TileH.whole(),
 			LoadImg("resrc/tiles.png"));
@@ -29,10 +29,10 @@ void ExploreScreen::Update(ScreenStack&) {
 	world.Scroll(s.x, s.y);
 }
 
-void ExploreScreen::Draw(std::shared_ptr<Ui> win) {
-	win->Clear();
+void ExploreScreen::Draw(Ui &win) {
+	win.Clear();
 	world.Draw(win);
-	win->Flip();
+	win.Flip();
 }
 
 void ExploreScreen::Handle(ScreenStack&, Event &e) {

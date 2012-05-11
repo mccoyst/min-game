@@ -138,12 +138,12 @@ public:
 	}
 
 	// Draw draws the bounding box outline.
-	void Draw(std::shared_ptr<Ui> win, const Color& c) const {
-		win->DrawRect(min, sz, c);
+	void Draw(Ui &win, const Color& c) const {
+		win.DrawRect(min, sz, c);
 	}
 
 	// Fill draws the bounding box filled.
-	void Fill(std::shared_ptr<Ui> win, const Color& c) const {
-		win->FillRect(min, sz, c);
+	void Fill(Ui &win, const Color& c) const {
+		win.FillRect(min, sz, c);
 	}
 };
