@@ -1,8 +1,8 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 
-#include <memory>
 #include "fixed.hpp"
+#include <memory>
 
 class Ui;
 class Img;
@@ -46,10 +46,10 @@ public:
 	// This image will not appear until the Flip() method is called.
 	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	void Draw(const Vec2&, std::shared_ptr<Img> img, float shade = 1);
+	void Draw(const Vec2&, Img*, float shade = 1);
 
 	// InitTiles initializes the tiles sheet.
-	void InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img>);
+	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>);
 
 	// SetTile sets the tile image and shade for the given tile.
 	void SetTile(int x, int y, int tile, float shade);
@@ -94,18 +94,18 @@ public:
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can
 // be used to draw to the window.
-std::shared_ptr<Img> LoadImg(const char*);
+Img *LoadImg(const char*);
 
 // Font describes a text font, color, etc.
 struct Font{
 	virtual ~Font() = 0;
 
 	// Render renders the given text to an image using this font.
-	virtual std::shared_ptr<Img> Render(const char*, ...) = 0;
+	virtual Img *Render(const char*, ...) = 0;
 };
 
 // LoadFont loads a font from a file with the given size and color.
-std::shared_ptr<Font> LoadFont(const char*, int, char, char, char);
+Font *LoadFont(const char*, int, char, char, char);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.
