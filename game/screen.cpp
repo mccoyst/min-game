@@ -19,11 +19,15 @@ void ScreenStack::Run() {
 		Event event;
 		while (win->PollEvent(event)) {
 			if (event.type == Event::Closed)
-				goto out;
+				return;
 			stk.back()->Handle(*this, event);
+			if(stk.empty())
+				return;
 		}
 
 		stk.back()->Update(*this);
+		if(stk.empty())
+			return;
 
 		unsigned long t1 = win->Ticks();
 		if (t0 + FrameMsec > t1)
@@ -31,9 +35,6 @@ void ScreenStack::Run() {
 		nFrames++;
 		meanFrame = meanFrame + (t1-t0 - meanFrame)/nFrames;
 	}
-out:
-	return;
-
 }
 
 ScreenStack::~ScreenStack() {
