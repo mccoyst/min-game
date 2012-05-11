@@ -39,7 +39,7 @@ class Screen {
 public:
 	virtual ~Screen();
 
-	// Draw draws the screen.  The Screen is responsable for
+	// Draw draws the screen.  The Screen is responsible for
 	// calling Clear() and Flip().
 	virtual void Draw(std::shared_ptr<Ui>) = 0;
 
