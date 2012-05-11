@@ -8,7 +8,7 @@ class Screen;
 class ScreenStack {
 public:
 	// Creates a new screen stack with the given initial screen.
-	ScreenStack(std::shared_ptr<Ui>, std::shared_ptr<Screen>);
+	ScreenStack(Ui &, std::shared_ptr<Screen>);
 
 	~ScreenStack();
 
@@ -30,7 +30,7 @@ public:
 
 private:
 	std::vector< std::shared_ptr<Screen> > stk;
-	std::shared_ptr<Ui> win;
+	Ui &win;
 	unsigned long nFrames;
 	double meanFrame;
 };
@@ -41,7 +41,7 @@ public:
 
 	// Draw draws the screen.  The Screen is responsible for
 	// calling Clear() and Flip().
-	virtual void Draw(std::shared_ptr<Ui>) = 0;
+	virtual void Draw(Ui &) = 0;
 
 	// Handle is called for each event coming from the
 	// Ui, with the exception of the Close event which is

@@ -61,7 +61,7 @@ public:
 	World(FILE*);
 
 	// Draw draws the world to the given window.
-	void Draw(std::shared_ptr<Ui>);
+	void Draw(Ui &);
 
 	// at returns the location at the given x,y in the grid.
 	//
@@ -101,15 +101,15 @@ public:
 
 	// Center changes the world's scroll offset so that the location
 	// at the given x,y coordinate is centered.
-	void Center(std::shared_ptr<Ui> win, int x, int y) {
+	void Center(Ui &win, int x, int y) {
 		x %= width;
 		if (x < 0)
 			x = width + x;
 		y %= height;
 		if (y < 0)
 			y = height + y;
-		xoff = win->width/Fixed(2) - (Fixed(x) * TileW);
-		yoff = win->height/Fixed(2) - (Fixed(y) * TileH);
+		xoff = win.width/Fixed(2) - (Fixed(x) * TileW);
+		yoff = win.height/Fixed(2) - (Fixed(y) * TileH);
 	}
 
 	// The indices of the start tile.

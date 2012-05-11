@@ -14,13 +14,13 @@
 bool drawHeights;
 
 static void parseArgs(int, char*[]);
-static void loadingText(std::shared_ptr<Ui>, std::shared_ptr<Font>);
+static void loadingText(Ui &, std::shared_ptr<Font>);
 
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
 	Fixed width(800), height(600);
-	auto win = std::make_shared<Ui>(width, height, "Minima");
+	Ui win (width, height, "Minima");
 
 	auto font = LoadFont("resrc/prstartk.ttf", 12, 255, 255, 255);
 	loadingText(win, font);
@@ -48,9 +48,9 @@ static void parseArgs(int argc, char *argv[]) {
 	}
 }
 
-static void loadingText(std::shared_ptr<Ui> win, std::shared_ptr<Font> font) {
+static void loadingText(Ui &win, std::shared_ptr<Font> font) {
 	auto img = font->Render("Generating World");
-	win->Clear();
-	win->Draw(Vec2(Fixed(0), Fixed(0)), img);
-	win->Flip();
+	win.Clear();
+	win.Draw(Vec2(Fixed(0), Fixed(0)), img);
+	win.Flip();
 }

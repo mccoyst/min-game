@@ -5,19 +5,19 @@
 
 Screen::~Screen() { }
 
-ScreenStack::ScreenStack(std::shared_ptr<Ui> w, std::shared_ptr<Screen> screen0)
+ScreenStack::ScreenStack(Ui &w, std::shared_ptr<Screen> screen0)
 		: win(w), nFrames(0), meanFrame(0) {
 	stk.push_back(std::shared_ptr<Screen>(screen0));
 }
 
 void ScreenStack::Run() {
 	for ( ; ; ) {
-		unsigned long t0 = win->Ticks();
+		unsigned long t0 = win.Ticks();
 
 		stk.back()->Draw(win);
 
 		Event event;
-		while (win->PollEvent(event)) {
+		while (win.PollEvent(event)) {
 			if (event.type == Event::Closed)
 				return;
 			stk.back()->Handle(*this, event);
@@ -29,9 +29,9 @@ void ScreenStack::Run() {
 		if(stk.empty())
 			return;
 
-		unsigned long t1 = win->Ticks();
+		unsigned long t1 = win.Ticks();
 		if (t0 + FrameMsec > t1)
-			win->Delay(t0 + FrameMsec - t1);
+			win.Delay(t0 + FrameMsec - t1);
 		nFrames++;
 		meanFrame = meanFrame + (t1-t0 - meanFrame)/nFrames;
 	}
