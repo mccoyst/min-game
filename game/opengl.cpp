@@ -60,8 +60,8 @@ void OpenGLUi::DrawRect(const Vec2 &l, const Vec2 &sz, const Color &c) {
 	glEnd();
 }
 
-void OpenGLUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
-	OpenGLImg *img = static_cast<OpenGLImg*>(_img.get());
+void OpenGLUi::Draw(const Vec2 &l, Img *_img, float shade) {
+	OpenGLImg *img = static_cast<OpenGLImg*>(_img);
 	float x = l.x.whole(), y = l.y.whole();
 	float w = img->Size().x.whole(), h = img->Size().y.whole();
 
@@ -87,8 +87,8 @@ void OpenGLUi::Draw(const Vec2 &l, std::shared_ptr<Img> _img, float shade) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void OpenGLUi::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img) {
-		tileImgs = img;
+void OpenGLUi::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> img) {
+		tileImgs = img.release();
 		sheetw = w;
 		sheeth = h;
 		tilew = tw;
@@ -102,7 +102,7 @@ void OpenGLUi::DrawTiles(const Vec2 &offs) {
 	double tilesWidth = tileImgs->Size().x.whole();
 
 	glBindTexture(GL_TEXTURE_2D,
-		static_cast<OpenGLImg*>(tileImgs.get())->texid);
+		static_cast<OpenGLImg*>(tileImgs)->texid);
 	glDisable(GL_BLEND);
 
 	glBegin(GL_QUADS);

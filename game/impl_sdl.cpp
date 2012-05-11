@@ -66,7 +66,7 @@ struct SdlFont : public Font {
 
 	SdlFont(const char *, int, char, char, char);
 	virtual ~SdlFont();
-	virtual std::shared_ptr<Img> Render(const char*, ...);
+	virtual Img *Render(const char*, ...);
 };
 
 static SDL_Surface *init_sdl(Fixed w, Fixed h){
@@ -120,12 +120,12 @@ void Ui::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
 	impl->gl.DrawRect(a, b, c);
 }
 
-void Ui::Draw(const Vec2 &p, std::shared_ptr<Img> img, float shade){
+void Ui::Draw(const Vec2 &p, Img *img, float shade){
 	impl->gl.Draw(p, img, shade);
 }
 
-void Ui::InitTiles(int w, int h, int tw, int th, std::shared_ptr<Img> img){
-	impl->gl.InitTiles(w, h, tw, th, img);
+void Ui::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> img){
+	impl->gl.InitTiles(w, h, tw, th, std::unique_ptr<Img>(img.release()));
 }
 
 void Ui::SetTile(int x, int y, int tile, float shade){
@@ -269,7 +269,7 @@ SdlFont::~SdlFont() {
 	TTF_CloseFont(font);
 }
 
-std::shared_ptr<Img> SdlFont::Render(const char *fmt, ...) {
+Img *SdlFont::Render(const char *fmt, ...) {
 	char s[256];
 	va_list ap;
 	va_start(ap, fmt);
@@ -284,22 +284,22 @@ std::shared_ptr<Img> SdlFont::Render(const char *fmt, ...) {
 	if (!surf)
 		throw Failure("Failed to render text: %s", TTF_GetError());
 
-	std::shared_ptr<Img> img(new SdlImg(surf));
+	Img *img = new SdlImg(surf);
 	SDL_FreeSurface(surf);
 	return img;
 }
 
-std::shared_ptr<Img> LoadImg(const char *path) {
+Img *LoadImg(const char *path) {
 	SDL_Surface *surf = IMG_Load(path);
 	if (!surf)
 		throw Failure("Failed to load image %s", path);
-	std::shared_ptr<Img> img(new SdlImg(surf));
+	Img *img = new SdlImg(surf);
 	SDL_FreeSurface(surf);
 	return img;
 }
 
-std::shared_ptr<Font> LoadFont(const char *path, int sz, char r, char g, char b) {
-	return std::shared_ptr<Font>(new SdlFont(path, sz, r, g, b));
+Font *LoadFont(const char *path, int sz, char r, char g, char b) {
+	return new SdlFont(path, sz, r, g, b);
 }
 
 int KeyHandler::KeysDown(){

@@ -34,9 +34,10 @@ public:
 	// character representation of the Terrain.
 	class TerrainType {
 		std::vector<Terrain> t;
-		std::vector< std::shared_ptr<Img> > htImg;
+		std::vector<Img*> htImg;
 	public:
 		TerrainType();
+		~TerrainType();
 
 		// operator[] returns the terrain with the given character
 		// representation.
@@ -45,7 +46,7 @@ public:
 
 		// heightImg returns an image containing the text for
 		// the given height value.
-		std::shared_ptr<Img> heightImg(int ht) { return htImg[ht]; }
+		Img *heightImg(int ht) { return htImg[ht]; }
 	} terrain;
 
 	// A Loc represents a single cell of the world.

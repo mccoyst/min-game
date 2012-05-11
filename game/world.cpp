@@ -20,10 +20,15 @@ World::TerrainType::TerrainType() {
 	t['d'] = Terrain('d', 4);
 	t['i'] = Terrain('i', 5);
 
-	auto f = LoadFont("resrc/retganon.ttf", 12, 128, 128, 128);
+	auto f = std::unique_ptr<Font>(LoadFont("resrc/retganon.ttf", 12, 128, 128, 128));
 	htImg.resize(World::MaxHeight+1);
 	for (int i = 0; i <= World::MaxHeight; i++)
 		htImg[i] = f->Render("%d", i);
+}
+
+World::TerrainType::~TerrainType() {
+	for (int i = 0; i <= World::MaxHeight; i++)
+		delete htImg[i];
 }
 
 World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
