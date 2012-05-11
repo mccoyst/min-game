@@ -173,7 +173,6 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 bool Ui::PollEvent(Event &e) {
 	SDL_Event sdle;
 	bool keydown;
-	bool toRet = false;
 	static bool simulatedLast;
 
 	while (SDL_PollEvent(&sdle)) {
@@ -190,8 +189,7 @@ bool Ui::PollEvent(Event &e) {
 			if (!getbutton(sdle, e))
 				continue;
 			simulatedLast = false;
-			toRet = true;
-			break;
+			return true;
 
 		case SDL_MOUSEBUTTONUP:
 			e.type = Event::MouseUp;
@@ -200,16 +198,14 @@ bool Ui::PollEvent(Event &e) {
 			if (!getbutton(sdle, e))
 				continue;
 			simulatedLast = false;
-			toRet = true;
-			break;
+			return true;
 
 		case SDL_MOUSEMOTION:
 			e.type = Event::MouseMoved;
 			e.x = sdle.motion.x;
 			e.y = sdle.motion.y;
 			simulatedLast = false;
-			toRet = true;
-			break;
+			return true;
 
 		case SDL_KEYUP:
 		case SDL_KEYDOWN:
@@ -217,22 +213,21 @@ bool Ui::PollEvent(Event &e) {
 			e.button = impl->kh.HandleStroke(sdle,keydown);
 			e.type = keydown ? Event::KeyDown : Event::KeyUp;
 			simulatedLast = false;
-			toRet = true;
-			break;
+			return true;
 
 		default:
 			// ignore
 			break;
 		}
 	}
-	if(!toRet && impl->kh.KeysDown() > 0 && !simulatedLast){
+	if(impl->kh.KeysDown() > 0 && !simulatedLast){
 		e.button = impl->kh.ActiveKey();
 		e.type = Event::KeyDown;
-		toRet = true;
 		simulatedLast = true;
+		return true;
 	}
 
-	return toRet;
+	return false;
 }
 
 SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
