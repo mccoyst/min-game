@@ -124,7 +124,7 @@ void Ui::Draw(const Vec2 &p, Img *img, float shade){
 	impl->gl.Draw(p, img, shade);
 }
 
-void Ui::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> img){
+void Ui::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> &&img){
 	impl->gl.InitTiles(w, h, tw, th, std::unique_ptr<Img>(img.release()));
 }
 

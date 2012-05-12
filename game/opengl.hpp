@@ -15,7 +15,7 @@ public:
 	void DrawRect(const Vec2&, const Vec2&, const Color&);
 	void Draw(const Vec2&, Img*, float shade = 1);
 
-	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>);
+	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>&&);
 
 	void SetTile(int x, int y, int tile, float shade) {
 		tiles.at(x * sheeth + y) = tile;
@@ -25,7 +25,7 @@ public:
 	void DrawTiles(const Vec2&);
 
 private:
-	Img *tileImgs;
+	std::unique_ptr<Img> tileImgs;
 	int sheetw, sheeth, tilew, tileh;
 
 	// Tile associated with each x,y.
