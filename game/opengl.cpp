@@ -4,7 +4,6 @@
 #include <SDL_opengl.h>
 #include <cstring>
 #include <cassert>
-#include <utility>
 
 OpenGLUi::OpenGLUi(Fixed width, Fixed height) {
 	glEnable(GL_TEXTURE_2D);
@@ -89,7 +88,7 @@ void OpenGLUi::Draw(const Vec2 &l, Img *_img, float shade) {
 }
 
 void OpenGLUi::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> &&img) {
-		std::swap< std::unique_ptr<Img> >(tileImgs, img);
+		tileImgs.swap(img);
 		sheetw = w;
 		sheeth = h;
 		tilew = tw;
