@@ -49,7 +49,7 @@ public:
 	void Draw(const Vec2&, Img*, float shade = 1);
 
 	// InitTiles initializes the tiles sheet.
-	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>);
+	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>&&);
 
 	// SetTile sets the tile image and shade for the given tile.
 	void SetTile(int x, int y, int tile, float shade);
