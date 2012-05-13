@@ -102,7 +102,7 @@ Ui::Ui(Fixed w, Fixed h, const char *title)
 }
 
 Ui::Ui(Ui &&u)
-	:  impl(u.impl.release()), width(u.width), height(u.height){
+	:  impl(std::move(u.impl)), width(u.width), height(u.height){
 }
 
 Ui::~Ui(){
@@ -125,7 +125,7 @@ void Ui::Draw(const Vec2 &p, Img *img, float shade){
 }
 
 void Ui::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> &&img){
-	impl->gl.InitTiles(w, h, tw, th, std::unique_ptr<Img>(img.release()));
+	impl->gl.InitTiles(w, h, tw, th, std::move(img));
 }
 
 void Ui::SetTile(int x, int y, int tile, float shade){
