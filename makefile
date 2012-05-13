@@ -7,7 +7,7 @@ OBJS:=\
 	game/ui.o\
 	game/screen.o\
 	game/opengl.o\
-	game/impl_sdl.o\
+	game/ui_sdl.o\
 
 TILES :=\
 	Grass.png\
