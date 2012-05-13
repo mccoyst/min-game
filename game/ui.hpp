@@ -22,7 +22,6 @@ public:
 	// Ui constructs a new user interface that consists
 	// of a window with the given width and height.
 	Ui(Fixed w, Fixed h, const char *title);
-	Ui(Ui &&u);
 	~Ui();
 
 	// DrawLine draws the given line on the screen.
