@@ -101,10 +101,6 @@ Ui::Ui(Fixed w, Fixed h, const char *title)
 		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
 }
 
-Ui::Ui(Ui &&u)
-	:  impl(std::move(u.impl)), width(u.width), height(u.height){
-}
-
 Ui::~Ui(){
 }
 
