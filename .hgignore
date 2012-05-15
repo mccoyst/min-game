@@ -1,0 +1,9 @@
+syntax: glob
+wgen/wgen
+wimg/wimg
+game/minima
+mksheet/mksheet
+resrc/tiles.png
+*.o
+*.a
+*.d
