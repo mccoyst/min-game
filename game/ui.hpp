@@ -59,6 +59,9 @@ public:
 	// MoveCam adds v to the camera's current position.
 	void MoveCam(Vec2 v);
 
+	// CamPos returns the camera's current position.
+	Vec2 CamPos() const;
+
 	// DrawCam draws the image from the camera's point of view.
 	void DrawCam(Vec2, Img*, float shade = 1);
 

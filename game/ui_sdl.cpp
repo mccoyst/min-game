@@ -138,6 +138,10 @@ void Ui::MoveCam(Vec2 v){
 	impl->cam += v;
 }
 
+Vec2 Ui::CamPos() const{
+	return impl->cam;
+}
+
 void Ui::DrawCam(Vec2 p, Img *i, float shade){
 	this->Draw(p - impl->cam, i, shade);
 }
