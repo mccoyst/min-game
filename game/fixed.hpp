@@ -22,6 +22,8 @@ public:
 	Fixed &operator *= (Fixed);
 	Fixed &operator /= (Fixed);
 	Fixed &operator %= (Fixed);
+	Fixed &operator ++ ();
+	Fixed &operator -- ();
 
 	int value() const;
 	int whole() const;
@@ -123,6 +125,14 @@ inline Fixed &Fixed::operator /= (Fixed n){
 inline Fixed &Fixed::operator %= (Fixed n){
 	this->n %= n.n;
 	return *this;
+}
+
+inline Fixed &Fixed::operator ++ (){
+	return *this += Fixed(1);
+}
+
+inline Fixed &Fixed::operator -- (){
+	return *this -= Fixed(1);
 }
 
 inline int Fixed::value() const{
