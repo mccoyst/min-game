@@ -88,13 +88,13 @@ void OpenGLUi::Draw(const Vec2 &l, Img *_img, float shade) {
 }
 
 void OpenGLUi::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> &&img) {
-		tileImgs.swap(img);
-		sheetw = w;
-		sheeth = h;
-		tilew = tw;
-		tileh = th;
-		tiles.resize(w*h);
-		shades.resize(w*h);
+	tileImgs.swap(img);
+	sheetw = w;
+	sheeth = h;
+	tilew = tw;
+	tileh = th;
+	tiles.resize(w*h);
+	shades.resize(w*h);
 }
 
 void OpenGLUi::DrawTiles(const Vec2 &offs) {
