@@ -68,8 +68,8 @@ void World::Draw(Ui &ui) {
 	Fixed h(ui.height / TileH);
 	Vec2 offs(xoff%TileW, yoff%TileW);
 
-	for (Fixed x(-1); x <= w; x += Fixed(1)) {
-	for (Fixed y(-1); y <= h + Fixed(1); y += Fixed(1)) {
+	for (Fixed x(-1); x <= w; ++x) {
+	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
@@ -81,8 +81,8 @@ void World::Draw(Ui &ui) {
 	if (!drawHeights)
 		return;
 
-	for (Fixed x(-1); x <= w; x += Fixed(1)) {
-	for (Fixed y(-1); y <= h + Fixed(1); y += Fixed(1)) {
+	for (Fixed x(-1); x <= w; ++x) {
+	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
 		int xcoord = (x - xoff/TileW).whole();
 		int ycoord = (y - yoff/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
