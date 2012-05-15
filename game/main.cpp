@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) try{
 	World world(stdin);
 
 	ScreenStack stk(win,
-			std::shared_ptr<Screen>(new ExploreScreen(win, world)));
+		std::shared_ptr<Screen>(new ExploreScreen(win, world)));
 	stk.Run();
 
 	return 0;
