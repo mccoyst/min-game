@@ -12,14 +12,14 @@ Failure::Failure(const char *fmt, ...) {
 	va_end(ap);
 }
 
-ExploreScreen::ExploreScreen(Ui &win, World &w) :
-		world(w), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
+ExploreScreen::ExploreScreen(Ui &win, World &w)
+	: world(w), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
 	world.Center(win, world.x0, world.y0);
 	win.InitTiles((win.width/World::TileW).whole() + 2,
-			(win.height/World::TileH).whole() + 3,
-			World::TileW.whole(),
-			World::TileH.whole(),
-			std::unique_ptr<Img>(LoadImg("resrc/tiles.png")));
+		(win.height/World::TileH).whole() + 3,
+		World::TileW.whole(),
+		World::TileH.whole(),
+		std::unique_ptr<Img>(LoadImg("resrc/tiles.png")));
 }
 
 ExploreScreen::~ExploreScreen() { }
