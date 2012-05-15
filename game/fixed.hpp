@@ -7,6 +7,7 @@ class Fixed{
 public:
 	enum{ Scale = 16 };
 
+	Fixed();
 	explicit Fixed(int n);
 	Fixed(int n, int frac);
 	Fixed(const Fixed&);
@@ -44,6 +45,7 @@ class Vec2{
 public:
 	Fixed x, y;
 
+	Vec2();
 	Vec2(Fixed x, Fixed y);
 	Vec2(const Vec2 &);
 
@@ -68,6 +70,9 @@ bool operator > (const Vec2&, const Vec2&);
 bool operator >= (const Vec2&, const Vec2&);
 
 // Template and other inline definitions reside below.
+
+inline Fixed::Fixed(){
+}
 
 inline Fixed::Fixed(int n)
 	: n(n*Scale){
@@ -174,6 +179,9 @@ inline bool operator > (Fixed a, Fixed b){
 
 inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
+}
+
+inline Vec2::Vec2(){
 }
 
 inline Vec2::Vec2(Fixed x, Fixed y)
