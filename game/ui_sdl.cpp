@@ -48,6 +48,7 @@ private:
 };
 
 struct Ui::Impl {
+	Vec2 cam;
 	SDL_Surface *win;
 	KeyHandler kh;
 	OpenGLUi gl;
@@ -131,6 +132,18 @@ void Ui::SetTile(int x, int y, int tile, float shade){
 
 void Ui::DrawTiles(const Vec2 &p){
 	impl->gl.DrawTiles(p);
+}
+
+void Ui::MoveCam(Vec2 v){
+	impl->cam += v;
+}
+
+void Ui::DrawCam(Vec2 p, Img *i, float shade){
+	this->Draw(p - impl->cam, i, shade);
+}
+
+void Ui::DrawTilesCam(Vec2 p){
+	this->DrawTiles(p - impl->cam);
 }
 
 void Ui::Flip() {

@@ -56,6 +56,15 @@ public:
 	// DrawTiles draws the tiles at the given offset.
 	void DrawTiles(const Vec2&);
 
+	// MoveCam adds v to the camera's current position.
+	void MoveCam(Vec2 v);
+
+	// DrawCam draws the image from the camera's point of view.
+	void DrawCam(Vec2, Img*, float shade = 1);
+
+	// DrawTilesCam draws the tiles from the camera's point of view.
+	void DrawTilesCam(Vec2);
+
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
 	void Flip();
