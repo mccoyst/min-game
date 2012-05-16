@@ -84,7 +84,7 @@ static SDL_Surface *init_sdl(Fixed w, Fixed h){
 }
 
 Ui::Impl::Impl(Fixed w, Fixed h, const char *title)
-	: win(init_sdl(w, h)), gl(w, h) {
+	: cam(Fixed(0), Fixed(0)), win(init_sdl(w, h)), gl(w, h) {
 }
 
 Ui::Ui(Fixed w, Fixed h, const char *title)
@@ -144,10 +144,6 @@ Vec2 Ui::CamPos() const{
 
 void Ui::DrawCam(Vec2 p, Img *i, float shade){
 	this->Draw(p - impl->cam, i, shade);
-}
-
-void Ui::DrawTilesCam(Vec2 p){
-	this->DrawTiles(p - impl->cam);
 }
 
 void Ui::Flip() {

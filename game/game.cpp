@@ -14,7 +14,12 @@ Failure::Failure(const char *fmt, ...) {
 
 ExploreScreen::ExploreScreen(Ui &win, World &w)
 	: world(w), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
-	world.Center(win, world.x0, world.y0);
+
+	// center on the initial tile
+	win.MoveCam(Vec2(
+			Fixed(world.x0)*World::TileW - win.width/Fixed(2),
+			Fixed(world.y0)*World::TileH - win.height/Fixed(2)));
+
 	win.InitTiles((win.width/World::TileW).whole() + 2,
 		(win.height/World::TileH).whole() + 3,
 		World::TileW.whole(),
@@ -25,11 +30,10 @@ ExploreScreen::ExploreScreen(Ui &win, World &w)
 ExploreScreen::~ExploreScreen() { }
 
 void ExploreScreen::Update(ScreenStack&) {
-	Vec2 s = scroll*mul;
-	world.Scroll(s.x, s.y);
 }
 
 void ExploreScreen::Draw(Ui &win) {
+	win.MoveCam(scroll*mul);
 	win.Clear();
 	world.Draw(win);
 	win.Flip();
@@ -47,12 +51,13 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 
 	case Event::MouseUp:
 		drag = false;
+		scroll = Vec2(Fixed(0), Fixed(0));
 		break;
 
 	case Event::MouseMoved:
 		if (!drag)
 			break;
-		world.Scroll(Fixed(e.x - x0), Fixed(y0 - e.y));
+		scroll = Vec2(Fixed(e.x - x0), Fixed(y0 - e.y));
 		x0 = e.x;
 		y0 = e.y;
 		break;
