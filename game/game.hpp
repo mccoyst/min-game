@@ -29,7 +29,7 @@ public:
 
 private:
 	World &world;
-	Vec2 scroll;
+	Vec2 mscroll, scroll;	// mouse and keyboard scroll.
 	Fixed mul;
 	int x0, y0;
 	bool drag;
