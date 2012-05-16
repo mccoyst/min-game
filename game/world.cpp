@@ -26,7 +26,7 @@ World::TerrainType::TerrainType() {
 		htImg[i] = std::unique_ptr<Img>(f->Render("%d", i));
 }
 
-World::World(FILE *in) : size(Fixed(0), Fixed(0)), xoff(0), yoff(0) {
+World::World(FILE *in) : size(Fixed(0), Fixed(0)) {
 	int n = sscanf(readLine(in), "%d %d\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
@@ -66,29 +66,32 @@ void World::Draw(Ui &ui) {
 
 	Fixed w(ui.width / TileW);
 	Fixed h(ui.height / TileH);
-	Vec2 offs(xoff%TileW, yoff%TileW);
+	Vec2 offs = ui.CamPos();
 
 	for (Fixed x(-1); x <= w; ++x) {
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
-		int xcoord = (x - xoff/TileW).whole();
-		int ycoord = (y - yoff/TileH).whole();
+		int xcoord = (x - offs.x/TileW).whole();
+		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		ui.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain].tile, l.Shade());
 	}
 	}
+	offs.x %= TileW;
+	offs.y %= TileH;
 	ui.DrawTiles(offs - Vec2(TileW, TileH));
 
 	if (!drawHeights)
 		return;
 
+	offs = ui.CamPos();
 	for (Fixed x(-1); x <= w; ++x) {
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
-		int xcoord = (x - xoff/TileW).whole();
-		int ycoord = (y - yoff/TileH).whole();
+		int xcoord = (x - offs.x/TileW).whole();
+		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
 		auto txt = terrain.heightImg(l.height);
-		ui.Draw(v, txt);
+		ui.DrawCam(v, txt);
 	}
 	}
 }
