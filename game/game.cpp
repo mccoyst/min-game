@@ -13,7 +13,7 @@ Failure::Failure(const char *fmt, ...) {
 }
 
 ExploreScreen::ExploreScreen(Ui &win, World &w)
-	: world(w), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
+	: world(w), mscroll(Vec2::Zero), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
 
 	// center on the initial tile
 	win.MoveCam(Vec2(
@@ -33,7 +33,8 @@ void ExploreScreen::Update(ScreenStack&) {
 }
 
 void ExploreScreen::Draw(Ui &win) {
-	win.MoveCam(scroll*mul);
+	win.MoveCam(mscroll + scroll*mul);
+	mscroll = Vec2::Zero;
 	win.Clear();
 	world.Draw(win);
 	win.Flip();
@@ -51,13 +52,12 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 
 	case Event::MouseUp:
 		drag = false;
-		scroll = Vec2(Fixed(0), Fixed(0));
 		break;
 
 	case Event::MouseMoved:
 		if (!drag)
 			break;
-		scroll = Vec2(Fixed(e.x - x0), Fixed(y0 - e.y));
+		mscroll += Vec2(Fixed(e.x - x0), Fixed(y0 - e.y));
 		x0 = e.x;
 		y0 = e.y;
 		break;
