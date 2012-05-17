@@ -86,8 +86,6 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 			else
 				mul = Fixed(1);
 		case Event::None:
-			scroll.x = Fixed(0);
-			scroll.y = Fixed(0);
 		default:
 			// ignore
 			break;

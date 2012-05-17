@@ -230,6 +230,7 @@ bool Ui::PollEvent(Event &e) {
 			break;
 		}
 	}
+
 	if(impl->kh.KeysDown() > 0 && !simulatedLast){
 		e.button = impl->kh.ActiveKey();
 		e.type = Event::KeyDown;
