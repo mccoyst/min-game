@@ -89,9 +89,11 @@ void World::Draw(Ui &ui) {
 		int xcoord = (x - offs.x/TileW).whole();
 		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		Vec2 v = Vec2(x*TileW, y*TileH) + offs;
 		auto txt = terrain.heightImg(l.height);
-		ui.DrawCam(v, txt);
+		Vec2 pt = Vec2(x*TileW, y*TileH);
+		pt.x += offs.x % TileW;
+		pt.y += offs.y % TileH;
+		ui.Draw(pt, txt);
 	}
 	}
 }
