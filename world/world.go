@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"unicode"
+	"runtime"
 )
 
 const (
@@ -106,6 +107,8 @@ func wrap(n, bound int) int {
 
 // Write writes the world to the given io.Writer.
 func (w *World) Write(out io.Writer) (err error) {
+	fmt.Fprintln(out, "#", runtime.GOOS, runtime.GOARCH)
+
 	if _, err = fmt.Fprintln(out, w.W, w.H); err != nil {
 		return
 	}
