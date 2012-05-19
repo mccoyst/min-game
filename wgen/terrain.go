@@ -157,6 +157,9 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 	if nSeeds == 0 {
 		nSeeds = 1
 	}
+	if nSeeds > len(land) {
+		nSeeds = len(land)
+	}
 	seeds := land[:nSeeds]
 	for _, s := range seeds {
 		s.terrain = &world.Terrain[ch]
