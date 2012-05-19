@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"minima/world"
 	"math/rand"
 )
@@ -27,7 +25,7 @@ func addRivers(w *world.World, oceans []*world.Loc, minSz, maxCnt int) {
 		src := sources[i]
 		sources[i], sources = sources[len(sources)-1], sources[:len(sources)-1]
 
-		river := riverLocs(w, isOcean, src)
+		river := riverLocs(w, isOcean, minSz, src)
 		if len(river) < minSz {
 			continue
 		}
@@ -39,7 +37,7 @@ func addRivers(w *world.World, oceans []*world.Loc, minSz, maxCnt int) {
 }
 
 // riverLocs returns a slice of coordinates that form a river.
-func riverLocs(w *world.World, isOcean map[*world.Loc]bool, src world.Coord) (path []*riverNode) {
+func riverLocs(w *world.World, isOcean map[*world.Loc]bool, minSz int, src world.Coord) []*riverNode {
 	init := &riverNode{
 		world.Coord: src,
 		loc: w.At(src.X, src.Y),
@@ -51,35 +49,17 @@ func riverLocs(w *world.World, isOcean map[*world.Loc]bool, src world.Coord) (pa
 	q := []*riverNode{ init }
 
 	for len(q) > 0 {
-		if len(nodes) > w.H*w.W {
-			panic("Too many nodes")
-		}
-		if len(q) > w.H*w.W {
-			panic("Queue is too big")
-		}
-
 		n := q[0]
 		q = q[1:]
 		n.onq = false;
 
-		if isOcean[n.loc] {
-			for n.parent != nil {
-				if len(path) > w.H*w.W {
-					panic("Path is too long")
-				}
-				path = append(path, n)
-				n = n.parent
-			}
-			path = append(path, n)
-			break
+		if isOcean[n.loc] && n.len() >= minSz {
+			return n.path()
 		}
 
 		for i, d := range deltas {
 			x, y := n.X + d.dx, n.Y + d.dy
 			kidloc := w.AtCoord(x, y)
-			if kidloc.Elevation > n.loc.Elevation {
-				continue
-			}
 			if n.edgecosts[i] == 0 {
 				n.edgecosts[i] = float64(rand.Intn(5)+1)
 				if kidloc.Elevation < n.loc.Elevation {
@@ -101,7 +81,7 @@ func riverLocs(w *world.World, isOcean map[*world.Loc]bool, src world.Coord) (pa
 				q = append(q, kid)
 				continue
 			}
-			if kid.cost <= n.cost + cost {
+			if kidloc.Elevation > n.loc.Elevation || kid.cost <= n.cost + cost {
 				continue
 			}
 
@@ -113,8 +93,7 @@ func riverLocs(w *world.World, isOcean map[*world.Loc]bool, src world.Coord) (pa
 			}
 		}
 	}
-
-	return
+	return []*riverNode{}
 }
 
 var (
@@ -137,6 +116,27 @@ type riverNode struct {
 	edgecosts [4]float64
 }
 
+// len returns the length of the path from this node back
+// to the source
+func (n *riverNode) len() int {
+	l := 1
+	for n.parent != nil {
+		l++
+		n = n.parent
+	}
+	return l
+}
+
+// path returns the path from this node back to the source
+func (n *riverNode) path() (path []*riverNode) {
+	for n.parent != nil {
+		path = append(path, n)
+		n = n.parent
+	}
+	path = append(path, n)
+	return
+}
+
 // riverSources returns a scrambled list of all possible
 // source locations for a river.
 func riverSources(w *world.World, isOcean map[*world.Loc]bool) (sources []world.Coord) {
@@ -148,17 +148,12 @@ func riverSources(w *world.World, isOcean map[*world.Loc]bool) (sources []world.
 		}
 	}
 
-	ms := len(sources)
-	fmt.Fprintln(os.Stderr, "Mountain sources", ms)
-
 	for _, coord := range w.WithType("w") {
 		wtr := w.At(coord.X, coord.Y)
 		if !isOcean[wtr] && wtr.Elevation >= min {
 			sources = append(sources, coord)
 		}
 	}
-
-	fmt.Fprintln(os.Stderr, "Water sources", len(sources)-ms)
 
 	return
 }
