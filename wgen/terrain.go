@@ -18,7 +18,7 @@ func doTerrain(w *world.World) {
 	sz := float64(w.W * w.H)
 	start("Adding oceans")
 	ht := int(math.Ceil(world.MaxElevation * 0.2))
-	addLiquid(w, 'w', int(sz*0.01), int(sz*0.4), int(sz*0.45), int(sz*0.55), ht)
+	oceans := addLiquid(w, 'w', int(sz*0.01), int(sz*0.4), int(sz*0.45), int(sz*0.55), ht)
 	finish()
 
 	start("Adding lakes")
@@ -36,6 +36,10 @@ func doTerrain(w *world.World) {
 
 	start("Adding glacier")
 	growTerrain(w, "gf", 'i', int(sz*0.04), int(sz*0.08), 0.0002)
+	finish()
+
+	start("Adding rivers")
+	addRivers(w, oceans, 50, int(sz*0.005));
 	finish()
 }
 
@@ -63,7 +67,8 @@ func initTerrain(w *world.World) {
 // world by flooding some local minima to a random
 // height.  The  percentage of the world that is flooded is
 // based on the minFrac and maxFrac parameters.
-func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) {
+// The return value is all of the new liquid tiles.
+func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) (added []*world.Loc) {
 	nLiquid := 0
 	tmap := makeTopoMap(w)
 
@@ -118,15 +123,15 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 		for y := 0; y < w.H; y++ {
 			c := tmap.getContour(x, y)
 			loc := w.At(x, y)
+			if loc.Terrain != c.terrain {
+				added = append(added, loc)
+			}
 			loc.Terrain = c.terrain
 			loc.Elevation = c.height
 			loc.Depth = c.depth
 		}
 	}
-}
-
-type point struct {
-	x, y int
+	return
 }
 
 // growTerrain changes tiles into other terrain

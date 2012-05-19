@@ -3,6 +3,7 @@ package world
 
 import (
 	"image/color"
+	"strings"
 )
 
 // TerrainType holds information on a given type of
@@ -24,4 +25,20 @@ var Terrain = []TerrainType{
 	int('d'): {'d', "desert", color.RGBA{255, 255, 0, 255}},
 	int('f'): {'f', "forest", color.RGBA{0, 200, 128, 255}},
 	int('i'): {'i', "glacier", color.RGBA{196, 196, 255, 255}},
+}
+
+type Coord struct {
+	X, Y int
+}
+
+// WithType returns the IDs of all locations with the given
+// terrain types.
+func (w *World) WithType(types string) (cs []Coord) {
+	for i, loc := range w.locs {
+		if !strings.ContainsRune(types, rune(loc.Terrain.Char)) {
+			continue
+		}
+		cs = append(cs, Coord{i / w.H, i % w.H})
+	}
+	return
 }
