@@ -39,7 +39,7 @@ func doTerrain(w *world.World) {
 	finish()
 
 	start("Adding rivers")
-	addRivers(w, oceans, 10, int(sz*0.02));
+	addRivers(w, oceans, 10, int(sz*0.02))
 	finish()
 }
 
@@ -154,7 +154,7 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 
 	// get some seed locations.
 	n := 0
-	nSeeds := int(float64(total)*seedFrac)
+	nSeeds := int(float64(total) * seedFrac)
 	if nSeeds == 0 {
 		nSeeds = 1
 	}
@@ -174,7 +174,7 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 		for _, a := range c.adj {
 
 			if strings.ContainsRune(fertile, rune(a.terrain.Char)) &&
-					n+a.size < maxSz {
+				n+a.size < maxSz {
 				adj = append(adj, a)
 			}
 		}

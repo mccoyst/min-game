@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"unicode"
 	"runtime"
+	"unicode"
 )
 
 const (
@@ -33,8 +33,8 @@ type World struct {
 // A Loc is a cell in the grid that
 // represents the world
 type Loc struct {
-	Terrain *TerrainType
-	Elevation, Depth  int
+	Terrain          *TerrainType
+	Elevation, Depth int
 }
 
 // Height returns the height of the location, which is
@@ -192,7 +192,7 @@ func readLine(in *bufio.Reader) (string, error) {
 			return "", err
 		}
 		in.UnreadRune()
-	
+
 		if !unicode.IsSpace(r) && r != '#' {
 			bytes, prefix, err := in.ReadLine()
 			if prefix {

@@ -10,7 +10,7 @@ import (
 // terrain.
 type TerrainType struct {
 	Char  uint8      // character representation
-	Name string	// 
+	Name  string     // 
 	Color color.RGBA // color at the highest altitude
 }
 

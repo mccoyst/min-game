@@ -1,11 +1,11 @@
 package main
 
 import (
-	"minima/world"
-	"math/rand"
 	"code.google.com/p/eaburns/perlin"
 	"container/heap"
 	"math"
+	"math/rand"
+	"minima/world"
 )
 
 // addRivers adds rivers
@@ -14,7 +14,7 @@ import (
 func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 	isOcean := make([]bool, w.W*w.H)
 	for _, coord := range oceans {
-		isOcean[coord.X*w.H + coord.Y] = true
+		isOcean[coord.X*w.H+coord.Y] = true
 	}
 
 	sources := riverSources(w, isOcean)
@@ -24,51 +24,54 @@ func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 
 	noise := makeNoise(w)
 	cnt := 0
-	for cnt < maxCnt {
+	for cnt < maxCnt && len(sources) > 0 {
 		i := rand.Intn(len(sources))
 		src := sources[i]
 		sources[i], sources = sources[len(sources)-1], sources[:len(sources)-1]
 
-		river := riverLocs(w, noise, isOcean, minSz, src)
+		river := riverLocs(w, noise, isOcean, src)
 		if len(river) < minSz {
 			continue
 		}
 		for _, node := range river {
 			node.loc.Terrain = &world.Terrain[int('w')]
+			if node.loc.Depth <= 0 {
+				node.loc.Depth = 1
+			}
 			cnt++
 		}
 	}
 }
 
 // deltas is the Δx and Δy from a location to its neighbors.
-var deltas = []struct{ dx, dy int } { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }
+var deltas = []struct{ dx, dy int }{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 
 // riverLocs returns a slice of coordinates that form a river.
-func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src world.Coord) []*riverNode {
+func riverLocs(w *world.World, noise []float64, isOcean []bool, src world.Coord) []*riverNode {
 	init := rn(w, noise, src, nil)
 	nodes := make([]*riverNode, w.W*w.H)
-	nodes[src.X*w.H + src.Y] = init
-	q := riverHeap{ init }
+	nodes[src.X*w.H+src.Y] = init
+	q := riverHeap{init}
 
 	for len(q) > 0 {
 		n := heap.Pop(&q).(*riverNode)
-		if isOcean[n.X*w.H + n.Y] && n.len() >= minSz {
+		if isOcean[n.X*w.H+n.Y] {
 			return n.path()
 		}
 
 		for _, d := range deltas {
-			x, y := w.WrapCoord(n.X + d.dx, n.Y + d.dy)
-			kid := nodes[x*w.H + y]
+			x, y := w.WrapCoord(n.X+d.dx, n.Y+d.dy)
+			kid := nodes[x*w.H+y]
 			if kid == nil {
 				kid = rn(w, noise, world.Coord{x, y}, n)
-				nodes[x*w.H + y] = kid
-			} else if kid.g <= kid.edgecost + n.g {
+				nodes[x*w.H+y] = kid
+			} else if kid.g <= kid.edgecost+n.g {
 				continue
 			}
 			if kid.loc.Elevation > n.loc.Elevation {
 				continue
 			}
-			if kid.g > kid.edgecost + n.g {
+			if kid.g > kid.edgecost+n.g {
 				kid.g = kid.edgecost + n.g
 				kid.parent = n
 				if kid.pqind >= 0 {
@@ -115,26 +118,26 @@ func (h riverHeap) Len() int {
 // A riverNode is a single location on a river.
 type riverNode struct {
 	world.Coord
-	loc *world.Loc
-	parent *riverNode
+	loc         *world.Loc
+	parent      *riverNode
 	g, edgecost float64
-	pqind int
+	pqind       int
 }
 
 // rn returns a new river node.
 func rn(w *world.World, noise []float64, c world.Coord, p *riverNode) *riverNode {
-	e := noise[c.X*w.H + c.Y]
+	e := noise[c.X*w.H+c.Y]
 	g := e
 	if p != nil {
 		g += p.g
 	}
 	return &riverNode{
 		world.Coord: c,
-		loc: w.At(c.X, c.Y),
-		parent: p,
-		edgecost: e,
-		g: g,
-		pqind: -1,
+		loc:         w.At(c.X, c.Y),
+		parent:      p,
+		edgecost:    e,
+		g:           g,
+		pqind:       -1,
 	}
 }
 
@@ -172,7 +175,7 @@ func riverSources(w *world.World, isOcean []bool) (sources []world.Coord) {
 
 	for _, coord := range w.WithType("w") {
 		wtr := w.At(coord.X, coord.Y)
-		if !isOcean[coord.X*w.H + coord.Y] && wtr.Elevation >= min {
+		if !isOcean[coord.X*w.H+coord.Y] && wtr.Elevation >= min {
 			sources = append(sources, coord)
 		}
 	}
@@ -185,7 +188,7 @@ func minOcean(w *world.World, isOcean []bool) int {
 	min := world.MaxElevation
 	for _, coord := range w.WithType("w") {
 		wtr := w.At(coord.X, coord.Y)
-		if isOcean[coord.X*w.H + coord.Y] && wtr.Elevation < min {
+		if isOcean[coord.X*w.H+coord.Y] && wtr.Elevation < min {
 			min = wtr.Elevation
 		}
 	}
@@ -198,7 +201,7 @@ func makeNoise(w *world.World) []float64 {
 	perlin := perlin.Make(0.8, 0.25, 2, rand.Int63(), nil)
 	min, max := math.Inf(1), 0.0
 	for i := range noise {
-		x, y := i / w.H, i % w.H
+		x, y := i/w.H, i%w.H
 		n := perlin(float64(x), float64(y))
 		noise[i] = n
 		if n < min {
@@ -209,9 +212,9 @@ func makeNoise(w *world.World) []float64 {
 		}
 	}
 	for i := range noise {
-		noise[i] = 2*(noise[i]-min)/(max-min)
-		if noise[i] <= 0 {
-			noise[i] = min
+		noise[i] = 2 * (noise[i] - min) / (max - min)
+		if noise[i] <= 0.01 {
+			noise[i] = 0.01
 		}
 	}
 	return noise
