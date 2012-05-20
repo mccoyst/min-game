@@ -74,6 +74,12 @@ func (w *World) AtCoord(x, y int) *Loc {
 	return &w.locs[w.CoordToIndex(x, y)]
 }
 
+// WrapCord returns the x,y point for a coordinate
+// after wrapping it around the world.
+func (w *World) WrapCoord(x, y int) (int, int) {
+	return wrap(x, w.W), wrap(y, w.H)
+}
+
 // CoordToIndex returns the array index that
 // corresponds to the given x,y world coordinate.
 func (w *World) CoordToIndex(x, y int) int {

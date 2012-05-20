@@ -3,20 +3,33 @@ package main
 import (
 	"minima/world"
 	"math/rand"
+	"code.google.com/p/eaburns/perlin"
+	"container/heap"
 )
 
 // addRivers adds rivers
 // minSz gives the minimum river size and maxCnt is
 // the maximum number of locations to add as rivers.
-func addRivers(w *world.World, oceans []*world.Loc, minSz, maxCnt int) {
-	isOcean := make(map[*world.Loc]bool, w.W*w.H)
-	for _, l := range oceans {
-		isOcean[l] = true
+func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
+	isOcean := make([]bool, w.W*w.H)
+	for _, coord := range oceans {
+		isOcean[coord.X*w.H + coord.Y] = true
 	}
 
 	sources := riverSources(w, isOcean)
 	if len(sources) == 0 {
 		return
+	}
+
+	noise := make([]float64, w.W*w.H)
+	perlin := perlin.Make(0.8, 0.25, 2, rand.Int63(), nil)
+	for i := range noise {
+		x, y := i / w.H, i % w.H
+		noise[i] = perlin(float64(x), float64(y))
+		if noise[i] < 0.01 {
+			noise[i] = 0.01
+		}
+		noise[i] *= 2
 	}
 
 	cnt := 0
@@ -25,7 +38,7 @@ func addRivers(w *world.World, oceans []*world.Loc, minSz, maxCnt int) {
 		src := sources[i]
 		sources[i], sources = sources[len(sources)-1], sources[:len(sources)-1]
 
-		river := riverLocs(w, isOcean, minSz, src)
+		river := riverLocs(w, noise, isOcean, minSz, src)
 		if len(river) < minSz {
 			continue
 		}
@@ -36,84 +49,102 @@ func addRivers(w *world.World, oceans []*world.Loc, minSz, maxCnt int) {
 	}
 }
 
+// deltas is the Δx and Δy from a location to its neighbors.
+var deltas = []struct{ dx, dy int } { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }
+
 // riverLocs returns a slice of coordinates that form a river.
-func riverLocs(w *world.World, isOcean map[*world.Loc]bool, minSz int, src world.Coord) []*riverNode {
-	init := &riverNode{
-		world.Coord: src,
-		loc: w.At(src.X, src.Y),
-		cost: 0,
-		onq: true,
-	}
-	nodes := make(map[*world.Loc]*riverNode, w.W*w.H)
-	nodes[init.loc] = init
-	q := []*riverNode{ init }
+func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src world.Coord) []*riverNode {
+	init := rn(w, noise, src, nil)
+	nodes := make([]*riverNode, w.W*w.H)
+	nodes[src.X*w.H + src.Y] = init
+	q := riverHeap{ init }
 
 	for len(q) > 0 {
-		n := q[0]
-		q = q[1:]
-		n.onq = false;
-
-		if isOcean[n.loc] && n.len() >= minSz {
+		n := heap.Pop(&q).(*riverNode)
+		if isOcean[n.X*w.H + n.Y] && n.len() >= minSz {
 			return n.path()
 		}
 
-		for i, d := range deltas {
-			x, y := n.X + d.dx, n.Y + d.dy
-			kidloc := w.AtCoord(x, y)
-			if n.edgecosts[i] == 0 {
-				n.edgecosts[i] = float64(rand.Intn(5)+1)
-				if kidloc.Elevation < n.loc.Elevation {
-					n.edgecosts[i] *= 0.1
-				}
-			}
-			cost := n.edgecosts[i]
-
-			kid, ok := nodes[kidloc]
-			if !ok {
-				kid = &riverNode {
-					world.Coord: world.Coord{ x, y },
-					loc: kidloc,
-					parent: n,
-					cost: n.cost + cost,
-					onq: true,
-				}
-				nodes[kidloc] = kid
-				q = append(q, kid)
+		for _, d := range deltas {
+			x, y := w.WrapCoord(n.X + d.dx, n.Y + d.dy)
+			kid := nodes[x*w.H + y]
+			if kid == nil {
+				kid = rn(w, noise, world.Coord{x, y}, n)
+				nodes[x*w.H + y] = kid
+			} else if kid.g <= kid.edgecost + n.g {
 				continue
 			}
-			if kidloc.Elevation > n.loc.Elevation || kid.cost <= n.cost + cost {
+			if kid.loc.Elevation > n.loc.Elevation {
 				continue
 			}
-
-			kid.cost = n.cost + cost
-			kid.parent = n
-			if !kid.onq {
-				kid.onq = true
-				q = append(q, kid)
+			if kid.g > kid.edgecost + n.g {
+				kid.g = kid.edgecost + n.g
+				kid.parent = n
+				if kid.pqind >= 0 {
+					heap.Remove(&q, kid.pqind)
+				}
 			}
+			heap.Push(&q, kid)
 		}
 	}
+
 	return []*riverNode{}
 }
 
-var (
-	// deltas is the Δx and Δy from a location to its neighbors.
-	deltas = []struct{ dx, dy int } {
-		{ 1, 0 },
-		{ -1, 0 },
-		{ 0, 1 },
-		{ 0, -1 },
-	}
-)
+type riverHeap []*riverNode
+
+func (h *riverHeap) Push(x interface{}) {
+	n := x.(*riverNode)
+	n.pqind = len(*h)
+	*h = append(*h, n)
+}
+
+func (h *riverHeap) Pop() interface{} {
+	heap := *h
+	n := heap[len(heap)-1]
+	n.pqind = -1
+	*h = heap[:len(heap)-1]
+	return n
+}
+
+func (h riverHeap) Less(i, j int) bool {
+	return h[i].g < h[j].g
+}
+
+func (h riverHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+	h[i].pqind = i
+	h[j].pqind = j
+}
+
+func (h riverHeap) Len() int {
+	return len(h)
+}
 
 // A riverNode is a single location on a river.
 type riverNode struct {
 	world.Coord
 	loc *world.Loc
 	parent *riverNode
-	cost float64
-	onq bool
-	edgecosts [4]float64
+	g, edgecost float64
+	pqind int
+}
+
+// rn returns a new river node.
+func rn(w *world.World, noise []float64, c world.Coord, p *riverNode) *riverNode {
+	e := noise[c.X*w.H + c.Y]
+	g := e
+	if p != nil {
+		g += p.g
+	}
+	return &riverNode{
+		world.Coord: c,
+		loc: w.At(c.X, c.Y),
+		parent: p,
+		edgecost: e,
+		g: g,
+		pqind: -1,
+	}
 }
 
 // len returns the length of the path from this node back
@@ -139,7 +170,7 @@ func (n *riverNode) path() (path []*riverNode) {
 
 // riverSources returns a scrambled list of all possible
 // source locations for a river.
-func riverSources(w *world.World, isOcean map[*world.Loc]bool) (sources []world.Coord) {
+func riverSources(w *world.World, isOcean []bool) (sources []world.Coord) {
 	min := minOcean(w, isOcean)
 	for _, coord := range w.WithType("m") {
 		mtn := w.At(coord.X, coord.Y)
@@ -150,7 +181,7 @@ func riverSources(w *world.World, isOcean map[*world.Loc]bool) (sources []world.
 
 	for _, coord := range w.WithType("w") {
 		wtr := w.At(coord.X, coord.Y)
-		if !isOcean[wtr] && wtr.Elevation >= min {
+		if !isOcean[coord.X*w.H + coord.Y] && wtr.Elevation >= min {
 			sources = append(sources, coord)
 		}
 	}
@@ -159,12 +190,12 @@ func riverSources(w *world.World, isOcean map[*world.Loc]bool) (sources []world.
 }
 
 // minWminOceanater returns the minimum ocean elevation in the world.
-func minOcean(w *world.World, isOcean map[*world.Loc]bool) int {
+func minOcean(w *world.World, isOcean []bool) int {
 	min := world.MaxElevation
 	for _, coord := range w.WithType("w") {
-		water := w.At(coord.X, coord.Y)
-		if isOcean[water] && water.Elevation < min {
-			min = water.Elevation
+		wtr := w.At(coord.X, coord.Y)
+		if isOcean[coord.X*w.H + coord.Y] && wtr.Elevation < min {
+			min = wtr.Elevation
 		}
 	}
 	return min
