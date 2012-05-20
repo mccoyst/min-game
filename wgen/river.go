@@ -29,7 +29,7 @@ func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 		src := sources[i]
 		sources[i], sources = sources[len(sources)-1], sources[:len(sources)-1]
 
-		river := riverLocs(w, noise, isOcean, src)
+		river := riverLocs(w, noise, isOcean, minSz, src)
 		if len(river) < minSz {
 			continue
 		}
@@ -47,7 +47,7 @@ func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 var deltas = []struct{ dx, dy int }{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 
 // riverLocs returns a slice of coordinates that form a river.
-func riverLocs(w *world.World, noise []float64, isOcean []bool, src world.Coord) []*riverNode {
+func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src world.Coord) []*riverNode {
 	init := rn(w, noise, src, nil)
 	nodes := make([]*riverNode, w.W*w.H)
 	nodes[src.X*w.H+src.Y] = init
@@ -56,6 +56,9 @@ func riverLocs(w *world.World, noise []float64, isOcean []bool, src world.Coord)
 	for len(q) > 0 {
 		n := heap.Pop(&q).(*riverNode)
 		if isOcean[n.X*w.H+n.Y] {
+			if n.len() < minSz {
+				continue
+			}
 			return n.path()
 		}
 
