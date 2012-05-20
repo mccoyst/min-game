@@ -39,7 +39,7 @@ func doTerrain(w *world.World) {
 	finish()
 
 	start("Adding rivers")
-	addRivers(w, oceans, 10, int(sz*0.01));
+	addRivers(w, oceans, 10, int(sz*0.02));
 	finish()
 }
 
