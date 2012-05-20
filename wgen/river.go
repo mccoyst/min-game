@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"code.google.com/p/eaburns/perlin"
 	"container/heap"
+	"math"
 )
 
 // addRivers adds rivers
@@ -21,17 +22,7 @@ func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 		return
 	}
 
-	noise := make([]float64, w.W*w.H)
-	perlin := perlin.Make(0.8, 0.25, 2, rand.Int63(), nil)
-	for i := range noise {
-		x, y := i / w.H, i % w.H
-		noise[i] = perlin(float64(x), float64(y))
-		if noise[i] < 0.01 {
-			noise[i] = 0.01
-		}
-		noise[i] *= 2
-	}
-
+	noise := makeNoise(w)
 	cnt := 0
 	for cnt < maxCnt {
 		i := rand.Intn(len(sources))
@@ -199,4 +190,29 @@ func minOcean(w *world.World, isOcean []bool) int {
 		}
 	}
 	return min
+}
+
+// makeNoise makes a slice of normalized Perlin noise values.
+func makeNoise(w *world.World) []float64 {
+	noise := make([]float64, w.W*w.H)
+	perlin := perlin.Make(0.8, 0.25, 2, rand.Int63(), nil)
+	min, max := math.Inf(1), 0.0
+	for i := range noise {
+		x, y := i / w.H, i % w.H
+		n := perlin(float64(x), float64(y))
+		noise[i] = n
+		if n < min {
+			min = n
+		}
+		if n > max {
+			max = n
+		}
+	}
+	for i := range noise {
+		noise[i] = 2*(noise[i]-min)/(max-min)
+		if noise[i] <= 0 {
+			noise[i] = min
+		}
+	}
+	return noise
 }
