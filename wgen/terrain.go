@@ -39,7 +39,7 @@ func doTerrain(w *world.World) {
 	finish()
 
 	start("Adding rivers")
-	addRivers(w, oceans, 80, int(sz*0.01));
+	addRivers(w, oceans, 10, int(sz*0.01));
 	finish()
 }
 
@@ -67,8 +67,9 @@ func initTerrain(w *world.World) {
 // world by flooding some local minima to a random
 // height.  The  percentage of the world that is flooded is
 // based on the minFrac and maxFrac parameters.
-// The return value is all of the new liquid tiles.
-func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) (added []*world.Loc) {
+// The return value is all of the new liquid tiles world
+// coordinates.
+func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) (added []world.Coord) {
 	nLiquid := 0
 	tmap := makeTopoMap(w)
 
@@ -124,7 +125,7 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 			c := tmap.getContour(x, y)
 			loc := w.At(x, y)
 			if loc.Terrain != c.terrain {
-				added = append(added, loc)
+				added = append(added, world.Coord{x, y})
 			}
 			loc.Terrain = c.terrain
 			loc.Elevation = c.height
