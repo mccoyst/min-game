@@ -1,6 +1,7 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 #include "screen.hpp"
+#include <iosfwd>
 class World;
 
 class Failure {
@@ -8,6 +9,8 @@ public:
 	Failure(const char *, ...);
 	char msg[128];
 };
+
+std::ostream &operator << (std::ostream&, const Failure&);
 
 class ExploreScreen : public Screen {
 public:

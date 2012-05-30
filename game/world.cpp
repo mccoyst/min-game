@@ -3,9 +3,10 @@
 #include "fixed.hpp"
 #include "game.hpp"
 #include "ui.hpp"
+#include <istream>
 #include <limits>
 
-static std::string readLine(FILE*);
+static std::string readLine(std::istream&);
 
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
@@ -26,7 +27,7 @@ World::TerrainType::TerrainType()
 		htImg[i] = std::unique_ptr<Img>(f->Render("%d", i));
 }
 
-World::World(FILE *in) : size(Fixed(0), Fixed(0)) {
+World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 	int n = sscanf(readLine(in).c_str(), "%d %d\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
@@ -110,16 +111,16 @@ float World::Loc::Shade() const{
 	return slope*(this->height - this->depth) + minSh;
 }
 
-static std::string readLine(FILE *in) {
-	static char line[4096];
+static std::string readLine(std::istream &in) {
+	std::string line;
 	for (;;) {
-		if (fgets(line, sizeof(line), in) == NULL) {
-			if (ferror(in)) {
-				throw Failure("Error reading the world");
-			}
-			throw Failure("Unexpected EOF reading the world");
+		if (!getline(in, line)){
+			if(in.eof())
+				throw Failure("Unexpected EOF reading the world");
+
+			throw Failure("Error reading the world");
 		}
-		if (line[0] == '#' || line[0] == '\n' || line[0] == '\r') {
+		if (line.empty() || line[0] == '#' || line[0] == '\r') {
 			continue;
 		}
 		return line;

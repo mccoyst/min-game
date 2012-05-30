@@ -3,10 +3,11 @@
 #include "world.hpp"
 #include "game.hpp"
 #include "geom.hpp"
+#include "io.hpp"
 #include "screen.hpp"
-#include <cstdio>
 #include <cstring>
 #include <cassert>
+#include <iostream>
 #include <SDL_main.h>
 
 // drawHeights, when set to true makes the world draw the
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]) try{
 
 	// Must create the world *after* the window because
 	// the world also loads some images.
-	World world(stdin);
+	World world(std::cin);
 
 	ScreenStack stk(win,
 		std::shared_ptr<Screen>(new ExploreScreen(win, world)));
@@ -36,8 +37,7 @@ int main(int argc, char *argv[]) try{
 	return 0;
 
 }catch (const Failure &f) {
-	fputs(f.msg, stderr);
-	fputc('\n', stderr);
+	printf(std::cerr, "Uncaught exception: \"%v\"\n", f);
 	return 1;
 }
 
