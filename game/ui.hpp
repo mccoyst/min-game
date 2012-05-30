@@ -3,6 +3,7 @@
 
 #include "fixed.hpp"
 #include <memory>
+#include <string>
 
 class Ui;
 class Img;
@@ -21,7 +22,7 @@ public:
 
 	// Ui constructs a new user interface that consists
 	// of a window with the given width and height.
-	Ui(Fixed w, Fixed h, const char *title);
+	Ui(Fixed w, Fixed h, const std::string &title);
 	~Ui();
 
 	// DrawLine draws the given line on the screen.
@@ -102,7 +103,7 @@ public:
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can
 // be used to draw to the window.
-Img *LoadImg(const char*);
+Img *LoadImg(const std::string &);
 
 // Font describes a text font, color, etc.
 struct Font{
@@ -113,7 +114,7 @@ struct Font{
 };
 
 // LoadFont loads a font from a file with the given size and color.
-Font *LoadFont(const char*, int, char, char, char);
+Font *LoadFont(const std::string&, int, char, char, char);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.
