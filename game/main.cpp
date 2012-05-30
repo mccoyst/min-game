@@ -5,7 +5,7 @@
 #include "geom.hpp"
 #include "io.hpp"
 #include "screen.hpp"
-#include <cstring>
+#include <vector>
 #include <cassert>
 #include <iostream>
 #include <SDL_main.h>
@@ -42,8 +42,10 @@ int main(int argc, char *argv[]) try{
 }
 
 static void parseArgs(int argc, char *argv[]) {
-	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-heights") == 0)
+	std::vector<std::string> args (argv+1, argv+argc);
+
+	for(auto &arg : args){
+		if (arg == "-heights")
 			drawHeights = true;
 	}
 }
