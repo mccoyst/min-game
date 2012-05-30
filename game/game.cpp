@@ -22,8 +22,8 @@ ExploreScreen::ExploreScreen(Ui &win, World &w)
 
 	// center on the initial tile
 	win.MoveCam(Vec2(
-			Fixed(world.x0)*World::TileW - win.width/Fixed(2),
-			Fixed(world.y0)*World::TileH - win.height/Fixed(2)));
+		Fixed(world.x0)*World::TileW - win.width/Fixed(2),
+		Fixed(world.y0)*World::TileH - win.height/Fixed(2)));
 
 	win.InitTiles((win.width/World::TileW).whole() + 2,
 		(win.height/World::TileH).whole() + 3,
