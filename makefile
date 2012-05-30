@@ -17,7 +17,7 @@ TILES :=\
 	Desert.png\
 	Glacier.png\
 
-CXXFLAGS:=-std=c++0x -Wall -O3
+CXXFLAGS:=-std=c++11 -Wall -O3
 OBJCFLAGS :=
 LDFLAGS:=
 
