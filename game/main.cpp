@@ -6,7 +6,6 @@
 #include "io.hpp"
 #include "screen.hpp"
 #include <vector>
-#include <cassert>
 #include <iostream>
 #include <SDL_main.h>
 
