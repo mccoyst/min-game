@@ -1,7 +1,7 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 
-#include <cstdio>
+#include <iosfwd>
 #include <map>
 #include <vector>
 #include <memory>
@@ -52,7 +52,7 @@ public:
 
 	// World constructs a new world by reading it from
 	// the given file stream.
-	World(FILE*);
+	World(std::istream&);
 
 	// Draw draws the world to the given window.
 	void Draw(Ui &);
