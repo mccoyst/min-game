@@ -1,7 +1,8 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
-#include <cstdio>
 #pragma once
 
+#include <cstdio>
+#include <map>
 #include <vector>
 #include <memory>
 #include "ui.hpp"
@@ -21,27 +22,20 @@ public:
 		MaxHeight = 19,
 	};
 	
-	// A Terrain represents a type of terrain in the world.
-	struct Terrain {
-		Terrain() : ch(0) { }
-		Terrain(char c, int t) : ch(c), tile(t) {}
-	
-		char ch;
-		int tile;
-	};
-	
 	// terrain is an array of Terrain indexed by the
 	// character representation of the Terrain.
 	class TerrainType {
-		std::vector<Terrain> t;
+		std::map<char, int> t;
 		std::vector<std::unique_ptr<Img>> htImg;
 	public:
 		TerrainType();
 
 		// operator[] returns the terrain with the given character
 		// representation.
-		Terrain &operator[](int i) { return t[i]; }
-		const Terrain &operator [] (int i) const { return t[i]; }
+		int operator [] (char c) const { return t.at(c); }
+
+		// contains returns true iff a terrain type is defined for the given char.
+		bool contains(char c) const { return t.find(c) != t.end(); }
 
 		// heightImg returns an image containing the text for
 		// the given height value.

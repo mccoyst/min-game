@@ -11,15 +11,15 @@ const Fixed World::TileW(16);
 const Fixed World::TileH(16);
 const Vec2 World::TileSz(TileW, TileH);
 
-World::TerrainType::TerrainType() {
-	t.resize(255);
-	t['g'] = Terrain('g', 0);
-	t['w'] = Terrain('w', 1);
-	t['m'] = Terrain('m', 2);
-	t['f'] = Terrain('f', 3);
-	t['d'] = Terrain('d', 4);
-	t['i'] = Terrain('i', 5);
-
+World::TerrainType::TerrainType()
+	: t({
+		{ 'g', 0 },
+		{ 'w', 1 },
+		{ 'm', 2 },
+		{ 'f', 3 },
+		{ 'd', 4 },
+		{ 'i', 5 },
+	}){
 	auto f = std::unique_ptr<Font>(LoadFont("resrc/retganon.ttf", 12, 128, 128, 128));
 	htImg.resize(World::MaxHeight+1);
 	for (int i = 0; i <= World::MaxHeight; i++)
@@ -49,7 +49,7 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)) {
 			throw Failure("Location %u has invalid height %d", i, h);
 		if (d < 0 || d > h)
 			throw Failure("Location %u of height %d has invalid depth %d", i, h, d);
-		if (!terrain[c].ch)
+		if (!terrain.contains(c))
 			throw Failure("Unknown terrain type %c", c);
 		locs[i].height = h;
 		locs[i].depth = d;
@@ -73,7 +73,7 @@ void World::Draw(Ui &ui) {
 		int xcoord = (x - offs.x/TileW).whole();
 		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		ui.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain].tile, l.Shade());
+		ui.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain], l.Shade());
 	}
 	}
 	offs.x %= TileW;
