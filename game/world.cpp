@@ -5,7 +5,7 @@
 #include "ui.hpp"
 #include <limits>
 
-static char *readLine(FILE*);
+static std::string readLine(FILE*);
 
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
@@ -27,7 +27,7 @@ World::TerrainType::TerrainType()
 }
 
 World::World(FILE *in) : size(Fixed(0), Fixed(0)) {
-	int n = sscanf(readLine(in), "%d %d\n", &width, &height);
+	int n = sscanf(readLine(in).c_str(), "%d %d\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
 	if (width <= 0 || height <= 0)
@@ -41,10 +41,10 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)) {
 	for (int i = 0; i < width*height; i++) {
 		char c;
 		int h, d;
-		char *line = readLine(in);
-		n = sscanf(line, " %c %d %d", &c, &h, &d);
+		auto line = readLine(in);
+		n = sscanf(line.c_str(), " %c %d %d", &c, &h, &d);
 		if (n != 3)
-			throw Failure("Failed to read a location %u,line [%s]", i, line);
+			throw Failure("Failed to read a location %u,line [%s]", i, line.c_str());
 		if (h > MaxHeight || h < 0)
 			throw Failure("Location %u has invalid height %d", i, h);
 		if (d < 0 || d > h)
@@ -56,7 +56,7 @@ World::World(FILE *in) : size(Fixed(0), Fixed(0)) {
 		locs[i].terrain = c;
 	}
 
-	n = sscanf(readLine(in), " %d %d", &x0, &y0);
+	n = sscanf(readLine(in).c_str(), " %d %d", &x0, &y0);
 	if (n != 2)
 		throw Failure("Failed to read the start location");
 }
@@ -110,7 +110,7 @@ float World::Loc::Shade() const{
 	return slope*(this->height - this->depth) + minSh;
 }
 
-static char *readLine(FILE *in) {
+static std::string readLine(FILE *in) {
 	static char line[4096];
 	for (;;) {
 		if (fgets(line, sizeof(line), in) == NULL) {
