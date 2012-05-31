@@ -110,7 +110,7 @@ struct Font{
 	virtual ~Font() = 0;
 
 	// Render renders the given text to an image using this font.
-	virtual Img *Render(const char*, ...) = 0;
+	virtual Img *Render(const std::string&) = 0;
 };
 
 // LoadFont loads a font from a file with the given size and color.
