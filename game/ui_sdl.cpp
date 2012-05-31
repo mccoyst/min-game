@@ -308,9 +308,7 @@ int KeyHandler::KeysDown(){
 }
 
 bool KeyHandler::IsPressed(int i){
-	if(i >= 0 && i < Event::NumKeys)
-		return keyState[i];
-	else return false;
+	return i >= 0 && i < Event::NumKeys && keyState[i];
 }
 
 int KeyHandler::ActiveKey(){
