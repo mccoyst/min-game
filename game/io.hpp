@@ -2,6 +2,7 @@
 #pragma once
 
 #include <ostream>
+#include <sstream>
 #include <string>
 
 std::ostream &cout();
@@ -29,4 +30,11 @@ int printf(std::ostream &out, const std::string &fmt, const Arg &arg, const Args
 		out << "[invalid format specifier \"" << *c << "\"]";
 	c++;
 	return 1 + printf(out, fmt.substr(c-fmt.begin()), args...);
+}
+
+template<class... Args>
+std::string sprintf(const std::string &fmt, const Args&... args){
+	std::ostringstream out;
+	printf(out, fmt, args...);
+	return out.str();
 }

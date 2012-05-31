@@ -2,12 +2,14 @@
 #pragma once
 #include "screen.hpp"
 #include <iosfwd>
+#include <stdexcept>
 class World;
 
-class Failure {
+class Failure : public std::runtime_error{
 public:
-	Failure(const char *, ...);
-	char msg[128];
+	Failure(const std::string &msg)
+		: runtime_error(msg){
+	}
 };
 
 std::ostream &operator << (std::ostream&, const Failure&);

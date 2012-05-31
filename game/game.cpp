@@ -2,19 +2,10 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "ui.hpp"
-#include <cstdarg>
-#include <cstdio>
 #include <ostream>
 
-Failure::Failure(const char *fmt, ...) {
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(msg, sizeof(msg), fmt, ap);
-	va_end(ap);
-}
-
 std::ostream &operator << (std::ostream &out, const Failure &f){
-	return out << f.msg;
+	return out << f.what();
 }
 
 ExploreScreen::ExploreScreen(Ui &win, World &w)

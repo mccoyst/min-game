@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) try{
 
 	return 0;
 
-}catch (const Failure &f) {
-	printf(std::cerr, "Uncaught exception: \"%v\"\n", f);
+}catch (const std::exception &f) {
+	printf(std::cerr, "Uncaught exception: \"%v\"\n", f.what());
 	return 1;
 }
 
