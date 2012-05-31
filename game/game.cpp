@@ -8,19 +8,8 @@ std::ostream &operator << (std::ostream &out, const Failure &f){
 	return out << f.what();
 }
 
-ExploreScreen::ExploreScreen(Ui &win, World &w)
+ExploreScreen::ExploreScreen(World &w)
 	: world(w), mscroll(Vec2::Zero), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
-
-	// center on the initial tile
-	win.MoveCam(Vec2(
-		Fixed(world.x0)*World::TileW - win.width/Fixed(2),
-		Fixed(world.y0)*World::TileH - win.height/Fixed(2)));
-
-	win.InitTiles((win.width/World::TileW).whole() + 2,
-		(win.height/World::TileH).whole() + 3,
-		World::TileW.whole(),
-		World::TileH.whole(),
-		std::unique_ptr<Img>(LoadImg("resrc/tiles.png")));
 }
 
 ExploreScreen::~ExploreScreen() { }
@@ -29,6 +18,16 @@ void ExploreScreen::Update(ScreenStack&) {
 }
 
 void ExploreScreen::Draw(Ui &win) {
+	static bool loadedTiles = false; // BARF we need to find a better way
+	if(!loadedTiles){
+		win.InitTiles((win.width/World::TileW).whole() + 2,
+			(win.height/World::TileH).whole() + 3,
+			World::TileW.whole(),
+			World::TileH.whole(),
+			std::unique_ptr<Img>(LoadImg("resrc/tiles.png")));
+		loadedTiles = true;
+	}
+
 	win.MoveCam(mscroll + scroll*mul);
 	mscroll = Vec2::Zero;
 	win.Clear();
@@ -36,7 +35,7 @@ void ExploreScreen::Draw(Ui &win) {
 	win.Flip();
 }
 
-void ExploreScreen::Handle(ScreenStack&, Event &e) {
+void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 	Fixed amt(0);
 	switch (e.type) {
 	case Event::MouseDown:
@@ -81,6 +80,9 @@ void ExploreScreen::Handle(ScreenStack&, Event &e) {
 				mul = Fixed(5);
 			else
 				mul = Fixed(1);
+		case Event::Action:
+			if(e.type == Event::KeyDown) stk.Pop();
+			break;
 		case Event::None:
 		default:
 			// ignore

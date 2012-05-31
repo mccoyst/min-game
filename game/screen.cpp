@@ -14,8 +14,6 @@ void ScreenStack::Run() {
 	for ( ; ; ) {
 		unsigned long t0 = win.Ticks();
 
-		stk.back()->Draw(win);
-
 		Event event;
 		while (win.PollEvent(event)) {
 			if (event.type == Event::Closed)
@@ -24,6 +22,8 @@ void ScreenStack::Run() {
 			if(stk.empty())
 				return;
 		}
+
+		stk.back()->Draw(win);
 
 		stk.back()->Update(*this);
 		if(stk.empty())

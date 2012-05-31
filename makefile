@@ -9,6 +9,7 @@ OBJS:=\
 	game/opengl.o\
 	game/ui_sdl.o\
 	game/io.o\
+	game/title.o\
 
 TILES :=\
 	Grass.png\

@@ -360,6 +360,9 @@ int KeyHandler::HandleStroke(SDL_Event &sdle, bool keydown){
 	case SDLK_LSHIFT:
 		key = Event::LShift;
 		break;
+	case SDLK_f:
+		key = Event::Action;
+		break;
 	default:
 		return Event::None;
 	}
