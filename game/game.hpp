@@ -3,6 +3,9 @@
 #include "screen.hpp"
 #include <iosfwd>
 #include <stdexcept>
+
+class Img;
+class Font;
 class World;
 
 class Failure : public std::runtime_error{
@@ -22,14 +25,10 @@ public:
 		ScrollSpd = 10,
 	};
 
-	ExploreScreen(Ui &, World &);
-
+	ExploreScreen(World &);
 	virtual ~ExploreScreen();
-
 	virtual void Update(ScreenStack&);
-
 	virtual void Draw(Ui &);
-
 	virtual void Handle(ScreenStack&, Event&);
 
 private:
@@ -38,4 +37,16 @@ private:
 	Fixed mul;
 	int x0, y0;
 	bool drag;
+};
+
+class Title : public Screen{
+	std::unique_ptr<Font> menu;
+	std::unique_ptr<Img> title, start, copyright;
+	std::unique_ptr<World> world;
+	bool loading;
+public:
+	Title();
+	virtual void Update(ScreenStack&);
+	virtual void Draw(Ui&);
+	virtual void Handle(ScreenStack&, Event&);
 };

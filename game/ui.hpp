@@ -106,7 +106,8 @@ public:
 Img *LoadImg(const std::string &);
 
 // Font describes a text font, color, etc.
-struct Font{
+class Font{
+public:
 	virtual ~Font() = 0;
 
 	// Render renders the given text to an image using this font.
@@ -139,6 +140,7 @@ struct Event {
 		RightArrow,
 		LShift,
 		RShift,
+		Action,
 
 		NumKeys,
 	};

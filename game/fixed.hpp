@@ -191,7 +191,8 @@ inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
 }
 
-inline Vec2::Vec2(){
+inline Vec2::Vec2()
+	: x(0), y(0){
 }
 
 inline Vec2::Vec2(Fixed x, Fixed y)
