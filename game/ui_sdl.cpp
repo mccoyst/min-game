@@ -97,10 +97,10 @@ Ui::Ui(Fixed w, Fixed h, const std::string &title)
 
 	int imgflags = IMG_INIT_PNG;
 	if ((IMG_Init(imgflags) & imgflags) != imgflags)
-		throw Failure("Failed to initialize png support: %s", IMG_GetError());
+		throw Failure("Failed to initialize png support: " + std::string(IMG_GetError()));
 
 	if (TTF_Init() == -1)
-		throw Failure("Failed to initialize SDL_ttf: %s", TTF_GetError());
+		throw Failure("Failed to initialize SDL_ttf: " + std::string(TTF_GetError()));
 }
 
 Ui::~Ui(){
@@ -273,7 +273,7 @@ SdlFont::SdlFont(const std::string &path, int sz, char _r, char _g, char _b)
 		: r(_r), g(_g), b(_b) {
 	font = TTF_OpenFont(path.c_str(), sz);
 	if (!font)
-		throw Failure("Failed to load font %s: %s", path.c_str(), TTF_GetError());
+		throw Failure("Failed to load font " + path + ": " + TTF_GetError());
 }
 
 SdlFont::~SdlFont() {
@@ -293,7 +293,7 @@ Img *SdlFont::Render(const char *fmt, ...) {
 	c.b = b;
 	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s, c);
 	if (!surf)
-		throw Failure("Failed to render text: %s", TTF_GetError());
+		throw Failure("Failed to render text: " + std::string(TTF_GetError()));
 
 	Img *img = new SdlImg(surf);
 	SDL_FreeSurface(surf);
@@ -303,7 +303,7 @@ Img *SdlFont::Render(const char *fmt, ...) {
 Img *LoadImg(const std::string &path) {
 	SDL_Surface *surf = IMG_Load(path.c_str());
 	if (!surf)
-		throw Failure("Failed to load image %s", path.c_str());
+		throw Failure("Failed to load image " + path);
 	Img *img = new SdlImg(surf);
 	SDL_FreeSurface(surf);
 	return img;

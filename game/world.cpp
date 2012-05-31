@@ -1,8 +1,8 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "world.hpp"
-#include "fixed.hpp"
 #include "game.hpp"
-#include "ui.hpp"
+#include "io.hpp"
+#include <string>
 #include <istream>
 #include <limits>
 
@@ -32,9 +32,9 @@ World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 	if (n != 2)
 		throw Failure("Failed to read width and height");
 	if (width <= 0 || height <= 0)
-		throw Failure("%d by %d is an invalid world size", width, height);
+		throw Failure(sprintf("%v by %v is an invalid world size", width, height));
 	if (std::numeric_limits<int>::max() / width < height)
-		throw Failure("%d by %d is too big", width, height);
+		throw Failure(sprintf("%v by %v is too big", width, height));
 
 	size = Vec2(Fixed(width), Fixed(height));
 
@@ -45,13 +45,13 @@ World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 		auto line = readLine(in);
 		n = sscanf(line.c_str(), " %c %d %d", &c, &h, &d);
 		if (n != 3)
-			throw Failure("Failed to read a location %u,line [%s]", i, line.c_str());
+			throw Failure(sprintf("Failed to read a location %v,line [%v]", i, line));
 		if (h > MaxHeight || h < 0)
-			throw Failure("Location %u has invalid height %d", i, h);
+			throw Failure(sprintf("Location %v has invalid height %v", i, h));
 		if (d < 0 || d > h)
-			throw Failure("Location %u of height %d has invalid depth %d", i, h, d);
+			throw Failure(sprintf("Location %v of height %v has invalid depth %v", i, h, d));
 		if (!terrain.contains(c))
-			throw Failure("Unknown terrain type %c", c);
+			throw Failure(sprintf("Unknown terrain type %v", c));
 		locs[i].height = h;
 		locs[i].depth = d;
 		locs[i].terrain = c;
