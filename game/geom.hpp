@@ -4,7 +4,6 @@
 #include "world.hpp"
 #include "ui.hpp"
 #include <vector>
-#include <cassert>
 
 // An Isection holds information about an intersection.
 class Isection {
