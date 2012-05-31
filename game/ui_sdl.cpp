@@ -371,14 +371,14 @@ int KeyHandler::HandleStroke(SDL_Event &sdle, bool keydown){
 }
 
 void KeyHandler::PollKeyboard(){
-	Uint8 *keystate = SDL_GetKeyState(NULL);
+	Uint8 *sdlkeys = SDL_GetKeyState(NULL);
 
-	keyState[Event::LShift] = keystate[SDLK_LSHIFT];
-	keyState[Event::RShift] = keystate[SDLK_RSHIFT];
-	keyState[Event::RightArrow] = keystate[SDLK_RIGHT];
-	keyState[Event::LeftArrow] = keystate[SDLK_LEFT];
-	keyState[Event::UpArrow] = keystate[SDLK_UP];
-	keyState[Event::DownArrow] = keystate[SDLK_DOWN];
+	keyState[Event::LShift] = sdlkeys[SDLK_LSHIFT];
+	keyState[Event::RShift] = sdlkeys[SDLK_RSHIFT];
+	keyState[Event::RightArrow] = sdlkeys[SDLK_RIGHT];
+	keyState[Event::LeftArrow] = sdlkeys[SDLK_LEFT];
+	keyState[Event::UpArrow] = sdlkeys[SDLK_UP];
+	keyState[Event::DownArrow] = sdlkeys[SDLK_DOWN];
 }
 
 void KeyHandler::FixStack(){
