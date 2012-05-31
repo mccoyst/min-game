@@ -385,8 +385,8 @@ void KeyHandler::PollKeyboard(){
 
 void KeyHandler::FixStack(){
 	//assumes that the keyState array is correct
-	while ((not pressedOrder.empty()) &&
-	       (not keyState[pressedOrder.top()]))
+	while(not pressedOrder.empty() &&
+	       not keyState[pressedOrder.top()])
 	       pressedOrder.pop();
 }
 
