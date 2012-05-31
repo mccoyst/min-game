@@ -300,7 +300,7 @@ Img *LoadImg(const std::string &path) {
 }
 
 Font *LoadFont(const std::string &path, int sz, char r, char g, char b) {
-	return new SdlFont(path.c_str(), sz, r, g, b);
+	return new SdlFont(path, sz, r, g, b);
 }
 
 int KeyHandler::KeysDown(){
