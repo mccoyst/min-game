@@ -1,7 +1,7 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "screen.hpp"
+#include "io.hpp"
 #include <cassert>
-#include <cstdio>
 
 Screen::~Screen() { }
 
@@ -38,7 +38,7 @@ void ScreenStack::Run() {
 }
 
 ScreenStack::~ScreenStack() {
-	fprintf(stdout, "Mean Frame Time: %g msec\n", meanFrame);
+	printf(cout(), "Mean Frame Time: %v msec\n", meanFrame);
 }
 
 void ScreenStack::Push(std::shared_ptr<Screen> s) {

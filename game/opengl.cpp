@@ -2,7 +2,6 @@
 #include "opengl.hpp"
 #include "game.hpp"
 #include <SDL_opengl.h>
-#include <cstring>
 #include <cassert>
 
 OpenGLUi::OpenGLUi(Fixed width, Fixed height) {
