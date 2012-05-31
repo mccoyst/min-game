@@ -389,7 +389,5 @@ void KeyHandler::FixStack(){
 }
 
 bool KeyHandler::IsStackable(int k){
-	if (k == Event::LShift || k == Event::RShift)
-		return false;
-	return true;
+	return k != Event::LShift && k != Event::RShift;
 }
