@@ -24,7 +24,7 @@ World::TerrainType::TerrainType()
 	auto f = std::unique_ptr<Font>(LoadFont("resrc/retganon.ttf", 12, 128, 128, 128));
 	htImg.resize(World::MaxHeight+1);
 	for (int i = 0; i <= World::MaxHeight; i++)
-		htImg[i] = std::unique_ptr<Img>(f->Render("%d", i));
+		htImg[i] = std::unique_ptr<Img>(f->Render(std::to_string(i)));
 }
 
 World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {

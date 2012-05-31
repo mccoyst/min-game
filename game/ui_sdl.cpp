@@ -6,10 +6,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <cstdarg>
-#include <cstddef>
 #include <cassert>
-#include <cstdio>
 #include <stack>
 #include <utility>
 
@@ -29,8 +26,8 @@ public:
 	//handles a single Key Stroke
 	int HandleStroke(SDL_Event &sdle, bool keydown);
 
-	//prints english thing for key
-	void PrintKey(int k);
+	//returns english thing for key
+	std::string KeyName(int k);
 
 private:
 	bool keyState[Event::NumKeys];
@@ -68,7 +65,7 @@ struct SdlFont : public Font {
 
 	SdlFont(const std::string&, int, char, char, char);
 	virtual ~SdlFont();
-	virtual Img *Render(const char*, ...);
+	virtual Img *Render(const std::string&);
 };
 
 static SDL_Surface *init_sdl(Fixed w, Fixed h){
@@ -280,18 +277,12 @@ SdlFont::~SdlFont() {
 	TTF_CloseFont(font);
 }
 
-Img *SdlFont::Render(const char *fmt, ...) {
-	char s[256];
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(s, sizeof(s), fmt, ap);
-	va_end(ap);
-
+Img *SdlFont::Render(const std::string &s) {
 	SDL_Color c;
 	c.r = r;
 	c.g = g;
 	c.b = b;
-	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s, c);
+	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s.c_str(), c);
 	if (!surf)
 		throw Failure("Failed to render text: " + std::string(TTF_GetError()));
 
@@ -330,30 +321,23 @@ int KeyHandler::ActiveKey(){
 		return pressedOrder.top();
 }
 
-void KeyHandler::PrintKey(int k){
+std::string KeyHandler::KeyName(int k){
 	switch (k){
 	case Event::UpArrow:
-		fprintf(stderr, "UP\n");
-		break;
+		return "UP";
 	case Event::DownArrow:
-		fprintf(stderr, "DOWN\n");
-		break;
+		return "DOWN";
 	case Event::LeftArrow:
-		fprintf(stderr, "LEFT\n");
-		break;
+		return "LEFT";
 	case Event::RightArrow:
-		fprintf(stderr, "RIGHT\n");
-		break;
+		return "RIGHT";
 	case Event::LShift:
 	case Event::RShift:
-		fprintf(stderr, "SHIFT\n");
-		break;
+		return "SHIFT";
 	case Event::None:
-		fprintf(stderr, "No Key!\n");
-		break;
+		return "No Key!";
 	default:
-		fprintf(stderr, "Invalid Key!\n");
-		break;
+		return "Invalid Key!";
 	}
 }
 
