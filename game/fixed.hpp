@@ -12,10 +12,6 @@ public:
 	constexpr Fixed(int n, int frac);
 	constexpr Fixed(const Fixed&);
 
-	// Between returns true if the 3rd argument is
-	// between the first two.
-	static bool Between(Fixed, Fixed, Fixed);
-
 	Fixed &operator = (Fixed);
 	Fixed &operator += (Fixed);
 	Fixed &operator -= (Fixed);
@@ -85,10 +81,6 @@ constexpr Fixed::Fixed(int n, int frac)
 
 constexpr Fixed::Fixed(const Fixed &b)
 	: n(b.n){
-}
-
-static inline bool Between(Fixed min, Fixed max, Fixed x) {
-	return x >= min && x <= max;
 }
 
 inline Fixed &Fixed::operator = (Fixed b){
