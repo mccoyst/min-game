@@ -9,7 +9,7 @@ std::ostream &operator << (std::ostream &out, const Failure &f){
 }
 
 ExploreScreen::ExploreScreen(World &w)
-	: world(w), mscroll(Vec2::Zero), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false),
+	: world(w), mul(1), x0(0), y0(0), drag(false),
 	view((ScreenDims.x/World::TileW).whole() + 2,
 		(ScreenDims.y/World::TileH).whole() + 3,
 		World::TileW.whole(),
@@ -24,7 +24,7 @@ void ExploreScreen::Update(ScreenStack&) {
 
 void ExploreScreen::Draw(Ui &win) {
 	win.MoveCam(mscroll + scroll*mul);
-	mscroll = Vec2::Zero;
+	mscroll = Vec2{};
 	win.Clear();
 	world.Draw(win, view);
 	win.Flip();
@@ -34,7 +34,7 @@ void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 	Fixed amt(0);
 	switch (e.type) {
 	case Event::MouseDown:
-		scroll = Vec2::Zero;
+		scroll = Vec2{};
 		drag = true;
 		x0 = e.x;
 		y0 = e.y;
