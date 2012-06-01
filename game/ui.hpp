@@ -88,10 +88,17 @@ public:
 };
 
 struct Color {
-	Color(unsigned char r, unsigned char g, unsigned char b,
+	constexpr Color(unsigned char r, unsigned char g, unsigned char b,
 		unsigned char a = 255) : r(r), g(g), b(b), a(a) { }
 	unsigned char r, g, b, a;
 };
+
+constexpr Color Black{ 255, 255, 255 };
+constexpr Color Gray{ 128, 128, 128 };
+constexpr Color White{ 0, 0, 0 };
+constexpr Color Red{ 255, 0, 0 };
+constexpr Color Green{ 0, 255, 0 };
+constexpr Color Blue{ 0, 0, 255 };
 
 // Img is the interface to a 2D image.
 class Img{
@@ -115,7 +122,7 @@ public:
 };
 
 // LoadFont loads a font from a file with the given size and color.
-Font *LoadFont(const std::string&, int, char, char, char);
+Font *LoadFont(const std::string&, int, Color);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.
