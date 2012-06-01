@@ -90,7 +90,7 @@ public:
 	// minimum point is within the rectangle defined by the
 	// point 0,0 and the given size.
 	void WrapMin(const Vec2 &sz) {
-		if (min >= Vec2::Zero && min < Vec2::Zero + sz)
+		if (min >= Vec2{} && min < Vec2{} + sz)
 			return;
 
 		if (min.x < Fixed(0))
@@ -110,7 +110,7 @@ public:
 	void WrapMax(const Vec2 &sz) {
 		Vec2 max = min + sz;
 
-		if (max >= Vec2::Zero && max < Vec2::Zero + sz)
+		if (max >= Vec2{} && max < Vec2{} + sz)
 			return;
 
 		if (max.x < Fixed(0))
@@ -129,10 +129,10 @@ public:
 	// Wraps returns true if the given bounding box would wrap
 	// around the rectangle defined by 0,0 and the given size.
 	bool Wraps(const Vec2 &sz) const {
-		if (min < Vec2::Zero || min >= Vec2::Zero + sz)
+		if (min < Vec2{} || min >= Vec2{} + sz)
 			return true;
 		Vec2 max = min + sz;
-		return max < Vec2::Zero && max >= Vec2::Zero + sz;
+		return max < Vec2{} && max >= Vec2{} + sz;
 	}
 
 	// Draw draws the bounding box outline.

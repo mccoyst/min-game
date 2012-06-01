@@ -56,8 +56,6 @@ public:
 	Vec2 &operator -= (const Vec2&);
 	Vec2 &operator *= (Fixed);
 	Vec2 &operator /= (Fixed);
-
-	static const Vec2 Zero;
 };
 
 Vec2 operator + (Vec2, const Vec2&);
@@ -273,4 +271,3 @@ inline bool operator > (const Vec2 &a, const Vec2& b) {
 inline bool operator >= (const Vec2 &a, const Vec2& b) {
 	return a.x >= b.x && a.y >= b.y;
 }
-

@@ -1,7 +1,6 @@
 # Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 OBJS:=\
 	game/main.o\
-	game/fixed.o\
 	game/game.o\
 	game/world.o\
 	game/ui.o\
