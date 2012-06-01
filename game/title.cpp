@@ -18,7 +18,7 @@ Title::Title()
 void Title::Update(ScreenStack &stk){
 	if(loading){
 		world.reset(new World(std::cin));
-		stk.Push(std::make_shared<ExploreScreen>(*world.get()));
+		stk.Push(std::shared_ptr<ExploreScreen>(new ExploreScreen(*world.get())));
 		loading = false;
 	}
 }

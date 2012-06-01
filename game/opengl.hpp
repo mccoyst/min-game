@@ -14,25 +14,7 @@ public:
 	void FillRect(const Vec2&, const Vec2&, const Color&);
 	void DrawRect(const Vec2&, const Vec2&, const Color&);
 	void Draw(const Vec2&, Img*, float shade = 1);
-
-	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>&&);
-
-	void SetTile(int x, int y, int tile, float shade) {
-		tiles.at(x * sheeth + y) = tile;
-		shades.at(x * sheeth + y) = shade;
-	}
-
-	void DrawTiles(const Vec2&);
-
-private:
-	std::unique_ptr<Img> tileImgs;
-	int sheetw, sheeth, tilew, tileh;
-
-	// Tile associated with each x,y.
-	std::vector<int> tiles;
-
-	// The shade associated with each x,y.
-	std::vector<float> shades;
+	void Draw(const Vec2&, const TileView&);
 };
 
 class OpenGLImg : public Img {

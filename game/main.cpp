@@ -17,8 +17,7 @@ static void parseArgs(int, char*[]);
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
-	Fixed width(800), height(600);
-	Ui win (width, height, "Minima");
+	Ui win (ScreenDims.x, ScreenDims.y, "Minima");
 
 	ScreenStack stk(win, std::shared_ptr<Screen>(new Title()));
 	stk.Run();

@@ -9,6 +9,7 @@ class Ui;
 class Img;
 struct Color;
 struct Event;
+class TileView;
 
 // Ui is the interface to a user interface window, including graphics,
 // device input, and sound.
@@ -48,14 +49,8 @@ public:
 	// 1 (light).
 	void Draw(const Vec2&, Img*, float shade = 1);
 
-	// InitTiles initializes the tiles sheet.
-	void InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img>&&);
-
-	// SetTile sets the tile image and shade for the given tile.
-	void SetTile(int x, int y, int tile, float shade);
-
-	// DrawTiles draws the tiles at the given offset.
-	void DrawTiles(const Vec2&);
+	// Draw draws the tiles at the given offset.
+	void Draw(const Vec2&, const TileView&);
 
 	// MoveCam adds v to the camera's current position.
 	void MoveCam(Vec2 v);
@@ -85,6 +80,18 @@ public:
 	// event was filled in and false if there were no
 	// events.
 	bool PollEvent(Event&);
+};
+
+class TileView{
+public:
+	struct Impl;
+	std::unique_ptr<Impl> impl;
+
+	TileView(int w, int h, int tw, int th, std::unique_ptr<Img> &&img);
+	~TileView();
+
+	// SetTile sets the tile image and shade for the given tile.
+	void SetTile(int x, int y, int tile, float shade);
 };
 
 struct Color {
