@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include <SDL_opengl.h>
 #include <cassert>
+#include <utility>
 
 OpenGLUi::OpenGLUi(Fixed width, Fixed height) {
 	glEnable(GL_TEXTURE_2D);
@@ -86,49 +87,71 @@ void OpenGLUi::Draw(const Vec2 &l, Img *_img, float shade) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void OpenGLUi::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> &&img) {
-	tileImgs.swap(img);
-	sheetw = w;
-	sheeth = h;
-	tilew = tw;
-	tileh = th;
+struct TileView::Impl{
+	std::unique_ptr<Img> tileImgs;
+	int sheetw, sheeth, tilew, tileh;
+
+	// Tile associated with each x,y.
+	std::vector<int> tiles;
+
+	// The shade associated with each x,y.
+	std::vector<float> shades;
+
+	Impl(int w, int h, int tw, int th, std::unique_ptr<Img> &&img);
+};
+
+TileView::TileView(int w, int h, int tw, int th, std::unique_ptr<Img> &&img)
+	: impl(new Impl(w, h, tw, th, std::move(img))){
+}
+
+TileView::~TileView(){
+}
+
+void TileView::SetTile(int x, int y, int tile, float shade) {
+	impl->tiles.at(x * impl->sheeth + y) = tile;
+	impl->shades.at(x * impl->sheeth + y) = shade;
+}
+
+TileView::Impl::Impl(int w, int h, int tw, int th, std::unique_ptr<Img> &&img)
+	: tileImgs(std::move(img)), sheetw(w), sheeth(h), tilew(tw), tileh(th){
 	tiles.resize(w*h);
 	shades.resize(w*h);
 }
 
-void OpenGLUi::DrawTiles(const Vec2 &offs) {
+void OpenGLUi::Draw(const Vec2 &offs, const TileView &tv) {
+	auto view = tv.impl.get();
 	int xoff = offs.x.whole(), yoff = offs.y.whole();
-	double tilesWidth = tileImgs->Size().x.whole();
+	double tilesWidth = view->tileImgs->Size().x.whole();
 
 	glBindTexture(GL_TEXTURE_2D,
-		static_cast<OpenGLImg*>(tileImgs.get())->texid);
+		static_cast<OpenGLImg*>(view->tileImgs.get())->texid);
 	glDisable(GL_BLEND);
 
 	glBegin(GL_QUADS);
 
-	for (int x = 0; x < sheetw; x++) {
-	for (int y = 0; y < sheeth; y++) {
-		float sh = shades.at(x * sheeth + y);
+	for (int x = 0; x < view->sheetw; x++) {
+	for (int y = 0; y < view->sheeth; y++) {
+		float sh = view->shades.at(x * view->sheeth + y);
 		glColor4f(sh, sh, sh, 1);
 
-		double t0 = tiles.at(x * sheeth + y)*tilew / tilesWidth;
-		double t1 = t0 + tilew/tilesWidth;
+		double t0 = view->tiles.at(x * view->sheeth + y)*view->tilew / tilesWidth;
+		double t1 = t0 + view->tilew/tilesWidth;
 		assert (t0 >= 0);
 		assert (t0 <= 1);
 		assert (t1 >= 0);
 		assert (t1 <= 1);
 
 		glTexCoord2d(t0, 1);
-		glVertex3f(x*tilew+xoff, y*tileh+yoff, 0);
+		glVertex3f(x*view->tilew+xoff, y*view->tileh+yoff, 0);
 
 		glTexCoord2d(t1, 1);
-		glVertex3f((x+1)*tilew+xoff, y*tileh+yoff, 0);
+		glVertex3f((x+1)*view->tilew+xoff, y*view->tileh+yoff, 0);
 
 		glTexCoord2d(t1, 0);
-		glVertex3f((x+1)*tilew+xoff, (y+1)*tileh+yoff, 0);
+		glVertex3f((x+1)*view->tilew+xoff, (y+1)*view->tileh+yoff, 0);
 
 		glTexCoord2d(t0, 0);
-		glVertex3f(x*tilew+xoff, (y+1)*tileh+yoff, 0);
+		glVertex3f(x*view->tilew+xoff, (y+1)*view->tileh+yoff, 0);
 	}
 	}
 

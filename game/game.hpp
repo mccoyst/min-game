@@ -8,6 +8,8 @@ class Img;
 class Font;
 class World;
 
+constexpr Vec2 ScreenDims{ Fixed{800}, Fixed{600} };
+
 class Failure : public std::runtime_error{
 public:
 	Failure(const std::string &msg)
@@ -37,6 +39,7 @@ private:
 	Fixed mul;
 	int x0, y0;
 	bool drag;
+	TileView view;
 };
 
 class Title : public Screen{

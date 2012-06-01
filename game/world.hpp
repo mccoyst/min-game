@@ -55,7 +55,7 @@ public:
 	World(std::istream&);
 
 	// Draw draws the world to the given window.
-	void Draw(Ui &);
+	void Draw(Ui &, TileView &);
 
 	// at returns the location at the given x,y in the grid.
 	//

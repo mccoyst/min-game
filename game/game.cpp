@@ -9,7 +9,12 @@ std::ostream &operator << (std::ostream &out, const Failure &f){
 }
 
 ExploreScreen::ExploreScreen(World &w)
-	: world(w), mscroll(Vec2::Zero), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false) {
+	: world(w), mscroll(Vec2::Zero), scroll(Vec2::Zero), mul(1), x0(0), y0(0), drag(false),
+	view((ScreenDims.x/World::TileW).whole() + 2,
+		(ScreenDims.y/World::TileH).whole() + 3,
+		World::TileW.whole(),
+		World::TileH.whole(),
+		std::unique_ptr<Img>(LoadImg("resrc/tiles.png"))){
 }
 
 ExploreScreen::~ExploreScreen() { }
@@ -18,20 +23,10 @@ void ExploreScreen::Update(ScreenStack&) {
 }
 
 void ExploreScreen::Draw(Ui &win) {
-	static bool loadedTiles = false; // BARF we need to find a better way
-	if(!loadedTiles){
-		win.InitTiles((win.width/World::TileW).whole() + 2,
-			(win.height/World::TileH).whole() + 3,
-			World::TileW.whole(),
-			World::TileH.whole(),
-			std::unique_ptr<Img>(LoadImg("resrc/tiles.png")));
-		loadedTiles = true;
-	}
-
 	win.MoveCam(mscroll + scroll*mul);
 	mscroll = Vec2::Zero;
 	win.Clear();
-	world.Draw(win);
+	world.Draw(win, view);
 	win.Flip();
 }
 

@@ -62,7 +62,7 @@ World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 		throw Failure("Failed to read the start location");
 }
 
-void World::Draw(Ui &ui) {
+void World::Draw(Ui &ui, TileView &view) {
 	extern bool drawHeights;
 
 	Fixed w(ui.width / TileW);
@@ -74,12 +74,12 @@ void World::Draw(Ui &ui) {
 		int xcoord = (x - offs.x/TileW).whole();
 		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		ui.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain], l.Shade());
+		view.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain], l.Shade());
 	}
 	}
 	offs.x %= TileW;
 	offs.y %= TileH;
-	ui.DrawTiles(offs - Vec2(TileW, TileH));
+	ui.Draw(offs - Vec2(TileW, TileH), view);
 
 	if (!drawHeights)
 		return;

@@ -118,16 +118,8 @@ void Ui::Draw(const Vec2 &p, Img *img, float shade){
 	impl->gl.Draw(p, img, shade);
 }
 
-void Ui::InitTiles(int w, int h, int tw, int th, std::unique_ptr<Img> &&img){
-	impl->gl.InitTiles(w, h, tw, th, std::move(img));
-}
-
-void Ui::SetTile(int x, int y, int tile, float shade){
-	impl->gl.SetTile(x, y, tile, shade);
-}
-
-void Ui::DrawTiles(const Vec2 &p){
-	impl->gl.DrawTiles(p);
+void Ui::Draw(const Vec2 &p, const TileView &tv){
+	impl->gl.Draw(p, tv);
 }
 
 void Ui::MoveCam(Vec2 v){
