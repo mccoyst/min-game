@@ -60,9 +60,9 @@ struct SdlImg : public OpenGLImg {
 
 struct SdlFont : public Font {
 	TTF_Font *font;
-	char r, g, b;
+	Color color;
 
-	SdlFont(const std::string&, int, char, char, char);
+	SdlFont(const std::string&, int, Color);
 	virtual ~SdlFont();
 	virtual Img *Render(const std::string&);
 };
@@ -265,8 +265,8 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
 }
 
-SdlFont::SdlFont(const std::string &path, int sz, char _r, char _g, char _b)
-		: r(_r), g(_g), b(_b) {
+SdlFont::SdlFont(const std::string &path, int sz, Color c)
+		: color(c) {
 	font = TTF_OpenFont(path.c_str(), sz);
 	if (!font)
 		throw Failure("Failed to load font " + path + ": " + TTF_GetError());
@@ -277,10 +277,10 @@ SdlFont::~SdlFont() {
 }
 
 Img *SdlFont::Render(const std::string &s) {
-	SDL_Color c;
-	c.r = r;
-	c.g = g;
-	c.b = b;
+	SDL_Color c{};
+	c.r = color.r;
+	c.g = color.g;
+	c.b = color.b;
 	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s.c_str(), c);
 	if (!surf)
 		throw Failure("Failed to render text: " + std::string(TTF_GetError()));
@@ -299,8 +299,8 @@ Img *LoadImg(const std::string &path) {
 	return img;
 }
 
-Font *LoadFont(const std::string &path, int sz, char r, char g, char b) {
-	return new SdlFont(path, sz, r, g, b);
+Font *LoadFont(const std::string &path, int sz, Color c) {
+	return new SdlFont(path, sz, c);
 }
 
 int KeyHandler::KeysDown(){
