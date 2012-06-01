@@ -7,10 +7,10 @@ class Fixed{
 public:
 	enum{ Scale = 16 };
 
-	Fixed();
-	explicit Fixed(int n);
-	Fixed(int n, int frac);
-	Fixed(const Fixed&);
+	constexpr Fixed();
+	constexpr explicit Fixed(int n);
+	constexpr Fixed(int n, int frac);
+	constexpr Fixed(const Fixed&);
 
 	// Between returns true if the 3rd argument is
 	// between the first two.
@@ -25,8 +25,8 @@ public:
 	Fixed &operator ++ ();
 	Fixed &operator -- ();
 
-	int value() const;
-	int whole() const;
+	constexpr int value() const;
+	constexpr int whole() const;
 };
 
 Fixed operator - (Fixed);
@@ -47,9 +47,9 @@ class Vec2{
 public:
 	Fixed x, y;
 
-	Vec2();
-	Vec2(Fixed x, Fixed y);
-	Vec2(const Vec2 &);
+	constexpr Vec2();
+	constexpr Vec2(Fixed x, Fixed y);
+	constexpr Vec2(const Vec2 &);
 
 	Vec2 &operator = (const Vec2&);
 	Vec2 &operator += (const Vec2&);
@@ -73,18 +73,19 @@ bool operator >= (const Vec2&, const Vec2&);
 
 // Template and other inline definitions reside below.
 
-inline Fixed::Fixed(){
+constexpr Fixed::Fixed()
+	: n(0){
 }
 
-inline Fixed::Fixed(int n)
+constexpr Fixed::Fixed(int n)
 	: n(n*Scale){
 }
 
-inline Fixed::Fixed(int n, int frac)
+constexpr Fixed::Fixed(int n, int frac)
 	: n(n*Scale + frac){
 }
 
-inline Fixed::Fixed(const Fixed &b)
+constexpr Fixed::Fixed(const Fixed &b)
 	: n(b.n){
 }
 
@@ -135,11 +136,11 @@ inline Fixed &Fixed::operator -- (){
 	return *this -= Fixed(1);
 }
 
-inline int Fixed::value() const{
+constexpr int Fixed::value() const{
 	return this->n;
 }
 
-inline int Fixed::whole() const{
+constexpr int Fixed::whole() const{
 	return this->n / Scale;
 }
 
@@ -191,15 +192,15 @@ inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
 }
 
-inline Vec2::Vec2()
+constexpr Vec2::Vec2()
 	: x(0), y(0){
 }
 
-inline Vec2::Vec2(Fixed x, Fixed y)
+constexpr Vec2::Vec2(Fixed x, Fixed y)
 	: x(x), y(y){
 }
 
-inline Vec2::Vec2(const Vec2 &v)
+constexpr Vec2::Vec2(const Vec2 &v)
 	: x(v.x), y(v.y){
 }
 
