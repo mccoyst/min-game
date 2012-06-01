@@ -93,9 +93,9 @@ struct Color {
 	unsigned char r, g, b, a;
 };
 
-constexpr Color Black{ 255, 255, 255 };
+constexpr Color White{ 255, 255, 255 };
 constexpr Color Gray{ 128, 128, 128 };
-constexpr Color White{ 0, 0, 0 };
+constexpr Color Black{ 0, 0, 0 };
 constexpr Color Red{ 255, 0, 0 };
 constexpr Color Green{ 0, 255, 0 };
 constexpr Color Blue{ 0, 0, 255 };
