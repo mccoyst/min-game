@@ -59,8 +59,9 @@ int fbuf::sync(){
 
 fbuf::int_type fbuf::underflow(){
 	if(this->gptr() < this->egptr()){
+		char c = *this->gptr();
 		this->setg(this->eback(), this->gptr()+1, this->egptr());
-		return traits_type::to_int_type(*this->gptr());
+		return traits_type::to_int_type(c);
 	}
 	size_t n = fread(this->buf, 1, sizeof(this->buf), this->file);
 	if(n == 0)
