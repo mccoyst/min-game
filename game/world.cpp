@@ -6,6 +6,8 @@
 #include <istream>
 #include <limits>
 
+bool drawHeights = false;
+
 static std::string readLine(std::istream&);
 
 const Fixed World::TileW(16);
@@ -63,8 +65,6 @@ World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 }
 
 void World::Draw(Ui &ui, TileView &view) {
-	extern bool drawHeights;
-
 	Fixed w(ui.width / TileW);
 	Fixed h(ui.height / TileH);
 	Vec2 offs = ui.CamPos();
