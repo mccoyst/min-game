@@ -2,8 +2,9 @@
 
 #include "game.hpp"
 #include "world.hpp"
-#include <iostream>
+#include <istream>
 
+extern std::unique_ptr<std::istream> Popen(const std::string&);
 static void loadingText(Ui &, Font*);
 
 Title::Title()
@@ -17,7 +18,8 @@ Title::Title()
 
 void Title::Update(ScreenStack &stk){
 	if(loading){
-		world.reset(new World(std::cin));
+		auto in (Popen("wgen"));
+		world.reset(new World(*in.get()));
 		stk.Push(std::shared_ptr<ExploreScreen>(new ExploreScreen(*world.get())));
 		loading = false;
 	}

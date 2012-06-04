@@ -19,6 +19,7 @@ OBJS:=\
 	ui_sdl.o\
 	io.o\
 	title.o\
+	popen.o\
 
 TILES :=\
 	Grass.png\
