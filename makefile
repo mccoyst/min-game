@@ -1,4 +1,14 @@
 # Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
+
+OS := $(shell uname | sed 's/.*MINGW.*/win/')
+
+TARGS :=\
+	wgen/wgen\
+	wimg/wimg\
+	game/minima\
+	mksheet/mksheet\
+	resrc/tiles.png\
+
 OBJS:=\
 	main.o\
 	game.o\
@@ -18,14 +28,17 @@ TILES :=\
 	Desert.png\
 	Glacier.png\
 
-CXXFLAGS:=-std=c++11 -Wall -O3
-OBJCFLAGS :=
-LDFLAGS:=
+CXXFLAGS :=\
+	-std=c++11\
+	-Wall\
+	-O3\
 
-OS := $(shell uname | sed 's/.*MINGW.*/win/')
+LDFLAGS :=\
 
 ifeq ($(OS),Darwin)
-CXX:=clang++
+
+CXX := clang++
+OBJCC := clang
 
 HEADERFLAGS+=\
 	-I/Library/Frameworks/SDL.framework/Headers\
@@ -41,29 +54,38 @@ LDFLAGS +=\
 	-framework Foundation\
 	-framework Cocoa\
 
-CXXFLAGS += -fno-color-diagnostics -stdlib=libc++ $(HEADERFLAGS)
+CXXFLAGS +=\
+	-fno-color-diagnostics\
+	-stdlib=libc++\
+	$(HEADERFLAGS)\
 
-OBJCFLAGS := $(HEADERFLAGS)
-
-OBJCC := clang
+OBJCFLAGS :=\
+	$(HEADERFLAGS)
 
 OBJS += SDLMain.o
 
 else
 
-CXX:=g++
-LDFLAGS+=-lSDL -lSDL_image -lSDL_ttf -lGLU -lGL
-HEADERFLAGS := -I/usr/include/SDL
-CXXFLAGS+=-Werror -DGL_GLEXT_PROTOTYPES $(HEADERFLAGS)
+CXX := g++
+
+LDFLAGS +=\
+	-lSDL\
+	-lSDL_image\
+	-lSDL_ttf\
+	-lGLU\
+	-lGL\
+
+HEADERFLAGS :=\
+	-I/usr/include/SDL\
+
+CXXFLAGS +=\
+	-Werror\
+	-DGL_GLEXT_PROTOTYPES\
+	$(HEADERFLAGS)\
 
 endif
 
-TARGS :=\
-	wgen/wgen\
-	wimg/wimg\
-	game/minima\
-	mksheet/mksheet\
-	resrc/tiles.png\
+
 
 all: $(TARGS)
 
