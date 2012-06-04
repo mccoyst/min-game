@@ -10,7 +10,7 @@
 
 // drawHeights, when set to true makes the world draw the
 // heigth of each tile on it.
-bool drawHeights;
+extern bool drawHeights;
 
 static void parseArgs(int, char*[]);
 
