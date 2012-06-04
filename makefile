@@ -91,9 +91,10 @@ endif
 
 
 
-all: $(TARGS)
+all: test
 
 fetch:
+	go get -v github.com/mccoyst/runt
 	go get -v $(shell go list ./...)
 
 game/minima: $(OBJS:%=_work/%)
@@ -136,3 +137,8 @@ clean:
 
 nuke: clean
 	rm -f $(TARGS)
+
+
+
+test: $(TARGS)
+	@./runtests $(CXX) $(CXXFLAGS) $(LDFLAGS)
