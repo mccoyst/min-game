@@ -1,14 +1,14 @@
 # Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 OBJS:=\
-	game/main.o\
-	game/game.o\
-	game/world.o\
-	game/ui.o\
-	game/screen.o\
-	game/opengl.o\
-	game/ui_sdl.o\
-	game/io.o\
-	game/title.o\
+	main.o\
+	game.o\
+	world.o\
+	ui.o\
+	screen.o\
+	opengl.o\
+	ui_sdl.o\
+	io.o\
+	title.o\
 
 TILES :=\
 	Grass.png\
@@ -47,7 +47,7 @@ OBJCFLAGS := $(HEADERFLAGS)
 
 OBJCC := clang
 
-OBJS += game/SDLMain.o
+OBJS += SDLMain.o
 
 else
 
@@ -70,7 +70,7 @@ all: $(TARGS)
 fetch:
 	go get -v $(shell go list ./...)
 
-game/minima: $(OBJS)
+game/minima: $(OBJS:%=_work/%)
 	@echo $@
 	@$(CXX) -o $@ $^ $(LDFLAGS)
 
@@ -86,26 +86,27 @@ mksheet/mksheet: mksheet/*.go
 resrc/tiles.png: $(TILES:%=resrc/%)
 	mksheet $^ $@
 
-include $(OBJS:.o=.d)
+include $(OBJS:%.o=_work/%.d)
 
-%.d: %.cpp
+_work/%.d: game/%.cpp
 	@echo $@
 	@./dep.sh $(CXX) $(shell dirname $<) $(CXXFLAGS) $< > $@
 
-%.d: %.m
+_work/%.d: game/%.m
 	@echo $@
 	@./dep.sh $(OBJCC) $(shell dirname $<) $(OBJCFLAGS) $< > $@
 
-%.o: %.cpp
+_work/%.o: game/%.cpp
 	@echo $@
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
-%.o: %.m
+_work/%.o: game/%.m
 	@echo $@
 	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $<
 
 clean:
-	rm -f $(OBJS) $(TARGS)
+	rm -f _work/*.d
+	rm -f _work/*.o
 
 nuke: clean
-	rm -f $(shell find . -not -iwholename \*.hg\* -name \*.d)
+	rm -f $(TARGS)
