@@ -60,6 +60,9 @@ CXXFLAGS +=\
 	$(HEADERFLAGS)\
 
 OBJCFLAGS :=\
+	-Wall\
+	-O3\
+	-Wno-objc-protocol-method-implementation\
 	$(HEADERFLAGS)
 
 OBJS += SDLMain.o
