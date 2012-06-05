@@ -94,8 +94,8 @@ endif
 all: test
 
 fetch:
-	go get -v github.com/mccoyst/runt
-	go get -v $(shell go list ./...)
+	go get -v -u github.com/mccoyst/runt
+	go get -v -u $(shell go list ./...)
 
 game/minima: $(OBJS:%=_work/%)
 	@echo $@
