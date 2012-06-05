@@ -101,15 +101,14 @@ inline Fixed &Fixed::operator -= (Fixed n){
 inline Fixed &Fixed::operator *= (Fixed n){
 	long long m = this->n;
 	m *= n.n;
-	m /= Scale;
-	this->n = m;
+	this->n = m / Scale;
 	return *this;
 }
 
 inline Fixed &Fixed::operator /= (Fixed n){
 	long long m = this->n;
-	m /= n.n;
-	this->n = m * Scale;
+	m *= Scale;
+	this->n = m / n.n;
 	return *this;
 }
 
