@@ -117,7 +117,7 @@ public:
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can
 // be used to draw to the window.
-Img *LoadImg(const std::string &);
+std::unique_ptr<Img> LoadImg(const std::string &);
 
 // Font describes a text font, color, etc.
 class Font{
@@ -129,7 +129,7 @@ public:
 };
 
 // LoadFont loads a font from a file with the given size and color.
-Font *LoadFont(const std::string&, int, Color);
+std::unique_ptr<Font> LoadFont(const std::string&, int, Color);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.

@@ -282,17 +282,17 @@ Img *SdlFont::Render(const std::string &s) {
 	return img;
 }
 
-Img *LoadImg(const std::string &path) {
+std::unique_ptr<Img> LoadImg(const std::string &path) {
 	SDL_Surface *surf = IMG_Load(path.c_str());
 	if (!surf)
 		throw Failure("Failed to load image " + path);
 	Img *img = new SdlImg(surf);
 	SDL_FreeSurface(surf);
-	return img;
+	return std::unique_ptr<Img>(img);
 }
 
-Font *LoadFont(const std::string &path, int sz, Color c) {
-	return new SdlFont(path, sz, c);
+std::unique_ptr<Font> LoadFont(const std::string &path, int sz, Color c) {
+	return std::unique_ptr<Font>(new SdlFont(path, sz, c));
 }
 
 int KeyHandler::KeysDown(){
