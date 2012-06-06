@@ -9,7 +9,7 @@ ExploreScreen::ExploreScreen(World &w)
 		(ScreenDims.y/World::TileH).whole() + 3,
 		World::TileW.whole(),
 		World::TileH.whole(),
-		std::unique_ptr<Img>(LoadImg("resrc/tiles.png"))){
+		LoadImg("resrc/tiles.png")){
 }
 
 ExploreScreen::~ExploreScreen() { }

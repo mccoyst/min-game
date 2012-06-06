@@ -9,7 +9,7 @@ static void loadingText(Ui &, Font*);
 
 Title::Title()
 	: menu(LoadFont("resrc/prstartk.ttf", 12, White)){
-	std::unique_ptr<Font> tfont (LoadFont("resrc/prstartk.ttf", 64, White));
+	auto tfont (LoadFont("resrc/prstartk.ttf", 64, White));
 
 	title.reset(tfont->Render("MINIMA"));
 	start.reset(menu->Render("Press f to Start"));
