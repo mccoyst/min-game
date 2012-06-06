@@ -2,11 +2,6 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "ui.hpp"
-#include <ostream>
-
-std::ostream &operator << (std::ostream &out, const Failure &f){
-	return out << f.what();
-}
 
 ExploreScreen::ExploreScreen(World &w)
 	: world(w), mul(1), x0(0), y0(0), drag(false),
