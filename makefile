@@ -30,7 +30,7 @@ TILES :=\
 	Glacier.png\
 
 CXXFLAGS :=\
-	-std=c++11\
+	-std=c++0x\
 	-Wall\
 	-O3\
 
