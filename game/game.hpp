@@ -1,7 +1,6 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 #include "screen.hpp"
-#include <iosfwd>
 #include <stdexcept>
 
 class Img;
@@ -16,8 +15,6 @@ public:
 		: runtime_error(msg){
 	}
 };
-
-std::ostream &operator << (std::ostream&, const Failure&);
 
 class ExploreScreen : public Screen {
 public:
