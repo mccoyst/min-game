@@ -5,7 +5,6 @@
 #include "io.hpp"
 #include "screen.hpp"
 #include <vector>
-#include <iostream>
 #include <SDL_main.h>
 
 // drawHeights, when set to true makes the world draw the
