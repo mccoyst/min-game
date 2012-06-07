@@ -10,7 +10,6 @@ public:
 	constexpr Fixed();
 	constexpr explicit Fixed(int n);
 	constexpr Fixed(int n, int frac);
-	constexpr Fixed(const Fixed&);
 
 	Fixed &operator = (Fixed);
 	Fixed &operator += (Fixed);
@@ -45,7 +44,6 @@ public:
 
 	constexpr Vec2();
 	constexpr Vec2(Fixed x, Fixed y);
-	constexpr Vec2(const Vec2 &);
 
 	Vec2 &operator = (const Vec2&);
 	Vec2 &operator += (const Vec2&);
@@ -77,10 +75,6 @@ constexpr Fixed::Fixed(int n)
 
 constexpr Fixed::Fixed(int n, int frac)
 	: n(n*Scale + frac){
-}
-
-constexpr Fixed::Fixed(const Fixed &b)
-	: n(b.n){
 }
 
 inline Fixed &Fixed::operator = (Fixed b){
@@ -187,10 +181,6 @@ constexpr Vec2::Vec2()
 
 constexpr Vec2::Vec2(Fixed x, Fixed y)
 	: x(x), y(y){
-}
-
-constexpr Vec2::Vec2(const Vec2 &v)
-	: x(v.x), y(v.y){
 }
 
 inline Vec2 &Vec2::operator = (const Vec2 &v){
