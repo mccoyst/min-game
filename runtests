@@ -11,7 +11,7 @@ if [ "$tests" = 'game/test_*.cpp' ]; then
 	exit
 fi
 
-for t in $tests; {
+for t in $tests; do
 	name=$(echo $t | sed -E 's/([a-zA-Z0-9_]+)\.cpp/\1/')
 	echo Running $name
 	runt $t
@@ -19,4 +19,4 @@ for t in $tests; {
 	./$name || echo Please fix that.
 	rm $t.test.cpp
 	[ -e $name ] && rm $name
-}
+done
