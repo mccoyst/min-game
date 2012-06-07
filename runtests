@@ -11,11 +11,15 @@ if [ "$tests" = 'game/test_*.cpp' ]; then
 	exit
 fi
 
+# Shove the ld args at the end of the command because this world is full of pain
+first_args=$(echo "$@" | sed -E 's/(-l[a-zA-Z0-9_]+)//g')
+ld_args=$(for a in "$@"; do echo "$a" | sed -En 's/(-l[a-zA-Z0-9_]+)/\1/gp'; done)
+
 for t in $tests; do
 	name=$(echo $t | sed -E 's/([a-zA-Z0-9_]+)\.cpp/\1/')
 	echo Running $name
 	runt $t
-	"$@" -o $name $t.test.cpp $objs
+	$first_args -o $name $t.test.cpp $objs $ld_args
 	./$name || echo Please fix that.
 	rm $t.test.cpp
 	[ -e $name ] && rm $name
