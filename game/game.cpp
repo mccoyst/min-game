@@ -70,6 +70,7 @@ void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 				mul = Fixed(5);
 			else
 				mul = Fixed(1);
+			break;
 		case Event::Action:
 			if(e.type == Event::KeyDown) stk.Pop();
 			break;
