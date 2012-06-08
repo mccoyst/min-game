@@ -131,6 +131,8 @@ _work/%.o: game/%.m
 	@echo $@
 	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $<
 
+.PHONY: test clean nuke
+
 clean:
 	rm -f _work/*.d
 	rm -f _work/*.o
@@ -138,7 +140,9 @@ clean:
 nuke: clean
 	rm -f $(TARGS)
 
-
-
 test: $(TARGS)
-	@./runtests $(CXX) $(CXXFLAGS) $(LDFLAGS)
+	@runt "-cxx=$(CXX)"\
+		"-cxxflags=$(CXXFLAGS)"\
+		"-ldflags=$(LDFLAGS)"\
+		-testdir=game\
+		$(filter-out _work/main.o _work/SDLMain.o,$(OBJS:%=_work/%))
