@@ -1,7 +1,6 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 
-#include "world.hpp"
 #include "ui.hpp"
 
 // An Isection holds information about an intersection.
@@ -28,6 +27,14 @@ public:
 		return overlap.x * overlap.y;
 	}
 };
+
+inline bool operator == (const Isection &a, const Isection &b){
+	return a.overlap == b.overlap;
+}
+
+inline bool operator != (const Fixed &a, const Fixed &b){
+	return !(a == b);
+}
 
 // A Bbox is a bounding box that can be used for collision
 // detection, among other things.
@@ -58,26 +65,26 @@ public:
 
 	// IsectWorld returns the intersection between two bounding
 	// boxes that may be wrapping around the edge of the world.
-	Isection IsectWorld(const World &w, Bbox &o) {
-		if (!Wraps(w.size) && !o.Wraps(w.size))
+	Isection IsectWorld(Vec2 size, Bbox &o) {
+		if (!Wraps(size) && !o.Wraps(size))
 			return Isect(o);
 
-		if (o.Wraps(w.size)) {
-			o.WrapMin(w.size);
+		if (o.Wraps(size)) {
+			o.WrapMin(size);
 			Isection isect = Isect(o);
 			if (isect)
 				return isect;
 	
-			o.WrapMax(w.size);
+			o.WrapMax(size);
 			return Isect(o);
 		}
 
-		WrapMin(w.size);
+		WrapMin(size);
 		Isection isect = Isect(o);
 		if (isect)
 			return isect;
 
-		WrapMax(w.size);
+		WrapMax(size);
 		return Isect(o);
 	}
 
@@ -148,4 +155,8 @@ public:
 
 inline bool operator == (const Bbox &a, const Bbox &b){
 	return a.min == b.min && a.sz == b.sz;
+}
+
+inline bool operator != (const Bbox &a, const Bbox &b){
+	return !(a == b);
 }
