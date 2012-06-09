@@ -145,3 +145,7 @@ public:
 		win.FillRect(min, sz, c);
 	}
 };
+
+inline bool operator == (const Bbox &a, const Bbox &b){
+	return a.min == b.min && a.sz == b.sz;
+}
