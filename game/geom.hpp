@@ -20,7 +20,7 @@ public:
 	// Converting an intersection to a bool tests if there even
 	// was an intersection.
 	operator bool() {
-		return overlap.x < Fixed(0) || overlap.y < Fixed(0);
+		return overlap.x != Fixed(0) && overlap.y != Fixed(0);
 	}
 
 	// Area is the area of overlap for this intersection.
