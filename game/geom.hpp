@@ -11,7 +11,7 @@ public:
 
 	// This constructor creates an intersection that represents
 	// no intersection.
-	Isection() : overlap(Fixed(-1), Fixed(-1)) { }
+	Isection() { }
 
 	// This constructor creates an intersection with the given
 	// amount of overlap.
