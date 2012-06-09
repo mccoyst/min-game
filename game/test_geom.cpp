@@ -7,5 +7,7 @@ void test_isection(Testo &t){
 }
 
 void test_bbox(Testo &t){
-
+	Bbox b{ Vec2{}, Vec2{Fixed{5}, Fixed{5}} };
+	Isection self = b.Isect(b);
+	t.Assert(self, "self");
 }
