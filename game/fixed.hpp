@@ -37,6 +37,8 @@ bool operator <= (Fixed, Fixed);
 bool operator > (Fixed, Fixed);
 bool operator >= (Fixed, Fixed);
 
+Fixed Round(Fixed);
+
 // Vec is a tuple of Fixeds, representing a vector in 2D coords.
 class Vec2{
 public:
@@ -173,6 +175,10 @@ inline bool operator > (Fixed a, Fixed b){
 
 inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
+}
+
+inline Fixed Round(Fixed f){
+	return Fixed{(f + Fixed{0,Fixed::Scale/2}).whole()};
 }
 
 constexpr Vec2::Vec2()
