@@ -20,6 +20,7 @@ OBJS:=\
 	io.o\
 	title.o\
 	popen.o\
+	player.o\
 
 TILES :=\
 	Grass.png\

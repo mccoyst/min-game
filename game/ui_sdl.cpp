@@ -126,6 +126,11 @@ void Ui::MoveCam(Vec2 v){
 	impl->cam += v;
 }
 
+void Ui::CenterCam(Vec2 v){
+	impl->cam.x = v.x - ScreenDims.x/Fixed{2};
+	impl->cam.y = v.y - ScreenDims.y/Fixed{2};
+}
+
 Vec2 Ui::CamPos() const{
 	return impl->cam;
 }

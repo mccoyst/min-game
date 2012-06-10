@@ -55,6 +55,9 @@ public:
 	// MoveCam adds v to the camera's current position.
 	void MoveCam(Vec2 v);
 
+	// CenterCam moves the camera so that v is in the center.
+	void CenterCam(Vec2 v);
+
 	// CamPos returns the camera's current position.
 	Vec2 CamPos() const;
 

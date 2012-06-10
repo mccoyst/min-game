@@ -6,6 +6,7 @@
 class Img;
 class Font;
 class World;
+class Astro;
 
 constexpr Vec2 ScreenDims{ Fixed{800}, Fixed{600} };
 
@@ -32,11 +33,9 @@ public:
 
 private:
 	World &world;
-	Vec2 mscroll, scroll;	// mouse and keyboard scroll.
-	Fixed mul;
-	int x0, y0;
-	bool drag;
 	TileView view;
+	std::unique_ptr<Astro> astro;
+	std::unique_ptr<Img> astroimg;
 };
 
 class Title : public Screen{
