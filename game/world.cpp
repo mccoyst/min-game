@@ -69,8 +69,8 @@ void World::Draw(Ui &ui, TileView &view) {
 	Fixed h(ui.height / TileH);
 	Vec2 offs = ui.CamPos();
 
-	for (Fixed x(-1); x <= w; ++x) {
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
+	for (Fixed x(-1); x <= w; ++x) {
 		int xcoord = (x - offs.x/TileW).whole();
 		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
@@ -85,8 +85,8 @@ void World::Draw(Ui &ui, TileView &view) {
 		return;
 
 	offs = ui.CamPos();
-	for (Fixed x(-1); x <= w; ++x) {
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
+	for (Fixed x(-1); x <= w; ++x) {
 		int xcoord = (x - offs.x/TileW).whole();
 		int ycoord = (y - offs.y/TileH).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
