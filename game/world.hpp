@@ -74,11 +74,11 @@ public:
 	// the ends.
 	Loc &AtCoord(int x, int y) {
 		if (x < 0)
-			x = width + x;
+			x = width - -x%width;
 		else
 			x %= width;
 		if (y < 0)
-			y = height + y;
+			y = height - -y%height;
 		else
 			y %= height;
 		return At(x, y);
