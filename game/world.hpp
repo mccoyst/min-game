@@ -73,12 +73,14 @@ public:
 	// coordinate taking into account wrapping around
 	// the ends.
 	Loc &AtCoord(int x, int y) {
-		x %= width;
 		if (x < 0)
 			x = width + x;
-		y %= height;
+		else
+			x %= width;
 		if (y < 0)
 			y = height + y;
+		else
+			y %= height;
 		return At(x, y);
 	}
 
