@@ -71,8 +71,8 @@ void World::Draw(Ui &ui, TileView &view) {
 
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
 	for (Fixed x(-1); x <= w; ++x) {
-		int xcoord = (x - offs.x/TileW).whole();
-		int ycoord = (y - offs.y/TileH).whole();
+		int xcoord = (x - Trunc(offs.x/TileW)).whole();
+		int ycoord = (y - Trunc(offs.y/TileH)).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		view.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain], l.Shade());
 	}
@@ -87,8 +87,8 @@ void World::Draw(Ui &ui, TileView &view) {
 	offs = ui.CamPos();
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
 	for (Fixed x(-1); x <= w; ++x) {
-		int xcoord = (x - offs.x/TileW).whole();
-		int ycoord = (y - offs.y/TileH).whole();
+		int xcoord = (x - Trunc(offs.x/TileW)).whole();
+		int ycoord = (y - Trunc(offs.y/TileH)).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
 		auto txt = terrain.heightImg(l.height);
 		Vec2 pt = Vec2(x*TileW, y*TileH);

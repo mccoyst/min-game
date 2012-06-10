@@ -37,6 +37,7 @@ bool operator <= (Fixed, Fixed);
 bool operator > (Fixed, Fixed);
 bool operator >= (Fixed, Fixed);
 
+Fixed Trunc(Fixed);
 Fixed Round(Fixed);
 
 // Vec is a tuple of Fixeds, representing a vector in 2D coords.
@@ -175,6 +176,10 @@ inline bool operator > (Fixed a, Fixed b){
 
 inline bool operator >= (Fixed a, Fixed b){
 	return a.value() >= b.value();
+}
+
+inline Fixed Trunc(Fixed f){
+	return Fixed{f.whole()};
 }
 
 inline Fixed Round(Fixed f){
