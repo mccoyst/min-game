@@ -121,7 +121,7 @@ TileView::Impl::Impl(int w, int h, int tw, int th, std::unique_ptr<Img> &&img)
 void OpenGLUi::Draw(const Vec2 &offs, const TileView &tv) {
 	auto view = tv.impl.get();
 	int xoff = offs.x.whole(), yoff = offs.y.whole();
-	double tilesWidth = view->tileImgs->Size().x.whole();
+	GLfloat tilesWidth = view->tileImgs->Size().x.whole();
 
 	glBindTexture(GL_TEXTURE_2D,
 		static_cast<OpenGLImg*>(view->tileImgs.get())->texid);
@@ -131,11 +131,11 @@ void OpenGLUi::Draw(const Vec2 &offs, const TileView &tv) {
 
 	for (int x = 0; x < view->sheetw; x++) {
 	for (int y = 0; y < view->sheeth; y++) {
-		float sh = view->shades.at(x * view->sheeth + y);
+		GLfloat sh = view->shades.at(x * view->sheeth + y);
 		glColor4f(sh, sh, sh, 1);
 
-		double t0 = view->tiles.at(x * view->sheeth + y)*view->tilew / tilesWidth;
-		double t1 = t0 + view->tilew/tilesWidth;
+		GLfloat t0 = view->tiles.at(x * view->sheeth + y)*view->tilew / tilesWidth;
+		GLfloat t1 = t0 + view->tilew/tilesWidth;
 		assert (t0 >= 0);
 		assert (t0 <= 1);
 		assert (t1 >= 0);
