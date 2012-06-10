@@ -35,7 +35,7 @@ void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 
 	Fixed speed;
 	if(e.type == Event::KeyDown)
-		speed = Fixed{4};
+		speed = Fixed{2};
 
 	switch (e.button) {
 	case Event::DownArrow:
