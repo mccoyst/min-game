@@ -2,85 +2,58 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "ui.hpp"
+#include "entities.hpp"
 
 ExploreScreen::ExploreScreen(World &w)
-	: world(w), mul(1), x0(0), y0(0), drag(false),
+	: world(w),
 	view((ScreenDims.x/World::TileW).whole() + 2,
 		(ScreenDims.y/World::TileH).whole() + 3,
 		World::TileW.whole(),
 		World::TileH.whole(),
-		LoadImg("resrc/tiles.png")){
+		LoadImg("resrc/tiles.png")),
+	astroimg(LoadImg("resrc/Astronaut.png")){
+	astro.reset(new Astro{astroimg.get()});
 }
 
 ExploreScreen::~ExploreScreen() { }
 
 void ExploreScreen::Update(ScreenStack&) {
+	astro->Move();
 }
 
 void ExploreScreen::Draw(Ui &win) {
-	win.MoveCam(mscroll + scroll*mul);
-	mscroll = Vec2{};
+	win.CenterCam(astro->Box().min);
 	win.Clear();
 	world.Draw(win, view);
+	astro->Draw(win);
 	win.Flip();
 }
 
 void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
-	Fixed amt(0);
-	switch (e.type) {
-	case Event::MouseDown:
-		scroll = Vec2{};
-		drag = true;
-		x0 = e.x;
-		y0 = e.y;
-		break;
+	if(e.type != Event::KeyDown && e.type != Event::KeyUp)
+		return;
 
-	case Event::MouseUp:
-		drag = false;
-		break;
+	Fixed speed;
+	if(e.type == Event::KeyDown)
+		speed = Fixed{4};
 
-	case Event::MouseMoved:
-		if (!drag)
-			break;
-		mscroll += Vec2(Fixed(e.x - x0), Fixed(y0 - e.y));
-		x0 = e.x;
-		y0 = e.y;
+	switch (e.button) {
+	case Event::DownArrow:
+		astro->vel.y = speed;
 		break;
-
-	case Event::KeyDown:
-	case Event::KeyUp:
-		if (e.type == Event::KeyDown) amt = Fixed(ScrollSpd);
-		else amt = Fixed(0);
-		switch (e.button) {
-		case Event::DownArrow:
-			scroll.y = amt;
-			break;
-		case Event::UpArrow:
-			scroll.y = -amt;
-			break;
-		case Event::LeftArrow:
-			scroll.x = amt;
-			break;
-		case Event::RightArrow:
-			scroll.x = -amt;
-			break;
-		case Event::LShift:
-		case Event::RShift:
-			if (e.type == Event::KeyDown)
-				mul = Fixed(5);
-			else
-				mul = Fixed(1);
-			break;
-		case Event::Action:
-			if(e.type == Event::KeyDown) stk.Pop();
-			break;
-		case Event::None:
-		default:
-			// ignore
-			break;
-		}
+	case Event::UpArrow:
+		astro->vel.y = -speed;
 		break;
-
+	case Event::LeftArrow:
+		astro->vel.x = speed;
+		break;
+	case Event::RightArrow:
+		astro->vel.x = -speed;
+		break;
+	case Event::Action:
+		if(e.type == Event::KeyDown) stk.Pop();
+		break;
+	case Event::None:
 	default:
 		// ignore
 		break;
