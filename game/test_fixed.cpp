@@ -24,6 +24,11 @@ void test_fractions(Testo &t){
 	t.Assert(Fixed{2}/Fixed{16} == Fixed{0,2}, "2/16");
 	t.Assert(Fixed{16}/Fixed{16} == one, "16/16");
 	t.Assert(Fixed{17}/Fixed{16} == Fixed{1,1}, "17/16");
+
+	t.Assert(Round(one) == one, "Round(1)");
+	t.Assert(Round(one/Fixed{2}) == one, "Round(1/2)");
+	t.Assert(Round(one/Fixed{4}) == Fixed{0}, "Round(1/4)");
+	t.Assert(Round(Fixed{3}/Fixed{4}) == one, "Round(3/4)");
 }
 
 void test_multiply(Testo &t){
