@@ -1,6 +1,7 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 #include "screen.hpp"
+#include "ui.hpp"
 #include <stdexcept>
 
 class Img;

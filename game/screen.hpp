@@ -1,6 +1,6 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
-#include "geom.hpp"
+#include "fixed.hpp"
 #include <memory>
 #include <vector>
 
