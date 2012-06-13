@@ -3,6 +3,7 @@
 
 #include "geom.hpp"
 
+class Img;
 class Ui;
 
 class Astro{
