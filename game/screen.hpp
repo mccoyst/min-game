@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+using std::shared_ptr;
+using std::vector;
 struct Event;
 class Screen;
 class Ui;
@@ -11,7 +13,7 @@ class Ui;
 class ScreenStack {
 public:
 	// Creates a new screen stack with the given initial screen.
-	ScreenStack(Ui &, const std::shared_ptr<Screen>&);
+	ScreenStack(Ui &, const shared_ptr<Screen>&);
 
 	~ScreenStack();
 
@@ -21,7 +23,7 @@ public:
 	void Run();
 
 	// Push pushes a new screen onto the top of the stack.
-	void Push(const std::shared_ptr<Screen>&);
+	void Push(const shared_ptr<Screen>&);
 
 	// Pop pops the current screen off of the top of the stack.
 	void Pop();
@@ -32,7 +34,7 @@ public:
 	};
 
 private:
-	std::vector< std::shared_ptr<Screen> > stk;
+	vector<shared_ptr<Screen>> stk;
 	Ui &win;
 	unsigned long nFrames;
 	double meanFrame;
