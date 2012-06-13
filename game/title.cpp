@@ -5,7 +5,7 @@
 #include "screens.hpp"
 #include <istream>
 
-extern std::unique_ptr<std::istream> Popen(const string&);
+extern unique_ptr<std::istream> Popen(const string&);
 static void loadingText(Ui &, Font*);
 
 Title::Title()
@@ -52,7 +52,7 @@ void Title::Handle(ScreenStack &stk, Event &e){
 }
 
 static void loadingText(Ui &win, Font *font) {
-	auto img = std::unique_ptr<Img>(font->Render("Generating World"));
+	auto img = unique_ptr<Img>(font->Render("Generating World"));
 	win.Clear();
 	win.Draw(Vec2(Fixed(0), Fixed(0)), img.get());
 	win.Flip();

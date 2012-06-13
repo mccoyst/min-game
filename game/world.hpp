@@ -7,6 +7,8 @@
 #include <vector>
 #include <memory>
 
+using std::unique_ptr;
+
 class Img;
 class TileView;
 class Ui;
@@ -30,7 +32,7 @@ public:
 	// character representation of the Terrain.
 	class TerrainType {
 		std::map<char, int> t;
-		std::vector<std::unique_ptr<Img>> htImg;
+		std::vector<unique_ptr<Img>> htImg;
 	public:
 		TerrainType();
 
