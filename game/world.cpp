@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "game.hpp"
 #include "io.hpp"
+#include "ui.hpp"
 #include <string>
 #include <istream>
 #include <limits>

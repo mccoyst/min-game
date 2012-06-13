@@ -1,11 +1,15 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 
+#include "fixed.hpp"
 #include <iosfwd>
 #include <map>
 #include <vector>
 #include <memory>
-#include "ui.hpp"
+
+class Img;
+class TileView;
+class Ui;
 
 class World {
 public:
