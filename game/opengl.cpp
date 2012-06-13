@@ -3,6 +3,9 @@
 #include <SDL_opengl.h>
 #include <cassert>
 #include <utility>
+#include <vector>
+
+using std::vector;
 
 OpenGLUi::OpenGLUi(Fixed width, Fixed height) {
 	glEnable(GL_TEXTURE_2D);
@@ -91,10 +94,10 @@ struct TileView::Impl{
 	int sheetw, sheeth, tilew, tileh;
 
 	// Tile associated with each x,y.
-	std::vector<int> tiles;
+	vector<int> tiles;
 
 	// The shade associated with each x,y.
-	std::vector<float> shades;
+	vector<float> shades;
 
 	Impl(int w, int h, int tw, int th, unique_ptr<Img> &&img);
 };

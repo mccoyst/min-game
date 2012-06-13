@@ -2,7 +2,6 @@
 #pragma once
 #include "ui.hpp"
 #include <SDL_opengl.h>
-#include <vector>
 
 class OpenGLUi {
 public:
