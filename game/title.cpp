@@ -2,6 +2,7 @@
 
 #include "game.hpp"
 #include "world.hpp"
+#include "screens.hpp"
 #include <istream>
 
 extern std::unique_ptr<std::istream> Popen(const std::string&);

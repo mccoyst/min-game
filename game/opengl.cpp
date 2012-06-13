@@ -1,6 +1,5 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "opengl.hpp"
-#include "game.hpp"
 #include <SDL_opengl.h>
 #include <cassert>
 #include <utility>

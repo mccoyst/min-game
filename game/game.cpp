@@ -3,6 +3,7 @@
 #include "world.hpp"
 #include "ui.hpp"
 #include "entities.hpp"
+#include "screens.hpp"
 
 ExploreScreen::ExploreScreen(World &w)
 	: world(w),
