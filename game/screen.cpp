@@ -6,9 +6,9 @@
 
 Screen::~Screen() { }
 
-ScreenStack::ScreenStack(Ui &w, std::shared_ptr<Screen> screen0)
+ScreenStack::ScreenStack(Ui &w, const std::shared_ptr<Screen> &screen0)
 		: win(w), nFrames(0), meanFrame(0) {
-	stk.push_back(std::shared_ptr<Screen>(screen0));
+	stk.push_back(screen0);
 }
 
 void ScreenStack::Run() {
@@ -42,7 +42,7 @@ ScreenStack::~ScreenStack() {
 	printf(cout(), "Mean Frame Time: %v msec\n", meanFrame);
 }
 
-void ScreenStack::Push(std::shared_ptr<Screen> s) {
+void ScreenStack::Push(const std::shared_ptr<Screen> &s) {
 	stk.push_back(s);
 }
 

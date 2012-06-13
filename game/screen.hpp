@@ -11,7 +11,7 @@ class Ui;
 class ScreenStack {
 public:
 	// Creates a new screen stack with the given initial screen.
-	ScreenStack(Ui &, std::shared_ptr<Screen>);
+	ScreenStack(Ui &, const std::shared_ptr<Screen>&);
 
 	~ScreenStack();
 
@@ -21,7 +21,7 @@ public:
 	void Run();
 
 	// Push pushes a new screen onto the top of the stack.
-	void Push(std::shared_ptr<Screen>);
+	void Push(const std::shared_ptr<Screen>&);
 
 	// Pop pops the current screen off of the top of the stack.
 	void Pop();
