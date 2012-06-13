@@ -5,13 +5,15 @@
 #include <sstream>
 #include <string>
 
+using std::string;
+
 std::ostream &cout();
 std::ostream &cerr();
 
-int printf(std::ostream &out, const std::string &fmt);
+int printf(std::ostream &out, const string &fmt);
 
 template<class Arg, class... Args>
-int printf(std::ostream &out, const std::string &fmt, const Arg &arg, const Args&... args){
+int printf(std::ostream &out, const string &fmt, const Arg &arg, const Args&... args){
 	auto c = fmt.begin();
 	auto end = fmt.end();
 	while(c != end && *c != '%'){
@@ -33,7 +35,7 @@ int printf(std::ostream &out, const std::string &fmt, const Arg &arg, const Args
 }
 
 template<class... Args>
-std::string sprintf(const std::string &fmt, const Args&... args){
+string sprintf(const string &fmt, const Args&... args){
 	std::ostringstream out;
 	printf(out, fmt, args...);
 	return out.str();

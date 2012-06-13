@@ -26,7 +26,7 @@ public:
 	int HandleStroke(SDL_Event &sdle, bool keydown);
 
 	//returns english thing for key
-	std::string KeyName(int k);
+	string KeyName(int k);
 
 private:
 	bool keyState[Event::NumKeys];
@@ -48,7 +48,7 @@ struct Ui::Impl {
 	SDL_Surface *win;
 	KeyHandler kh;
 	OpenGLUi gl;
-	Impl(Fixed w, Fixed h, const std::string &t);
+	Impl(Fixed w, Fixed h, const string &t);
 };
 
 struct SdlImg : public OpenGLImg {
@@ -62,9 +62,9 @@ struct SdlFont : public Font {
 	TTF_Font *font;
 	Color color;
 
-	SdlFont(const std::string&, int, Color);
+	SdlFont(const string&, int, Color);
 	virtual ~SdlFont();
-	virtual Img *Render(const std::string&);
+	virtual Img *Render(const string&);
 };
 
 static SDL_Surface *init_sdl(Fixed w, Fixed h){
@@ -79,11 +79,11 @@ static SDL_Surface *init_sdl(Fixed w, Fixed h){
 	return win;
 }
 
-Ui::Impl::Impl(Fixed w, Fixed h, const std::string &title)
+Ui::Impl::Impl(Fixed w, Fixed h, const string &title)
 	: cam(Fixed(0), Fixed(0)), win(init_sdl(w, h)), gl(w, h) {
 }
 
-Ui::Ui(Fixed w, Fixed h, const std::string &title)
+Ui::Ui(Fixed w, Fixed h, const string &title)
 	: impl(new Impl(w, h, title)), width(w), height(h) {
 	fprintf(stderr,"Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
 	glGetString(GL_VENDOR),
@@ -93,10 +93,10 @@ Ui::Ui(Fixed w, Fixed h, const std::string &title)
 
 	int imgflags = IMG_INIT_PNG;
 	if ((IMG_Init(imgflags) & imgflags) != imgflags)
-		throw Failure("Failed to initialize png support: " + std::string(IMG_GetError()));
+		throw Failure("Failed to initialize png support: " + string(IMG_GetError()));
 
 	if (TTF_Init() == -1)
-		throw Failure("Failed to initialize SDL_ttf: " + std::string(TTF_GetError()));
+		throw Failure("Failed to initialize SDL_ttf: " + string(TTF_GetError()));
 }
 
 Ui::~Ui(){
@@ -262,7 +262,7 @@ SdlImg::SdlImg(SDL_Surface *surf) : sz(Fixed(surf->w), Fixed(surf->h)) {
 		texFormat, GL_UNSIGNED_BYTE, surf->pixels);
 }
 
-SdlFont::SdlFont(const std::string &path, int sz, Color c)
+SdlFont::SdlFont(const string &path, int sz, Color c)
 		: color(c) {
 	font = TTF_OpenFont(path.c_str(), sz);
 	if (!font)
@@ -273,21 +273,21 @@ SdlFont::~SdlFont() {
 	TTF_CloseFont(font);
 }
 
-Img *SdlFont::Render(const std::string &s) {
+Img *SdlFont::Render(const string &s) {
 	SDL_Color c{};
 	c.r = color.r;
 	c.g = color.g;
 	c.b = color.b;
 	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s.c_str(), c);
 	if (!surf)
-		throw Failure("Failed to render text: " + std::string(TTF_GetError()));
+		throw Failure("Failed to render text: " + string(TTF_GetError()));
 
 	Img *img = new SdlImg(surf);
 	SDL_FreeSurface(surf);
 	return img;
 }
 
-std::unique_ptr<Img> LoadImg(const std::string &path) {
+std::unique_ptr<Img> LoadImg(const string &path) {
 	SDL_Surface *surf = IMG_Load(path.c_str());
 	if (!surf)
 		throw Failure("Failed to load image " + path);
@@ -296,7 +296,7 @@ std::unique_ptr<Img> LoadImg(const std::string &path) {
 	return std::unique_ptr<Img>(img);
 }
 
-std::unique_ptr<Font> LoadFont(const std::string &path, int sz, Color c) {
+std::unique_ptr<Font> LoadFont(const string &path, int sz, Color c) {
 	return std::unique_ptr<Font>(new SdlFont(path, sz, c));
 }
 
@@ -315,7 +315,7 @@ int KeyHandler::ActiveKey(){
 		return pressedOrder.top();
 }
 
-std::string KeyHandler::KeyName(int k){
+string KeyHandler::KeyName(int k){
 	switch (k){
 	case Event::UpArrow:
 		return "UP";

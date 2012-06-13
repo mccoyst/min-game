@@ -5,6 +5,9 @@
 #include <memory>
 #include <string>
 
+using std::string;
+using std::unique_ptr;
+
 class Ui;
 class Img;
 struct Color;
@@ -16,14 +19,14 @@ class TileView;
 class Ui{
 public:
 	struct Impl;
-	std::unique_ptr<Impl> impl;
+	unique_ptr<Impl> impl;
 
 	// width and height are the dimensions of the window.
 	Fixed width, height;
 
 	// Ui constructs a new user interface that consists
 	// of a window with the given width and height.
-	Ui(Fixed w, Fixed h, const std::string &title);
+	Ui(Fixed w, Fixed h, const string &title);
 	~Ui();
 
 	// DrawLine draws the given line on the screen.
@@ -88,9 +91,9 @@ public:
 class TileView{
 public:
 	struct Impl;
-	std::unique_ptr<Impl> impl;
+	unique_ptr<Impl> impl;
 
-	TileView(int w, int h, int tw, int th, std::unique_ptr<Img> &&img);
+	TileView(int w, int h, int tw, int th, unique_ptr<Img> &&img);
 	~TileView();
 
 	// SetTile sets the tile image and shade for the given tile.
@@ -120,7 +123,7 @@ public:
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can
 // be used to draw to the window.
-std::unique_ptr<Img> LoadImg(const std::string &);
+unique_ptr<Img> LoadImg(const string &);
 
 // Font describes a text font, color, etc.
 class Font{
@@ -128,11 +131,11 @@ public:
 	virtual ~Font() = 0;
 
 	// Render renders the given text to an image using this font.
-	virtual Img *Render(const std::string&) = 0;
+	virtual Img *Render(const string&) = 0;
 };
 
 // LoadFont loads a font from a file with the given size and color.
-std::unique_ptr<Font> LoadFont(const std::string&, int, Color);
+unique_ptr<Font> LoadFont(const string&, int, Color);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.

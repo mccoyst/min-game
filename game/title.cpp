@@ -5,7 +5,7 @@
 #include "screens.hpp"
 #include <istream>
 
-extern std::unique_ptr<std::istream> Popen(const std::string&);
+extern std::unique_ptr<std::istream> Popen(const string&);
 static void loadingText(Ui &, Font*);
 
 Title::Title()
