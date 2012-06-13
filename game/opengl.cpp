@@ -87,7 +87,7 @@ void OpenGLUi::Draw(const Vec2 &l, Img *_img, float shade) {
 }
 
 struct TileView::Impl{
-	std::unique_ptr<Img> tileImgs;
+	unique_ptr<Img> tileImgs;
 	int sheetw, sheeth, tilew, tileh;
 
 	// Tile associated with each x,y.
@@ -96,10 +96,10 @@ struct TileView::Impl{
 	// The shade associated with each x,y.
 	std::vector<float> shades;
 
-	Impl(int w, int h, int tw, int th, std::unique_ptr<Img> &&img);
+	Impl(int w, int h, int tw, int th, unique_ptr<Img> &&img);
 };
 
-TileView::TileView(int w, int h, int tw, int th, std::unique_ptr<Img> &&img)
+TileView::TileView(int w, int h, int tw, int th, unique_ptr<Img> &&img)
 	: impl(new Impl(w, h, tw, th, std::move(img))){
 }
 
@@ -111,7 +111,7 @@ void TileView::SetTile(int x, int y, int tile, float shade) {
 	impl->shades.at(x * impl->sheeth + y) = shade;
 }
 
-TileView::Impl::Impl(int w, int h, int tw, int th, std::unique_ptr<Img> &&img)
+TileView::Impl::Impl(int w, int h, int tw, int th, unique_ptr<Img> &&img)
 	: tileImgs(std::move(img)), sheetw(w), sheeth(h), tilew(tw), tileh(th){
 	tiles.resize(w*h);
 	shades.resize(w*h);

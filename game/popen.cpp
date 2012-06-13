@@ -4,6 +4,9 @@
 #include <cstdio>
 #include <string>
 #include <istream>
+#include <memory>
+
+using std::unique_ptr;
 
 namespace{
 	class fbuf : public std::streambuf{
@@ -29,11 +32,11 @@ namespace{
 	};
 }
 
-std::unique_ptr<std::istream> Popen(const string &cmdline){
+unique_ptr<std::istream> Popen(const string &cmdline){
 	FILE *f = popen(cmdline.c_str(), "r");
 	if(!f)
 		throw Failure("Popen(\""+cmdline+"\") failed");
-	return std::unique_ptr<std::istream>(new cfstream(f));
+	return unique_ptr<std::istream>(new cfstream(f));
 }
 
 
