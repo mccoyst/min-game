@@ -9,7 +9,7 @@
 
 bool drawHeights = false;
 
-static std::string readLine(std::istream&);
+static string readLine(std::istream&);
 
 const Fixed World::TileW(16);
 const Fixed World::TileH(16);
@@ -112,8 +112,8 @@ float World::Loc::Shade() const{
 	return slope*(this->height - this->depth) + minSh;
 }
 
-static std::string readLine(std::istream &in) {
-	std::string line;
+static string readLine(std::istream &in) {
+	string line;
 	for (;;) {
 		if (!getline(in, line)){
 			if(in.eof())

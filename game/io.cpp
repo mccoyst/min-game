@@ -11,7 +11,7 @@ std::ostream &cerr(){
 	return std::cerr;
 }
 
-int printf(std::ostream &out, const std::string &fmt){
+int printf(std::ostream &out, const string &fmt){
 	for(auto c = fmt.begin(), end = fmt.end(); c != end; c++){
 		if(*c != '%'){
 			out << *c;

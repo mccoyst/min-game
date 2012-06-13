@@ -29,7 +29,7 @@ namespace{
 	};
 }
 
-std::unique_ptr<std::istream> Popen(const std::string &cmdline){
+std::unique_ptr<std::istream> Popen(const string &cmdline){
 	FILE *f = popen(cmdline.c_str(), "r");
 	if(!f)
 		throw Failure("Popen(\""+cmdline+"\") failed");

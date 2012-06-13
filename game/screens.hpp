@@ -3,6 +3,8 @@
 #include "screen.hpp"
 #include "ui.hpp"
 
+using std::unique_ptr;
+
 class World;
 class Astro;
 
@@ -23,14 +25,14 @@ public:
 private:
 	World &world;
 	TileView view;
-	std::unique_ptr<Astro> astro;
-	std::unique_ptr<Img> astroimg;
+	unique_ptr<Astro> astro;
+	unique_ptr<Img> astroimg;
 };
 
 class Title : public Screen{
-	std::unique_ptr<Font> menu;
-	std::unique_ptr<Img> title, start, copyright;
-	std::unique_ptr<World> world;
+	unique_ptr<Font> menu;
+	unique_ptr<Img> title, start, copyright;
+	unique_ptr<World> world;
 	bool loading;
 public:
 	Title();
