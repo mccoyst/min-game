@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) try{
 }
 
 static void parseArgs(int argc, char *argv[]) {
-	std::vector<string> args (argv+1, argv+argc);
+	vector<string> args (argv+1, argv+argc);
 
 	for(auto &arg : args){
 		if (arg == "-heights")
