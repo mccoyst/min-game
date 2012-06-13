@@ -1,9 +1,12 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
-#include "ui.hpp"
+#include "geom.hpp"
+#include <memory>
 #include <vector>
 
+struct Event;
 class Screen;
+class Ui;
 
 class ScreenStack {
 public:
