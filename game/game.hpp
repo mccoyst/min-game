@@ -3,8 +3,11 @@
 #include "fixed.hpp"
 #include <stdexcept>
 #include <string>
+#include <memory>
+#include <utility>
 
 using std::string;
+using std::unique_ptr;
 
 constexpr Vec2 ScreenDims{ Fixed{800}, Fixed{600} };
 
@@ -14,3 +17,8 @@ public:
 		: runtime_error(msg){
 	}
 };
+
+template<class T, class ...Args>
+unique_ptr<T> make_unique(Args&&... args){
+	return unique_ptr<T>(new T{std::forward<Args>(args)...});
+}

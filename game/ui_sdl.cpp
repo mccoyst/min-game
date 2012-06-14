@@ -288,16 +288,17 @@ Img *SdlFont::Render(const string &s) {
 }
 
 unique_ptr<Img> LoadImg(const string &path) {
-	SDL_Surface *surf = IMG_Load(path.c_str());
+	unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> surf{
+		IMG_Load(path.c_str()),
+		SDL_FreeSurface
+	};
 	if (!surf)
 		throw Failure("Failed to load image " + path);
-	Img *img = new SdlImg(surf);
-	SDL_FreeSurface(surf);
-	return unique_ptr<Img>(img);
+	return make_unique<SdlImg>(surf.get());
 }
 
 unique_ptr<Font> LoadFont(const string &path, int sz, Color c) {
-	return unique_ptr<Font>(new SdlFont(path, sz, c));
+	return make_unique<SdlFont>(path, sz, c);
 }
 
 int KeyHandler::KeysDown(){
