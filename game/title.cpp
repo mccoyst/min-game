@@ -36,8 +36,8 @@ Title::Title()
 void Title::Update(ScreenStack &stk){
 	if(loading){
 		auto in (Popen("wgen"));
-		world.reset(new World(*in.get()));
-		stk.Push(NewExploreScreen(*world.get()));
+		world.reset(new World(*in));
+		stk.Push(NewExploreScreen(*world));
 		loading = false;
 	}
 }
@@ -68,7 +68,7 @@ void Title::Handle(ScreenStack &stk, Event &e){
 }
 
 static void loadingText(Ui &win, Font *font) {
-	auto img = unique_ptr<Img>(font->Render("Generating World"));
+	auto img = font->Render("Generating World");
 	win.Clear();
 	win.Draw(Vec2(Fixed(0), Fixed(0)), img.get());
 	win.Flip();
