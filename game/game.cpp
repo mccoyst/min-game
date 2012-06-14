@@ -5,7 +5,32 @@
 #include "entities.hpp"
 #include "screens.hpp"
 
-ExploreScreen::ExploreScreen(World &w)
+class ExploreScreen : public Screen {
+public:
+	enum {
+		// ScrollSpd is the amount to scroll per-frame
+		// when an arrow key is held.
+		ScrollSpd = 10,
+	};
+
+	ExploreScreen(World *);
+	virtual ~ExploreScreen();
+	virtual void Update(ScreenStack&);
+	virtual void Draw(Ui &);
+	virtual void Handle(ScreenStack&, Event&);
+
+private:
+	World *world;
+	TileView view;
+	unique_ptr<Astro> astro;
+	unique_ptr<Img> astroimg;
+};
+
+shared_ptr<Screen> NewExploreScreen(World &w){
+	return std::make_shared<ExploreScreen>(&w);
+}
+
+ExploreScreen::ExploreScreen(World *w)
 	: world(w),
 	view((ScreenDims.x/World::TileW).whole() + 2,
 		(ScreenDims.y/World::TileH).whole() + 3,
@@ -25,7 +50,7 @@ void ExploreScreen::Update(ScreenStack&) {
 void ExploreScreen::Draw(Ui &win) {
 	win.CenterCam(astro->Box().min);
 	win.Clear();
-	world.Draw(win, view);
+	world->Draw(win, view);
 	astro->Draw(win);
 	win.Flip();
 }

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) try{
 
 	Ui win (ScreenDims.x, ScreenDims.y, "Minima");
 
-	ScreenStack stk(win, std::shared_ptr<Screen>(new Title()));
+	ScreenStack stk(win, NewTitleScreen());
 	stk.Run();
 
 	return 0;

@@ -62,37 +62,7 @@ public:
 	// the next frame is drawn in order to allow the screen to update
 	// its state based on the events.
 	virtual void Update(ScreenStack&) = 0;
-}; 
-
-class ExploreScreen : public Screen {
-public:
-	enum {
-		// ScrollSpd is the amount to scroll per-frame
-		// when an arrow key is held.
-		ScrollSpd = 10,
-	};
-
-	ExploreScreen(World &);
-	virtual ~ExploreScreen();
-	virtual void Update(ScreenStack&);
-	virtual void Draw(Ui &);
-	virtual void Handle(ScreenStack&, Event&);
-
-private:
-	World &world;
-	TileView view;
-	unique_ptr<Astro> astro;
-	unique_ptr<Img> astroimg;
 };
 
-class Title : public Screen{
-	unique_ptr<Font> menu;
-	unique_ptr<Img> title, start, copyright;
-	unique_ptr<World> world;
-	bool loading;
-public:
-	Title();
-	virtual void Update(ScreenStack&);
-	virtual void Draw(Ui&);
-	virtual void Handle(ScreenStack&, Event&);
-};
+shared_ptr<Screen> NewTitleScreen();
+shared_ptr<Screen> NewExploreScreen(World&);
