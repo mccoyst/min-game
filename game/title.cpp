@@ -8,6 +8,22 @@
 extern unique_ptr<std::istream> Popen(const string&);
 static void loadingText(Ui &, Font*);
 
+class Title : public Screen{
+	unique_ptr<Font> menu;
+	unique_ptr<Img> title, start, copyright;
+	unique_ptr<World> world;
+	bool loading;
+public:
+	Title();
+	virtual void Update(ScreenStack&);
+	virtual void Draw(Ui&);
+	virtual void Handle(ScreenStack&, Event&);
+};
+
+shared_ptr<Screen> NewTitleScreen(){
+	return std::make_shared<Title>();
+}
+
 Title::Title()
 	: menu(LoadFont("resrc/prstartk.ttf", 12, White)){
 	auto tfont (LoadFont("resrc/prstartk.ttf", 64, White));
@@ -21,7 +37,7 @@ void Title::Update(ScreenStack &stk){
 	if(loading){
 		auto in (Popen("wgen"));
 		world.reset(new World(*in.get()));
-		stk.Push(std::shared_ptr<ExploreScreen>(new ExploreScreen(*world.get())));
+		stk.Push(NewExploreScreen(*world.get()));
 		loading = false;
 	}
 }
