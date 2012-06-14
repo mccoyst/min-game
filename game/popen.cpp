@@ -36,7 +36,7 @@ unique_ptr<std::istream> Popen(const string &cmdline){
 	FILE *f = popen(cmdline.c_str(), "r");
 	if(!f)
 		throw Failure("Popen(\""+cmdline+"\") failed");
-	return unique_ptr<std::istream>(new cfstream(f));
+	return make_unique<cfstream>(f);
 }
 
 
