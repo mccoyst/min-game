@@ -131,7 +131,7 @@ public:
 	virtual ~Font() = 0;
 
 	// Render renders the given text to an image using this font.
-	virtual Img *Render(const string&) = 0;
+	virtual unique_ptr<Img> Render(const string&) = 0;
 };
 
 // LoadFont loads a font from a file with the given size and color.

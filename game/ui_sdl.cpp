@@ -64,7 +64,7 @@ struct SdlFont : public Font {
 
 	SdlFont(const string&, int, Color);
 	virtual ~SdlFont();
-	virtual Img *Render(const string&);
+	virtual unique_ptr<Img> Render(const string&);
 };
 
 static SDL_Surface *init_sdl(Fixed w, Fixed h){
@@ -273,18 +273,19 @@ SdlFont::~SdlFont() {
 	TTF_CloseFont(font);
 }
 
-Img *SdlFont::Render(const string &s) {
+unique_ptr<Img> SdlFont::Render(const string &s) {
 	SDL_Color c{};
 	c.r = color.r;
 	c.g = color.g;
 	c.b = color.b;
-	SDL_Surface *surf = TTF_RenderUTF8_Blended(font, s.c_str(), c);
+	unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> surf{
+		TTF_RenderUTF8_Blended(font, s.c_str(), c),
+		SDL_FreeSurface
+	};
 	if (!surf)
 		throw Failure("Failed to render text: " + string(TTF_GetError()));
 
-	Img *img = new SdlImg(surf);
-	SDL_FreeSurface(surf);
-	return img;
+	return make_unique<SdlImg>(surf.get());
 }
 
 unique_ptr<Img> LoadImg(const string &path) {

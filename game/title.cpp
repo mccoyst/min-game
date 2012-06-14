@@ -28,9 +28,9 @@ Title::Title()
 	: menu(LoadFont("resrc/prstartk.ttf", 12, White)){
 	auto tfont (LoadFont("resrc/prstartk.ttf", 64, White));
 
-	title.reset(tfont->Render("MINIMA"));
-	start.reset(menu->Render("Press f to Start"));
-	copyright.reset(menu->Render("Copyright © 2012 The Minima Authors"));
+	title = move(tfont->Render("MINIMA"));
+	start = move(menu->Render("Press f to Start"));
+	copyright = move(menu->Render("Copyright © 2012 The Minima Authors"));
 }
 
 void Title::Update(ScreenStack &stk){
