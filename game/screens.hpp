@@ -58,7 +58,7 @@ public:
 	// intercepted by the ScreenStack to exit the program.
 	virtual void Handle(ScreenStack&, Event&) = 0;
 
-	// Update is called after all of the events are handled and before
+	// Update is called after all of the events are handled and after
 	// the next frame is drawn in order to allow the screen to update
 	// its state based on the events.
 	virtual void Update(ScreenStack&) = 0;
