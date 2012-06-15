@@ -44,7 +44,7 @@ ExploreScreen::ExploreScreen(World *w)
 ExploreScreen::~ExploreScreen() { }
 
 void ExploreScreen::Update(ScreenStack&) {
-	astro.Move();
+	astro.Move(*world);
 }
 
 void ExploreScreen::Draw(Ui &win) {
@@ -59,22 +59,20 @@ void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 	if(e.type != Event::KeyDown && e.type != Event::KeyUp)
 		return;
 
-	Fixed speed;
-	if(e.type == Event::KeyDown)
-		speed = Fixed{2};
+	int move = e.type == Event::KeyDown;
 
 	switch (e.button) {
 	case Event::DownArrow:
-		astro.vel.y = speed;
+		astro.AccelY(-move);
 		break;
 	case Event::UpArrow:
-		astro.vel.y = -speed;
+		astro.AccelY(move);
 		break;
 	case Event::LeftArrow:
-		astro.vel.x = speed;
+		astro.AccelX(-move);
 		break;
 	case Event::RightArrow:
-		astro.vel.x = -speed;
+		astro.AccelX(move);
 		break;
 	case Event::Action:
 		if(e.type == Event::KeyDown) stk.Pop();

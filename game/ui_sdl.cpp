@@ -127,8 +127,8 @@ void Ui::MoveCam(Vec2 v){
 }
 
 void Ui::CenterCam(Vec2 v){
-	impl->cam.x = v.x - ScreenDims.x/Fixed{2};
-	impl->cam.y = v.y - ScreenDims.y/Fixed{2};
+	impl->cam.x = ScreenDims.x/Fixed{2} - v.x;
+	impl->cam.y = ScreenDims.y/Fixed{2} - v.y;
 }
 
 Vec2 Ui::CamPos() const{
@@ -136,7 +136,7 @@ Vec2 Ui::CamPos() const{
 }
 
 void Ui::DrawCam(Vec2 p, Img &i, float shade){
-	this->Draw(p - impl->cam, i, shade);
+	this->Draw(p + impl->cam, i, shade);
 }
 
 void Ui::Flip() {

@@ -56,6 +56,12 @@ public:
 	// boxes that may be wrapping around the edge of the world.
 	Isection IsectWorld(Vec2 size, Bbox &o);
 
+	// Center returns the center point of the box.
+	Vec2 Center() const {
+		const Fixed two(2);
+		return Vec2((two*min.x + sz.x) / two, (two*min.y + sz.y) / two);
+	}
+
 	// Move moves the bounding box.
 	void Move(const Vec2 &d) {
 		min += d;

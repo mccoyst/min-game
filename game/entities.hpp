@@ -2,21 +2,46 @@
 #pragma once
 
 #include "geom.hpp"
+#include "world.hpp" // How else do I declare World::Loc?
 
 class Img;
 class Ui;
 
-class Astro{
+class Body {
 	Bbox box;
+	Vec2 vel;
+
+public:
+	Body(Bbox box);
+	void MoveTo(Vec2);
+	void Move(World&);
+	Bbox Box() const { return box; }
+
+	// AccelX sets the direction which the Body is
+	// moving along the X axis.  Only the sign is
+	// used, the speed is computed based on
+	// Speed() and the terrain.
+	void AccelX(int sign);
+
+	// AccelY is like AccelX, but in the Y direction.
+	void AccelY(int sign);
+
+	// Speed returns the base velocity for this body.
+	// The base velocity is used along with terrain
+	// to determine the total velocity of a given
+	// movement.
+	virtual Fixed Speed() const = 0;
+
+	World::Loc &Location(World&) const;
+};
+
+class Astro : public Body {
 	Img *sprite;
 public:
 	Astro(Img*);
 	Astro(const Astro&) = default;
 
-	Bbox Box() const;
-	void Move(); //TODO: take the local landscape
-	void MoveTo(Vec2);
-	void Draw(Ui&) const;
+	virtual Fixed Speed() const { return Fixed(2); }
 
-	Vec2 vel;
+	void Draw(Ui&) const;
 };
