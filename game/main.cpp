@@ -7,10 +7,6 @@
 #include <vector>
 #include <SDL_main.h>
 
-// drawHeights, when set to true makes the world draw the
-// heigth of each tile on it.
-extern bool drawHeights;
-
 static void parseArgs(int, char*[]);
 
 int main(int argc, char *argv[]) try{
@@ -29,11 +25,15 @@ int main(int argc, char *argv[]) try{
 }
 
 static void parseArgs(int argc, char *argv[]) {
+	extern bool worldOnStdin;
+	extern bool drawHeights;
 	vector<string> args (argv+1, argv+argc);
 
 	for(auto &arg : args){
 		if (arg == "-heights")
 			drawHeights = true;
+		if (arg == "-stdin")
+			worldOnStdin = true;
 	}
 }
 
