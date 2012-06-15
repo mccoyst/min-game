@@ -18,7 +18,7 @@ void Body::Move(World &w) {
 	box.Move(vel*Speed() * t0.velScale);
 }
 
-World::Loc &loc(Bbox box, World &w) {
+static World::Loc &loc(Bbox box, World &w) {
 	Vec2 c = box.Center();
 	int x = Floor(c.x / World::TileW).whole();
 	int y = Floor(c.y / World::TileH).whole();
