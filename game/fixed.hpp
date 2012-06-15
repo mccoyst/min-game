@@ -39,6 +39,7 @@ bool operator >= (Fixed, Fixed);
 
 Fixed Trunc(Fixed);
 Fixed Round(Fixed);
+Fixed Floor(Fixed);
 
 // Vec is a tuple of Fixeds, representing a vector in 2D coords.
 class Vec2{
@@ -183,7 +184,12 @@ inline Fixed Trunc(Fixed f){
 }
 
 inline Fixed Round(Fixed f){
-	return Fixed{(f + Fixed{0,Fixed::Scale/2}).whole()};
+	return Trunc(f + Fixed{0,Fixed::Scale/2});
+}
+
+inline Fixed Floor(Fixed f){
+	if(f < Fixed{0}) return Trunc(f - Fixed{0,Fixed::Scale/2});
+	return Trunc(f);
 }
 
 constexpr Vec2::Vec2()
