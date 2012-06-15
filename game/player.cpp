@@ -21,5 +21,5 @@ void Astro::MoveTo(Vec2 pos){
 }
 
 void Astro::Draw(Ui &ui) const{
-	ui.DrawCam(box.min, sprite);
+	ui.DrawCam(box.min, *sprite);
 }

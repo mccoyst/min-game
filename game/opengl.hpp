@@ -12,7 +12,7 @@ public:
 	void DrawLine(const Vec2&, const Vec2&, const Color&);
 	void FillRect(const Vec2&, const Vec2&, const Color&);
 	void DrawRect(const Vec2&, const Vec2&, const Color&);
-	void Draw(const Vec2&, Img*, float shade = 1);
+	void Draw(const Vec2&, Img&, float shade = 1);
 	void Draw(const Vec2&, const TileView&);
 };
 

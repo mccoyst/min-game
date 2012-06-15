@@ -6,7 +6,7 @@
 #include <istream>
 
 extern unique_ptr<std::istream> Popen(const string&);
-static void loadingText(Ui &, Font*);
+static void loadingText(Ui &, Font&);
 
 class Title : public Screen{
 	unique_ptr<Font> menu;
@@ -44,19 +44,19 @@ void Title::Update(ScreenStack &stk){
 
 void Title::Draw(Ui &ui){
 	if(loading){
-		loadingText(ui, menu.get());
+		loadingText(ui, *menu);
 		return;
 	}
 
 	ui.Clear();
 
 	Vec2 tpos{ Fixed{64}, ui.height - Fixed{128} };
-	ui.Draw(tpos, title.get());
+	ui.Draw(tpos, *title);
 
 	auto spos = tpos - Vec2{ Fixed{0}, Fixed{128 } };
-	ui.Draw(spos, start.get());
+	ui.Draw(spos, *start);
 
-	ui.Draw(Vec2{}, copyright.get());
+	ui.Draw(Vec2{}, *copyright);
 
 	ui.Flip();
 }
@@ -67,9 +67,9 @@ void Title::Handle(ScreenStack &stk, Event &e){
 		loading = true;
 }
 
-static void loadingText(Ui &win, Font *font) {
-	auto img = font->Render("Generating World");
+static void loadingText(Ui &win, Font &font) {
+	auto img = font.Render("Generating World");
 	win.Clear();
-	win.Draw(Vec2(Fixed(0), Fixed(0)), img.get());
+	win.Draw(Vec2(Fixed(0), Fixed(0)), *img);
 	win.Flip();
 }

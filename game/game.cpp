@@ -22,8 +22,8 @@ public:
 private:
 	World *world;
 	TileView view;
-	unique_ptr<Astro> astro;
 	unique_ptr<Img> astroimg;
+	Astro astro;
 };
 
 shared_ptr<Screen> NewExploreScreen(World &w){
@@ -37,21 +37,21 @@ ExploreScreen::ExploreScreen(World *w)
 		World::TileW.whole(),
 		World::TileH.whole(),
 		LoadImg("resrc/tiles.png")),
-	astroimg(LoadImg("resrc/Astronaut.png")){
-	astro.reset(new Astro{astroimg.get()});
+	astroimg(LoadImg("resrc/Astronaut.png")),
+	astro(astroimg.get()){
 }
 
 ExploreScreen::~ExploreScreen() { }
 
 void ExploreScreen::Update(ScreenStack&) {
-	astro->Move();
+	astro.Move();
 }
 
 void ExploreScreen::Draw(Ui &win) {
-	win.CenterCam(astro->Box().min);
+	win.CenterCam(astro.Box().min);
 	win.Clear();
 	world->Draw(win, view);
-	astro->Draw(win);
+	astro.Draw(win);
 	win.Flip();
 }
 
@@ -65,16 +65,16 @@ void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 
 	switch (e.button) {
 	case Event::DownArrow:
-		astro->vel.y = speed;
+		astro.vel.y = speed;
 		break;
 	case Event::UpArrow:
-		astro->vel.y = -speed;
+		astro.vel.y = -speed;
 		break;
 	case Event::LeftArrow:
-		astro->vel.x = speed;
+		astro.vel.x = speed;
 		break;
 	case Event::RightArrow:
-		astro->vel.x = -speed;
+		astro.vel.x = -speed;
 		break;
 	case Event::Action:
 		if(e.type == Event::KeyDown) stk.Pop();

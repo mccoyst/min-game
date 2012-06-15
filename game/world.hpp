@@ -46,7 +46,7 @@ public:
 
 		// heightImg returns an image containing the text for
 		// the given height value.
-		Img *heightImg(int ht) { return htImg[ht].get(); }
+		Img &heightImg(int ht) { return *htImg[ht]; }
 	} terrain;
 
 	// A Loc represents a single cell of the world.
