@@ -3,7 +3,7 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "screens.hpp"
-#include <iostream>
+#include "io.hpp"
 #include <istream>
 
 extern unique_ptr<std::istream> Popen(const string&);
@@ -40,7 +40,7 @@ void Title::Update(ScreenStack &stk){
 	if(loading){
 		World *w;
 		if (worldOnStdin)
-			w = new World(std::cin);
+			w = new World(cin());
 		else
 			w = new World(*Popen("wgen"));
 		worldOnStdin = false;
