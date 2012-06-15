@@ -17,12 +17,12 @@ const Vec2 World::TileSz(TileW, TileH);
 
 World::TerrainType::TerrainType()
 	: t({
-		{ 'g', 0 },
-		{ 'w', 1 },
-		{ 'm', 2 },
-		{ 'f', 3 },
-		{ 'd', 4 },
-		{ 'i', 5 },
+		{ 'g', Terrain(0, Fixed(1)) },
+		{ 'w', Terrain(1, Fixed(0, 1)) },
+		{ 'm', Terrain(2, Fixed(0, 5)) },
+		{ 'f', Terrain(3, Fixed(0, 10)) },
+		{ 'd', Terrain(4, Fixed(0, 5)) },
+		{ 'i', Terrain(5, Fixed(0, 5)) },
 	}){
 	auto f = LoadFont("resrc/retganon.ttf", 12, Gray);
 	htImg.resize(World::MaxHeight+1);
@@ -75,7 +75,7 @@ void World::Draw(Ui &ui, TileView &view) {
 		int xcoord = (x - Trunc(offs.x/TileW)).whole();
 		int ycoord = (y - Trunc(offs.y/TileH)).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		view.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain], l.Shade());
+		view.SetTile(x.whole()+1, y.whole()+1, terrain[l.terrain].tile, l.Shade());
 	}
 	}
 	offs.x %= TileW;

@@ -28,18 +28,32 @@ public:
 		// of any location.  Heights are 0..MaxHeight.
 		MaxHeight = 19,
 	};
+
+	class Terrain {
+	public:
+		Terrain(int i, Fixed s) : tile(i), velScale(s) { }
+
+		// tile is the index number in the tile
+		// sheet of the image for this terrain.
+		int tile;
+
+		// velScale is the amount by which to scale
+		// down a body's base velocity on this
+		// terrain.
+		Fixed velScale;
+	};
 	
 	// terrain is an array of Terrain indexed by the
 	// character representation of the Terrain.
 	class TerrainType {
-		std::map<char, int> t;
+		std::map<char, Terrain> t;
 		vector<unique_ptr<Img>> htImg;
 	public:
 		TerrainType();
 
 		// operator[] returns the terrain with the given character
 		// representation.
-		int operator [] (char c) const { return t.at(c); }
+		Terrain operator [] (char c) const { return t.at(c); }
 
 		// contains returns true iff a terrain type is defined for the given char.
 		bool contains(char c) const { return t.find(c) != t.end(); }
@@ -89,6 +103,13 @@ public:
 		else
 			y %= height;
 		return At(x, y);
+	}
+
+	// atcoord returns the location at the given world
+	// coordinate taking into account wrapping around
+	// the ends.
+	const Loc &AtCoord(int x, int y) const {
+		return AtCoord(x, y);
 	}
 
 	// The indices of the start tile.
