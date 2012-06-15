@@ -11,6 +11,10 @@ std::ostream &cerr(){
 	return std::cerr;
 }
 
+std::istream &cin(){
+	return std::cin;
+}
+
 int printf(std::ostream &out, const string &fmt){
 	for(auto c = fmt.begin(), end = fmt.end(); c != end; c++){
 		if(*c != '%'){

@@ -9,6 +9,7 @@ using std::string;
 
 std::ostream &cout();
 std::ostream &cerr();
+std::istream &cin();
 
 int printf(std::ostream &out, const string &fmt);
 
