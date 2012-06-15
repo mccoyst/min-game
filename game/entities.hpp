@@ -2,10 +2,10 @@
 #pragma once
 
 #include "geom.hpp"
-#include "world.hpp" // How else do I declare World::Loc?
 
 class Img;
 class Ui;
+class World;
 
 class Body {
 	Bbox box;
@@ -31,8 +31,6 @@ public:
 	// to determine the total velocity of a given
 	// movement.
 	virtual Fixed Speed() const = 0;
-
-	World::Loc &Location(World&) const;
 };
 
 class Astro : public Body {
