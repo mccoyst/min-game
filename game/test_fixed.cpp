@@ -29,6 +29,11 @@ void test_fractions(Testo &t){
 	t.Assert(Round(one/Fixed{2}) == one, "Round(1/2)");
 	t.Assert(Round(one/Fixed{4}) == Fixed{0}, "Round(1/4)");
 	t.Assert(Round(Fixed{3}/Fixed{4}) == one, "Round(3/4)");
+
+	t.Assert(Floor(one) == one, "Floor(1)");
+	t.Assert(Floor(one/Fixed{2}) == Fixed{0}, "Floor(1/2)");
+	t.Assert(Floor(-one) == -one, "Floor(-1)");
+	t.Assert(Floor(-one/Fixed{2}) == -one, "Floor(-1/2)");
 }
 
 void test_multiply(Testo &t){

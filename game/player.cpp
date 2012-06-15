@@ -3,7 +3,6 @@
 #include "entities.hpp"
 #include "ui.hpp"
 #include "world.hpp"
-#include <cmath>
 
 static World::Loc &loc(Bbox, World&);
 
@@ -21,8 +20,8 @@ void Body::Move(World &w) {
 
 World::Loc &loc(Bbox box, World &w) {
 	Vec2 c = box.Center();
-	int x = floor((double) c.x.whole() / World::TileW.whole());
-	int y = floor((double) c.y.whole() / World::TileH.whole());
+	int x = Floor(c.x / World::TileW).whole();
+	int y = Floor(c.y / World::TileH).whole();
 	World::Loc &l = w.AtCoord(x, y);
 	return l;
 }
