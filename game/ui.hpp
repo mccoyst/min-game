@@ -50,7 +50,7 @@ public:
 	// This image will not appear until the Flip() method is called.
 	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	void Draw(const Vec2&, Img*, float shade = 1);
+	void Draw(const Vec2&, Img&, float shade = 1);
 
 	// Draw draws the tiles at the given offset.
 	void Draw(const Vec2&, const TileView&);
@@ -65,7 +65,7 @@ public:
 	Vec2 CamPos() const;
 
 	// DrawCam draws the image from the camera's point of view.
-	void DrawCam(Vec2, Img*, float shade = 1);
+	void DrawCam(Vec2, Img&, float shade = 1);
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.

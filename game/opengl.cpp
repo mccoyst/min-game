@@ -62,12 +62,12 @@ void OpenGLUi::DrawRect(const Vec2 &l, const Vec2 &sz, const Color &c) {
 	glEnd();
 }
 
-void OpenGLUi::Draw(const Vec2 &l, Img *_img, float shade) {
-	OpenGLImg *img = static_cast<OpenGLImg*>(_img);
+void OpenGLUi::Draw(const Vec2 &l, Img &i, float shade) {
+	OpenGLImg &img = static_cast<OpenGLImg&>(i);
 	float x = l.x.whole(), y = l.y.whole();
-	float w = img->Size().x.whole(), h = img->Size().y.whole();
+	float w = img.Size().x.whole(), h = img.Size().y.whole();
 
-	glBindTexture(GL_TEXTURE_2D, img->texid);
+	glBindTexture(GL_TEXTURE_2D, img.texid);
 
 	if (shade < 0)
 		shade = 0;
@@ -121,39 +121,39 @@ TileView::Impl::Impl(int w, int h, int tw, int th, unique_ptr<Img> &&img)
 }
 
 void OpenGLUi::Draw(const Vec2 &offs, const TileView &tv) {
-	auto view = tv.impl.get();
+	auto &view = *tv.impl;
 	int xoff = offs.x.whole(), yoff = offs.y.whole();
-	GLfloat tilesWidth = view->tileImgs->Size().x.whole();
+	GLfloat tilesWidth = view.tileImgs->Size().x.whole();
 
 	glBindTexture(GL_TEXTURE_2D,
-		static_cast<OpenGLImg*>(view->tileImgs.get())->texid);
+		static_cast<OpenGLImg*>(view.tileImgs.get())->texid);
 	glDisable(GL_BLEND);
 
 	glBegin(GL_QUADS);
 
-	for (int x = 0; x < view->sheetw; x++) {
-	for (int y = 0; y < view->sheeth; y++) {
-		GLfloat sh = view->shades.at(x * view->sheeth + y);
+	for (int x = 0; x < view.sheetw; x++) {
+	for (int y = 0; y < view.sheeth; y++) {
+		GLfloat sh = view.shades.at(x * view.sheeth + y);
 		glColor4f(sh, sh, sh, 1);
 
-		GLfloat t0 = view->tiles.at(x * view->sheeth + y)*view->tilew / tilesWidth;
-		GLfloat t1 = t0 + view->tilew/tilesWidth;
+		GLfloat t0 = view.tiles.at(x * view.sheeth + y)*view.tilew / tilesWidth;
+		GLfloat t1 = t0 + view.tilew/tilesWidth;
 		assert (t0 >= 0);
 		assert (t0 <= 1);
 		assert (t1 >= 0);
 		assert (t1 <= 1);
 
 		glTexCoord2d(t0, 1);
-		glVertex3f(x*view->tilew+xoff, y*view->tileh+yoff, 0);
+		glVertex3f(x*view.tilew+xoff, y*view.tileh+yoff, 0);
 
 		glTexCoord2d(t1, 1);
-		glVertex3f((x+1)*view->tilew+xoff, y*view->tileh+yoff, 0);
+		glVertex3f((x+1)*view.tilew+xoff, y*view.tileh+yoff, 0);
 
 		glTexCoord2d(t1, 0);
-		glVertex3f((x+1)*view->tilew+xoff, (y+1)*view->tileh+yoff, 0);
+		glVertex3f((x+1)*view.tilew+xoff, (y+1)*view.tileh+yoff, 0);
 
 		glTexCoord2d(t0, 0);
-		glVertex3f(x*view->tilew+xoff, (y+1)*view->tileh+yoff, 0);
+		glVertex3f(x*view.tilew+xoff, (y+1)*view.tileh+yoff, 0);
 	}
 	}
 

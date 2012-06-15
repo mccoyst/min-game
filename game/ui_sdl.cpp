@@ -114,7 +114,7 @@ void Ui::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
 	impl->gl.DrawRect(a, b, c);
 }
 
-void Ui::Draw(const Vec2 &p, Img *img, float shade){
+void Ui::Draw(const Vec2 &p, Img &img, float shade){
 	impl->gl.Draw(p, img, shade);
 }
 
@@ -135,7 +135,7 @@ Vec2 Ui::CamPos() const{
 	return impl->cam;
 }
 
-void Ui::DrawCam(Vec2 p, Img *i, float shade){
+void Ui::DrawCam(Vec2 p, Img &i, float shade){
 	this->Draw(p - impl->cam, i, shade);
 }
 

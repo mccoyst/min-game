@@ -91,7 +91,7 @@ void World::Draw(Ui &ui, TileView &view) {
 		int xcoord = (x - Trunc(offs.x/TileW)).whole();
 		int ycoord = (y - Trunc(offs.y/TileH)).whole();
 		const Loc &l = AtCoord(xcoord, ycoord);
-		auto txt = terrain.heightImg(l.height);
+		auto &txt = terrain.heightImg(l.height);
 		Vec2 pt = Vec2(x*TileW, y*TileH);
 		pt.x += offs.x % TileW;
 		pt.y += offs.y % TileH;
