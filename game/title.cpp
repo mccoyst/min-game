@@ -3,10 +3,13 @@
 #include "game.hpp"
 #include "world.hpp"
 #include "screens.hpp"
+#include <iostream>
 #include <istream>
 
 extern unique_ptr<std::istream> Popen(const string&);
 static void loadingText(Ui &, Font&);
+
+bool worldOnStdin;
 
 class Title : public Screen{
 	unique_ptr<Font> menu;
@@ -35,8 +38,13 @@ Title::Title()
 
 void Title::Update(ScreenStack &stk){
 	if(loading){
-		auto in (Popen("wgen"));
-		world.reset(new World(*in));
+		World *w;
+		if (worldOnStdin)
+			w = new World(std::cin);
+		else
+			w = new World(*Popen("wgen"));
+		worldOnStdin = false;
+		world.reset(w);
 		stk.Push(NewExploreScreen(*world));
 		loading = false;
 	}
