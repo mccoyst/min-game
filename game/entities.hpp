@@ -9,7 +9,6 @@ class World;
 
 class Body {
 	Bbox box;
-	Vec2 vel;
 
 public:
 	Body(Bbox box);
@@ -17,29 +16,15 @@ public:
 	void Move(World&);
 	Bbox Box() const { return box; }
 
-	// AccelX sets the direction which the Body is
-	// moving along the X axis.  Only the sign is
-	// used, the speed is computed based on
-	// Speed() and the terrain.
-	void AccelX(int sign);
-
-	// AccelY is like AccelX, but in the Y direction.
-	void AccelY(int sign);
-
-	// Speed returns the base velocity for this body.
-	// The base velocity is used along with terrain
-	// to determine the total velocity of a given
-	// movement.
-	virtual Fixed Speed() const = 0;
+	Vec2 vel;
 };
 
 class Astro : public Body {
 	Img *sprite;
 public:
+	static Fixed Speed;
+
 	Astro(Img*);
 	Astro(const Astro&) = default;
-
-	virtual Fixed Speed() const;
-
 	void Draw(Ui&) const;
 };

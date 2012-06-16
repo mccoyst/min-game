@@ -3,6 +3,7 @@
 #include "entities.hpp"
 #include "ui.hpp"
 #include "world.hpp"
+#include <cmath>
 
 static World::Loc &loc(Bbox, World&);
 
@@ -15,42 +16,22 @@ void Body::MoveTo(Vec2 pos){
 void Body::Move(World &w) {
 	const World::Loc &l0 = loc(box, w);
 	World::Terrain t0 = w.terrain[l0.terrain];
-	box.Move(vel*Speed() * t0.velScale);
+	box.Move(vel*t0.velScale);
 }
 
-static World::Loc &loc(Bbox box, World &w) {
+World::Loc &loc(Bbox box, World &w) {
 	Vec2 c = box.Center();
-	int x = Floor(c.x / World::TileW).whole();
-	int y = Floor(c.y / World::TileH).whole();
+	int x = floor((double) c.x.whole() / World::TileW.whole());
+	int y = floor((double) c.y.whole() / World::TileH.whole());
 	World::Loc &l = w.AtCoord(x, y);
 	return l;
 }
 
-void Body::AccelX(int sign) {
-	if (sign == 0)
-		vel.x = Fixed{};
-	else if (sign < 0)
-		vel.x = Fixed{-1};
-	else
-		vel.x = Fixed{1};
-}
-
-void Body::AccelY(int sign) {
-	if (sign == 0)
-		vel.y = Fixed{};
-	else if (sign < 0)
-		vel.y = Fixed{-1};
-	else
-		vel.y = Fixed{1};
-}
+Fixed Astro::Speed{2};
 
 Astro::Astro(Img *i)
-	: Body({ {}, {World::TileW,World::TileH}}),
+	: Body(Bbox(Vec2{Fixed{}, Fixed{}}, Vec2{Fixed{16},Fixed{16}})),
 	sprite(i){
-}
-
-Fixed Astro::Speed() const{
-	return Fixed{2};
 }
 
 void Astro::Draw(Ui &ui) const{
