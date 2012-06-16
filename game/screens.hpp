@@ -3,11 +3,11 @@
 #include "ui.hpp"
 #include "fixed.hpp"
 #include <memory>
-#include <vector>
+#include <stack>
 
 using std::shared_ptr;
 using std::unique_ptr;
-using std::vector;
+using std::stack;
 
 struct Event;
 class Screen;
@@ -39,7 +39,7 @@ public:
 	};
 
 private:
-	vector<shared_ptr<Screen>> stk;
+	stack<shared_ptr<Screen>> stk;
 	Ui &win;
 	unsigned long nFrames;
 	double meanFrame;
