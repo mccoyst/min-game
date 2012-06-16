@@ -123,7 +123,13 @@ public:
 // LoadImg returns an image pointer that has been
 // loaded from the given file path.  This pointer can
 // be used to draw to the window.
+// 
+// This is a "low-level" function. Use FindImg instead.
 unique_ptr<Img> LoadImg(const string &);
+
+// FindImg returns an image pointer that has been
+// loaded from the application's installed resources.
+unique_ptr<Img> FindImg(const string &);
 
 // Font describes a text font, color, etc.
 class Font{
@@ -135,7 +141,13 @@ public:
 };
 
 // LoadFont loads a font from a file with the given size and color.
+// 
+// This is a "low-level" function. Use FindFont instead.
 unique_ptr<Font> LoadFont(const string&, int, Color);
+
+// FindFont returns a Font pointer that has been
+// loaded from the application's installed resources.
+unique_ptr<Font> FindFont(const string &, int, Color);
 
 // An Event is a user input event handed back from the
 // Ui's PollEvent method.

@@ -36,8 +36,8 @@ ExploreScreen::ExploreScreen(World *w)
 		(ScreenDims.y/World::TileH).whole() + 3,
 		World::TileW.whole(),
 		World::TileH.whole(),
-		LoadImg("resrc/tiles.png")),
-	astroimg(LoadImg("resrc/Astronaut.png")),
+		FindImg("tiles.png")),
+	astroimg(FindImg("Astronaut.png")),
 	astro(astroimg.get()){
 	astro.MoveTo({
 		Fixed{world->x0}*World::TileW,
