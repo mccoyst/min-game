@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <cstdio>
 
 using std::unique_ptr;
 using std::vector;
@@ -105,10 +106,10 @@ public:
 		return At(x, y);
 	}
 
-	// atcoord returns the location at the given world
-	// coordinate taking into account wrapping around
-	// the ends.
-	const Loc &AtCoord(int x, int y) const {
+	// AtPoint returns the location at the given point.
+	Loc &AtPoint(Vec2 pt) {
+		int x = Floor(pt.x / World::TileW).whole();
+		int y = Floor(pt.y / World::TileH).whole();
 		return AtCoord(x, y);
 	}
 
