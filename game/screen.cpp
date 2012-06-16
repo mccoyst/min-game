@@ -7,8 +7,8 @@
 Screen::~Screen() { }
 
 ScreenStack::ScreenStack(Ui &w, const shared_ptr<Screen> &screen0)
-		: win(w), nFrames(0), meanFrame(0) {
-	stk.push_back(screen0);
+	: win(w), nFrames(0), meanFrame(0) {
+	Push(screen0);
 }
 
 void ScreenStack::Run() {
@@ -19,14 +19,14 @@ void ScreenStack::Run() {
 		while (win.PollEvent(event)) {
 			if (event.type == Event::Closed)
 				return;
-			stk.back()->Handle(*this, event);
+			stk.top()->Handle(*this, event);
 			if(stk.empty())
 				return;
 		}
 
-		stk.back()->Draw(win);
+		stk.top()->Draw(win);
 
-		stk.back()->Update(*this);
+		stk.top()->Update(*this);
 		if(stk.empty())
 			return;
 
@@ -43,10 +43,10 @@ ScreenStack::~ScreenStack() {
 }
 
 void ScreenStack::Push(const shared_ptr<Screen> &s) {
-	stk.push_back(s);
+	stk.push(s);
 }
 
 void ScreenStack::Pop() {
 	assert(stk.size() > 1);
-	stk.pop_back();
+	stk.pop();
 }
