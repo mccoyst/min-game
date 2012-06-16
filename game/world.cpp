@@ -30,7 +30,12 @@ World::TerrainType::TerrainType()
 		htImg[i] = unique_ptr<Img>(f->Render(std::to_string(i)));
 }
 
-World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
+Bbox World::Loc::Box() const {
+	Vec2 min(Fixed{x*World::TileW.whole()}, Fixed{y*World::TileH.whole()});
+	return Bbox(min, World::TileSz);
+}
+
+World::World(std::istream &in) : dim(Fixed(0), Fixed(0)) {
 	int n = sscanf(readLine(in).c_str(), "%d %d\n", &width, &height);
 	if (n != 2)
 		throw Failure("Failed to read width and height");
@@ -39,7 +44,10 @@ World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 	if (std::numeric_limits<int>::max() / width < height)
 		throw Failure(sprintf("%v by %v is too big", width, height));
 
-	size = Vec2(Fixed(width), Fixed(height));
+	dim = Vec2(Fixed(width), Fixed(height));
+	size = dim;
+	size.x *= TileW;
+	size.y *= TileH;
 
 	locs.resize(width*height);
 	for (int i = 0; i < width*height; i++) {
@@ -58,6 +66,8 @@ World::World(std::istream &in) : size(Fixed(0), Fixed(0)) {
 		locs[i].height = h;
 		locs[i].depth = d;
 		locs[i].terrain = c;
+		locs[i].x = i/height;
+		locs[i].y = i%height;
 	}
 
 	n = sscanf(readLine(in).c_str(), " %d %d", &x0, &y0);

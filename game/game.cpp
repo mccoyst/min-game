@@ -39,10 +39,7 @@ ExploreScreen::ExploreScreen(World *w)
 		FindImg("tiles.png")),
 	astroimg(FindImg("Astronaut.png")),
 	astro(astroimg.get()){
-	astro.MoveTo({
-		Fixed{world->x0}*World::TileW,
-		Fixed{world->y0}*World::TileH
-	});
+	astro.MoveTo(world->Start());
 }
 
 ExploreScreen::~ExploreScreen() { }

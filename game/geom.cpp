@@ -2,10 +2,12 @@
 
 #include "geom.hpp"
 #include "ui.hpp"
+#include <cstdio>
 
 Isection Bbox::Isect(const Bbox &o) const {
 	Isection isect;
-	Vec2 max = min + sz, omax = o.min + o.sz;
+
+	Vec2 max = Max(), omax = o.Max();
 	if (max.x >= o.min.x && max.x <= omax.x)
 		isect.overlap.x = max.x - o.min.x;
 	else if (omax.x >= min.x && omax.x <= max.x)
@@ -58,7 +60,7 @@ void Bbox::WrapMin(const Vec2 &sz) {
 }
 
 void Bbox::WrapMax(const Vec2 &sz) {
-	Vec2 max = min + sz;
+	Vec2 max = Max();
 
 	if (max >= Vec2{} && max < Vec2{} + sz)
 		return;
@@ -73,20 +75,20 @@ void Bbox::WrapMax(const Vec2 &sz) {
 	else if (max.y >= sz.y)
 		max.y %= sz.y;
 
-	min = max - sz;
+	min = max - size;
 }
 
 bool Bbox::Wraps(const Vec2 &sz) const {
-	if (min < Vec2{} || min >= Vec2{} + sz)
+	if (min.x < Fixed{} || min.y < Fixed{} || min.x >= sz.x || min.y >= sz.y)
 		return true;
 	Vec2 max = min + sz;
 	return max < Vec2{} && max >= Vec2{} + sz;
 }
 
 void Bbox::Draw(Ui &win, const Color& c) const {
-	win.DrawRect(min, sz, c);
+	win.DrawRect(min, size, c);
 }
 
 void Bbox::Fill(Ui &win, const Color& c) const {
-	win.FillRect(min, sz, c);
+	win.FillRect(min, size, c);
 }

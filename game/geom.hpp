@@ -13,7 +13,7 @@ public:
 
 	// This constructor creates an intersection that represents
 	// no intersection.
-	Isection() { }
+	Isection() : overlap(Fixed{}, Fixed{}) { }
 
 	// This constructor creates an intersection with the given
 	// amount of overlap.
@@ -39,11 +39,11 @@ inline bool operator == (const Isection &a, const Isection &b){
 // detection, among other things.
 class Bbox {
 public:
-	Vec2 min, sz;
+	Vec2 min, size;
 
 	// Bbox constructs a new bounding box with the given
 	// lower left corner and size.
-	Bbox(const Vec2 &p, const Vec2 &s) : min(p), sz(s) { }
+	Bbox(const Vec2 &p, const Vec2 &s) : min(p), size(s) { }
 
 	// Isect returns the intersection between the two bounding boxes.
 	Isection Isect(const Bbox &o) const;
@@ -52,10 +52,13 @@ public:
 	// boxes that may be wrapping around the edge of the world.
 	Isection IsectWorld(Vec2 size, Bbox &o);
 
+	Vec2 Max() const {
+		return min + size;
+	}
+
 	// Center returns the center point of the box.
 	Vec2 Center() const {
-		const Fixed two(2);
-		return Vec2((two*min.x + sz.x) / two, (two*min.y + sz.y) / two);
+		return Vec2((min + Max()) / Fixed{2});
 	}
 
 	// Move moves the bounding box.
@@ -85,7 +88,7 @@ public:
 };
 
 inline bool operator == (const Bbox &a, const Bbox &b){
-	return a.min == b.min && a.sz == b.sz;
+	return a.min == b.min && a.size == b.size;
 }
 
 inline bool operator != (const Bbox &a, const Bbox &b){

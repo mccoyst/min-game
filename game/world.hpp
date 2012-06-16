@@ -2,6 +2,7 @@
 #pragma once
 
 #include "fixed.hpp"
+#include "geom.hpp"
 #include <iosfwd>
 #include <map>
 #include <vector>
@@ -56,7 +57,8 @@ public:
 		// representation.
 		Terrain operator [] (char c) const { return t.at(c); }
 
-		// contains returns true iff a terrain type is defined for the given char.
+		// contains returns true iff a terrain type is defined
+		// for the given char.
 		bool contains(char c) const { return t.find(c) != t.end(); }
 
 		// heightImg returns an image containing the text for
@@ -66,9 +68,11 @@ public:
 
 	// A Loc represents a single cell of the world.
 	struct Loc {
+		int x, y;
 		unsigned char height, depth;
 		char terrain;
 
+		Bbox Box() const;
 		float Shade() const;
 	};
 
@@ -84,11 +88,11 @@ public:
 	// This routine doesn't wrap around at the limits of
 	// the world.
 	Loc &At(unsigned int x, unsigned int y) {
-		return locs.at(x*size.y.whole()+y);
+		return locs.at(x*dim.y.whole()+y);
 	}
 
 	const Loc &At(unsigned x, unsigned y) const{
-		return locs.at(x*size.y.whole() + y);
+		return locs.at(x*dim.y.whole() + y);
 	}
 
 	// AtCoord returns the location at the given world
@@ -99,14 +103,27 @@ public:
 	// AtPoint returns the location at the given point.
 	Loc &AtPoint(Vec2);
 
-	// The indices of the start tile.
-	int x0, y0;
+	// Size returns the size of the world, suitable for
+	// using with the geom intersection functions.
+	const Vec2 &Size() const {
+		return size;
+	};
 
-	// The world's dimensions.
-	Vec2 size;
+	// Start returns the start location for the player.
+	Vec2 Start() const {
+		return Vec2(Fixed{x0}*TileW, Fixed{y0}*TileH);
+	}
 
 private:
 
 	vector<Loc> locs;
 	int width, height;
+
+	// The world's dimensions in numer of tiles.
+	Vec2 dim;
+
+	// The world's size, dim*World::TileSz.
+	Vec2 size;
+
+	int x0, y0;
 };
