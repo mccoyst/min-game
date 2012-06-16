@@ -28,7 +28,8 @@ shared_ptr<Screen> NewTitleScreen(){
 }
 
 Title::Title()
-	: menu(FindFont("prstartk.ttf", 12, White)){
+	: menu(FindFont("prstartk.ttf", 12, White)),
+	loading(worldOnStdin) {
 	auto tfont (FindFont("prstartk.ttf", 64, White));
 
 	title = move(tfont->Render("MINIMA"));
