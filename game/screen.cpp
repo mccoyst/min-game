@@ -47,6 +47,6 @@ void ScreenStack::Push(const shared_ptr<Screen> &s) {
 }
 
 void ScreenStack::Pop() {
-	assert(stk.size() > 1);
+	assert(!stk.empty());
 	stk.pop();
 }
