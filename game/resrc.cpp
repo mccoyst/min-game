@@ -31,7 +31,7 @@ template<class T>
 unique_ptr<T> 
 find(const string &name, std::function<unique_ptr<T>(string)> load){
 	//TODO: cache these
-	for(auto root : roots)
+	for(auto &root : roots)
 		try{
 			return load(root + "/" + name);
 		}catch(const Failure &f){
