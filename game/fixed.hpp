@@ -188,8 +188,11 @@ inline Fixed Round(Fixed f){
 }
 
 inline Fixed Floor(Fixed f){
-	if(f < Fixed{0}) return Trunc(f - Fixed{0,Fixed::Scale/2});
-	return Trunc(f);
+	if (f >= Fixed{0})
+		return Trunc(f);
+	if (Fixed{f.whole()} == f)
+		return f;
+	return Trunc(f) - Fixed{1};
 }
 
 constexpr Vec2::Vec2()

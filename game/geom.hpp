@@ -35,10 +35,6 @@ inline bool operator == (const Isection &a, const Isection &b){
 	return a.overlap == b.overlap;
 }
 
-inline bool operator != (const Fixed &a, const Fixed &b){
-	return !(a == b);
-}
-
 // A Bbox is a bounding box that can be used for collision
 // detection, among other things.
 class Bbox {
