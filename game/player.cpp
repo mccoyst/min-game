@@ -49,6 +49,10 @@ Astro::Astro(Img *i)
 	sprite(i){
 }
 
+Fixed Astro::Speed() const{
+	return Fixed{2};
+}
+
 void Astro::Draw(Ui &ui) const{
 	ui.DrawCam(Box().min, *sprite);
 }
