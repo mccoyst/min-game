@@ -45,7 +45,7 @@ void Body::AccelY(int sign) {
 }
 
 Astro::Astro(Img *i)
-	: Body(Bbox(Vec2{Fixed{}, Fixed{}}, Vec2{Fixed{16},Fixed{16}})),
+	: Body({ {}, {World::TileW,World::TileH}}),
 	sprite(i){
 }
 
