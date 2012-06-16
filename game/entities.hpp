@@ -39,7 +39,7 @@ public:
 	Astro(Img*);
 	Astro(const Astro&) = default;
 
-	virtual Fixed Speed() const { return Fixed(2); }
+	virtual Fixed Speed() const;
 
 	void Draw(Ui&) const;
 };
