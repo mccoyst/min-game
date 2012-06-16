@@ -63,20 +63,20 @@ void ExploreScreen::Handle(ScreenStack &stk, Event &e) {
 	if(e.type != Event::KeyDown && e.type != Event::KeyUp)
 		return;
 
-	int move = e.type == Event::KeyDown;
+	Fixed mv = e.type == Event::KeyDown ? Astro::Speed : Fixed{};
 
 	switch (e.button) {
 	case Event::DownArrow:
-		astro.AccelY(-move);
+		astro.vel.y = -mv;
 		break;
 	case Event::UpArrow:
-		astro.AccelY(move);
+		astro.vel.y = mv;
 		break;
 	case Event::LeftArrow:
-		astro.AccelX(-move);
+		astro.vel.x = -mv;
 		break;
 	case Event::RightArrow:
-		astro.AccelX(move);
+		astro.vel.x = mv;
 		break;
 	case Event::Action:
 		if(e.type == Event::KeyDown) stk.Pop();
