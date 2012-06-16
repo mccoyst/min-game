@@ -79,7 +79,7 @@ public:
 	// Draw draws the world to the given window.
 	void Draw(Ui &, TileView &);
 
-	// at returns the location at the given x,y in the grid.
+	// At returns the location at the given x,y in the grid.
 	//
 	// This routine doesn't wrap around at the limits of
 	// the world.
@@ -91,27 +91,13 @@ public:
 		return locs.at(x*size.y.whole() + y);
 	}
 
-	// atcoord returns the location at the given world
+	// AtCoord returns the location at the given world
 	// coordinate taking into account wrapping around
 	// the ends.
-	Loc &AtCoord(int x, int y) {
-		if (x < 0)
-			x = width - -x%width;
-		else
-			x %= width;
-		if (y < 0)
-			y = height - -y%height;
-		else
-			y %= height;
-		return At(x, y);
-	}
+	Loc &AtCoord(int x, int y);
 
 	// AtPoint returns the location at the given point.
-	Loc &AtPoint(Vec2 pt) {
-		int x = Floor(pt.x / World::TileW).whole();
-		int y = Floor(pt.y / World::TileH).whole();
-		return AtCoord(x, y);
-	}
+	Loc &AtPoint(Vec2);
 
 	// The indices of the start tile.
 	int x0, y0;

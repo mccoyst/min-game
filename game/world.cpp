@@ -127,3 +127,22 @@ static string readLine(std::istream &in) {
 		return line;
 	}
 }
+
+World::Loc& World::AtCoord(int x, int y) {
+	if (x < 0)
+		x = width - -x%width;
+	else
+		x %= width;
+	if (y < 0)
+		y = height - -y%height;
+	else
+		y %= height;
+	return At(x, y);
+	
+}
+
+World::Loc &World::AtPoint(Vec2 pt) {
+	int x = Floor(pt.x / World::TileW).whole();
+	int y = Floor(pt.y / World::TileH).whole();
+	return AtCoord(x, y);
+}
