@@ -28,8 +28,8 @@ shared_ptr<Screen> NewTitleScreen(){
 }
 
 Title::Title()
-	: menu(LoadFont("resrc/prstartk.ttf", 12, White)){
-	auto tfont (LoadFont("resrc/prstartk.ttf", 64, White));
+	: menu(FindFont("prstartk.ttf", 12, White)){
+	auto tfont (FindFont("prstartk.ttf", 64, White));
 
 	title = move(tfont->Render("MINIMA"));
 	start = move(menu->Render("Press f to Start"));

@@ -22,6 +22,7 @@ OBJS:=\
 	popen.o\
 	player.o\
 	geom.o\
+	resrc.o\
 
 TILES :=\
 	Grass.png\
