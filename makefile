@@ -8,6 +8,7 @@ TARGS :=\
 	game/minima\
 	mksheet/mksheet\
 	resrc/tiles.png\
+	resrc/astro.png\
 
 OBJS:=\
 	main.o\
@@ -31,6 +32,12 @@ TILES :=\
 	Tree.png\
 	Desert.png\
 	Glacier.png\
+
+ASTRO :=\
+	Astronaut.png\
+	Astronaut-s1.png\
+	Astronaut.png\
+	Astronaut-s2.png\
 
 CXXFLAGS :=\
 	-std=c++0x\
@@ -115,6 +122,9 @@ mksheet/mksheet: mksheet/*.go
 
 resrc/tiles.png: $(TILES:%=resrc/%)
 	mksheet $^ $@
+
+resrc/astro.png: $(ASTRO:%=resrc/%)
+	mksheet $(ASTRO:%=resrc/%) $@
 
 include $(OBJS:%.o=_work/%.d)
 
