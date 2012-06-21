@@ -7,6 +7,8 @@
 #include <vector>
 #include <SDL_main.h>
 
+using std::vector;
+
 static void parseArgs(int, char*[]);
 
 int main(int argc, char *argv[]) try{

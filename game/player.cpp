@@ -23,7 +23,7 @@ void Body::Move(World &w) {
 	Fixed dh = Min(Abs(meanHeight(box1, w) - meanHeight(box, w)), MaxDh);
 	Fixed slope = (Fixed{0, 1} - Fixed{1}) / MaxDh;
 	Fixed scale = dh*slope + Fixed{1};
-	Vec2 v = vel * scale * w.terrain[w.AtPoint(box.Center()).terrain].velScale;
+	Vec2 v = vel * scale * w.TerrainAt(box.Center()).velScale;
 	if (vel.x < Fixed{} && v.x == Fixed{})
 		v.x = -Fixed{0, 1};
 	if (vel.x > Fixed{} && v.x == Fixed{})
