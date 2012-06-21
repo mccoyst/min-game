@@ -2,11 +2,7 @@
 
 #include "game.hpp"
 #include <cstdio>
-#include <string>
 #include <istream>
-#include <memory>
-
-using std::unique_ptr;
 
 namespace{
 	class fbuf : public std::streambuf{
