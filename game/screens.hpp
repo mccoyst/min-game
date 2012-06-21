@@ -3,11 +3,9 @@
 #include "ui.hpp"
 #include "fixed.hpp"
 #include <memory>
-#include <stack>
 
 using std::shared_ptr;
 using std::unique_ptr;
-using std::stack;
 
 struct Event;
 class Screen;
@@ -39,10 +37,8 @@ public:
 	};
 
 private:
-	stack<shared_ptr<Screen>> stk;
-	Ui &win;
-	unsigned long nFrames;
-	double meanFrame;
+	class Impl;
+	unique_ptr<Impl> impl;
 };
 
 class Screen {
