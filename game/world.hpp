@@ -3,8 +3,6 @@
 
 #include "fixed.hpp"
 #include "geom.hpp"
-#include <iosfwd>
-#include <memory>
 
 using std::unique_ptr;
 

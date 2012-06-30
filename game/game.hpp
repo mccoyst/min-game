@@ -1,10 +1,6 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 #include "fixed.hpp"
-#include <stdexcept>
-#include <string>
-#include <memory>
-#include <utility>
 
 using std::string;
 using std::unique_ptr;

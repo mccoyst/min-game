@@ -8,3 +8,5 @@ resrc/astro.png
 *.o
 *.a
 *.d
+game/std.hpp.gch
+*.orig

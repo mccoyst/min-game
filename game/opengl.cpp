@@ -2,8 +2,6 @@
 #include "opengl.hpp"
 #include <SDL_opengl.h>
 #include <cassert>
-#include <utility>
-#include <vector>
 
 using std::vector;
 

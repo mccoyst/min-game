@@ -2,7 +2,6 @@
 
 #include "game.hpp"
 #include <cstdio>
-#include <istream>
 
 namespace{
 	class fbuf : public std::streambuf{

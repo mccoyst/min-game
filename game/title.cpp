@@ -4,7 +4,6 @@
 #include "world.hpp"
 #include "screens.hpp"
 #include "io.hpp"
-#include <istream>
 
 extern unique_ptr<std::istream> Popen(const string&);
 static void loadingText(Ui &, Font&);
