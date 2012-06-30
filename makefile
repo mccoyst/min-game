@@ -130,19 +130,23 @@ include $(OBJS:%.o=_work/%.d)
 
 _work/%.d: game/%.cpp
 	@echo $@
-	@./dep.sh $(CXX) $(shell dirname $<) $(CXXFLAGS) $< > $@
+	@./dep.sh $(CXX) $(shell dirname $<) $(CXXFLAGS)  -include game/std.hpp $< > $@
 
 _work/%.d: game/%.m
 	@echo $@
 	@./dep.sh $(OBJCC) $(shell dirname $<) $(OBJCFLAGS) $< > $@
 
-_work/%.o: game/%.cpp
+_work/%.o: game/%.cpp game/std.hpp.gch
 	@echo $@
-	@$(CXX) -c -o $@ $(CXXFLAGS) $<
+	@$(CXX) -c -o $@ $(CXXFLAGS) -include game/std.hpp $<
 
 _work/%.o: game/%.m
 	@echo $@
 	@$(OBJCC) -c -o $@ $(OBJCFLAGS) $<
+
+game/std.hpp.gch: game/std.hpp
+	@echo $@
+	@$(CXX) -x c++-header $(CXXFLAGS) $<
 
 .PHONY: test clean nuke
 
@@ -155,7 +159,7 @@ nuke: clean
 
 test: $(TARGS)
 	@runt "-cxx=$(CXX)"\
-		"-cxxflags=$(CXXFLAGS)"\
+		"-cxxflags=$(CXXFLAGS)  -include game/std.hpp"\
 		"-ldflags=$(LDFLAGS)"\
 		-testdir=game\
 		$(filter-out _work/main.o _work/SDLMain.o,$(OBJS:%=_work/%))

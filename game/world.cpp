@@ -3,10 +3,7 @@
 #include "game.hpp"
 #include "io.hpp"
 #include "ui.hpp"
-#include <istream>
 #include <limits>
-#include <map>
-#include <vector>
 
 using std::vector;
 

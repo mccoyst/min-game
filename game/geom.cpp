@@ -2,7 +2,6 @@
 
 #include "geom.hpp"
 #include "ui.hpp"
-#include <cstdio>
 
 Isection Bbox::Isect(const Bbox &o) const {
 	Isection isect;

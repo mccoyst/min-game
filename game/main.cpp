@@ -4,7 +4,6 @@
 #include "io.hpp"
 #include "screens.hpp"
 #include "world.hpp"
-#include <vector>
 #include <SDL_main.h>
 
 using std::vector;

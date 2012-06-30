@@ -1,10 +1,6 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #pragma once
 
-#include <ostream>
-#include <sstream>
-#include <string>
-
 using std::string;
 
 std::ostream &cout();
