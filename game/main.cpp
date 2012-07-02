@@ -13,9 +13,9 @@ static void parseArgs(int, char*[]);
 int main(int argc, char *argv[]) try{
 	parseArgs(argc, argv);
 
-	Ui win (ScreenDims.x, ScreenDims.y, "Minima");
+	unique_ptr<Ui> win = NewUi(ScreenDims.x, ScreenDims.y, "Minima");
 
-	ScreenStack stk(win, NewTitleScreen());
+	ScreenStack stk(*win, NewTitleScreen());
 	stk.Run();
 
 	return 0;

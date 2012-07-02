@@ -8,6 +8,8 @@
 #include <SDL_ttf.h>
 #include <stack>
 
+namespace{
+
 class KeyHandler {
 public:
 	KeyHandler(){}
@@ -42,12 +44,28 @@ private:
 	bool IsStackable(int k);
 };
 
-struct Ui::Impl {
+class SdlUi : public Ui {
+public:
 	Vec2 cam;
 	SDL_Surface *win;
 	KeyHandler kh;
 	OpenGLUi gl;
-	Impl(Fixed w, Fixed h, const string &t);
+	SdlUi(Fixed w, Fixed h, const string &t);
+	virtual ~SdlUi();
+	virtual void DrawLine(const Vec2&, const Vec2&, const Color&);
+	virtual void FillRect(const Vec2&, const Vec2&, const Color&);
+	virtual void DrawRect(const Vec2&, const Vec2&, const Color&);
+	virtual void Draw(const Vec2&, Img&, float shade);
+	virtual void Draw(const Vec2&, const TileView&);
+	virtual void MoveCam(Vec2 v);
+	virtual void CenterCam(Vec2 v);
+	virtual Vec2 CamPos() const;
+	virtual void DrawCam(Vec2, Img&, float shade);
+	virtual void Flip();
+	virtual void Clear();
+	virtual void Delay(unsigned long msec);
+	virtual unsigned long Ticks();
+	virtual bool PollEvent(Event&);
 };
 
 struct SdlImg : public OpenGLImg {
@@ -66,6 +84,12 @@ struct SdlFont : public Font {
 	virtual unique_ptr<Img> Render(const string&);
 };
 
+} // namespace
+
+unique_ptr<Ui> NewUi(Fixed w, Fixed h, const string &title){
+	return make_unique<SdlUi>(w, h, title);
+}
+
 static SDL_Surface *init_sdl(Fixed w, Fixed h){
 	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		throw Failure("Failed to initialized SDL video");
@@ -78,12 +102,10 @@ static SDL_Surface *init_sdl(Fixed w, Fixed h){
 	return win;
 }
 
-Ui::Impl::Impl(Fixed w, Fixed h, const string &title)
-	: cam(Fixed(0), Fixed(0)), win(init_sdl(w, h)), gl(w, h) {
-}
-
-Ui::Ui(Fixed w, Fixed h, const string &title)
-	: impl(new Impl(w, h, title)), width(w), height(h) {
+SdlUi::SdlUi(Fixed w, Fixed h, const string &title)
+	: win(init_sdl(w, h)), gl(w, h) {
+	width = w;
+	height = h;
 	fprintf(stderr,"Vendor: %s\nRenderer: %s\nVersion: %s\nShade Lang. Version: %s\n",
 	glGetString(GL_VENDOR),
 	glGetString(GL_RENDERER),
@@ -98,59 +120,59 @@ Ui::Ui(Fixed w, Fixed h, const string &title)
 		throw Failure("Failed to initialize SDL_ttf: " + string(TTF_GetError()));
 }
 
-Ui::~Ui(){
+SdlUi::~SdlUi(){
 }
 
-void Ui::DrawLine(const Vec2 &a, const Vec2 &b, const Color &c){
-	impl->gl.DrawLine(a, b, c);
+void SdlUi::DrawLine(const Vec2 &a, const Vec2 &b, const Color &c){
+	gl.DrawLine(a, b, c);
 }
 
-void Ui::FillRect(const Vec2 &a, const Vec2 &b, const Color &c){
-	impl->gl.FillRect(a, b, c);
+void SdlUi::FillRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	gl.FillRect(a, b, c);
 }
 
-void Ui::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
-	impl->gl.DrawRect(a, b, c);
+void SdlUi::DrawRect(const Vec2 &a, const Vec2 &b, const Color &c){
+	gl.DrawRect(a, b, c);
 }
 
-void Ui::Draw(const Vec2 &p, Img &img, float shade){
-	impl->gl.Draw(p, img, shade);
+void SdlUi::Draw(const Vec2 &p, Img &img, float shade){
+	gl.Draw(p, img, shade);
 }
 
-void Ui::Draw(const Vec2 &p, const TileView &tv){
-	impl->gl.Draw(p, tv);
+void SdlUi::Draw(const Vec2 &p, const TileView &tv){
+	gl.Draw(p, tv);
 }
 
-void Ui::MoveCam(Vec2 v){
-	impl->cam += v;
+void SdlUi::MoveCam(Vec2 v){
+	cam += v;
 }
 
-void Ui::CenterCam(Vec2 v){
-	impl->cam.x = ScreenDims.x/Fixed{2} - v.x;
-	impl->cam.y = ScreenDims.y/Fixed{2} - v.y;
+void SdlUi::CenterCam(Vec2 v){
+	cam.x = ScreenDims.x/Fixed{2} - v.x;
+	cam.y = ScreenDims.y/Fixed{2} - v.y;
 }
 
-Vec2 Ui::CamPos() const{
-	return impl->cam;
+Vec2 SdlUi::CamPos() const{
+	return cam;
 }
 
-void Ui::DrawCam(Vec2 p, Img &i, float shade){
-	this->Draw(p + impl->cam, i, shade);
+void SdlUi::DrawCam(Vec2 p, Img &i, float shade){
+	Draw(p + cam, i, shade);
 }
 
-void Ui::Flip() {
+void SdlUi::Flip() {
 	SDL_GL_SwapBuffers();
 }
 
-void Ui::Clear(){
-	impl->gl.Clear();
+void SdlUi::Clear(){
+	gl.Clear();
 }
 
-void Ui::Delay(unsigned long msec) {
+void SdlUi::Delay(unsigned long msec) {
 	SDL_Delay(msec);
 }
 
-unsigned long Ui::Ticks() {
+unsigned long SdlUi::Ticks() {
 	return SDL_GetTicks();
 }
 
@@ -172,7 +194,7 @@ static bool getbutton(SDL_Event &sdle, Event &e) {
 }
 
 
-bool Ui::PollEvent(Event &e) {
+bool SdlUi::PollEvent(Event &e) {
 	SDL_Event sdle;
 	bool keydown;
 	static bool simulatedLast;
@@ -212,7 +234,7 @@ bool Ui::PollEvent(Event &e) {
 		case SDL_KEYUP:
 		case SDL_KEYDOWN:
 			keydown = (sdle.type == SDL_KEYDOWN)? true : false;
-			e.button = impl->kh.HandleStroke(sdle,keydown);
+			e.button = kh.HandleStroke(sdle,keydown);
 			e.type = keydown ? Event::KeyDown : Event::KeyUp;
 			simulatedLast = false;
 			return true;
@@ -223,8 +245,8 @@ bool Ui::PollEvent(Event &e) {
 		}
 	}
 
-	if(impl->kh.KeysDown() > 0 && !simulatedLast){
-		e.button = impl->kh.ActiveKey();
+	if(kh.KeysDown() > 0 && !simulatedLast){
+		e.button = kh.ActiveKey();
 		e.type = Event::KeyDown;
 		simulatedLast = true;
 		return true;

@@ -1,5 +1,6 @@
 // Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 #include "opengl.hpp"
+#include "game.hpp"
 #include <SDL_opengl.h>
 #include <cassert>
 
@@ -87,7 +88,10 @@ void OpenGLUi::Draw(const Vec2 &l, Img &i, float shade) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-struct TileView::Impl{
+namespace{
+
+class GlTileView : public TileView{
+public:
 	unique_ptr<Img> tileImgs;
 	int sheetw, sheeth, tilew, tileh;
 
@@ -97,29 +101,35 @@ struct TileView::Impl{
 	// The shade associated with each x,y.
 	vector<float> shades;
 
-	Impl(int w, int h, int tw, int th, unique_ptr<Img> &&img);
+	GlTileView(int w, int h, int tw, int th, unique_ptr<Img> &&img);
+	virtual ~GlTileView();
+	virtual void SetTile(int x, int y, int tile, float shade);
 };
 
-TileView::TileView(int w, int h, int tw, int th, unique_ptr<Img> &&img)
-	: impl(new Impl(w, h, tw, th, std::move(img))){
 }
 
-TileView::~TileView(){
+unique_ptr<TileView> NewTileView(int w, int h, int tw, int th, unique_ptr<Img> &&img){
+	return make_unique<GlTileView>(w, h, tw, th, move(img));
 }
 
-void TileView::SetTile(int x, int y, int tile, float shade) {
-	impl->tiles.at(x * impl->sheeth + y) = tile;
-	impl->shades.at(x * impl->sheeth + y) = shade;
-}
-
-TileView::Impl::Impl(int w, int h, int tw, int th, unique_ptr<Img> &&img)
-	: tileImgs(std::move(img)), sheetw(w), sheeth(h), tilew(tw), tileh(th){
+GlTileView::GlTileView(int w, int h, int tw, int th, unique_ptr<Img> &&img)
+	: tileImgs(std::move(img)),
+	sheetw(w), sheeth(h),
+	tilew(tw), tileh(th){
 	tiles.resize(w*h);
 	shades.resize(w*h);
 }
 
+GlTileView::~GlTileView(){
+}
+
+void GlTileView::SetTile(int x, int y, int tile, float shade) {
+	tiles.at(x * sheeth + y) = tile;
+	shades.at(x * sheeth + y) = shade;
+}
+
 void OpenGLUi::Draw(const Vec2 &offs, const TileView &tv) {
-	auto &view = *tv.impl;
+	auto &view = static_cast<const GlTileView&>(tv);
 	int xoff = offs.x.whole(), yoff = offs.y.whole();
 	GLfloat tilesWidth = view.tileImgs->Size().x.whole();
 

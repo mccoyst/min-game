@@ -21,7 +21,7 @@ public:
 
 private:
 	World *world;
-	TileView view;
+	unique_ptr<TileView> view;
 	unique_ptr<Img> astroimg;
 	Astro astro;
 };
@@ -32,11 +32,11 @@ shared_ptr<Screen> NewExploreScreen(World &w){
 
 ExploreScreen::ExploreScreen(World *w)
 	: world(w),
-	view((ScreenDims.x/World::TileW).whole() + 2,
+	view{NewTileView((ScreenDims.x/World::TileW).whole() + 2,
 		(ScreenDims.y/World::TileH).whole() + 3,
 		World::TileW.whole(),
 		World::TileH.whole(),
-		FindImg("tiles.png")),
+		FindImg("tiles.png"))},
 	astroimg(FindImg("Astronaut.png")),
 	astro(astroimg.get()){
 	astro.MoveTo(world->Start());
@@ -51,7 +51,7 @@ void ExploreScreen::Update(ScreenStack&) {
 void ExploreScreen::Draw(Ui &win) {
 	win.CenterCam(astro.Box().min);
 	win.Clear();
-	world->Draw(win, view);
+	world->Draw(win, *view);
 	astro.Draw(win);
 	win.Flip();
 }

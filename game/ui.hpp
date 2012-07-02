@@ -16,87 +16,83 @@ class TileView;
 // device input, and sound.
 class Ui{
 public:
-	struct Impl;
-	unique_ptr<Impl> impl;
-
 	// width and height are the dimensions of the window.
 	Fixed width, height;
 
-	// Ui constructs a new user interface that consists
-	// of a window with the given width and height.
-	Ui(Fixed w, Fixed h, const string &title);
-	~Ui();
+	virtual ~Ui();
 
 	// DrawLine draws the given line on the screen.
 	//
 	// This is probably slow so just use it for debugging stuff.
-	void DrawLine(const Vec2&, const Vec2&, const Color&);
+	virtual void DrawLine(const Vec2&, const Vec2&, const Color&) = 0;
 
 	// FillRect fills the given rectangle (specified by lower left
 	// vertex, and width/height) with some color.
 	//
 	// This is probably slow so just use it for debugging stuff.
-	void FillRect(const Vec2&, const Vec2&, const Color&);
+	virtual void FillRect(const Vec2&, const Vec2&, const Color&) = 0;
 
 	// DrawRect outlines the given rectangle (specified by lower left
 	// vertex, and width/height) with some color.
 	//
 	// This is probably slow so just use it for debugging stuff.
-	void DrawRect(const Vec2&, const Vec2&, const Color&);
+	virtual void DrawRect(const Vec2&, const Vec2&, const Color&) = 0;
 
 	// Draw draws the image to the back-buffer of the window.
 	// This image will not appear until the Flip() method is called.
 	// The shade argument is an alpha value between 0 (dark) and
 	// 1 (light).
-	void Draw(const Vec2&, Img&, float shade = 1);
+	virtual void Draw(const Vec2&, Img&, float shade = 1) = 0;
 
 	// Draw draws the tiles at the given offset.
-	void Draw(const Vec2&, const TileView&);
+	virtual void Draw(const Vec2&, const TileView&) = 0;
 
 	// MoveCam adds v to the camera's current position.
-	void MoveCam(Vec2 v);
+	virtual void MoveCam(Vec2 v) = 0;
 
 	// CenterCam moves the camera so that v is in the center.
-	void CenterCam(Vec2 v);
+	virtual void CenterCam(Vec2 v) = 0;
 
 	// CamPos returns the camera's current position.
-	Vec2 CamPos() const;
+	virtual Vec2 CamPos() const = 0;
 
 	// DrawCam draws the image from the camera's point of view.
-	void DrawCam(Vec2, Img&, float shade = 1);
+	virtual void DrawCam(Vec2, Img&, float shade = 1) = 0;
 
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
-	void Flip();
+	virtual void Flip() = 0;
 
 	// Clear draws black over the entire screen.
-	void Clear();
+	virtual void Clear() = 0;
 
 	// Delay waits for the specified number of milli-seconds
 	// before returning.
-	void Delay(unsigned long msec);
+	virtual void Delay(unsigned long msec) = 0;
 
 	// Ticks returns the number of milliseconds since the Ui
 	// was created.
-	unsigned long Ticks();
+	virtual unsigned long Ticks() = 0;
 
 	// PollEvent polls for events, returning true if the
 	// event was filled in and false if there were no
 	// events.
-	bool PollEvent(Event&);
+	virtual bool PollEvent(Event&) = 0;
 };
+
+// NewUi constructs a real user interface that consists
+// of a window with the given width and height.
+unique_ptr<Ui> NewUi(Fixed w, Fixed h, const string &title);
 
 class TileView{
 public:
-	struct Impl;
-	unique_ptr<Impl> impl;
-
-	TileView(int w, int h, int tw, int th, unique_ptr<Img> &&img);
-	~TileView();
+	virtual ~TileView();
 
 	// SetTile sets the tile image and shade for the given tile.
-	void SetTile(int x, int y, int tile, float shade);
+	virtual void SetTile(int x, int y, int tile, float shade) = 0;
 };
+
+unique_ptr<TileView> NewTileView(int w, int h, int tw, int th, unique_ptr<Img> &&img);
 
 struct Color {
 	constexpr Color(unsigned char r, unsigned char g, unsigned char b,
