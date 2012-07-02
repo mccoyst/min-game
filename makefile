@@ -126,7 +126,9 @@ resrc/tiles.png: $(TILES:%=resrc/%)
 resrc/astro.png: $(ASTRO:%=resrc/%)
 	mksheet $(ASTRO:%=resrc/%) $@
 
-include $(OBJS:%.o=_work/%.d)
+ifeq (,$(or $(findstring clean,$(MAKECMDGOALS)),$(findstring nuke,$(MAKECMDGOALS))))
+-include $(OBJS:%.o=_work/%.d)
+endif
 
 _work/%.d: game/%.cpp
 	@echo $@
