@@ -122,10 +122,10 @@ World::World(std::istream &in)
 World::~World(){
 }
 
-void World::Draw(Ui &ui, TileView &view) {
+void World::Draw(Camera cam, Ui &ui, TileView &view) {
 	Fixed w(ui.width / TileW);
 	Fixed h(ui.height / TileH);
-	Vec2 offs = ui.CamPos();
+	Vec2 offs = cam.Pos();
 
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
 	for (Fixed x(-1); x <= w; ++x) {
@@ -143,7 +143,7 @@ void World::Draw(Ui &ui, TileView &view) {
 	if (!drawHeights)
 		return;
 
-	offs = ui.CamPos();
+	offs = cam.Pos();
 	for (Fixed y(-1); y <= h + Fixed(1); ++y) {
 	for (Fixed x(-1); x <= w; ++x) {
 		int xcoord = (x - Trunc(offs.x/TileW)).whole();

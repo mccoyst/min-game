@@ -5,6 +5,7 @@
 
 class Img;
 class Ui;
+class Camera;
 class World;
 
 class Body {
@@ -26,5 +27,5 @@ public:
 
 	Astro(Img*);
 	Astro(const Astro&) = default;
-	void Draw(Ui&) const;
+	void Draw(Camera, Ui&) const;
 };

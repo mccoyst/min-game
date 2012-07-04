@@ -46,7 +46,6 @@ private:
 
 class SdlUi : public Ui {
 public:
-	Vec2 cam;
 	SDL_Surface *win;
 	KeyHandler kh;
 	OpenGLUi gl;
@@ -57,10 +56,6 @@ public:
 	virtual void DrawRect(const Vec2&, const Vec2&, const Color&);
 	virtual void Draw(const Vec2&, Img&, float shade);
 	virtual void Draw(const Vec2&, const TileView&);
-	virtual void MoveCam(Vec2 v);
-	virtual void CenterCam(Vec2 v);
-	virtual Vec2 CamPos() const;
-	virtual void DrawCam(Vec2, Img&, float shade);
 	virtual void Flip();
 	virtual void Clear();
 	virtual void Delay(unsigned long msec);
@@ -141,23 +136,6 @@ void SdlUi::Draw(const Vec2 &p, Img &img, float shade){
 
 void SdlUi::Draw(const Vec2 &p, const TileView &tv){
 	gl.Draw(p, tv);
-}
-
-void SdlUi::MoveCam(Vec2 v){
-	cam += v;
-}
-
-void SdlUi::CenterCam(Vec2 v){
-	cam.x = ScreenDims.x/Fixed{2} - v.x;
-	cam.y = ScreenDims.y/Fixed{2} - v.y;
-}
-
-Vec2 SdlUi::CamPos() const{
-	return cam;
-}
-
-void SdlUi::DrawCam(Vec2 p, Img &i, float shade){
-	Draw(p + cam, i, shade);
 }
 
 void SdlUi::Flip() {
