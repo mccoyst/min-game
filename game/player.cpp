@@ -64,6 +64,6 @@ Astro::Astro(Img *i)
 	sprite(i){
 }
 
-void Astro::Draw(Ui &ui) const{
-	ui.DrawCam(Box().min, *sprite);
+void Astro::Draw(Camera c, Ui &ui) const{
+	c.Draw(Box().min, ui, *sprite);
 }

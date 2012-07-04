@@ -24,6 +24,7 @@ OBJS:=\
 	player.o\
 	geom.o\
 	resrc.o\
+	camera.o\
 
 TILES :=\
 	Grass.png\

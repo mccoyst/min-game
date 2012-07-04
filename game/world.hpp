@@ -9,6 +9,7 @@ using std::unique_ptr;
 class Img;
 class TileView;
 class Ui;
+class Camera;
 
 class Terrain {
 public:
@@ -54,7 +55,7 @@ public:
 	~World();
 
 	// Draw draws the world to the given window.
-	void Draw(Ui &, TileView &);
+	void Draw(Camera, Ui &, TileView &);
 
 	// At returns the location at the given x,y in the grid.
 	//

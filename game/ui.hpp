@@ -11,6 +11,7 @@ class Img;
 struct Color;
 struct Event;
 class TileView;
+class Camera;
 
 // Ui is the interface to a user interface window, including graphics,
 // device input, and sound.
@@ -47,18 +48,6 @@ public:
 	// Draw draws the tiles at the given offset.
 	virtual void Draw(const Vec2&, const TileView&) = 0;
 
-	// MoveCam adds v to the camera's current position.
-	virtual void MoveCam(Vec2 v) = 0;
-
-	// CenterCam moves the camera so that v is in the center.
-	virtual void CenterCam(Vec2 v) = 0;
-
-	// CamPos returns the camera's current position.
-	virtual Vec2 CamPos() const = 0;
-
-	// DrawCam draws the image from the camera's point of view.
-	virtual void DrawCam(Vec2, Img&, float shade = 1) = 0;
-
 	// Flip swaps the back buffer with the screen buffer, effectively
 	// displaying everything that has been drawn to the Ui.
 	virtual void Flip() = 0;
@@ -83,6 +72,24 @@ public:
 // NewUi constructs a real user interface that consists
 // of a window with the given width and height.
 unique_ptr<Ui> NewUi(Fixed w, Fixed h, const string &title);
+
+class Camera{
+	Vec2 cam;
+public:
+	Camera() = default;
+
+	// MoveCam adds v to the camera's current position.
+	void Move(Vec2 v);
+
+	// CenterCam moves the camera so that v is in the center.
+	void Center(Vec2 v);
+
+	// CamPos returns the camera's current position.
+	Vec2 Pos() const;
+
+	// DrawCam draws the image from the camera's point of view.
+	void Draw(Vec2, Ui&, Img&, float shade = 1);
+};
 
 class TileView{
 public:

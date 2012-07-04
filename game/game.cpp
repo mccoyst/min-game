@@ -49,10 +49,11 @@ void ExploreScreen::Update(ScreenStack&) {
 }
 
 void ExploreScreen::Draw(Ui &win) {
-	win.CenterCam(astro.Box().min);
+	Camera c;
+	c.Center(astro.Box().min);
 	win.Clear();
-	world->Draw(win, *view);
-	astro.Draw(win);
+	world->Draw(c, win, *view);
+	astro.Draw(c, win);
 	win.Flip();
 }
 
