@@ -43,9 +43,27 @@ ASTRO :=\
 CXXFLAGS :=\
 	-std=c++0x\
 	-Wall\
+
+ifdef OPTIMIZE
+CXXFLAGS +=\
 	-O3\
 
+else
+CXXFLAGS +=\
+	-O0\
+	-g\
+	-coverage\
+
+endif
+
 LDFLAGS :=\
+
+ifndef OPTIMIZE
+LDFLAGS +=\
+	-g\
+	-coverage\
+
+endif
 
 ifeq ($(OS),Darwin)
 
@@ -73,9 +91,19 @@ CXXFLAGS +=\
 
 OBJCFLAGS :=\
 	-Wall\
-	-O3\
 	-Wno-objc-protocol-method-implementation\
 	$(HEADERFLAGS)
+
+ifdef OPTIMIZE
+OBJCFLAGS +=\
+	-O3\
+
+else
+OBJCFLAGS +=\
+	-O0\
+	-g\
+
+endif
 
 OBJS += SDLMain.o
 
@@ -156,6 +184,12 @@ game/std.hpp.gch: game/std.hpp
 clean:
 	rm -f _work/*.d
 	rm -f _work/*.o
+	rm -f game/std.hpp.gch
+	rm -f *.gcda
+	rm -f _work/*.gcda
+	rm -f *.gcno
+	rm -f _work/*.gcno
+	rm -f *.gcov
 
 nuke: clean
 	rm -f $(TARGS)

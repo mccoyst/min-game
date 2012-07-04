@@ -10,3 +10,6 @@ resrc/astro.png
 *.d
 game/std.hpp.gch
 *.orig
+*.gcov
+*.gcda
+*.gcno
