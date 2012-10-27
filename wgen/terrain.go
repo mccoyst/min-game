@@ -2,9 +2,9 @@
 package main
 
 import (
+	"code.google.com/p/min-game/world"
 	"math"
 	"math/rand"
-	"minima/world"
 	"strings"
 )
 

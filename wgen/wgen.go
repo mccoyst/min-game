@@ -3,10 +3,10 @@ package main
 
 import (
 	"bufio"
+	"code.google.com/p/min-game/world"
 	"flag"
 	"fmt"
 	"math/rand"
-	"minima/world"
 	"os"
 	"runtime/pprof"
 	"time"

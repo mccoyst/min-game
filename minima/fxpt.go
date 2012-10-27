@@ -6,7 +6,7 @@ import "fmt"
 
 const (
 	FixedPoint = 4
-	FixedMask = 1<<FixedPoint - 1
+	FixedMask  = 1<<FixedPoint - 1
 )
 
 type Fxpt struct {
