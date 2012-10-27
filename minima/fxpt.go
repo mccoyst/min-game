@@ -4,7 +4,10 @@ package main
 
 import "fmt"
 
-const FixedPoint = 4
+const (
+	FixedPoint = 4
+	FixedMask = 1<<FixedPoint - 1
+)
 
 type Fxpt struct {
 	int32
@@ -15,7 +18,7 @@ func F(whole int32) Fxpt {
 }
 
 func Fp(whole, frac int32) Fxpt {
-	return Fxpt{whole<<FixedPoint | frac&0x0f}
+	return Fxpt{whole<<FixedPoint | frac&FixedMask}
 }
 
 func (n Fxpt) Whole() int {
@@ -23,7 +26,7 @@ func (n Fxpt) Whole() int {
 }
 
 func (n Fxpt) String() string {
-	return fmt.Sprintf("%d.%02x", n.int32>>FixedPoint, n.int32&0x0f)
+	return fmt.Sprintf("%d.%02x", n.int32>>FixedPoint, n.int32&FixedMask)
 }
 
 func (n Fxpt) Add(m Fxpt) Fxpt {
