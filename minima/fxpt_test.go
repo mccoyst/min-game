@@ -36,7 +36,73 @@ func TestAdd(t *testing.T) {
 
 	for _, tt := range tests {
 		if !tt.a.Add(tt.b).Eq(tt.c) {
-			t.Error(tt.a, "+", tt.b, "!=", tt.c)
+			t.Error(tt.a, "+", tt.b, "==", tt.a.Add(tt.b), "!=", tt.c)
+		}
+	}
+}
+
+func TestSub(t *testing.T) {
+	type test struct{ a, b, c Fxpt }
+	tests := []test{
+		test{Fp(1, 0), Fp(1, 0), Fp(0, 0)},
+		test{Fp(1, 0), Fp(0, 0), Fp(1, 0)},
+		test{Fp(0, 0), Fp(1, 0), Fp(-1, 0)},
+		test{Fp(1, 0), Fp(2, 0), Fp(-1, 0)},
+		test{Fp(0, 8), Fp(0, 8), Fp(0, 0)},
+		test{Fp(1, 0), Fp(0, 1), Fp(0, 15)},
+	}
+
+	for _, tt := range tests {
+		if !tt.a.Sub(tt.b).Eq(tt.c) {
+			t.Error(tt.a, "-", tt.b, "==", tt.a.Sub(tt.b), "!=", tt.c)
+		}
+	}
+}
+
+func TestMul(t *testing.T) {
+	type test struct{ a, b, c Fxpt }
+	tests := []test{
+		test{Fp(1, 0), Fp(0, 0), Fp(0, 0)},
+		test{Fp(1, 0), Fp(1, 0), Fp(1, 0)},
+		test{Fp(1, 0), Fp(-1, 0), Fp(-1, 0)},
+		test{Fp(1, 0), Fp(2, 0), Fp(2, 0)},
+	}
+
+	for _, tt := range tests {
+		if !tt.a.Mul(tt.b).Eq(tt.c) {
+			t.Error(tt.a, "*", tt.b, "==", tt.a.Mul(tt.b), "!=", tt.c)
+		}
+	}
+}
+
+func TestDiv(t *testing.T) {
+	type test struct{ a, b, c Fxpt }
+	tests := []test{
+		test{Fp(1, 0), Fp(1, 0), Fp(1, 0)},
+		test{Fp(2, 0), Fp(1, 0), Fp(2, 0)},
+		test{Fp(1, 0), Fp(2, 0), Fp(0, 1<<(FixedPoint-1))},
+	}
+
+	for _, tt := range tests {
+		if !tt.a.Div(tt.b).Eq(tt.c) {
+			t.Error(tt.a, "÷", tt.b, "==", tt.a.Div(tt.b), "!=", tt.c)
+		}
+	}
+}
+
+func TestRem(t *testing.T) {
+	type test struct{ a, b, c Fxpt }
+	tests := []test{
+		test{Fp(100, 0), Fp(100, 0), Fp(0, 0)},
+		test{Fp(100, 0), Fp(50, 0), Fp(0, 0)},
+		test{Fp(100, 0), Fp(25, 0), Fp(0, 0)},
+		test{Fp(100, 0), Fp(99, 0), Fp(1, 0)},
+		test{Fp(100, 0), Fp(51, 0), Fp(49, 0)},
+	}
+
+	for _, tt := range tests {
+		if !tt.a.Rem(tt.b).Eq(tt.c) {
+			t.Error(tt.a, "%", tt.b, "==", tt.a.Rem(tt.b), "!=", tt.c)
 		}
 	}
 }
