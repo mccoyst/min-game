@@ -3,8 +3,8 @@ package main
 
 import (
 	"bufio"
+	"code.google.com/p/min-game/world"
 	"flag"
-	"minima/world"
 	"os"
 )
 

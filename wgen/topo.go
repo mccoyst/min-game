@@ -3,7 +3,7 @@ package main
 
 import (
 	"code.google.com/p/eaburns/djsets"
-	"minima/world"
+	"code.google.com/p/min-game/world"
 )
 
 // topoMap are a set of connected components of
