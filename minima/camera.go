@@ -2,23 +2,27 @@
 
 package main
 
+import (
+	"code.google.com/p/min-game/ui"
+)
+
 type Camera struct {
-	cam Point
+	cam ui.Point
 }
 
-func (c *Camera) Move(v Point) {
+func (c *Camera) Move(v ui.Point) {
 	c.cam.Add(v)
 }
 
-func (c *Camera) Center(v Point) {
-	c.cam.X = ScreenDims.X.Div(F(2)).Sub(v.X)
-	c.cam.Y = ScreenDims.Y.Div(F(2)).Sub(v.Y)
+func (c *Camera) Center(v ui.Point) {
+	c.cam.X = ScreenDims.X.Div(ui.F(2)).Sub(v.X)
+	c.cam.Y = ScreenDims.Y.Div(ui.F(2)).Sub(v.Y)
 }
 
-func (c *Camera) Pos() Point {
+func (c *Camera) Pos() ui.Point {
 	return c.cam
 }
 
-func (c *Camera) Draw(p Point, ui Ui, img Img, shade float32) {
-	img.Draw(ui, p.Add(c.cam), shade)
+func (c *Camera) Draw(p ui.Point, u ui.Ui, img ui.Img, shade float32) {
+	img.Draw(u, p.Add(c.cam), shade)
 }

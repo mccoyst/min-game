@@ -2,9 +2,13 @@
 
 package main
 
+import (
+	"code.google.com/p/min-game/ui"
+)
+
 type Phys struct {
-	Box Rectangle
-	Vel Point
+	Box ui.Rectangle
+	Vel ui.Point
 }
 
 func (p *Phys) Move() {
