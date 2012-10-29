@@ -1,6 +1,6 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 
-package main
+package ui
 
 // A Point is an X, Y coordinate pair. The axes increase right and down.
 type Point struct {

@@ -6,43 +6,45 @@ import (
 	"os"
 	"runtime"
 	"time"
+
+	"code.google.com/p/min-game/ui"
 )
 
-var ScreenDims = Pt(F(640), F(480))
+var ScreenDims = ui.Pt(ui.F(640), ui.F(480))
 
 func init() {
 	runtime.LockOSThread()
 }
 
 func main() {
-	ui, err := NewUi("minima", ScreenDims.X.Whole(), ScreenDims.Y.Whole())
+	u, err := ui.NewUi("minima", ScreenDims.X.Whole(), ScreenDims.Y.Whole())
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
 		os.Exit(1)
 	}
-	defer ui.Quit()
+	defer u.Quit()
 
 	for running := true; running; {
 		frameStart := time.Now()
 		for {
-			e := ui.PollEvent()
+			e := u.PollEvent()
 			if e == nil {
 				break
 			}
 			switch event := e.(type) {
-			case Quit:
+			case ui.Quit:
 				running = false
 				break
-			case Key:
+			case ui.Key:
 				if event.Repeat {
 					continue
 				}
 			}
 		}
 
-		ui.SetColor(0, 0, 0, 255)
-		ui.Clear()
-		ui.Show()
+		u.SetColor(0, 0, 0, 255)
+		u.Clear()
+		u.Show()
 
 		frameLen := time.Now().Sub(frameStart)
 		if frameLen < 16*time.Millisecond {
