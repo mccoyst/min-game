@@ -15,8 +15,8 @@ func (c *Camera) Move(v ui.Point) {
 }
 
 func (c *Camera) Center(v ui.Point) {
-	c.cam.X = ScreenDims.X.Div(ui.F(2)).Sub(v.X)
-	c.cam.Y = ScreenDims.Y.Div(ui.F(2)).Sub(v.Y)
+	c.cam.X = ScreenDims.X / 2.0 - v.X
+	c.cam.Y = ScreenDims.Y / 2.0 - v.Y
 }
 
 func (c *Camera) Pos() ui.Point {
