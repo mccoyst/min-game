@@ -236,7 +236,7 @@ func (img sdlImg) Draw(ui Ui, p Point, shade float32) {
 	var w, h, access C.int
 	C.SDL_QueryTexture(img.tex, &format, &access, &w, &h)
 	C.SDL_RenderCopy(sdl.rend, img.tex, nil, &C.SDL_Rect{
-		C.int(p.X.Whole()), C.int(p.Y.Whole()), w, h})
+		C.int(p.X), C.int(p.Y), w, h})
 }
 
 func sdlError() error {

@@ -2,33 +2,37 @@
 
 package ui
 
+import (
+	"strconv"
+)
+
 // A Point is an X, Y coordinate pair. The axes increase right and down.
 type Point struct {
-	X, Y Fxpt
+	X, Y float64
 }
 
 // String returns a string representation of p like "(3.00,4.01)".
 func (p Point) String() string {
-	return "(" + p.X.String() + "," + p.Y.String() + ")"
+	return "(" + strconv.FormatFloat(p.X, 'f', -1, 64) + "," + strconv.FormatFloat(p.Y, 'f', -1, 64) + ")"
 }
 
 // Add returns the vector p+q.
 func (p Point) Add(q Point) Point {
-	return Point{p.X.Add(q.X), p.Y.Add(q.Y)}
+	return Point{p.X + q.X, p.Y + q.Y}
 }
 
 // Sub returns the vector p-q.
 func (p Point) Sub(q Point) Point {
-	return Point{p.X.Sub(q.X), p.Y.Sub(q.Y)}
+	return Point{p.X - q.X, p.Y - q.Y}
 }
 
 // Eq returns whether p and q are equal.
 func (p Point) Eq(q Point) bool {
-	return p.X.Eq(q.X) && p.Y.Eq(q.Y)
+	return p.X == q.X && p.Y == q.Y
 }
 
 // Pt is shorthand for Point{X, Y}.
-func Pt(X, Y Fxpt) Point {
+func Pt(X, Y float64) Point {
 	return Point{X, Y}
 }
 
@@ -46,13 +50,13 @@ func (r Rectangle) String() string {
 }
 
 // Dx returns r's width.
-func (r Rectangle) Dx() Fxpt {
-	return r.Max.X.Sub(r.Min.X)
+func (r Rectangle) Dx() float64 {
+	return r.Max.X - r.Min.X
 }
 
 // Dy returns r's height.
-func (r Rectangle) Dy() Fxpt {
-	return r.Max.Y.Sub(r.Min.Y)
+func (r Rectangle) Dy() float64 {
+	return r.Max.Y - r.Min.Y
 }
 
 // Size returns r's width and height.
@@ -63,16 +67,16 @@ func (r Rectangle) Size() Point {
 // Add returns the rectangle r translated by p.
 func (r Rectangle) Add(p Point) Rectangle {
 	return Rectangle{
-		Point{r.Min.X.Add(p.X), r.Min.Y.Add(p.Y)},
-		Point{r.Max.X.Add(p.X), r.Max.Y.Add(p.Y)},
+		Point{r.Min.X + p.X, r.Min.Y + p.Y},
+		Point{r.Max.X + p.X, r.Max.Y + p.Y},
 	}
 }
 
 // Sub returns the rectangle r translated by -p.
 func (r Rectangle) Sub(p Point) Rectangle {
 	return Rectangle{
-		Point{r.Min.X.Sub(p.X), r.Min.Y.Sub(p.Y)},
-		Point{r.Max.X.Sub(p.X), r.Max.Y.Sub(p.Y)},
+		Point{r.Min.X - p.X, r.Min.Y - p.Y},
+		Point{r.Max.X - p.X, r.Max.Y - p.Y},
 	}
 }
 
@@ -84,16 +88,16 @@ func (r Rectangle) Eq(s Rectangle) bool {
 
 // Overlaps returns whether r and s have a non-empty intersection.
 func (r Rectangle) Overlaps(s Rectangle) bool {
-	return r.Min.X.Lt(s.Max.X) && s.Min.X.Lt(r.Max.X) &&
-		r.Min.Y.Lt(s.Max.Y) && s.Min.Y.Lt(r.Max.Y)
+	return r.Min.X < s.Max.X && s.Min.X < r.Max.X &&
+		r.Min.Y < s.Max.Y && s.Min.Y < r.Max.Y
 }
 
 // Rect is shorthand for Rectangle{Pt(x0, y0), Pt(x1, y1)}.
-func Rect(x0, y0, x1, y1 Fxpt) Rectangle {
-	if x0.Gt(x1) {
+func Rect(x0, y0, x1, y1 float64) Rectangle {
+	if x0 > x1 {
 		x0, x1 = x1, x0
 	}
-	if y0.Gt(y1) {
+	if y0 > y1 {
 		y0, y1 = y1, y0
 	}
 	return Rectangle{Point{x0, y0}, Point{x1, y1}}

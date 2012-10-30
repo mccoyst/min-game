@@ -10,14 +10,14 @@ import (
 	"code.google.com/p/min-game/ui"
 )
 
-var ScreenDims = ui.Pt(ui.F(640), ui.F(480))
+var ScreenDims = ui.Pt(640, 480)
 
 func init() {
 	runtime.LockOSThread()
 }
 
 func main() {
-	u, err := ui.NewUi("minima", ScreenDims.X.Whole(), ScreenDims.Y.Whole())
+	u, err := ui.NewUi("minima", int(ScreenDims.X), int(ScreenDims.Y))
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
 		os.Exit(1)
