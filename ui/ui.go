@@ -57,22 +57,21 @@ const (
 	Bomb
 )
 
+var ButtonNames = map[Button]string{
+	Unknown: "Unknown",
+	Left: "Left",
+	Right: "Right",
+	Up: "Up",
+	Down: "Down",
+	Shoot: "Shoot",
+	Bomb: "Bomb",
+}
+
 func (b Button) String() string {
-	switch b {
-	case Left:
-		return "Left"
-	case Right:
-		return "Right"
-	case Up:
-		return "Up"
-	case Down:
-		return "Down"
-	case Shoot:
-		return "Shoot"
-	case Bomb:
-		return "Bomb"
+	if s, ok := ButtonNames[b]; ok {
+		return s
 	}
-	return "?Unkown Button?"
+	return ButtonNames[Unknown]
 }
 
 var DefaultKeymap = map[KeyCode]Button{
