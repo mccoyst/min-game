@@ -23,6 +23,6 @@ func (c *Camera) Pos() ui.Point {
 	return c.cam
 }
 
-func (c *Camera) Draw(p ui.Point, u ui.Ui, img ui.Img, shade float32) {
+func (c *Camera) Draw(p ui.Point, u *ui.Ui, img ui.Img, shade float32) {
 	img.Draw(u, p.Add(c.cam), shade)
 }

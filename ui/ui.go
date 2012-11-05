@@ -83,24 +83,14 @@ var DefaultKeymap = map[KeyCode]Button{
 	KeyCode(C.SDLK_k): Bomb,
 }
 
-type Ui interface {
-	Quit()
-	Clear()
-	LoadImg(string) (Img, error)
-	FillRect(x, y, w, h int)
-	SetColor(r, g, b, a uint8)
-	Show()
-	PollEvent() Event
-}
-
 // SDL-specific:
 
-type sdl struct {
+type Ui struct {
 	win  *C.SDL_Window
 	rend *C.SDL_Renderer
 }
 
-func NewUi(title string, w, h int) (Ui, error) {
+func New(title string, w, h int) (*Ui, error) {
 	e := C.SDL_Init(C.SDL_INIT_EVERYTHING)
 	if e != 0 {
 		return nil, sdlError()
@@ -124,16 +114,16 @@ func NewUi(title string, w, h int) (Ui, error) {
 		return nil, sdlError()
 	}
 
-	return &sdl{win: win, rend: rend}, nil
+	return &Ui{win: win, rend: rend}, nil
 }
 
-func (ui *sdl) Quit() {
+func (ui *Ui) Close() {
 	C.SDL_DestroyRenderer(ui.rend)
 	C.SDL_DestroyWindow(ui.win)
 	C.SDL_Quit()
 }
 
-func (ui *sdl) PollEvent() Event {
+func (ui *Ui) PollEvent() Event {
 	var e C.SDL_Event
 	if C.SDL_PollEvent(&e) == 0 {
 		return nil
@@ -154,32 +144,32 @@ func (ui *sdl) PollEvent() Event {
 	return nil
 }
 
-func (ui *sdl) SetColor(r, g, b, a uint8) {
+func (ui *Ui) SetColor(r, g, b, a uint8) {
 	C.SDL_SetRenderDrawColor(ui.rend,
 		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
 }
 
-func (ui *sdl) Clear() {
+func (ui *Ui) Clear() {
 	C.SDL_RenderClear(ui.rend)
 }
 
-func (ui *sdl) FillRect(x, y, w, h int) {
+func (ui *Ui) FillRect(x, y, w, h int) {
 	C.SDL_RenderFillRect(ui.rend, &C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
 }
 
-func (ui *sdl) Show() {
+func (ui *Ui) Show() {
 	C.SDL_RenderPresent(ui.rend)
 }
 
 type Img interface {
-	Draw(Ui, Point, float32)
+	Draw(*Ui, Point, float32)
 }
 
 type sdlImg struct {
 	tex *C.SDL_Texture
 }
 
-func (ui *sdl) LoadImg(path string) (Img, error) {
+func (ui *Ui) LoadImg(path string) (Img, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -229,12 +219,11 @@ func RGBA(img image.Image, name string) *image.RGBA {
 	return rgba
 }
 
-func (img sdlImg) Draw(ui Ui, p Point, shade float32) {
-	sdl := ui.(*sdl)
+func (img sdlImg) Draw(ui *Ui, p Point, shade float32) {
 	var format C.Uint32
 	var w, h, access C.int
 	C.SDL_QueryTexture(img.tex, &format, &access, &w, &h)
-	C.SDL_RenderCopy(sdl.rend, img.tex, nil, &C.SDL_Rect{
+	C.SDL_RenderCopy(ui.rend, img.tex, nil, &C.SDL_Rect{
 		C.int(p.X), C.int(p.Y), w, h})
 }
 

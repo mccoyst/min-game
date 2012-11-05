@@ -17,12 +17,12 @@ func init() {
 }
 
 func main() {
-	u, err := ui.NewUi("minima", int(ScreenDims.X), int(ScreenDims.Y))
+	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y))
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
 		os.Exit(1)
 	}
-	defer u.Quit()
+	defer u.Close()
 
 	for running := true; running; {
 		frameStart := time.Now()
