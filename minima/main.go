@@ -44,6 +44,11 @@ func main() {
 
 		u.SetColor(0, 0, 0, 255)
 		u.Clear()
+		u.SetColor(255, 255, 255, 255)
+		u.Write([]byte(
+`rectfill 64 64 23 76
+img resrc/Astronaut.png 0 4 5 6 7 8 1.0
+`))
 		u.Sync()
 
 		frameLen := time.Now().Sub(frameStart)

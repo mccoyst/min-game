@@ -61,11 +61,11 @@ func rectfill(ui *Ui, args []string) error {
 func img(ui *Ui, args []string) error {
 	name := args[0]
 	var x, y, subx, suby, w, h int
-	err := parseInts(args[1:6], &x, &y, &subx, &suby, &w, &h)
+	err := parseInts(args[1:7], &x, &y, &subx, &suby, &w, &h)
 	if err != nil {
 		return err
 	}
-	shade, err := strconv.ParseFloat(args[6], 32)
+	shade, err := strconv.ParseFloat(args[7], 32)
 	drawImg(ui, name, x, y, subx, suby, w, h, float32(shade))
 	return nil	
 }
