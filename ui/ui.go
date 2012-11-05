@@ -153,23 +153,22 @@ func (ui *Ui) Clear() {
 	C.SDL_RenderClear(ui.rend)
 }
 
-func (ui *Ui) FillRect(x, y, w, h int) {
-	C.SDL_RenderFillRect(ui.rend, &C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
-}
-
-func (ui *Ui) Show() {
+func (ui *Ui) Sync() error {
 	C.SDL_RenderPresent(ui.rend)
-}
-
-type Img interface {
-	Draw(*Ui, Point, float32)
+	return nil
 }
 
 type sdlImg struct {
 	tex *C.SDL_Texture
 }
 
-func (ui *Ui) LoadImg(path string) (Img, error) {
+var imgCache = map[string]*sdlImg{}
+
+func loadImg(ui *Ui, path string) (*sdlImg, error) {
+	if img, ok := imgCache[path]; ok {
+		return img, nil
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -199,7 +198,9 @@ func (ui *Ui) LoadImg(path string) (Img, error) {
 		return nil, sdlError()
 	}
 	C.SDL_SetTextureBlendMode(tex, C.SDL_BLENDMODE_BLEND)
-	return sdlImg{tex}, nil
+	si := &sdlImg{tex}
+	imgCache[path] = si
+	return si, nil
 }
 
 // BUG(mccoyst): RGBA assumes the image bounds starts at (0,0).
@@ -219,14 +220,21 @@ func RGBA(img image.Image, name string) *image.RGBA {
 	return rgba
 }
 
-func (img sdlImg) Draw(ui *Ui, p Point, shade float32) {
-	var format C.Uint32
-	var w, h, access C.int
-	C.SDL_QueryTexture(img.tex, &format, &access, &w, &h)
-	C.SDL_RenderCopy(ui.rend, img.tex, nil, &C.SDL_Rect{
-		C.int(p.X), C.int(p.Y), w, h})
-}
-
 func sdlError() error {
 	return errors.New(C.GoString(C.SDL_GetError()))
+}
+
+func fillRect(ui *Ui, x, y, w, h int) {
+	C.SDL_RenderFillRect(ui.rend, &C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
+}
+
+func drawImg(ui *Ui, name string, x, y, subx, suby, w, h int, shade float32) error {
+	img, err := loadImg(ui, name)
+	if err != nil {
+		return err
+	}
+	C.SDL_RenderCopy(ui.rend, img.tex,
+		&C.SDL_Rect{C.int(subx), C.int(suby), C.int(w), C.int(h)},
+		&C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
+	return nil
 }
