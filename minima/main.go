@@ -44,7 +44,7 @@ func main() {
 
 		u.SetColor(0, 0, 0, 255)
 		u.Clear()
-		u.Show()
+		u.Sync()
 
 		frameLen := time.Now().Sub(frameStart)
 		if frameLen < 16*time.Millisecond {
