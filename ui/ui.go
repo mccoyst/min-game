@@ -88,6 +88,8 @@ var DefaultKeymap = map[KeyCode]Button{
 type Ui struct {
 	win  *C.SDL_Window
 	rend *C.SDL_Renderer
+
+	imgCache map[string]*sdlImg
 }
 
 func New(title string, w, h int) (*Ui, error) {
@@ -114,7 +116,7 @@ func New(title string, w, h int) (*Ui, error) {
 		return nil, sdlError()
 	}
 
-	return &Ui{win: win, rend: rend}, nil
+	return &Ui{win: win, rend: rend, imgCache: make(map[string]*sdlImg)}, nil
 }
 
 func (ui *Ui) Close() {
@@ -162,10 +164,8 @@ type sdlImg struct {
 	tex *C.SDL_Texture
 }
 
-var imgCache = map[string]*sdlImg{}
-
 func loadImg(ui *Ui, path string) (*sdlImg, error) {
-	if img, ok := imgCache[path]; ok {
+	if img, ok := ui.imgCache[path]; ok {
 		return img, nil
 	}
 
@@ -199,7 +199,7 @@ func loadImg(ui *Ui, path string) (*sdlImg, error) {
 	}
 	C.SDL_SetTextureBlendMode(tex, C.SDL_BLENDMODE_BLEND)
 	si := &sdlImg{tex}
-	imgCache[path] = si
+	ui.imgCache[path] = si
 	return si, nil
 }
 
