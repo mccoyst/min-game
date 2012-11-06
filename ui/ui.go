@@ -190,7 +190,7 @@ func loadImg(ui *Ui, path string) (*sdlImg, error) {
 			C.int(bounds.Dy()))
 	}
 
-	rgba := RGBA(img, path)
+	rgba := asRgba(img, path)
 	tex := newTex(C.sdl_rgba_fmt(C.int(isLE)))
 	e := C.SDL_UpdateTexture(tex, nil, unsafe.Pointer(&rgba.Pix[0]), C.int(rgba.Stride))
 	if e != 0 {
@@ -203,8 +203,8 @@ func loadImg(ui *Ui, path string) (*sdlImg, error) {
 	return si, nil
 }
 
-// BUG(mccoyst): RGBA assumes the image bounds starts at (0,0).
-func RGBA(img image.Image, name string) *image.RGBA {
+// BUG(mccoyst): asRgba assumes the image bounds starts at (0,0).
+func asRgba(img image.Image, name string) *image.RGBA {
 	if rgba, ok := img.(*image.RGBA); ok {
 		return rgba
 	}
