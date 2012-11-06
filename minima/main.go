@@ -3,11 +3,17 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"runtime"
-	"time"
 
 	"code.google.com/p/min-game/ui"
+)
+
+// Command flags
+var (
+	drawHeights = flag.Bool("heights", false, "draw tile height values — SLOW")
+	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
 )
 
 var ScreenDims = ui.Pt(640, 480)
@@ -17,6 +23,8 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
+
 	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y))
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
@@ -24,37 +32,6 @@ func main() {
 	}
 	defer u.Close()
 
-	for running := true; running; {
-		frameStart := time.Now()
-		for {
-			e := u.PollEvent()
-			if e == nil {
-				break
-			}
-			switch event := e.(type) {
-			case ui.Quit:
-				running = false
-				break
-			case ui.Key:
-				if event.Repeat {
-					continue
-				}
-			}
-		}
-
-		u.SetColor(0, 0, 0, 255)
-		u.Clear()
-		u.SetColor(255, 255, 255, 255)
-		u.Write([]byte(
-`rectfill 64 64 23 76
-img resrc/Astronaut.png 0 4 7 8 1.0 5 6
-img resrc/Cow.png 128 128 16 16 1.0
-`))
-		u.Sync()
-
-		frameLen := time.Now().Sub(frameStart)
-		if frameLen < 16*time.Millisecond {
-			time.Sleep(16*time.Millisecond - frameLen)
-		}
-	}
+	stk := NewScreenStack(u, NewTitleScreen())
+	stk.Run()
 }
