@@ -47,7 +47,8 @@ func main() {
 		u.SetColor(255, 255, 255, 255)
 		u.Write([]byte(
 `rectfill 64 64 23 76
-img resrc/Astronaut.png 0 4 5 6 7 8 1.0
+img resrc/Astronaut.png 0 4 7 8 1.0 5 6
+img resrc/Cow.png 128 128 16 16 1.0
 `))
 		u.Sync()
 
