@@ -46,6 +46,7 @@ func reclen(r []string) int {
 var dispatch = map[string]func(*Ui, []string)error{
 	"rectfill": rectfill,
 	"img": img,
+	"color": color,
 }
 
 func rectfill(ui *Ui, args []string) error {
@@ -85,6 +86,25 @@ func img(ui *Ui, args []string) error {
 
 	drawImg(ui, name, x, y, subx, suby, w, h, float32(shade))
 	return nil	
+}
+
+func color(ui *Ui, args []string) error {
+	var r, g, b int
+	err := parseInts(args[:3], &r, &g, &b) // meow
+	if err != nil {
+		return err
+	}
+
+	a := 255
+	if len(args) == 4 {
+		a, err = strconv.Atoi(args[3])
+		if err != nil {
+			return err
+		}
+	}
+
+	setColor(ui, r, g, b, a)
+	return nil
 }
 
 func parseInts(args []string, n ...*int) error {

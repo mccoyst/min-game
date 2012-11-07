@@ -65,7 +65,7 @@ func (s *ScreenStack) Run() {
 			}
 		}
 
-		s.win.SetColor(0, 0, 0, 255)
+		s.win.Write([]byte("color 0 0 0"))
 		s.win.Clear()
 		s.top().Draw(s.win)
 		s.win.Sync()
