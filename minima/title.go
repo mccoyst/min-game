@@ -9,6 +9,7 @@ import (
 )
 
 type TitleScreen struct {
+	frame int
 }
 
 func NewTitleScreen() *TitleScreen {
@@ -19,7 +20,7 @@ func (t *TitleScreen) Draw(w io.Writer) error {
 	_, err := w.Write([]byte(
 `color 255 255 255
 rectfill 64 64 23 76
-img resrc/Astronaut.png 0 4 7 8 1.0 5 6
+img resrc/Astronaut.png 64 64 16 16 1.0 16 0
 img resrc/Cow.png 128 128 16 16 1.0
 `))
 	return err

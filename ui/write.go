@@ -78,7 +78,7 @@ func doImg(ui *Ui, args []string) error {
 		}
 	}
 	if len(args) == 8 {
-		suby, err = strconv.Atoi(args[6])
+		suby, err = strconv.Atoi(args[7])
 		if err != nil {
 			return err
 		}
