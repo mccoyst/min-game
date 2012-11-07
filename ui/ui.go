@@ -146,11 +146,6 @@ func (ui *Ui) PollEvent() Event {
 	return nil
 }
 
-func (ui *Ui) SetColor(r, g, b, a uint8) {
-	C.SDL_SetRenderDrawColor(ui.rend,
-		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
-}
-
 func (ui *Ui) Clear() {
 	C.SDL_RenderClear(ui.rend)
 }
@@ -237,4 +232,9 @@ func drawImg(ui *Ui, name string, x, y, subx, suby, w, h int, shade float32) err
 		&C.SDL_Rect{C.int(subx), C.int(suby), C.int(w), C.int(h)},
 		&C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
 	return nil
+}
+
+func setColor(ui *Ui, r, g, b, a int) {
+	C.SDL_SetRenderDrawColor(ui.rend,
+		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
 }

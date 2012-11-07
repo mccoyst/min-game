@@ -16,9 +16,9 @@ func NewTitleScreen() *TitleScreen {
 }
 
 func (t *TitleScreen) Draw(w io.Writer) error {
-	// w.SetColor(255, 255, 255, 255) oops, need a draw command for this
 	_, err := w.Write([]byte(
-`rectfill 64 64 23 76
+`color 255 255 255
+rectfill 64 64 23 76
 img resrc/Astronaut.png 0 4 7 8 1.0 5 6
 img resrc/Cow.png 128 128 16 16 1.0
 `))
