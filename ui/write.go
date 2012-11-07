@@ -44,12 +44,12 @@ func reclen(r []string) int {
 }
 
 var dispatch = map[string]func(*Ui, []string)error{
-	"rectfill": rectfill,
-	"img": img,
-	"color": color,
+	"rectfill": doRectfill,
+	"img": doImg,
+	"color": doColor,
 }
 
-func rectfill(ui *Ui, args []string) error {
+func doRectfill(ui *Ui, args []string) error {
 	var x, y, w, h int
 	err := parseInts(args, &x, &y, &w, &h)
 	if err != nil {
@@ -59,7 +59,7 @@ func rectfill(ui *Ui, args []string) error {
 	return nil
 }
 
-func img(ui *Ui, args []string) error {
+func doImg(ui *Ui, args []string) error {
 	name := args[0]
 	var x, y, subx, suby, w, h int
 	err := parseInts(args[1:5], &x, &y, &w, &h)
@@ -88,7 +88,7 @@ func img(ui *Ui, args []string) error {
 	return nil	
 }
 
-func color(ui *Ui, args []string) error {
+func doColor(ui *Ui, args []string) error {
 	var r, g, b int
 	err := parseInts(args[:3], &r, &g, &b) // meow
 	if err != nil {
