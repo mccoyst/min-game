@@ -63,7 +63,7 @@ func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src w
 		}
 
 		for _, d := range deltas {
-			x, y := w.WrapCoord(n.X+d.dx, n.Y+d.dy)
+			x, y := w.Wrap(n.X+d.dx, n.Y+d.dy)
 			kid := nodes[x*w.H+y]
 			if kid == nil {
 				kid = rn(w, noise, world.Coord{x, y}, n)

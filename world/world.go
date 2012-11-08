@@ -3,11 +3,11 @@ package world
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
-	"unicode"
 )
 
 const (
@@ -30,8 +30,7 @@ type World struct {
 	X0, Y0 int
 }
 
-// A Loc is a cell in the grid that
-// represents the world
+// A Loc is a cell in the grid that represents the world
 type Loc struct {
 	Terrain          *TerrainType
 	Elevation, Depth int
@@ -43,8 +42,7 @@ func (l Loc) Height() int {
 	return l.Elevation - l.Depth
 }
 
-// Make returns a world of the given
-// dimensions.
+// Make returns a world of the given dimensions.
 func Make(w, h int) World {
 	const maxInt = int(^uint(0) >> 1)
 	if w <= 0 || h <= 0 {
@@ -60,40 +58,28 @@ func Make(w, h int) World {
 	}
 }
 
-// At returns the location at the given x, y grid cell.
-//
-// Unlike AtCoord(), this roution does not wrap the
-// x,y values around the boundaries of the grid.
+// At returns the location at the given world coordinate.
 func (w *World) At(x, y int) *Loc {
-	return &w.locs[x*w.H+y]
+	return &w.locs[w.Index(x, y)]
 }
 
-// AtCoord returns a pointer to the location at
-// the given world coordinate.
-func (w *World) AtCoord(x, y int) *Loc {
-	return &w.locs[w.CoordToIndex(x, y)]
-}
-
-// WrapCord returns the x,y point for a coordinate
-// after wrapping it around the world.
-func (w *World) WrapCoord(x, y int) (int, int) {
-	return wrap(x, w.W), wrap(y, w.H)
-}
-
-// CoordToIndex returns the array index that
-// corresponds to the given x,y world coordinate.
-func (w *World) CoordToIndex(x, y int) int {
-	x = wrap(x, w.W)
-	y = wrap(y, w.H)
+// Index returns an array index for a world coordinate.
+func (w *World) Index(x, y int) int {
+	x, y = w.Wrap(x, y)
 	return x*w.H + y
 }
 
-// wrap returns the value of n wrapped
-// around if it goes above bound-1 or
-// below zero.
+// Wrap returns an x,y within the ranges 0–width-1 and
+// 0–height-1.  This effectively maps world coordinates
+// to a normalized point on a grid, making the world a
+// torus shape.
+func (w *World) Wrap(x, y int) (int, int) {
+	return wrap(x, w.W), wrap(y, w.H)
+}
+
+// wrap returns the value of n wrapped around if it goes
+// above bound-1 or below zero.
 func wrap(n, bound int) int {
-	// probably quicker to do this test for the
-	// common case than to bother using %
 	if n >= 0 && n < bound {
 		return n
 	}
@@ -111,101 +97,89 @@ func wrap(n, bound int) int {
 	return n
 }
 
-// Write writes the world to the given io.Writer.
-func (w *World) Write(out io.Writer) (err error) {
-	fmt.Fprintln(out, "#", runtime.GOOS, runtime.GOARCH)
-
-	if _, err = fmt.Fprintln(out, w.W, w.H); err != nil {
-		return
+// Write writes a world.  If the writer is not buffered then
+// it is wrapped in a buffered writer, so the caller does not
+// need to worry about buffering writes.
+func (w *World) Write(out io.Writer) error {
+	var err error
+	if _, err = fmt.Fprintln(out, "#", runtime.GOOS, runtime.GOARCH); err != nil {
+		return err
 	}
-
+	if _, err = fmt.Fprintln(out, w.W, w.H); err != nil {
+		return err
+	}
 	for _, l := range w.locs {
 		if l.Terrain == nil {
 			panic("Nil terrain")
 		}
-		_, err = fmt.Fprintf(out, "%c %d %d\n", l.Terrain.Char, l.Elevation, l.Depth)
-		if err != nil {
-			return
+		if _, err = fmt.Fprintf(out, "%c %d %d\n", l.Terrain.Char, l.Elevation, l.Depth); err != nil {
+			return err
 		}
 	}
-
-	fmt.Fprintln(out, w.X0, w.Y0)
-
-	return
+	_, err = fmt.Fprintln(out, w.X0, w.Y0)
+	return err
 }
 
-// Read reads the world from the given io.Reader
-// and returns it.  If an error is encountered then
+// Read reads a world.  If an error is encountered then
 // the error is returned as the second argument and
 // the zero-world is returned as the first.
-func Read(in *bufio.Reader) (_ World, err error) {
-	line, err := readLine(in)
-	if err != nil {
-		return
+func Read(in *bufio.Reader) (World, error) {
+	var err error
+	var line string
+	if line, err = readLine(in); err != nil {
+		return World{}, err
 	}
 	var width, height int
-	_, err = fmt.Sscanln(line, &width, &height)
-	if err != nil {
+	if _, err = fmt.Sscanln(line, &width, &height); err != nil {
 		fmt.Fprintln(os.Stderr, "failed to scan", line)
-		return
+		return World{}, err
 	}
 
 	w := Make(width, height)
 	for i := range w.locs {
 		var el, dp int
 		var ch uint8
-		line, err = readLine(in)
-		if err != nil {
-			return
+		if line, err = readLine(in); err != nil {
+			return World{}, err
 		}
-		_, err = fmt.Sscanf(line, "%c %d %d", &ch, &el, &dp)
-		if err != nil {
+		if _, err = fmt.Sscanf(line, "%c %d %d", &ch, &el, &dp); err != nil {
 			fmt.Fprintln(os.Stderr, "failed to scan", line)
-			return
+			return World{}, err
 		}
 		if el < 0 || el > MaxElevation {
 			err = fmt.Errorf("Location %d elevation %d is out of bounds", i, el)
-			return
+			return World{}, err
 		}
 		if int(ch) >= len(Terrain) || Terrain[int(ch)].Char == uint8(0) {
 			err = fmt.Errorf("Location %d invalid terrain: %c",
 				i, ch)
-			return
+			return World{}, err
 		}
 		w.locs[i].Terrain = &Terrain[int(ch)]
 		w.locs[i].Elevation = el
 		w.locs[i].Depth = dp
 	}
 
-	line, err = readLine(in)
-	if err != nil {
-		return
+	if line, err = readLine(in); err != nil {
+		return World{}, err
 	}
 	_, err = fmt.Sscanln(line, &w.X0, &w.Y0)
 	return w, err
 }
 
+// ReadLine returns the next non-comment line.  On error
+// the empty string and error are returned.
 func readLine(in *bufio.Reader) (string, error) {
 	for {
-		r, _, err := in.ReadRune()
-		if err != nil {
-			return "", err
-		}
-		in.UnreadRune()
-
-		if !unicode.IsSpace(r) && r != '#' {
-			bytes, prefix, err := in.ReadLine()
-			if prefix {
-				err = fmt.Errorf("Line is too long")
-			}
-			return string(bytes), err
-		}
-		_, prefix, err := in.ReadLine()
-		for prefix && err == nil {
-			_, prefix, err = in.ReadLine()
+		bytes, prefix, err := in.ReadLine()
+		if prefix {
+			err = errors.New("Line is too long")
 		}
 		if err != nil {
 			return "", err
+		}
+		if bytes[0] != '#' {
+			return string(bytes), nil
 		}
 	}
 	panic("Unreachable")
