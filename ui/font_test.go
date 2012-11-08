@@ -33,11 +33,11 @@ func BenchmarkFontRender32(b *testing.B) {
 // Render the given number of random ASCII characters.
 func render(b *testing.B, cnt int) {
 	b.StopTimer()
+
 	f, err := NewFont("../resrc/prstartk.ttf", 12, color.Black)
 	if err != nil {
 		b.Fatal(err.Error())
 	}
-
 
 	const NStrs = 100
 	strs := make([]string, NStrs)
