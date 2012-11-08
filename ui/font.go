@@ -8,6 +8,7 @@ import (
 	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
 	"image"
+	"image/draw"
 	"image/color"
 	"io/ioutil"
 	"os"
@@ -35,6 +36,9 @@ type Font struct {
 	// Ctx is the freetype drawing context for this
 	// font, size, and color.
 	ctx *freetype.Context
+
+	// Glyphs is a cache of pre-rendered glyphs.
+	glyphs []image.Image
 }
 
 // NewFont returns a new Font loaded from a .ttf file.
@@ -117,6 +121,44 @@ func (f *Font) Width(s string) int {
 
 // Render returns an image of the given string.
 func (f *Font) Render(s string) (image.Image, error) {
+	w, h := f.Width(s), f.Extents().Height
+	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
+
+	em := f.ttf.FUnitsPerEm()
+	scale := (f.size/ptInch * pxInch)/float64(em)
+
+	var x int32
+	prev, hasPrev := truetype.Index(0), false
+	for _, r := range s {
+		index := f.ttf.Index(r)
+		if hasPrev {
+			x += f.ttf.Kerning(em, prev, index)
+		}
+
+		g, err := f.glyph(r)
+		if err != nil {
+			return nil, err
+		}
+		b := g.Bounds().Add(image.Pt(int(float64(x)*scale), 0))
+		draw.Draw(img, b, g, image.ZP, draw.Src)
+
+		x += f.ttf.HMetric(em, index).AdvanceWidth
+		prev, hasPrev = index, true
+	}
+
+	return img, nil
+}
+
+// Glyph returns an image.Image containing the glyph.
+// If the glyph is in the cache then that is returned,
+// otherwise the glyph is rendered, cached, and returned.
+func (f *Font) glyph(r rune) (image.Image, error) {
+	i := int(f.ttf.Index(r))
+	if i < len(f.glyphs) && f.glyphs[i] != nil {
+		return f.glyphs[i], nil
+	}
+
+	s := string([]rune{r})
 	w := f.Width(s)
 	ext := f.Extents()
 	h := ext.Height
@@ -125,6 +167,17 @@ func (f *Font) Render(s string) (image.Image, error) {
 	f.ctx.SetClip(img.Bounds())
  	f.ctx.SetDst(img)
 
-	_, err := f.ctx.DrawString(s, freetype.Pt(0, int(h+ext.Descent)))
-	return img, err
+	pt := freetype.Pt(0, int(h+ext.Descent))
+	if _, err := f.ctx.DrawString(s, pt); err != nil {
+		return nil, err
+	}
+
+	if i >= len(f.glyphs) {
+		gs := make([]image.Image, i+1)
+		copy(gs, f.glyphs)
+		f.glyphs = gs
+	}
+	f.glyphs[i] = img
+
+	return img, nil
 }
