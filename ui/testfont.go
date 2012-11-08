@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	img, err := font.Rasterize("Eloquent M")
+	img, err := font.Render("Eloquent M")
 	if err != nil {
 		panic(err)
 	}
