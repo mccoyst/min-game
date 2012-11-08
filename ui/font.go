@@ -115,8 +115,8 @@ func (f *Font) Width(s string) int {
 	return int(float64(width)*scale + 0.5)
 }
 
-// Rasterize returns an image of the given string.
-func (f *Font) Rasterize(s string) (image.Image, error) {
+// Render returns an image of the given string.
+func (f *Font) Render(s string) (image.Image, error) {
 	w := f.Width(s)
 	ext := f.Extents()
 	h := ext.Height
