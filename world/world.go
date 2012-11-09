@@ -208,15 +208,15 @@ func Read(in *bufio.Reader) (World, error) {
 			return World{}, err
 		}
 		if el < 0 || el > MaxElevation {
-			err = fmt.Errorf("Location %d elevation %d is out of bounds", i, el)
-			return World{}, err
+			return World{}, fmt.Errorf("Location %d: elevation %d is out of bounds", i, el)
+		}
+		if dp > el {
+			return World{}, fmt.Errorf("Location %d: depth is greater than elevation")
 		}
 		if int(ch) >= len(Terrain) || Terrain[ch].Char == 0 {
-			err = fmt.Errorf("Location %d invalid terrain: %c",
-				i, ch)
-			return World{}, err
+			return World{},  fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
 		}
-		w.locs[i].Terrain = &Terrain[int(ch)]
+		w.locs[i].Terrain = &Terrain[ch]
 		w.locs[i].Elevation = el
 		w.locs[i].Depth = dp
 	}
