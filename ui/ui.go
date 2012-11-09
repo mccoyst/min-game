@@ -224,7 +224,7 @@ func fillRect(ui *Ui, x, y, w, h int) {
 }
 
 func drawImg(ui *Ui, name string, x, y, subx, suby, w, h int, shade float32) error {
-	img, err := loadImg(ui, name)
+	img, err := loadImg(ui, "resrc/" + name + ".png")
 	if err != nil {
 		return err
 	}
