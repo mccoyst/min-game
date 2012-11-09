@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"image/color"
+	"strings"
 	"os"
 	"runtime"
 )
@@ -33,14 +35,51 @@ type World struct {
 
 // A Loc is a cell in the grid that represents the world
 type Loc struct {
-	Terrain          *TerrainType
-	Elevation, Depth int
+	// Terrain is the type of this locations terrain.
+	Terrain *TerrainType
+
+	// X and Y are the coordinates of this location
+	X, Y int
+
+	// Elevation is the elevation of the ground or the
+	// surface of a body of water.
+	Elevation int
+
+	// Depth is the depth of water at this location.
+	Depth int
 }
 
-// Height returns the height of the location, which is
-// its elevation minus its depth.
+// Height returns the elevation of the location minus
+// its depth.  This is effectively the elevation of the ground
+// or the elevation of the floor of a body of water.
 func (l Loc) Height() int {
 	return l.Elevation - l.Depth
+}
+
+// TerrainType holds information on a given type of terrain.
+type TerrainType struct {
+	// Char is the character representing this terrain type.
+	Char  rune
+
+	// Name is a human readable name of the terrain type.
+	Name  string
+
+	// Color is the color of the highest elevation when
+	// locations of this type are drawn.
+	Color color.RGBA
+}
+
+// Terrain is an array with the canonical terrain
+// representations, indexed by the terrain type's
+// unique character.
+var Terrain = []TerrainType{
+	'g': {'g', "grass", color.RGBA{0, 255, 0, 255}},
+	'm': {'m', "mountain", color.RGBA{196, 128, 0, 255}},
+	'w': {'w', "water", color.RGBA{0, 0, 255, 255}},
+	'l': {'l', "lava", color.RGBA{255, 0, 0, 255}},
+	'd': {'d', "desert", color.RGBA{255, 255, 0, 255}},
+	'f': {'f', "forest", color.RGBA{0, 200, 128, 255}},
+	'i': {'i', "glacier", color.RGBA{196, 196, 255, 255}},
 }
 
 // Make returns a world of the given dimensions.
@@ -55,19 +94,28 @@ func Make(w, h int) World {
 	return World{
 		W:    w,
 		H:    h,
-		locs: make([]Loc, w*h),
+		locs: makeLocs(w, h),
 	}
+}
+
+// makeLocs returns an array of locations with
+// initialized X and Y fields.
+func makeLocs(w, h int) []Loc {
+	locs := make([]Loc, w*h)
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			l := &locs[x*h+y]
+			l.X = x
+			l.Y = y
+		}
+	}
+	return locs
 }
 
 // At returns the location at the given world coordinate.
 func (w *World) At(x, y int) *Loc {
-	return &w.locs[w.Index(x, y)]
-}
-
-// Index returns an array index for a world coordinate.
-func (w *World) Index(x, y int) int {
 	x, y = w.Wrap(x, y)
-	return x*w.H + y
+	return &w.locs[x*w.H+y]
 }
 
 // Wrap returns an x,y within the ranges 0–width-1 and
@@ -96,6 +144,18 @@ func wrap(n, bound int) int {
 		}
 	}
 	return n
+}
+
+// LocsWithType returns a slice of pointers to all of the
+// locations with any of the given types.
+func (w *World) LocsWithType(types string) ([]*Loc) {
+	var locs []*Loc
+	for i, loc := range w.locs {
+		if strings.ContainsRune(types, rune(loc.Terrain.Char)) {
+			locs = append(locs, &w.locs[i])
+		}
+	}
+	return locs
 }
 
 // Write writes a world.  If the writer is not buffered then
@@ -139,7 +199,7 @@ func Read(in *bufio.Reader) (World, error) {
 	w := Make(width, height)
 	for i := range w.locs {
 		var el, dp int
-		var ch uint8
+		var ch rune
 		if line, err = readLine(in); err != nil {
 			return World{}, err
 		}
@@ -151,7 +211,7 @@ func Read(in *bufio.Reader) (World, error) {
 			err = fmt.Errorf("Location %d elevation %d is out of bounds", i, el)
 			return World{}, err
 		}
-		if int(ch) >= len(Terrain) || Terrain[int(ch)].Char == uint8(0) {
+		if int(ch) >= len(Terrain) || Terrain[ch].Char == 0 {
 			err = fmt.Errorf("Location %d invalid terrain: %c",
 				i, ch)
 			return World{}, err
