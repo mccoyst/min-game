@@ -70,7 +70,7 @@ func initTerrain(w *world.World) {
 // based on the minFrac and maxFrac parameters.
 // The return value is all of the new liquid tiles world
 // coordinates.
-func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) (added []world.Coord) {
+func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int) (added []*world.Loc) {
 	nLiquid := 0
 	tmap := makeTopoMap(w)
 
@@ -126,7 +126,7 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 			c := tmap.getContour(x, y)
 			loc := w.At(x, y)
 			if loc.Terrain != c.terrain {
-				added = append(added, world.Coord{x, y})
+				added = append(added, w.At(x, y))
 			}
 			loc.Terrain = c.terrain
 			loc.Elevation = c.height
