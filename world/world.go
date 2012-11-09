@@ -211,7 +211,7 @@ func Read(in *bufio.Reader) (World, error) {
 			return World{}, fmt.Errorf("Location %d: elevation %d is out of bounds", i, el)
 		}
 		if dp > el {
-			return World{}, fmt.Errorf("Location %d: depth is greater than elevation")
+			return World{}, fmt.Errorf("Location %d: depth is greater than elevation", i)
 		}
 		if int(ch) >= len(Terrain) || Terrain[ch].Char == 0 {
 			return World{},  fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
