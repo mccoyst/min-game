@@ -20,8 +20,8 @@ func (t *TitleScreen) Draw(w io.Writer) error {
 	_, err := w.Write([]byte(
 `color 255 255 255
 rectfill 64 64 23 76
-img resrc/Astronaut.png 64 64 16 16 1.0 16 0
-img resrc/Cow.png 128 128 16 16 1.0
+img Astronaut 64 64 16 16 1.0 16 0
+img Cow 128 128 16 16 1.0
 `))
 	return err
 }
