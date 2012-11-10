@@ -42,8 +42,9 @@ type Font struct {
 }
 
 // NewFont returns a new Font loaded from a .ttf file.
-// The size parameter is specified in Postscript points.
-func NewFont(path string, size float64, col color.Color) (*Font, error) {
+// The default size is 12 points, and the default color
+// is black.
+func NewFont(path string) (*Font, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -60,13 +61,25 @@ func NewFont(path string, size float64, col color.Color) (*Font, error) {
 		return nil, err
 	}
 
+	const defaultSize = 12.
 	ctx := freetype.NewContext()
 	ctx.SetFont(ttf)
-	ctx.SetFontSize(size)
-	ctx.SetSrc(image.NewUniform(col))
+	ctx.SetFontSize(defaultSize)
+	ctx.SetSrc(image.NewUniform(color.Black))
 	ctx.SetDPI(pxInch)
 
-	return &Font{ size: size, ttf: ttf, ctx: ctx }, nil
+	return &Font{ size: defaultSize, ttf: ttf, ctx: ctx }, nil
+}
+
+// SetSize sets the font size.
+func (f *Font) SetSize(sz float64) {
+	f.ctx.SetFontSize(sz)
+	f.size = sz
+}
+
+// SetColor sets the font color.
+func (f *Font) SetColor(col color.Color) {
+	f.ctx.SetSrc(image.NewUniform(col))
 }
 
 // FontExtents describes some size attributes of all text
