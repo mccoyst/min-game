@@ -32,23 +32,23 @@ type Screen interface {
 
 // A ScreenStack holds the stack of game screens.
 type ScreenStack struct {
-	stk []Screen
-	win *ui.Ui
-	nFrames uint
+	stk       []Screen
+	win       *ui.Ui
+	nFrames   uint
 	meanFrame float64
 }
 
 // NewScreenStack returns a new screen stack with the given initial screen.
 func NewScreenStack(win *ui.Ui, first Screen) *ScreenStack {
 	return &ScreenStack{
-		stk: []Screen{ first },
-		win: win,
-		nFrames: 0,
+		stk:       []Screen{first},
+		win:       win,
+		nFrames:   0,
 		meanFrame: 0.0,
 	}
 }
 
-const FrameMsec = 16*time.Millisecond
+const FrameMsec = 16 * time.Millisecond
 
 // Run runs the main loop of the program, calling the
 // Draw(), Handle(), then Update() methods on the top
@@ -85,7 +85,7 @@ func (s *ScreenStack) Run() {
 			time.Sleep(FrameMsec - frameLen)
 		}
 		s.nFrames++
-		s.meanFrame += (float64(frameLen) - s.meanFrame)/float64(s.nFrames)
+		s.meanFrame += (float64(frameLen) - s.meanFrame) / float64(s.nFrames)
 	}
 }
 

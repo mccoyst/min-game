@@ -19,18 +19,18 @@ func (t *TitleScreen) Draw(d Drawer) error {
 	d.Draw(ui.Rect(64, 64, 64+23, 64+76), ui.Pt(0, 0))
 
 	_, err := d.Draw(ui.Sprite{
-		Name: "Astronaut",
+		Name:   "Astronaut",
 		Bounds: ui.Rect(16, 0, 16+16, 0+16),
-		Shade: 1.0,
+		Shade:  1.0,
 	}, ui.Pt(64, 64))
 	if err != nil {
 		return err
 	}
 
 	_, err = d.Draw(ui.Sprite{
-		Name: "Cow",
+		Name:   "Cow",
 		Bounds: ui.Rect(0, 0, 16, 16),
-		Shade: 1.0,
+		Shade:  1.0,
 	}, ui.Pt(128, 128))
 
 	d.SetColor(255, 255, 255, 255)

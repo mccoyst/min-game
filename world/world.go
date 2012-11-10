@@ -6,11 +6,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	"image/color"
-	"strings"
+	"io"
 	"os"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -59,10 +59,10 @@ func (l Loc) Height() int {
 // TerrainType holds information on a given type of terrain.
 type TerrainType struct {
 	// Char is the character representing this terrain type.
-	Char  rune
+	Char rune
 
 	// Name is a human readable name of the terrain type.
-	Name  string
+	Name string
 
 	// Color is the color of the highest elevation when
 	// locations of this type are drawn.
@@ -148,7 +148,7 @@ func wrap(n, bound int) int {
 
 // LocsWithType returns a slice of pointers to all of the
 // locations with any of the given types.
-func (w *World) LocsWithType(types string) ([]*Loc) {
+func (w *World) LocsWithType(types string) []*Loc {
 	var locs []*Loc
 	for i, loc := range w.locs {
 		if strings.ContainsRune(types, rune(loc.Terrain.Char)) {
@@ -214,7 +214,7 @@ func Read(in *bufio.Reader) (World, error) {
 			return World{}, fmt.Errorf("Location %d: depth is greater than elevation", i)
 		}
 		if int(ch) >= len(Terrain) || Terrain[ch].Char == 0 {
-			return World{},  fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
+			return World{}, fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
 		}
 		w.locs[i].Terrain = &Terrain[ch]
 		w.locs[i].Elevation = el
