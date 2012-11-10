@@ -26,7 +26,9 @@ import "C"
 
 import (
 	"errors"
+	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"os"
 	"unsafe"
@@ -90,6 +92,7 @@ type Ui struct {
 	rend *C.SDL_Renderer
 
 	imgCache map[string]*sdlImg
+	fontCache map[string]*Font
 }
 
 func New(title string, w, h int) (*Ui, error) {
@@ -159,6 +162,10 @@ type sdlImg struct {
 	tex *C.SDL_Texture
 }
 
+func (s *sdlImg) Close() {
+	C.SDL_DestroyTexture(s.tex)
+}
+
 func loadImg(ui *Ui, path string) (*sdlImg, error) {
 	if img, ok := ui.imgCache[path]; ok {
 		return img, nil
@@ -175,6 +182,10 @@ func loadImg(ui *Ui, path string) (*sdlImg, error) {
 		return nil, err
 	}
 
+	return newSdlImage(ui, img, path)
+}
+
+func newSdlImage(ui *Ui, img image.Image, path string) (*sdlImg, error) {
 	bounds := img.Bounds()
 	newTex := func(format C.Uint32) *C.SDL_Texture {
 		return C.SDL_CreateTexture(
@@ -185,7 +196,7 @@ func loadImg(ui *Ui, path string) (*sdlImg, error) {
 			C.int(bounds.Dy()))
 	}
 
-	rgba := asRgba(img, path)
+	rgba := asRgba(img)
 	tex := newTex(C.sdl_rgba_fmt(C.int(isLE)))
 	e := C.SDL_UpdateTexture(tex, nil, unsafe.Pointer(&rgba.Pix[0]), C.int(rgba.Stride))
 	if e != 0 {
@@ -194,12 +205,14 @@ func loadImg(ui *Ui, path string) (*sdlImg, error) {
 	}
 	C.SDL_SetTextureBlendMode(tex, C.SDL_BLENDMODE_BLEND)
 	si := &sdlImg{tex}
-	ui.imgCache[path] = si
+	if path != "" {
+		ui.imgCache[path] = si
+	}
 	return si, nil
 }
 
 // BUG(mccoyst): asRgba assumes the image bounds starts at (0,0).
-func asRgba(img image.Image, name string) *image.RGBA {
+func asRgba(img image.Image) *image.RGBA {
 	if rgba, ok := img.(*image.RGBA); ok {
 		return rgba
 	}
@@ -220,10 +233,10 @@ func sdlError() error {
 }
 
 // Text pairs a string of text with a font.
-// Fonts are named like "FontName:Pts", where the
-// number given by Pts is the size in PostScript points.
+// Pts is given in PostScript points.
 type Text struct {
 	Font string
+	Pts float64
 	string
 }
 
@@ -268,6 +281,10 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 		return d.Size(), nil
 	case Sprite:
 		return d.Bounds.Size(), drawSprite(ui, d, p)
+	case Text:
+		return drawText(ui, d, p)
+	case string:
+		return drawText(ui, Text{ "prstartk", 16.0, d }, p)
 	}
 	panic("That's not a thing to draw")
 }
@@ -281,8 +298,57 @@ func drawSprite(ui *Ui, s Sprite, p Point) error {
 	if err != nil {
 		return err
 	}
+	img.Draw(ui, s, p)
+	return nil
+}
+
+func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
 	C.SDL_RenderCopy(ui.rend, img.tex,
 		&C.SDL_Rect{C.int(s.Bounds.Min.X), C.int(s.Bounds.Min.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())},
 		&C.SDL_Rect{C.int(p.X), C.int(p.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())})
+}
+
+func drawText(ui *Ui, t Text, p Point) (Point, error) {
+	font, err := loadFont(ui, t)
+	if err != nil {
+		return Point{}, err
+	}
+
+	img, err := font.Render(t.string)
+	if err != nil {
+		return Point{}, err
+	}
+
+	return Pt(float64(img.Bounds().Dx()), float64(img.Bounds().Dy())),
+		drawImage(ui, img, p)
+}
+
+func loadFont(ui *Ui, t Text) (*Font, error) {
+	var r, g, b, a C.Uint8
+	C.SDL_GetRenderDrawColor(ui.rend, &r, &g, &b, &a)
+	c := color.RGBA{ uint8(r), uint8(g), uint8(b), uint8(a) }
+
+	key := fmt.Sprintf("%s%.1f%v", t.Font, t.Pts, c)
+	if font, ok := ui.fontCache[key]; ok {
+		return font, nil
+	}
+
+	return NewFont("resrc/" + t.Font + ".ttf", t.Pts, c)
+}
+
+func drawImage(ui *Ui, i image.Image, p Point) error {
+	s, err := newSdlImage(ui, i, "")
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+
+	s.Draw(ui, Sprite{ Bounds: toRect(i.Bounds()), Shade: 1.0 }, p)
 	return nil
+}
+
+// BUG(mccoyst): barf
+func toRect(r image.Rectangle) Rectangle {
+	return Rect(float64(r.Min.X), float64(r.Min.Y),
+		float64(r.Max.X), float64(r.Max.Y))
 }
