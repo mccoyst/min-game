@@ -1,3 +1,5 @@
+// Copyright © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
+
 package main
 
 import (
@@ -11,10 +13,10 @@ import (
 // addRivers adds rivers
 // minSz gives the minimum river size and maxCnt is
 // the maximum number of locations to add as rivers.
-func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
+func addRivers(w *world.World, oceans []*world.Loc, minSz, maxCnt int) {
 	isOcean := make([]bool, w.W*w.H)
-	for _, coord := range oceans {
-		isOcean[coord.X*w.H+coord.Y] = true
+	for _, l := range oceans {
+		isOcean[l.X*w.H+l.Y] = true
 	}
 
 	sources := riverSources(w, isOcean)
@@ -34,9 +36,9 @@ func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 			continue
 		}
 		for _, node := range river {
-			node.loc.Terrain = &world.Terrain[int('w')]
-			if node.loc.Depth <= 0 {
-				node.loc.Depth = 1
+			node.Terrain = &world.Terrain[int('w')]
+			if node.Depth <= 0 {
+				node.Depth = 1
 			}
 			cnt++
 		}
@@ -47,7 +49,7 @@ func addRivers(w *world.World, oceans []world.Coord, minSz, maxCnt int) {
 var deltas = []struct{ dx, dy int }{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 
 // riverLocs returns a slice of coordinates that form a river.
-func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src world.Coord) []*riverNode {
+func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src *world.Loc) []*riverNode {
 	init := rn(w, noise, src, nil)
 	nodes := make([]*riverNode, w.W*w.H)
 	nodes[src.X*w.H+src.Y] = init
@@ -66,12 +68,12 @@ func riverLocs(w *world.World, noise []float64, isOcean []bool, minSz int, src w
 			x, y := w.Wrap(n.X+d.dx, n.Y+d.dy)
 			kid := nodes[x*w.H+y]
 			if kid == nil {
-				kid = rn(w, noise, world.Coord{x, y}, n)
+				kid = rn(w, noise, w.At(x, y), n)
 				nodes[x*w.H+y] = kid
 			} else if kid.g <= kid.edgecost+n.g {
 				continue
 			}
-			if kid.loc.Elevation > n.loc.Elevation {
+			if kid.Elevation > n.Elevation {
 				continue
 			}
 			if kid.g > kid.edgecost+n.g {
@@ -120,23 +122,21 @@ func (h riverHeap) Len() int {
 
 // A riverNode is a single location on a river.
 type riverNode struct {
-	world.Coord
-	loc         *world.Loc
+	*world.Loc
 	parent      *riverNode
 	g, edgecost float64
 	pqind       int
 }
 
 // rn returns a new river node.
-func rn(w *world.World, noise []float64, c world.Coord, p *riverNode) *riverNode {
-	e := noise[c.X*w.H+c.Y]
+func rn(w *world.World, noise []float64, l *world.Loc, p *riverNode) *riverNode {
+	e := noise[l.X*w.H+l.Y]
 	g := e
 	if p != nil {
 		g += p.g
 	}
 	return &riverNode{
-		world.Coord: c,
-		loc:         w.At(c.X, c.Y),
+		Loc:         l,
 		parent:      p,
 		edgecost:    e,
 		g:           g,
@@ -167,32 +167,27 @@ func (n *riverNode) path() (path []*riverNode) {
 
 // riverSources returns a scrambled list of all possible
 // source locations for a river.
-func riverSources(w *world.World, isOcean []bool) (sources []world.Coord) {
+func riverSources(w *world.World, isOcean []bool) (srcs []*world.Loc) {
 	min := minOcean(w, isOcean)
-	for _, coord := range w.WithType("m") {
-		mtn := w.At(coord.X, coord.Y)
-		if mtn.Elevation >= min {
-			sources = append(sources, coord)
+	for _, l := range w.LocsWithType("m") {
+		if l.Elevation >= min {
+			srcs = append(srcs, l)
 		}
 	}
-
-	for _, coord := range w.WithType("w") {
-		wtr := w.At(coord.X, coord.Y)
-		if !isOcean[coord.X*w.H+coord.Y] && wtr.Elevation >= min {
-			sources = append(sources, coord)
+	for _, l := range w.LocsWithType("w") {
+		if !isOcean[l.X*w.H+l.Y] && l.Elevation >= min {
+			srcs = append(srcs, l)
 		}
 	}
-
 	return
 }
 
 // minWminOceanater returns the minimum ocean elevation in the world.
 func minOcean(w *world.World, isOcean []bool) int {
 	min := world.MaxElevation
-	for _, coord := range w.WithType("w") {
-		wtr := w.At(coord.X, coord.Y)
-		if isOcean[coord.X*w.H+coord.Y] && wtr.Elevation < min {
-			min = wtr.Elevation
+	for _, l := range w.LocsWithType("w") {
+		if isOcean[l.X*w.H+l.Y] && l.Elevation < min {
+			min = l.Elevation
 		}
 	}
 	return min
