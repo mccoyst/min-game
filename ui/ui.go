@@ -108,12 +108,12 @@ func New(title string, w, h int) (*Ui, error) {
 		C.SDL_WINDOWPOS_UNDEFINED,
 		C.int(w),
 		C.int(h),
-		C.SDL_WINDOW_SHOWN)
+		C.SDL_WINDOW_SHOWN|C.SDL_WINDOW_OPENGL)
 	if win == nil {
 		return nil, sdlError()
 	}
 
-	rend := C.SDL_CreateRenderer(win, -1, C.SDL_RENDERER_PRESENTVSYNC)
+	rend := C.SDL_CreateRenderer(win, -1, C.SDL_RENDERER_ACCELERATED)
 	if rend == nil {
 		return nil, sdlError()
 	}
