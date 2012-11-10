@@ -6,7 +6,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"image/color"
 	"io"
 	"os"
 	"runtime"
@@ -63,23 +62,19 @@ type TerrainType struct {
 
 	// Name is a human readable name of the terrain type.
 	Name string
-
-	// Color is the color of the highest elevation when
-	// locations of this type are drawn.
-	Color color.RGBA
 }
 
 // Terrain is an array with the canonical terrain
 // representations, indexed by the terrain type's
 // unique character.
 var Terrain = []TerrainType{
-	'g': {'g', "grass", color.RGBA{0, 255, 0, 255}},
-	'm': {'m', "mountain", color.RGBA{196, 128, 0, 255}},
-	'w': {'w', "water", color.RGBA{0, 0, 255, 255}},
-	'l': {'l', "lava", color.RGBA{255, 0, 0, 255}},
-	'd': {'d', "desert", color.RGBA{255, 255, 0, 255}},
-	'f': {'f', "forest", color.RGBA{0, 200, 128, 255}},
-	'i': {'i', "glacier", color.RGBA{196, 196, 255, 255}},
+	'g': {'g', "grass"},
+	'm': {'m', "mountain"},
+	'w': {'w', "water"},
+	'l': {'l', "lava"},
+	'd': {'d', "desert"},
+	'f': {'f', "forest"},
+	'i': {'i', "glacier"},
 }
 
 // Make returns a world of the given dimensions.
