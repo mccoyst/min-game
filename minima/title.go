@@ -32,6 +32,9 @@ func (t *TitleScreen) Draw(d Drawer) error {
 		Bounds: ui.Rect(0, 0, 16, 16),
 		Shade:  1.0,
 	}, ui.Pt(128, 128))
+	if err != nil {
+		return err
+	}
 
 	d.SetColor(255, 255, 255, 255)
 	_, err = d.Draw("Hello, this is minima", ui.Pt(0, 0))
