@@ -12,7 +12,7 @@ import (
 
 // Command flags
 var (
-	drawHeights = flag.Bool("heights", false, "draw tile height values — SLOW")
+	drawHeights  = flag.Bool("heights", false, "draw tile height values — SLOW")
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
 )
 

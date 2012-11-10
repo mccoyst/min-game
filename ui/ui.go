@@ -60,12 +60,12 @@ const (
 
 var ButtonNames = map[Button]string{
 	Unknown: "Unknown",
-	Left: "Left",
-	Right: "Right",
-	Up: "Up",
-	Down: "Down",
-	Shoot: "Shoot",
-	Bomb: "Bomb",
+	Left:    "Left",
+	Right:   "Right",
+	Up:      "Up",
+	Down:    "Down",
+	Shoot:   "Shoot",
+	Bomb:    "Bomb",
 }
 
 func (b Button) String() string {
@@ -90,7 +90,7 @@ type Ui struct {
 	win  *C.SDL_Window
 	rend *C.SDL_Renderer
 
-	imgCache map[string]*sdlImg
+	imgCache  map[string]*sdlImg
 	fontCache map[string]*Font
 }
 
@@ -235,16 +235,16 @@ func sdlError() error {
 // Pts is given in PostScript points.
 type Text struct {
 	Font string
-	Pts float64
+	Pts  float64
 	string
 }
 
 // Sprite represents an image, the portion of
 // the image to be rendered, and its shading.
 type Sprite struct {
-	Name string
+	Name   string
 	Bounds Rectangle
-	Shade float32
+	Shade  float32
 }
 
 func (ui *Ui) SetColor(r, g, b, a uint8) {
@@ -283,7 +283,7 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 	case Text:
 		return drawText(ui, d, p)
 	case string:
-		return drawText(ui, Text{ "prstartk", 16.0, d }, p)
+		return drawText(ui, Text{"prstartk", 16.0, d}, p)
 	}
 	panic("That's not a thing to draw")
 }
@@ -293,7 +293,7 @@ func fillRect(ui *Ui, x, y, w, h int) {
 }
 
 func drawSprite(ui *Ui, s Sprite, p Point) error {
-	img, err := loadImg(ui, "resrc/" + s.Name + ".png")
+	img, err := loadImg(ui, "resrc/"+s.Name+".png")
 	if err != nil {
 		return err
 	}
@@ -318,7 +318,7 @@ func drawText(ui *Ui, t Text, p Point) (Point, error) {
 
 	var r, g, b, a C.Uint8
 	C.SDL_GetRenderDrawColor(ui.rend, &r, &g, &b, &a)
-	font.SetColor(color.RGBA{ uint8(r), uint8(g), uint8(b), uint8(a) })
+	font.SetColor(color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)})
 	font.SetSize(t.Pts)
 
 	img, err := font.Render(t.string)
@@ -337,7 +337,7 @@ func drawImage(ui *Ui, i image.Image, p Point) error {
 	}
 	defer s.Close()
 
-	s.Draw(ui, Sprite{ Bounds: toRect(i.Bounds()), Shade: 1.0 }, p)
+	s.Draw(ui, Sprite{Bounds: toRect(i.Bounds()), Shade: 1.0}, p)
 	return nil
 }
 

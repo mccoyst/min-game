@@ -136,11 +136,11 @@ func rn(w *world.World, noise []float64, l *world.Loc, p *riverNode) *riverNode 
 		g += p.g
 	}
 	return &riverNode{
-		Loc:         l,
-		parent:      p,
-		edgecost:    e,
-		g:           g,
-		pqind:       -1,
+		Loc:      l,
+		parent:   p,
+		edgecost: e,
+		g:        g,
+		pqind:    -1,
 	}
 }
 

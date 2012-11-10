@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"testing"
 	"image/color"
 	"math/rand"
+	"testing"
 )
 
 func BenchmarkFontRender1(b *testing.B) {
@@ -45,7 +45,7 @@ func render(b *testing.B, cnt int) {
 	for i := range strs {
 		for j := range bytes {
 			// ASCII 33—126 are the printable characters.
-			bytes[j] = byte(rand.Int31n(126-33 + 1) + 33)
+			bytes[j] = byte(rand.Int31n(126-33+1) + 33)
 		}
 		strs[i] = string(bytes)
 	}

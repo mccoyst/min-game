@@ -1,15 +1,14 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 // Copyright 2012 The Plotinum Authors.
 
-
 package ui
 
 import (
 	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
 	"image"
-	"image/draw"
 	"image/color"
+	"image/draw"
 	"io/ioutil"
 	"os"
 )
@@ -68,7 +67,7 @@ func NewFont(path string) (*Font, error) {
 	ctx.SetSrc(image.NewUniform(color.Black))
 	ctx.SetDPI(pxInch)
 
-	return &Font{ size: defaultSize, ttf: ttf, ctx: ctx }, nil
+	return &Font{size: defaultSize, ttf: ttf, ctx: ctx}, nil
 }
 
 // SetSize sets the font size.
@@ -107,9 +106,9 @@ type FontExtents struct {
 func (f *Font) Extents() FontExtents {
 	em := f.ttf.FUnitsPerEm()
 	bounds := f.ttf.Bounds(em)
-	scale := (f.size/ptInch * pxInch)/float64(em)
+	scale := (f.size / ptInch * pxInch) / float64(em)
 	return FontExtents{
-		Height:  int(float64(bounds.YMax- bounds.YMin)*scale + 0.5),
+		Height:  int(float64(bounds.YMax-bounds.YMin)*scale + 0.5),
 		Ascent:  int(float64(bounds.YMax)*scale + 0.5),
 		Descent: int(float64(bounds.YMin)*scale + 0.5),
 	}
@@ -128,7 +127,7 @@ func (f *Font) Width(s string) int {
 		width += f.ttf.HMetric(em, index).AdvanceWidth
 		prev, hasPrev = index, true
 	}
-	scale := (f.size/ptInch * pxInch)/float64(em)
+	scale := (f.size / ptInch * pxInch) / float64(em)
 	return int(float64(width)*scale + 0.5)
 }
 
@@ -138,7 +137,7 @@ func (f *Font) Render(s string) (image.Image, error) {
 	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 
 	em := f.ttf.FUnitsPerEm()
-	scale := (f.size/ptInch * pxInch)/float64(em)
+	scale := (f.size / ptInch * pxInch) / float64(em)
 
 	var x int32
 	prev, hasPrev := truetype.Index(0), false
@@ -178,7 +177,7 @@ func (f *Font) glyph(r rune) (image.Image, error) {
 
 	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 	f.ctx.SetClip(img.Bounds())
- 	f.ctx.SetDst(img)
+	f.ctx.SetDst(img)
 
 	pt := freetype.Pt(0, int(h+ext.Descent))
 	if _, err := f.ctx.DrawString(s, pt); err != nil {
