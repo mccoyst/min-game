@@ -7,7 +7,8 @@ import (
 )
 
 type TitleScreen struct {
-	frame int
+	loading bool
+	frame   int
 }
 
 func NewTitleScreen() *TitleScreen {
@@ -15,39 +16,71 @@ func NewTitleScreen() *TitleScreen {
 }
 
 func (t *TitleScreen) Draw(d Drawer) error {
-	d.SetColor(255, 255, 255, 255)
-	d.Draw(ui.Rect(64, 64, 64+23, 64+76), ui.Pt(0, 0))
-
-	x := float64(t.frame/10%2) * 16
-	y := float64(t.frame/50%4) * 16
-	_, err := d.Draw(ui.Sprite{
-		Name:   "Astronaut",
-		Bounds: ui.Rect(x, y, x+16, y+16),
-		Shade:  1.0,
-	}, ui.Pt(64, 64))
-	if err != nil {
+	if t.loading {
+		d.SetColor(109, 170, 44, 255)
+		_, err := d.Draw(ui.Text{
+			Font:   "prstartk",
+			Pts:    12,
+			string: "Generating World",
+		}, ui.Pt(0, ScreenDims.Y-12))
 		return err
 	}
 
-	_, err = d.Draw(ui.Sprite{
-		Name:   "Cow",
-		Bounds: ui.Rect(0, 0, 16, 16),
-		Shade:  1.0,
-	}, ui.Pt(128, 128))
-	if err != nil {
-		return err
-	}
+	// BUG(mccoyst): need to expose Font.Width() in Drawer
+	titlePos := ui.Pt(ScreenDims.X/2-float64(64*len("MINIMA"))/2, ScreenDims.Y/2-64)
 
 	d.SetColor(255, 255, 255, 255)
-	_, err = d.Draw("Hello, this is minima", ui.Pt(0, 0))
+
+	wh, err := d.Draw(ui.Text{
+		Font:   "prstartk",
+		Pts:    64,
+		string: "MINIMA",
+	}, titlePos)
+
+	startPos := ui.Pt(titlePos.X, titlePos.Y+wh.Y+12)
+	wh, err = d.Draw(ui.Text{
+		Font:   "prstartk",
+		Pts:    12,
+		string: "Press " + actionKey() + " to Start",
+	}, startPos)
+
+	cr := "© 2012 The Minima Authors"
+	crPos := ui.Pt(ScreenDims.X/2-float64(12*len(cr))/2, ScreenDims.Y-12)
+	_, err = d.Draw(ui.Text{
+		Font:   "prstartk",
+		Pts:    12,
+		string: cr,
+	}, crPos)
+
 	return err
 }
 
 func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
+	switch k := e.(type) {
+	case ui.Key:
+		if k.Down && ui.DefaultKeymap[k.Code] == ui.Action {
+			t.loading = true
+		}
+	}
 	return nil
 }
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
-	t.frame++
+	if t.loading {
+		t.frame++
+		if t.frame == 100 {
+			stk.Pop()
+			return nil
+		}
+	}
 	return nil
+}
+
+func actionKey() string {
+	for k, b := range ui.DefaultKeymap {
+		if b == ui.Action {
+			return k.String()
+		}
+	}
+	panic("Somebody broke the keymap")
 }

@@ -54,8 +54,7 @@ const (
 	Right
 	Up
 	Down
-	Shoot
-	Bomb
+	Action
 )
 
 var ButtonNames = map[Button]string{
@@ -64,8 +63,7 @@ var ButtonNames = map[Button]string{
 	Right:   "Right",
 	Up:      "Up",
 	Down:    "Down",
-	Shoot:   "Shoot",
-	Bomb:    "Bomb",
+	Action:  "Action",
 }
 
 func (b Button) String() string {
@@ -80,8 +78,7 @@ var DefaultKeymap = map[KeyCode]Button{
 	KeyCode(C.SDLK_f): Right,
 	KeyCode(C.SDLK_e): Up,
 	KeyCode(C.SDLK_d): Down,
-	KeyCode(C.SDLK_j): Shoot,
-	KeyCode(C.SDLK_k): Bomb,
+	KeyCode(C.SDLK_j): Action,
 }
 
 // SDL-specific:
