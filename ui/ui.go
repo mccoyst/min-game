@@ -284,6 +284,8 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 		return drawText(ui, d, p)
 	case string:
 		return drawText(ui, Text{"prstartk", 16.0, d}, p)
+	case image.Image:
+		return drawImage(ui, d, p)
 	}
 	panic("That's not a thing to draw")
 }
@@ -326,19 +328,18 @@ func drawText(ui *Ui, t Text, p Point) (Point, error) {
 		return Point{}, err
 	}
 
-	return Pt(float64(img.Bounds().Dx()), float64(img.Bounds().Dy())),
-		drawImage(ui, img, p)
+	return drawImage(ui, img, p)
 }
 
-func drawImage(ui *Ui, i image.Image, p Point) error {
+func drawImage(ui *Ui, i image.Image, p Point) (Point, error) {
 	s, err := newSdlImage(ui, i, "")
 	if err != nil {
-		return err
+		return Point{}, err
 	}
 	defer s.Close()
 
 	s.Draw(ui, Sprite{Bounds: toRect(i.Bounds()), Shade: 1.0}, p)
-	return nil
+	return Pt(float64(i.Bounds().Dx()), float64(i.Bounds().Dy())), nil
 }
 
 // BUG(mccoyst): barf
