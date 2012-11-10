@@ -18,9 +18,11 @@ func (t *TitleScreen) Draw(d Drawer) error {
 	d.SetColor(255, 255, 255, 255)
 	d.Draw(ui.Rect(64, 64, 64+23, 64+76), ui.Pt(0, 0))
 
+	x := float64(t.frame/10%2) * 16
+	y := float64(t.frame/50%4) * 16
 	_, err := d.Draw(ui.Sprite{
 		Name:   "Astronaut",
-		Bounds: ui.Rect(16, 0, 16+16, 0+16),
+		Bounds: ui.Rect(x, y, x+16, y+16),
 		Shade:  1.0,
 	}, ui.Pt(64, 64))
 	if err != nil {
@@ -46,5 +48,6 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 }
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
+	t.frame++
 	return nil
 }
