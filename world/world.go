@@ -68,13 +68,13 @@ type TerrainType struct {
 // representations, indexed by the terrain type's
 // unique character.
 var Terrain = []TerrainType{
-	'g': {'g', "grass"},
-	'm': {'m', "mountain"},
-	'w': {'w', "water"},
-	'l': {'l', "lava"},
-	'd': {'d', "desert"},
-	'f': {'f', "forest"},
-	'i': {'i', "glacier"},
+	'g': {'g', "Grass"},
+	'm': {'m', "Mountain"},
+	'w': {'w', "Water"},
+	'l': {'l', "Lava"},
+	'd': {'d', "Desert"},
+	'f': {'f', "Tree"},
+	'i': {'i', "Glacier"},
 }
 
 // Make returns a world of the given dimensions.
