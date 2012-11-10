@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"runtime/pprof"
 
 	"code.google.com/p/min-game/ui"
 )
@@ -15,6 +16,7 @@ import (
 var (
 	drawHeights  = flag.Bool("heights", false, "draw tile height values — SLOW")
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
+	profile = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
 )
 
 var ScreenDims = ui.Pt(640, 480)
@@ -25,6 +27,16 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	if *profile {
+		p, err := os.Create("./prof.txt")
+		if err != nil {
+			os.Stderr.WriteString("oops: " + err.Error() + "\n")
+			os.Exit(1)
+		}
+		pprof.StartCPUProfile(p)
+		defer pprof.StopCPUProfile()
+	}
 
 	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y))
 	if err != nil {
