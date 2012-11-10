@@ -21,10 +21,12 @@ var (
 func main() {
 	flag.Parse()
 
-	font, err := ui.NewFont(*path, *size, color.Black)
+	font, err := ui.NewFont(*path)
 	if err != nil {
 		panic(err)
 	}
+	font.SetSize(*size)
+	font.SetColor(color.Black)
 	img, err := font.Render("Eloquent M")
 	if err != nil {
 		panic(err)

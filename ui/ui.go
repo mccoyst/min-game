@@ -26,7 +26,6 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -309,10 +308,18 @@ func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
 }
 
 func drawText(ui *Ui, t Text, p Point) (Point, error) {
-	font, err := loadFont(ui, t)
-	if err != nil {
-		return Point{}, err
+	font, ok := ui.fontCache[t.Font]
+	if !ok {
+		var err error
+		if font, err = NewFont("resrc/" + t.Font + ".ttf"); err != nil {
+			return Point{}, err
+		}
 	}
+
+	var r, g, b, a C.Uint8
+	C.SDL_GetRenderDrawColor(ui.rend, &r, &g, &b, &a)
+	font.SetColor(color.RGBA{ uint8(r), uint8(g), uint8(b), uint8(a) })
+	font.SetSize(t.Pts)
 
 	img, err := font.Render(t.string)
 	if err != nil {
@@ -321,19 +328,6 @@ func drawText(ui *Ui, t Text, p Point) (Point, error) {
 
 	return Pt(float64(img.Bounds().Dx()), float64(img.Bounds().Dy())),
 		drawImage(ui, img, p)
-}
-
-func loadFont(ui *Ui, t Text) (*Font, error) {
-	var r, g, b, a C.Uint8
-	C.SDL_GetRenderDrawColor(ui.rend, &r, &g, &b, &a)
-	c := color.RGBA{ uint8(r), uint8(g), uint8(b), uint8(a) }
-
-	key := fmt.Sprintf("%s%.1f%v", t.Font, t.Pts, c)
-	if font, ok := ui.fontCache[key]; ok {
-		return font, nil
-	}
-
-	return NewFont("resrc/" + t.Font + ".ttf", t.Pts, c)
 }
 
 func drawImage(ui *Ui, i image.Image, p Point) error {
