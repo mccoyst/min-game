@@ -3,7 +3,12 @@
 package main
 
 import (
+	"bufio"
+	"os"
+	"os/exec"
+
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/world"
 )
 
 type TitleScreen struct {
@@ -67,11 +72,36 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
 	if t.loading {
-		t.frame++
-		if t.frame == 100 {
-			stk.Pop()
-			return nil
+		var w world.World
+		var err error
+		if *worldOnStdin {
+			w, err = world.Read(bufio.NewReader(os.Stdin))
+			if err != nil {
+				return err
+			}
+		} else {
+			cmd := exec.Command("wgen")
+			stdout, err := cmd.StdoutPipe()
+			if err != nil {
+				return err
+			}
+			if err = cmd.Start(); err != nil {
+				return err
+			}
+
+			w, err = world.Read(bufio.NewReader(stdout))
+			if err != nil {
+				return err
+			}
+
+			if err = cmd.Wait(); err != nil {
+				return err
+			}
 		}
+
+		*worldOnStdin = false
+		stk.Push(NewExploreScreen(w))
+		t.loading = false
 	}
 	return nil
 }
