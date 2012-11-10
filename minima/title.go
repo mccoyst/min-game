@@ -3,8 +3,6 @@
 package main
 
 import (
-	"image"
-
 	"code.google.com/p/min-game/ui"
 )
 
@@ -22,7 +20,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 
 	_, err := d.Draw(ui.Sprite{
 		Name: "Astronaut",
-		Bounds: image.Rect(16, 0, 16+16, 0+16),
+		Bounds: ui.Rect(16, 0, 16+16, 0+16),
 		Shade: 1.0,
 	}, ui.Pt(64, 64))
 	if err != nil {
@@ -31,7 +29,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 
 	_, err = d.Draw(ui.Sprite{
 		Name: "Cow",
-		Bounds: image.Rect(0, 0, 16, 16),
+		Bounds: ui.Rect(0, 0, 16, 16),
 		Shade: 1.0,
 	}, ui.Pt(128, 128))
 	return err

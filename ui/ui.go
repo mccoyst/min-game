@@ -231,7 +231,7 @@ type Text struct {
 // the image to be rendered, and its shading.
 type Sprite struct {
 	Name string
-	Bounds image.Rectangle
+	Bounds Rectangle
 	Shade float32
 }
 
@@ -267,8 +267,7 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 		fillRect(ui, int(loc.X), int(loc.Y), int(d.Dx()), int(d.Dy()))
 		return d.Size(), nil
 	case Sprite:
-		return Pt(float64(d.Bounds.Dx()), float64(d.Bounds.Dy())),
-			drawImg(ui, d.Name, int(p.X), int(p.Y), d.Bounds.Min.X, d.Bounds.Min.Y, d.Bounds.Dx(), d.Bounds.Dy(), d.Shade)
+		return d.Bounds.Size(), drawSprite(ui, d, p)
 	}
 	panic("That's not a thing to draw")
 }
@@ -277,13 +276,13 @@ func fillRect(ui *Ui, x, y, w, h int) {
 	C.SDL_RenderFillRect(ui.rend, &C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
 }
 
-func drawImg(ui *Ui, name string, x, y, subx, suby, w, h int, shade float32) error {
-	img, err := loadImg(ui, "resrc/" + name + ".png")
+func drawSprite(ui *Ui, s Sprite, p Point) error {
+	img, err := loadImg(ui, "resrc/" + s.Name + ".png")
 	if err != nil {
 		return err
 	}
 	C.SDL_RenderCopy(ui.rend, img.tex,
-		&C.SDL_Rect{C.int(subx), C.int(suby), C.int(w), C.int(h)},
-		&C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
+		&C.SDL_Rect{C.int(s.Bounds.Min.X), C.int(s.Bounds.Min.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())},
+		&C.SDL_Rect{C.int(p.X), C.int(p.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())})
 	return nil
 }
