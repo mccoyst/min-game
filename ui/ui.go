@@ -219,6 +219,60 @@ func sdlError() error {
 	return errors.New(C.GoString(C.SDL_GetError()))
 }
 
+// Text pairs a string of text with a font.
+// Fonts are named like "FontName:Pts", where the
+// number given by Pts is the size in PostScript points.
+type Text struct {
+	Font string
+	string
+}
+
+// Sprite represents an image, the portion of
+// the image to be rendered, and its shading.
+type Sprite struct {
+	Name string
+	Bounds image.Rectangle
+	Shade float32
+}
+
+func (ui *Ui) SetColor(r, g, b, a uint8) {
+	C.SDL_SetRenderDrawColor(ui.rend,
+		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
+}
+
+/*
+Draw queues a rendering of x and returns the dimensions of what
+will be rendered, or an error. Draw supports the following types:
+
+	string
+		The given string is drawn at p in the default font, in the
+		current color, on a background of the opposite color.
+
+	Text
+		The given text is drawn at p, using the font given in the text.
+
+	Rectangle
+		The given rectangle is filled at offset p, in the current color.
+
+	Sprite
+		The given image is drawn at offset p.
+
+	image.Image
+		The given image is drawn at offset p.
+*/
+func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
+	switch d := i.(type) {
+	case Rectangle:
+		loc := d.Min.Add(p)
+		fillRect(ui, int(loc.X), int(loc.Y), int(d.Dx()), int(d.Dy()))
+		return d.Size(), nil
+	case Sprite:
+		return Pt(float64(d.Bounds.Dx()), float64(d.Bounds.Dy())),
+			drawImg(ui, d.Name, int(p.X), int(p.Y), d.Bounds.Min.X, d.Bounds.Min.Y, d.Bounds.Dx(), d.Bounds.Dy(), d.Shade)
+	}
+	panic("That's not a thing to draw")
+}
+
 func fillRect(ui *Ui, x, y, w, h int) {
 	C.SDL_RenderFillRect(ui.rend, &C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
 }
@@ -232,9 +286,4 @@ func drawImg(ui *Ui, name string, x, y, subx, suby, w, h int, shade float32) err
 		&C.SDL_Rect{C.int(subx), C.int(suby), C.int(w), C.int(h)},
 		&C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
 	return nil
-}
-
-func setColor(ui *Ui, r, g, b, a int) {
-	C.SDL_SetRenderDrawColor(ui.rend,
-		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
 }

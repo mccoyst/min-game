@@ -3,16 +3,21 @@
 package main
 
 import (
-	"io"
 	"time"
 
 	"code.google.com/p/min-game/ui"
 )
 
+// A Drawer can draw things and change colors.
+type Drawer interface {
+	Draw(interface{}, ui.Point) (ui.Point, error)
+	SetColor(r, g, b, a uint8)
+}
+
 // A Screen represents some game screen. E.g. the title, the main gameplay, etc.
 type Screen interface {
 	// Draw should send draw commands via the given Writer.
-	Draw(io.Writer) error
+	Draw(Drawer) error
 
 	// Handle is called for each event coming from the
 	// Ui, with the exception of the Close event which is
@@ -65,7 +70,7 @@ func (s *ScreenStack) Run() {
 			}
 		}
 
-		s.win.Write([]byte("color 0 0 0"))
+		s.win.SetColor(0, 0, 0, 255)
 		s.win.Clear()
 		s.top().Draw(s.win)
 		s.win.Sync()

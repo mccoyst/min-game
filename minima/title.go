@@ -3,7 +3,7 @@
 package main
 
 import (
-	"io"
+	"image"
 
 	"code.google.com/p/min-game/ui"
 )
@@ -16,13 +16,24 @@ func NewTitleScreen() *TitleScreen {
 	return &TitleScreen{}
 }
 
-func (t *TitleScreen) Draw(w io.Writer) error {
-	_, err := w.Write([]byte(
-`color 255 255 255
-rectfill 64 64 23 76
-img Astronaut 64 64 16 16 1.0 16 0
-img Cow 128 128 16 16 1.0
-`))
+func (t *TitleScreen) Draw(d Drawer) error {
+	d.SetColor(255, 255, 255, 255)
+	d.Draw(ui.Rect(64, 64, 64+23, 64+76), ui.Pt(0, 0))
+
+	_, err := d.Draw(ui.Sprite{
+		Name: "Astronaut",
+		Bounds: image.Rect(16, 0, 16+16, 0+16),
+		Shade: 1.0,
+	}, ui.Pt(64, 64))
+	if err != nil {
+		return err
+	}
+
+	_, err = d.Draw(ui.Sprite{
+		Name: "Cow",
+		Bounds: image.Rect(0, 0, 16, 16),
+		Shade: 1.0,
+	}, ui.Pt(128, 128))
 	return err
 }
 
