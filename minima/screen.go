@@ -35,7 +35,7 @@ type ScreenStack struct {
 	stk       []Screen
 	win       *ui.Ui
 	nFrames   uint
-	meanFrame float64
+	meanFrame float64 // milliseconds
 }
 
 // NewScreenStack returns a new screen stack with the given initial screen.
@@ -85,7 +85,8 @@ func (s *ScreenStack) Run() {
 			time.Sleep(FrameMsec - frameLen)
 		}
 		s.nFrames++
-		s.meanFrame += (float64(frameLen) - s.meanFrame) / float64(s.nFrames)
+		ms := frameLen.Seconds() * 1000
+		s.meanFrame += (ms - s.meanFrame) / float64(s.nFrames)
 	}
 }
 

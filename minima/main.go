@@ -4,6 +4,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"runtime"
 
@@ -34,4 +35,5 @@ func main() {
 
 	stk := NewScreenStack(u, NewTitleScreen())
 	stk.Run()
+	fmt.Printf("mean frame time: %4.1fms\n", stk.meanFrame)
 }
