@@ -24,40 +24,42 @@ func NewTitleScreen() *TitleScreen {
 func (t *TitleScreen) Draw(d Drawer) error {
 	if t.loading {
 		d.SetColor(109, 170, 44, 255)
-		_, err := d.Draw(ui.Text{
-			Font:   "prstartk",
-			Pts:    12,
-			string: "Generating World",
-		}, ui.Pt(0, ScreenDims.Y-12))
+		if err := d.SetFont("prstartk", 12); err != nil {
+			return err
+		}
+		genTxt := "Generating World"
+		genSz := d.TextSize(genTxt)
+		_, err := d.Draw(genTxt, ui.Pt(0, ScreenDims.Y-genSz.Y))
 		return err
 	}
 
-	// BUG(mccoyst): need to expose Font.Width() in Drawer
-	titlePos := ui.Pt(ScreenDims.X/2-float64(64*len("MINIMA"))/2, ScreenDims.Y/2-64)
-
 	d.SetColor(255, 255, 255, 255)
+	if err := d.SetFont("prstartk", 64); err != nil {
+		return err
+	}
+	titleTxt := "MINIMA"
+	titleSz := d.TextSize(titleTxt)
+	titlePos := ui.Pt(ScreenDims.X/2-titleSz.X/2,
+		ScreenDims.Y/2-titleSz.Y)
+	wh, err := d.Draw(titleTxt, titlePos)
+	if err != nil {
+		return err
+	}
 
-	wh, err := d.Draw(ui.Text{
-		Font:   "prstartk",
-		Pts:    64,
-		string: "MINIMA",
-	}, titlePos)
+	if err := d.SetFont("prstartk", 12); err != nil {
+		return err
+	}
+	startTxt := "Press " + actionKey() + " to Start"
+	startSz := d.TextSize(startTxt)
+	startPos := ui.Pt(titlePos.X, titlePos.Y+wh.Y+startSz.Y)
+	if wh, err = d.Draw(startTxt, startPos); err != nil {
+		return err
+	}
 
-	startPos := ui.Pt(titlePos.X, titlePos.Y+wh.Y+12)
-	wh, err = d.Draw(ui.Text{
-		Font:   "prstartk",
-		Pts:    12,
-		string: "Press " + actionKey() + " to Start",
-	}, startPos)
-
-	cr := "© 2012 The Minima Authors"
-	crPos := ui.Pt(ScreenDims.X/2-float64(12*len(cr))/2, ScreenDims.Y-12)
-	_, err = d.Draw(ui.Text{
-		Font:   "prstartk",
-		Pts:    12,
-		string: cr,
-	}, crPos)
-
+	crTxt := "© 2012 The Minima Authors"
+	crSz := d.TextSize(crTxt)
+	crPos := ui.Pt(ScreenDims.X/2-crSz.X/2, ScreenDims.Y-crSz.Y)
+	_, err = d.Draw(crTxt, crPos)
 	return err
 }
 

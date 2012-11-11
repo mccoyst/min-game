@@ -23,11 +23,20 @@ const (
 	ptInch = 72.0
 )
 
+type glyphKey struct {
+	rune       rune
+	size       float64
+	r, g, b, a uint32
+}
+
 // A Font is a size and style in which text can be
 // rendered to an image.
 type Font struct {
 	// Size is the size of the font in points.
 	size float64
+
+	// color is the current color.
+	color color.Color
 
 	// Ttf is the truetype font handle.
 	ttf *truetype.Font
@@ -37,7 +46,7 @@ type Font struct {
 	ctx *freetype.Context
 
 	// Glyphs is a cache of pre-rendered glyphs.
-	glyphs []image.Image
+	glyphs map[glyphKey]image.Image
 }
 
 // NewFont returns a new Font loaded from a .ttf file.
@@ -61,24 +70,28 @@ func NewFont(path string) (*Font, error) {
 	}
 
 	const defaultSize = 12.
+	defaultColor := color.RGBA{0, 0, 0, 255}
 	ctx := freetype.NewContext()
 	ctx.SetFont(ttf)
-	ctx.SetFontSize(defaultSize)
-	ctx.SetSrc(image.NewUniform(color.Black))
 	ctx.SetDPI(pxInch)
 
-	return &Font{size: defaultSize, ttf: ttf, ctx: ctx}, nil
+	return &Font{
+		size:   defaultSize,
+		color:  defaultColor,
+		ttf:    ttf,
+		ctx:    ctx,
+		glyphs: make(map[glyphKey]image.Image),
+	}, nil
 }
 
 // SetSize sets the font size.
 func (f *Font) SetSize(sz float64) {
-	f.ctx.SetFontSize(sz)
 	f.size = sz
 }
 
 // SetColor sets the font color.
 func (f *Font) SetColor(col color.Color) {
-	f.ctx.SetSrc(image.NewUniform(col))
+	f.color = col
 }
 
 // FontExtents describes some size attributes of all text
@@ -164,18 +177,27 @@ func (f *Font) Render(s string) (image.Image, error) {
 // Glyph returns an image.Image containing the glyph.
 // If the glyph is in the cache then that is returned,
 // otherwise the glyph is rendered, cached, and returned.
-func (f *Font) glyph(r rune) (image.Image, error) {
-	i := int(f.ttf.Index(r))
-	if i < len(f.glyphs) && f.glyphs[i] != nil {
-		return f.glyphs[i], nil
+func (f *Font) glyph(ru rune) (image.Image, error) {
+	r, g, b, a := f.color.RGBA()
+	key := glyphKey{
+		rune: ru,
+		size: f.size,
+		r:    r,
+		g:    g,
+		b:    b,
+		a:    a,
 	}
-
-	s := string([]rune{r})
+	if img, ok := f.glyphs[key]; ok {
+		return img, nil
+	}
+	s := string([]rune{ru})
 	w := f.Width(s)
 	ext := f.Extents()
 	h := ext.Height
 
 	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
+	f.ctx.SetFontSize(f.size)
+	f.ctx.SetSrc(image.NewUniform(f.color))
 	f.ctx.SetClip(img.Bounds())
 	f.ctx.SetDst(img)
 
@@ -184,12 +206,7 @@ func (f *Font) glyph(r rune) (image.Image, error) {
 		return nil, err
 	}
 
-	if i >= len(f.glyphs) {
-		gs := make([]image.Image, i+1)
-		copy(gs, f.glyphs)
-		f.glyphs = gs
-	}
-	f.glyphs[i] = img
+	f.glyphs[key] = img
 
 	return img, nil
 }

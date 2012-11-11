@@ -11,7 +11,9 @@ import (
 // A Drawer can draw things and change colors.
 type Drawer interface {
 	Draw(interface{}, ui.Point) (ui.Point, error)
+	SetFont(name string, szPts float64) error
 	SetColor(r, g, b, a uint8)
+	TextSize(string) ui.Point
 }
 
 // A Screen represents some game screen. E.g. the title, the main gameplay, etc.
