@@ -15,6 +15,9 @@ type ExploreScreen struct {
 	wo    *world.World
 	cam   Camera
 	astro *Player
+
+	// Keys is a bitmask of the currently pressed keys.
+	keys uint8
 }
 
 func NewExploreScreen(wo *world.World) *ExploreScreen {
@@ -31,8 +34,6 @@ func (e *ExploreScreen) CenterOnTile(x, y int) {
 }
 
 func (e *ExploreScreen) Draw(d Drawer) error {
-	e.cam.Center(e.astro.box.Center())
-
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
 	x0 := int(e.cam.pt.X / TileSize)
 	xoff0 := -math.Mod(e.cam.pt.X, TileSize)
@@ -76,24 +77,47 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
 	return err
 }
 
+var keyBits = map[ui.Button]uint8{
+	ui.Left:  1 << 0,
+	ui.Right: 1 << 1,
+	ui.Up:    1 << 2,
+	ui.Down:  1 << 3,
+}
+
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 	switch k := ev.(type) {
 	case ui.Key:
-		const speed = 10 // px
-		switch {
-		case k.Down && ui.DefaultKeymap[k.Code] == ui.Left:
-			ex.astro.Move(ui.Pt(speed, 0))
-		case k.Down && ui.DefaultKeymap[k.Code] == ui.Right:
-			ex.astro.Move(ui.Pt(-speed, 0))
-		case k.Down && ui.DefaultKeymap[k.Code] == ui.Down:
-			ex.astro.Move(ui.Pt(0, speed))
-		case k.Down && ui.DefaultKeymap[k.Code] == ui.Up:
-			ex.astro.Move(ui.Pt(0, -speed))
+		if k.Repeat {
+			break
+		}
+		bit, ok := keyBits[ui.DefaultKeymap[k.Code]]
+		if !ok {
+			break
+		}
+		if k.Down {
+			ex.keys |= bit
+		} else {
+			ex.keys &^= bit
 		}
 	}
 	return nil
 }
 
-func (t *ExploreScreen) Update(stk *ScreenStack) error {
+func (e *ExploreScreen) Update(stk *ScreenStack) error {
+	const speed = 5 // px
+
+	if e.keys&keyBits[ui.Left] != 0 {
+		e.astro.Move(ui.Pt(speed, 0))
+	}
+	if e.keys&keyBits[ui.Right] != 0 {
+		e.astro.Move(ui.Pt(-speed, 0))
+	}
+	if e.keys&keyBits[ui.Down] != 0 {
+		e.astro.Move(ui.Pt(0, speed))
+	}
+	if e.keys&keyBits[ui.Up] != 0 {
+		e.astro.Move(ui.Pt(0, -speed))
+	}
+	e.cam.Center(e.astro.box.Center())
 	return nil
 }
