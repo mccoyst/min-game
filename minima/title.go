@@ -145,6 +145,7 @@ func readWorld() (<-chan interface{}, <-chan string) {
 		} else {
 			fmt.Println("Sending Reading World")
 			strChan <- "Reading World"
+			close(strChan)
 		}
 		w, err := world.Read(bufio.NewReader(r))
 		if err != nil {
