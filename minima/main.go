@@ -17,6 +17,7 @@ var (
 	drawHeights  = flag.Bool("heights", false, "draw tile height values — SLOW")
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
 	profile      = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
+	dvorak       = flag.Bool("dvorak", false, "use a Dvorak key map")
 )
 
 var ScreenDims = ui.Pt(640, 480)
@@ -36,6 +37,10 @@ func main() {
 		}
 		pprof.StartCPUProfile(p)
 		defer pprof.StopCPUProfile()
+	}
+
+	if *dvorak {
+		ui.DefaultKeymap = ui.DvorakKeymap
 	}
 
 	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y))
