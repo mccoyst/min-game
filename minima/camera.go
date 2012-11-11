@@ -22,3 +22,7 @@ func (c *Camera) Center(v ui.Point) {
 func (c *Camera) Pos() ui.Point {
 	return c.cam
 }
+
+func (c *Camera) Draw(d Drawer, x interface{}, p ui.Point) (ui.Point, error) {
+	return d.Draw(x, p.Sub(c.cam))
+}
