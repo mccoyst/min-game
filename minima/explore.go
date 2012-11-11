@@ -22,11 +22,16 @@ type ExploreScreen struct {
 	// To have the center of tile 0,0 in the upper right:
 	//	Point=ui.Pt(TileSize/2, TileSize/2)
 	ui.Point
+
+	cam Camera
+
+	astro *Player
 }
 
 func NewExploreScreen(wo *world.World) *ExploreScreen {
-	e := &ExploreScreen{wo, ui.Pt(0, 0)}
+	e := &ExploreScreen{ wo: wo, Point: ui.Pt(0, 0)}
 	e.CenterOnTile(wo.X0, wo.Y0)
+	e.astro = NewPlayer(e.wo, ui.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 	return e
 }
 
@@ -64,7 +69,7 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 		pt.X += TileSize
 	}
 
-	return nil
+	return e.astro.Draw(d, Camera{e.Point})
 }
 
 func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
