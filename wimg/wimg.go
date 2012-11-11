@@ -55,13 +55,13 @@ func (w *worldImg) Bounds() image.Rectangle {
 
 var (
 	colors = []color.RGBA{
-		'g': color.RGBA{0, 255, 0, 255},
-		'm': color.RGBA{196, 128, 0, 255},
-		'w': color.RGBA{0, 0, 255, 255},
-		'l': color.RGBA{255, 0, 0, 255},
-		'd': color.RGBA{255, 255, 0, 255},
-		'f': color.RGBA{0, 200, 128, 255},
-		'i': color.RGBA{196, 196, 255, 255},
+		'g': color.RGBA{109, 170, 44, 255},
+		'm': color.RGBA{210, 125, 44, 255},
+		'w': color.RGBA{109, 194, 202, 255},
+		'l': color.RGBA{208, 70, 72, 255},
+		'd': color.RGBA{218, 219, 94, 255},
+		'f': color.RGBA{52, 101, 36, 255},
+		'i': color.RGBA{222, 238, 214, 255},
 	}
 )
 
