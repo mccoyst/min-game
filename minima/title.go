@@ -4,6 +4,8 @@ package main
 
 import (
 	"bufio"
+	"fmt"
+	"io"
 	"os"
 	"os/exec"
 
@@ -13,11 +15,25 @@ import (
 
 type TitleScreen struct {
 	loading bool
-	frame   int
+
+	// GenTxt is the last string from the level generator.
+	genTxt string
+
+	// strChan receives strings from wgen's stderr.
+	strChan <-chan string
+
+	// wChan receieves the world from the reader.
+	wChan <-chan interface{}
+
+	frame int
 }
 
 func NewTitleScreen() *TitleScreen {
-	return &TitleScreen{loading: *worldOnStdin}
+	t := &TitleScreen{}
+	if *worldOnStdin {
+		t.startLoading()
+	}
+	return t
 }
 
 func (t *TitleScreen) Draw(d Drawer) error {
@@ -26,9 +42,11 @@ func (t *TitleScreen) Draw(d Drawer) error {
 		if err := d.SetFont("prstartk", 12); err != nil {
 			return err
 		}
-		genTxt := "Generating World"
-		genSz := d.TextSize(genTxt)
-		_, err := d.Draw(genTxt, ui.Pt(0, ScreenDims.Y-genSz.Y))
+		if t.genTxt == "" {
+			t.genTxt = "Generating World"
+		}
+		genSz := d.TextSize(t.genTxt)
+		_, err := d.Draw(t.genTxt, ui.Pt(0, ScreenDims.Y-genSz.Y))
 		return err
 	}
 
@@ -66,7 +84,7 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 	switch k := e.(type) {
 	case ui.Key:
 		if k.Down && ui.DefaultKeymap[k.Code] == ui.Action {
-			t.loading = true
+			t.startLoading()
 		}
 	}
 	return nil
@@ -74,39 +92,114 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
 	if t.loading {
-		var w *world.World
-		var err error
-		if *worldOnStdin {
-			w, err = world.Read(bufio.NewReader(os.Stdin))
-			if err != nil {
-				return err
+		select {
+		case s, ok := <-t.strChan:
+			if !ok {
+				t.strChan = nil
+				break
 			}
-		} else {
-			cmd := exec.Command("wgen")
-			stdout, err := cmd.StdoutPipe()
-			if err != nil {
-				return err
+			t.genTxt = s
+		case i := <-t.wChan:
+			switch w := i.(type) {
+			case error:
+				return w
+			case *world.World:
+				for _ = range t.genTxt { // junk it
+				}
+				*worldOnStdin = false
+				stk.Push(NewExploreScreen(w))
+				t.loading = false
 			}
-			cmd.Stderr = os.Stderr
-			if err = cmd.Start(); err != nil {
-				return err
-			}
-
-			w, err = world.Read(bufio.NewReader(stdout))
-			if err != nil {
-				return err
-			}
-
-			if err = cmd.Wait(); err != nil {
-				return err
-			}
+		default:
 		}
-
-		*worldOnStdin = false
-		stk.Push(NewExploreScreen(w))
-		t.loading = false
 	}
 	return nil
+}
+
+func (t *TitleScreen) startLoading() {
+	t.wChan, t.strChan = readWorld()
+	t.loading = true
+}
+
+func readWorld() (<-chan interface{}, <-chan string) {
+	ch := make(chan interface{})
+	strChan := make(chan string, 1)
+	go func() {
+		var r io.Reader = os.Stdin
+		var err error
+		var cmd *exec.Cmd
+
+		if !*worldOnStdin {
+			cmd = exec.Command("wgen")
+			if r, err = cmd.StdoutPipe(); err != nil {
+				ch <- err
+				return
+			}
+			stderr, err := cmd.StderrPipe()
+			if err != nil {
+				ch <- err
+				return
+			}
+			go readErr(stderr, strChan)
+			cmd.Start()
+		} else {
+			fmt.Println("Sending Reading World")
+			strChan <- "Reading World"
+		}
+		w, err := world.Read(bufio.NewReader(r))
+		if err != nil {
+			ch <- err
+			return
+		}
+
+		if !*worldOnStdin {
+			if err = cmd.Wait(); err != nil {
+				ch <- err
+				return
+			}
+		}
+		ch <- w
+	}()
+	return ch, strChan
+}
+
+func readErr(r io.Reader, strs chan<- string) {
+	var err error
+	var runes []rune
+	in := bufio.NewReader(r)
+	for {
+		var r rune
+		if r, _, err = in.ReadRune(); err != nil {
+			break
+		}
+		os.Stderr.WriteString(string([]rune{r}))
+		if len(runes) > 0 && runes[0] == '…' {
+			if r == '\n' {
+				runes = runes[:0]
+			}
+			continue
+		}
+		if r == '…' || r == '\n' {
+			s := string(runes)
+			if s == "Writing the world" {
+				strs <- "Reading the world"
+				break
+			}
+			strs <- s
+			runes = runes[:0]
+		}
+		if r != '\n' {
+			runes = append(runes, r)
+		}
+	}
+	close(strs)
+
+	// Junk the rest
+	for err != nil {
+		var b byte
+		b, err = in.ReadByte()
+		os.Stderr.Write([]byte{b})
+	}
 }
 
 func actionKey() string {
