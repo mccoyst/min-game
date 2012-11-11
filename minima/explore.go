@@ -79,7 +79,7 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 	switch k := ev.(type) {
 	case ui.Key:
-		const speed = 5 // px
+		const speed = 10 // px
 		switch {
 		case k.Down && ui.DefaultKeymap[k.Code] == ui.Left:
 			ex.astro.Move(ui.Pt(speed, 0))
