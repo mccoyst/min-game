@@ -31,7 +31,7 @@ func main() {
 		panic(err)
 	}
 	defer out.Close()
-	png.Encode(out, &worldImg{&w, *depth})
+	png.Encode(out, &worldImg{w, *depth})
 
 	if *echo {
 		out := bufio.NewWriter(os.Stdout)

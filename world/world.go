@@ -77,8 +77,8 @@ var Terrain = []TerrainType{
 	'i': {'i', "Glacier"},
 }
 
-// Make returns a world of the given dimensions.
-func Make(w, h int) World {
+// New returns a world of the given dimensions.
+func New(w, h int) *World {
 	const maxInt = int(^uint(0) >> 1)
 	if w <= 0 || h <= 0 {
 		panic("World dimensions must be positive")
@@ -86,7 +86,7 @@ func Make(w, h int) World {
 	if maxInt/w < h {
 		panic("The world dimensions are too big")
 	}
-	return World{
+	return &World{
 		W:    w,
 		H:    h,
 		locs: makeLocs(w, h),
@@ -177,39 +177,38 @@ func (w *World) Write(out io.Writer) error {
 }
 
 // Read reads a world.  If an error is encountered then
-// the error is returned as the second argument and
-// the zero-world is returned as the first.
-func Read(in *bufio.Reader) (World, error) {
+// the error is returned.
+func Read(in *bufio.Reader) (*World, error) {
 	var err error
 	var line string
 	if line, err = readLine(in); err != nil {
-		return World{}, err
+		return nil, err
 	}
 	var width, height int
 	if _, err = fmt.Sscanln(line, &width, &height); err != nil {
 		fmt.Fprintln(os.Stderr, "failed to scan", line)
-		return World{}, err
+		return nil, err
 	}
 
-	w := Make(width, height)
+	w := New(width, height)
 	for i := range w.locs {
 		var el, dp int
 		var ch rune
 		if line, err = readLine(in); err != nil {
-			return World{}, err
+			return nil, err
 		}
 		if _, err = fmt.Sscanf(line, "%c %d %d", &ch, &el, &dp); err != nil {
 			fmt.Fprintln(os.Stderr, "failed to scan", line)
-			return World{}, err
+			return nil, err
 		}
 		if el < 0 || el > MaxElevation {
-			return World{}, fmt.Errorf("Location %d: elevation %d is out of bounds", i, el)
+			return nil, fmt.Errorf("Location %d: elevation %d is out of bounds", i, el)
 		}
 		if dp > el {
-			return World{}, fmt.Errorf("Location %d: depth is greater than elevation", i)
+			return nil, fmt.Errorf("Location %d: depth is greater than elevation", i)
 		}
 		if int(ch) >= len(Terrain) || Terrain[ch].Char == 0 {
-			return World{}, fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
+			return nil, fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
 		}
 		w.locs[i].Terrain = &Terrain[ch]
 		w.locs[i].Elevation = el
@@ -217,7 +216,7 @@ func Read(in *bufio.Reader) (World, error) {
 	}
 
 	if line, err = readLine(in); err != nil {
-		return World{}, err
+		return nil, err
 	}
 	_, err = fmt.Sscanln(line, &w.X0, &w.Y0)
 	return w, err

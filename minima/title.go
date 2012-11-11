@@ -74,7 +74,7 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
 	if t.loading {
-		var w world.World
+		var w *world.World
 		var err error
 		if *worldOnStdin {
 			w, err = world.Read(bufio.NewReader(os.Stdin))

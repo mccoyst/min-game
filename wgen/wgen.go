@@ -103,14 +103,14 @@ func main() {
 // initWorld returns a newly initialized world
 // with the given dimensions.
 func initWorld(width, height int) *world.World {
-	w := world.Make(width, height)
+	w := world.New(width, height)
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
 			l := w.At(x, y)
 			l.Elevation = world.MaxElevation / 2
 		}
 	}
-	return &w
+	return w
 }
 
 // clampHeights ensures that all locations have a

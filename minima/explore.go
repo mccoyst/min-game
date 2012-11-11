@@ -12,7 +12,7 @@ import (
 const TileSize = 32
 
 type ExploreScreen struct {
-	wo world.World
+	wo *world.World
 
 	// Point is the pixel of the world drawn in the upper
 	// left of the screen.  Each tile is TileSize by TileSize
@@ -24,7 +24,7 @@ type ExploreScreen struct {
 	ui.Point
 }
 
-func NewExploreScreen(wo world.World) *ExploreScreen {
+func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e := &ExploreScreen{wo, ui.Pt(0, 0)}
 	e.CenterOnTile(wo.X0, wo.Y0)
 	return e
