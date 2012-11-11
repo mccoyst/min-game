@@ -3,6 +3,7 @@
 package main
 
 import (
+	"image/color"
 	"time"
 
 	"code.google.com/p/min-game/ui"
@@ -12,7 +13,7 @@ import (
 type Drawer interface {
 	Draw(interface{}, ui.Point) (ui.Point, error)
 	SetFont(name string, szPts float64) error
-	SetColor(r, g, b, a uint8)
+	SetColor(color.Color)
 	TextSize(string) ui.Point
 }
 
@@ -72,7 +73,7 @@ func (s *ScreenStack) Run() {
 			}
 		}
 
-		s.win.SetColor(0, 0, 0, 255)
+		s.win.SetColor(color.Black)
 		s.win.Clear()
 		s.top().Draw(s.win)
 		s.win.Sync()

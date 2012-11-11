@@ -128,7 +128,7 @@ func New(title string, w, h int) (*Ui, error) {
 		fontCache: make(map[string]*Font),
 	}
 	err := ui.SetFont("prstartk", 12)
-	ui.SetColor(0, 0, 0, 0)
+	ui.SetColor(color.Black)
 	return ui, err
 }
 
@@ -251,10 +251,15 @@ type Sprite struct {
 }
 
 // SetColor sets the current drawing color.
-func (ui *Ui) SetColor(r, g, b, a uint8) {
+func (ui *Ui) SetColor(col color.Color) {
+	r, g, b, a := col.RGBA()
+	r8 := uint8(float64(r) / 0xFFFF * 255)
+	g8 := uint8(float64(g) / 0xFFFF * 255)
+	b8 := uint8(float64(b) / 0xFFFF * 255)
+	a8 := uint8(float64(a) / 0xFFFF * 255)
 	C.SDL_SetRenderDrawColor(ui.rend,
-		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
-	ui.color = color.RGBA{r, g, b, a}
+		C.Uint8(r8), C.Uint8(g8), C.Uint8(b8), C.Uint8(a8))
+	ui.color = col
 	ui.font.SetColor(ui.color)
 }
 
