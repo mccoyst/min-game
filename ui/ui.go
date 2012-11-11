@@ -73,13 +73,23 @@ func (b Button) String() string {
 	return ButtonNames[Unknown]
 }
 
-var DefaultKeymap = map[KeyCode]Button{
-	KeyCode(C.SDLK_s): Left,
-	KeyCode(C.SDLK_f): Right,
-	KeyCode(C.SDLK_e): Up,
-	KeyCode(C.SDLK_d): Down,
-	KeyCode(C.SDLK_j): Action,
-}
+var (
+	DefaultKeymap = map[KeyCode]Button{
+		KeyCode(C.SDLK_s): Left,
+		KeyCode(C.SDLK_f): Right,
+		KeyCode(C.SDLK_e): Up,
+		KeyCode(C.SDLK_d): Down,
+		KeyCode(C.SDLK_j): Action,
+	}
+
+	DvorakKeymap = map[KeyCode]Button{
+		KeyCode(C.SDLK_o):      Left,
+		KeyCode(C.SDLK_u):      Right,
+		KeyCode(C.SDLK_PERIOD): Up,
+		KeyCode(C.SDLK_e):      Down,
+		KeyCode(C.SDLK_h):      Action,
+	}
+)
 
 // SDL-specific:
 
