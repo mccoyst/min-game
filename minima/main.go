@@ -16,7 +16,7 @@ import (
 var (
 	drawHeights  = flag.Bool("heights", false, "draw tile height values — SLOW")
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
-	profile = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
+	profile      = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
 )
 
 var ScreenDims = ui.Pt(640, 480)

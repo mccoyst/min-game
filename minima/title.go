@@ -4,6 +4,7 @@ package main
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"os/exec"
 
@@ -84,6 +85,11 @@ func (t *TitleScreen) Update(stk *ScreenStack) error {
 			stdout, err := cmd.StdoutPipe()
 			if err != nil {
 				return err
+			}
+			if stderr, err := cmd.StderrPipe(); err != nil {
+				return err
+			} else {
+				go io.Copy(os.Stderr, stderr)
 			}
 			if err = cmd.Start(); err != nil {
 				return err
