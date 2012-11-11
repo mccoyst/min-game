@@ -68,7 +68,7 @@ var (
 // At implements the At() method of the
 // image.Image interface.
 func (w *worldImg) At(x, y int) color.Color {
-	loc := w.World.At(x, w.H-y-1)
+	loc := w.World.At(x, y)
 	el := loc.Elevation
 	if w.depth {
 		el -= loc.Depth
