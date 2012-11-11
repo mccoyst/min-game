@@ -7,6 +7,9 @@ import (
 	"code.google.com/p/min-game/world"
 )
 
+// TileSize is the width and height of a tile in pixels.
+const TileSize = 16
+
 type ExploreScreen struct {
 	wo world.World
 }
@@ -16,12 +19,12 @@ func NewExploreScreen(wo world.World) *ExploreScreen {
 }
 
 func (e *ExploreScreen) Draw(d Drawer) error {
-	w, h := int(ScreenDims.X), int(ScreenDims.Y)
+	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
 
 	for y := -1; y <= h+1; y++ {
 		for x := -1; x <= w; x++ {
 			l := e.wo.At(x, y)
-			err := e.drawCell(d, l, x*16, y*16)
+			err := e.drawCell(d, l, x*TileSize, y*TileSize)
 			if err != nil {
 				return err
 			}
@@ -32,12 +35,12 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 }
 
 func (e *ExploreScreen) drawCell(d Drawer, l *world.Loc, x, y int) error {
-	minSh := float32(0.25)
-	slope := (1 - minSh) / world.MaxElevation
+	const minSh = 0.25
+	const slope = (1 - minSh) / world.MaxElevation
 
 	_, err := d.Draw(ui.Sprite{
 		Name:   l.Terrain.Name,
-		Bounds: ui.Rect(0, 0, 16, 16),
+		Bounds: ui.Rect(0, 0, TileSize, TileSize),
 		Shade:  slope*float32(l.Elevation-l.Depth) + minSh,
 	}, ui.Pt(float64(x), float64(y)))
 
