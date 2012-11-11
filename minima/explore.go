@@ -107,10 +107,10 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 5 // px
 
 	if e.keys&keyBits[ui.Left] != 0 {
-		e.astro.Move(ui.Pt(speed, 0))
+		e.astro.Move(ui.Pt(-speed, 0))
 	}
 	if e.keys&keyBits[ui.Right] != 0 {
-		e.astro.Move(ui.Pt(-speed, 0))
+		e.astro.Move(ui.Pt(speed, 0))
 	}
 	if e.keys&keyBits[ui.Down] != 0 {
 		e.astro.Move(ui.Pt(0, speed))
