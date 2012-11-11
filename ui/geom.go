@@ -59,6 +59,11 @@ func (r Rectangle) Dy() float64 {
 	return r.Max.Y - r.Min.Y
 }
 
+// Center returns r's center point.
+func (r Rectangle) Center() Point {
+	return Point{r.Min.X + r.Dx()/2, r.Min.Y + r.Dy()/2}
+}
+
 // Size returns r's width and height.
 func (r Rectangle) Size() Point {
 	return Point{r.Dx(), r.Dy()}

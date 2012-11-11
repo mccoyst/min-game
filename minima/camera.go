@@ -7,22 +7,22 @@ import (
 )
 
 type Camera struct {
-	cam ui.Point
+	pt ui.Point
 }
 
 func (c *Camera) Move(v ui.Point) {
-	c.cam.Add(v)
+	c.pt = c.pt.Add(v)
 }
 
 func (c *Camera) Center(v ui.Point) {
-	c.cam.X = ScreenDims.X/2.0 - v.X
-	c.cam.Y = ScreenDims.Y/2.0 - v.Y
+	c.pt.X = v.X - ScreenDims.X/2.0
+	c.pt.Y = v.Y - ScreenDims.Y/2.0
 }
 
 func (c *Camera) Pos() ui.Point {
-	return c.cam
+	return c.pt
 }
 
 func (c *Camera) Draw(d Drawer, x interface{}, p ui.Point) (ui.Point, error) {
-	return d.Draw(x, p.Sub(c.cam))
+	return d.Draw(x, p.Sub(c.pt))
 }
