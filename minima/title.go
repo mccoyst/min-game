@@ -4,7 +4,6 @@ package main
 
 import (
 	"bufio"
-	"image/color"
 	"os"
 	"os/exec"
 
@@ -23,7 +22,7 @@ func NewTitleScreen() *TitleScreen {
 
 func (t *TitleScreen) Draw(d Drawer) error {
 	if t.loading {
-		d.SetColor(color.RGBA{109, 170, 44, 255})
+		d.SetColor(Lime)
 		if err := d.SetFont("prstartk", 12); err != nil {
 			return err
 		}
@@ -33,7 +32,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 		return err
 	}
 
-	d.SetColor(color.White)
+	d.SetColor(White)
 	if err := d.SetFont("prstartk", 64); err != nil {
 		return err
 	}
