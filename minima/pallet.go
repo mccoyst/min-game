@@ -5,8 +5,8 @@ package main
 import "image/color"
 
 var (
-	Black = color.RGBA{ 20, 12, 28, 255 }
-	White = color.RGBA{ 222, 238, 214, 255 }
+	Black = color.RGBA{20, 12, 28, 255}
+	White = color.RGBA{222, 238, 214, 255}
 
 	Lime = color.RGBA{109, 170, 44, 255}
 )

@@ -357,7 +357,7 @@ func drawSprite(ui *Ui, s Sprite, p Point) error {
 
 func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
 	if s.Shade < 1.0 {
-		sh := C.Uint8(s.Shade*255)
+		sh := C.Uint8(s.Shade * 255)
 		C.SDL_SetTextureColorMod(img.tex, sh, sh, sh)
 		defer C.SDL_SetTextureColorMod(img.tex, 255, 255, 255)
 	}
