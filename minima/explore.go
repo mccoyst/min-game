@@ -12,24 +12,13 @@ import (
 const TileSize = 32
 
 type ExploreScreen struct {
-	wo *world.World
-
-	// Point is the pixel of the world drawn in the upper
-	// left of the screen.  Each tile is TileSize by TileSize
-	// pixels, so for example, to have the full 1,1 tile in
-	// the upper left:
-	// 	Point=ui.Pt(TileSize, TileSize)
-	// To have the center of tile 0,0 in the upper right:
-	//	Point=ui.Pt(TileSize/2, TileSize/2)
-	ui.Point
-
-	cam Camera
-
+	wo    *world.World
+	cam   Camera
 	astro *Player
 }
 
 func NewExploreScreen(wo *world.World) *ExploreScreen {
-	e := &ExploreScreen{ wo: wo, Point: ui.Pt(0, 0)}
+	e := &ExploreScreen{wo: wo}
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, ui.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 	return e
@@ -37,21 +26,23 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 
 // CenterOnTile centers the display on a given tile.
 func (e *ExploreScreen) CenterOnTile(x, y int) {
-	e.X = TileSize*float64(x) + TileSize/2 - ScreenDims.X/2
-	e.Y = TileSize*float64(y) + TileSize/2 - ScreenDims.Y/2
+	e.cam.Center(ui.Pt(TileSize*float64(x)+TileSize/2,
+		TileSize*float64(y)+TileSize/2))
 }
 
 func (e *ExploreScreen) Draw(d Drawer) error {
+	e.cam.Center(e.astro.box.Center())
+
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
-	x0 := int(e.X / TileSize)
-	xoff0 := -math.Mod(e.X, TileSize)
-	if e.X < 0 {
+	x0 := int(e.cam.pt.X / TileSize)
+	xoff0 := -math.Mod(e.cam.pt.X, TileSize)
+	if e.cam.pt.X < 0 {
 		x0 -= 1
 		xoff0 = -TileSize + xoff0
 	}
-	y0 := int(e.Y / TileSize)
-	yoff0 := -math.Mod(e.Y, TileSize)
-	if e.Y < 0 {
+	y0 := int(e.cam.pt.Y / TileSize)
+	yoff0 := -math.Mod(e.cam.pt.Y, TileSize)
+	if e.cam.pt.Y < 0 {
 		y0 -= 1
 		yoff0 = -TileSize + yoff0
 	}
@@ -69,7 +60,7 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 		pt.X += TileSize
 	}
 
-	return e.astro.Draw(d, Camera{e.Point})
+	return e.astro.Draw(d, e.cam)
 }
 
 func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
@@ -88,16 +79,16 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 	switch k := ev.(type) {
 	case ui.Key:
-		const speed = 5 // px
+		const speed = 10 // px
 		switch {
 		case k.Down && ui.DefaultKeymap[k.Code] == ui.Left:
-			ex.Point = ex.Add(ui.Pt(speed, 0))
+			ex.astro.Move(ui.Pt(speed, 0))
 		case k.Down && ui.DefaultKeymap[k.Code] == ui.Right:
-			ex.Point = ex.Sub(ui.Pt(speed, 0))
+			ex.astro.Move(ui.Pt(-speed, 0))
 		case k.Down && ui.DefaultKeymap[k.Code] == ui.Down:
-			ex.Point = ex.Add(ui.Pt(0, speed))
+			ex.astro.Move(ui.Pt(0, speed))
 		case k.Down && ui.DefaultKeymap[k.Code] == ui.Up:
-			ex.Point = ex.Sub(ui.Pt(0, speed))
+			ex.astro.Move(ui.Pt(0, -speed))
 		}
 	}
 	return nil
