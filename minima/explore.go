@@ -8,7 +8,7 @@ import (
 )
 
 // TileSize is the width and height of a tile in pixels.
-const TileSize = 16
+const TileSize = 32
 
 type ExploreScreen struct {
 	wo world.World
