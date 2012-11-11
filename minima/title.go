@@ -195,7 +195,7 @@ func readErr(r io.Reader, strs chan<- string) {
 	close(strs)
 
 	// Junk the rest
-	for err != nil {
+	for err == nil {
 		var b byte
 		b, err = in.ReadByte()
 		os.Stderr.Write([]byte{b})
