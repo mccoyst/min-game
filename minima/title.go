@@ -17,7 +17,7 @@ type TitleScreen struct {
 }
 
 func NewTitleScreen() *TitleScreen {
-	return &TitleScreen{}
+	return &TitleScreen{loading: *worldOnStdin}
 }
 
 func (t *TitleScreen) Draw(d Drawer) error {
