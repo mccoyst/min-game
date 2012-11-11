@@ -88,7 +88,7 @@ type Ui struct {
 	rend *C.SDL_Renderer
 
 	// Font is the current font.
-	font *Font
+	font *font
 
 	// Color is the current color.
 	color color.Color
@@ -97,7 +97,7 @@ type Ui struct {
 	nFrames uint64
 
 	imgCache  map[string]*sdlImg
-	fontCache map[string]*Font
+	fontCache map[string]*font
 	txtCache  map[textKey]*cachedText
 }
 
@@ -141,7 +141,7 @@ func New(title string, w, h int) (*Ui, error) {
 		win:       win,
 		rend:      rend,
 		imgCache:  make(map[string]*sdlImg),
-		fontCache: make(map[string]*Font),
+		fontCache: make(map[string]*font),
 		txtCache:  make(map[textKey]*cachedText),
 	}
 	err := ui.SetFont("prstartk", 12)
@@ -284,7 +284,7 @@ func (ui *Ui) SetColor(col color.Color) {
 	C.SDL_SetRenderDrawColor(ui.rend,
 		C.Uint8(r8), C.Uint8(g8), C.Uint8(b8), C.Uint8(a8))
 	ui.color = col
-	ui.font.SetColor(ui.color)
+	ui.font.setColor(ui.color)
 }
 
 // SetFont sets the current font face and size.
@@ -292,20 +292,20 @@ func (ui *Ui) SetFont(name string, sz float64) error {
 	var ok bool
 	if ui.font, ok = ui.fontCache[name]; !ok {
 		var err error
-		if ui.font, err = NewFont("resrc/" + name + ".ttf"); err != nil {
+		if ui.font, err = newFont("resrc/" + name + ".ttf"); err != nil {
 			return err
 		}
 		ui.fontCache[name] = ui.font
 	}
-	ui.font.SetSize(sz)
-	ui.font.SetColor(ui.color)
+	ui.font.setSize(sz)
+	ui.font.setColor(ui.color)
 	return nil
 }
 
 // TextSize returns the size of the text when rendered in the current font.
 func (ui *Ui) TextSize(txt string) Point {
-	w := ui.font.Width(txt)
-	h := ui.font.Extents().Height
+	w := ui.font.width(txt)
+	h := ui.font.extents().height
 	return Pt(float64(w), float64(h))
 }
 
@@ -379,7 +379,7 @@ func drawText(ui *Ui, txt string, p Point) (Point, error) {
 		c.frame = ui.nFrames
 		img = c.img
 	} else {
-		i, err := ui.font.Render(txt)
+		i, err := ui.font.render(txt)
 		if err != nil {
 			return Point{}, err
 		}
