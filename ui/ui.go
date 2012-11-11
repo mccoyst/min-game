@@ -87,6 +87,12 @@ type Ui struct {
 	win  *C.SDL_Window
 	rend *C.SDL_Renderer
 
+	// Font is the current font.
+	font *Font
+
+	// Color is the current color.
+	color color.Color
+
 	imgCache  map[string]*sdlImg
 	fontCache map[string]*Font
 }
@@ -115,7 +121,15 @@ func New(title string, w, h int) (*Ui, error) {
 		return nil, sdlError()
 	}
 
-	return &Ui{win: win, rend: rend, imgCache: make(map[string]*sdlImg)}, nil
+	ui := &Ui{
+		win:       win,
+		rend:      rend,
+		imgCache:  make(map[string]*sdlImg),
+		fontCache: make(map[string]*Font),
+	}
+	err := ui.SetFont("prstartk", 12)
+	ui.SetColor(0, 0, 0, 0)
+	return ui, err
 }
 
 func (ui *Ui) Close() {
@@ -228,14 +242,6 @@ func sdlError() error {
 	return errors.New(C.GoString(C.SDL_GetError()))
 }
 
-// Text pairs a string of text with a font.
-// Pts is given in PostScript points.
-type Text struct {
-	Font string
-	Pts  float64
-	string
-}
-
 // Sprite represents an image, the portion of
 // the image to be rendered, and its shading.
 type Sprite struct {
@@ -244,9 +250,34 @@ type Sprite struct {
 	Shade  float32
 }
 
+// SetColor sets the current drawing color.
 func (ui *Ui) SetColor(r, g, b, a uint8) {
 	C.SDL_SetRenderDrawColor(ui.rend,
 		C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
+	ui.color = color.RGBA{r, g, b, a}
+	ui.font.SetColor(ui.color)
+}
+
+// SetFont sets the current font face and size.
+func (ui *Ui) SetFont(name string, sz float64) error {
+	var ok bool
+	if ui.font, ok = ui.fontCache[name]; !ok {
+		var err error
+		if ui.font, err = NewFont("resrc/" + name + ".ttf"); err != nil {
+			return err
+		}
+		ui.fontCache[name] = ui.font
+	}
+	ui.font.SetSize(sz)
+	ui.font.SetColor(ui.color)
+	return nil
+}
+
+// TextSize returns the size of the text when rendered in the current font.
+func (ui *Ui) TextSize(txt string) Point {
+	w := ui.font.Width(txt)
+	h := ui.font.Extents().Height
+	return Pt(float64(w), float64(h))
 }
 
 /*
@@ -254,11 +285,8 @@ Draw queues a rendering of x and returns the dimensions of what
 will be rendered, or an error. Draw supports the following types:
 
 	string
-		The given string is drawn at p in the default font, in the
-		current color, on a background of the opposite color.
-
-	Text
-		The given text is drawn at p, using the font given in the text.
+		The given string is drawn at p in the current font, in the
+		current color.
 
 	Rectangle
 		The given rectangle is filled at offset p, in the current color.
@@ -277,10 +305,8 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 		return d.Size(), nil
 	case Sprite:
 		return d.Bounds.Size(), drawSprite(ui, d, p)
-	case Text:
-		return drawText(ui, d, p)
 	case string:
-		return drawText(ui, Text{"prstartk", 16.0, d}, p)
+		return drawText(ui, d, p)
 	case image.Image:
 		return drawImage(ui, d, p)
 	}
@@ -306,28 +332,17 @@ func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
 		&C.SDL_Rect{C.int(p.X), C.int(p.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())})
 }
 
-func drawText(ui *Ui, t Text, p Point) (Point, error) {
-	font, ok := ui.fontCache[t.Font]
-	if !ok {
-		var err error
-		if font, err = NewFont("resrc/" + t.Font + ".ttf"); err != nil {
-			return Point{}, err
-		}
-	}
-
-	var r, g, b, a C.Uint8
-	C.SDL_GetRenderDrawColor(ui.rend, &r, &g, &b, &a)
-	font.SetColor(color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)})
-	font.SetSize(t.Pts)
-
-	img, err := font.Render(t.string)
+// DrawText draws the string to the ui at the given point, 
+// using the ui's current font, and current color.
+func drawText(ui *Ui, txt string, p Point) (Point, error) {
+	img, err := ui.font.Render(txt)
 	if err != nil {
 		return Point{}, err
 	}
-
 	return drawImage(ui, img, p)
 }
 
+// DrawImage draws an image to the UI at the given point.
 func drawImage(ui *Ui, i image.Image, p Point) (Point, error) {
 	s, err := newSdlImage(ui, i, "")
 	if err != nil {
