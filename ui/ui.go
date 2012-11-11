@@ -93,8 +93,24 @@ type Ui struct {
 	// Color is the current color.
 	color color.Color
 
+	// NFrames is the number of frames drawn.
+	nFrames uint64
+
 	imgCache  map[string]*sdlImg
 	fontCache map[string]*Font
+	txtCache  map[textKey]*cachedText
+}
+
+type textKey struct {
+	txt        string
+	size       float64
+	r, g, b, a uint32
+}
+
+type cachedText struct {
+	img   *sdlImg
+	frame uint64
+	rect  Rectangle
 }
 
 func New(title string, w, h int) (*Ui, error) {
@@ -126,6 +142,7 @@ func New(title string, w, h int) (*Ui, error) {
 		rend:      rend,
 		imgCache:  make(map[string]*sdlImg),
 		fontCache: make(map[string]*Font),
+		txtCache:  make(map[textKey]*cachedText),
 	}
 	err := ui.SetFont("prstartk", 12)
 	ui.SetColor(color.Black)
@@ -165,6 +182,13 @@ func (ui *Ui) Clear() {
 
 func (ui *Ui) Sync() error {
 	C.SDL_RenderPresent(ui.rend)
+	for k, c := range ui.txtCache {
+		if c.frame < ui.nFrames {
+			delete(ui.txtCache, k)
+			c.img.Close()
+		}
+	}
+	ui.nFrames++
 	return nil
 }
 
@@ -340,11 +364,38 @@ func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
 // DrawText draws the string to the ui at the given point, 
 // using the ui's current font, and current color.
 func drawText(ui *Ui, txt string, p Point) (Point, error) {
-	img, err := ui.font.Render(txt)
-	if err != nil {
-		return Point{}, err
+	r, g, b, a := ui.color.RGBA()
+	key := textKey{
+		txt:  txt,
+		size: ui.font.size,
+		r:    r,
+		g:    g,
+		b:    b,
+		a:    a,
 	}
-	return drawImage(ui, img, p)
+	var img *sdlImg
+	c, ok := ui.txtCache[key]
+	if ok {
+		c.frame = ui.nFrames
+		img = c.img
+	} else {
+		i, err := ui.font.Render(txt)
+		if err != nil {
+			return Point{}, err
+		}
+		img, err = newSdlImage(ui, i, "")
+		if err != nil {
+			return Point{}, err
+		}
+		c = &cachedText{
+			img,
+			ui.nFrames,
+			toRect(i.Bounds()),
+		}
+		ui.txtCache[key] = c
+	}
+	img.Draw(ui, Sprite{Bounds: c.rect, Shade: 1.0}, p)
+	return Pt(float64(c.rect.Dx()), float64(c.rect.Dy())), nil
 }
 
 // DrawImage draws an image to the UI at the given point.
