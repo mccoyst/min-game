@@ -65,7 +65,7 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 }
 
 func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
-	const minSh = 0.25
+	const minSh = 0.05
 	const slope = (1 - minSh) / world.MaxElevation
 
 	_, err := d.Draw(ui.Sprite{
