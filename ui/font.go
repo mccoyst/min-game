@@ -29,9 +29,9 @@ type glyphKey struct {
 	r, g, b, a uint32
 }
 
-// A Font is a size and style in which text can be
+// A font is a size and style in which text can be
 // rendered to an image.
-type Font struct {
+type font struct {
 	// Size is the size of the font in points.
 	size float64
 
@@ -49,10 +49,10 @@ type Font struct {
 	glyphs map[glyphKey]image.Image
 }
 
-// NewFont returns a new Font loaded from a .ttf file.
+// NewFont returns a new font loaded from a .ttf file.
 // The default size is 12 points, and the default color
 // is black.
-func NewFont(path string) (*Font, error) {
+func newFont(path string) (*font, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func NewFont(path string) (*Font, error) {
 	ctx.SetFont(ttf)
 	ctx.SetDPI(pxInch)
 
-	return &Font{
+	return &font{
 		size:   defaultSize,
 		color:  defaultColor,
 		ttf:    ttf,
@@ -85,50 +85,50 @@ func NewFont(path string) (*Font, error) {
 }
 
 // SetSize sets the font size.
-func (f *Font) SetSize(sz float64) {
+func (f *font) setSize(sz float64) {
 	f.size = sz
 }
 
 // SetColor sets the font color.
-func (f *Font) SetColor(col color.Color) {
+func (f *font) setColor(col color.Color) {
 	f.color = col
 }
 
-// FontExtents describes some size attributes of all text
+// fontExtents describes some size attributes of all text
 // rendered in this font.
-type FontExtents struct {
+type fontExtents struct {
 
 	// Height is the height of the font in pixels.
 	// The height is size used to create the font, and it
 	// can be used as a reasonable line spacing.
-	Height int
+	height int
 
 	// Ascent is the distance in pixels from the baseline
 	// (the y-value given as the font's drawing location
 	// to the highest point of a rasterized glyph.
-	Ascent int
+	ascent int
 
 	// Decent is the distance in pixels from the baseline
 	// to the lowest point of a rasterized glyph.  The
 	// descent extents below the baseline so it is always
 	// a negative value.
-	Descent int
+	descent int
 }
 
 // Extents returns the extents of a font.
-func (f *Font) Extents() FontExtents {
+func (f *font) extents() fontExtents {
 	em := f.ttf.FUnitsPerEm()
 	bounds := f.ttf.Bounds(em)
 	scale := (f.size / ptInch * pxInch) / float64(em)
-	return FontExtents{
-		Height:  int(float64(bounds.YMax-bounds.YMin)*scale + 0.5),
-		Ascent:  int(float64(bounds.YMax)*scale + 0.5),
-		Descent: int(float64(bounds.YMin)*scale + 0.5),
+	return fontExtents{
+		height:  int(float64(bounds.YMax-bounds.YMin)*scale + 0.5),
+		ascent:  int(float64(bounds.YMax)*scale + 0.5),
+		descent: int(float64(bounds.YMin)*scale + 0.5),
 	}
 }
 
 // Width returns width of a string in pixels.
-func (f *Font) Width(s string) int {
+func (f *font) width(s string) int {
 	em := f.ttf.FUnitsPerEm()
 	var width int32
 	prev, hasPrev := truetype.Index(0), false
@@ -145,8 +145,8 @@ func (f *Font) Width(s string) int {
 }
 
 // Render returns an image of the given string.
-func (f *Font) Render(s string) (image.Image, error) {
-	w, h := f.Width(s), f.Extents().Height
+func (f *font) render(s string) (image.Image, error) {
+	w, h := f.width(s), f.extents().height
 	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 
 	em := f.ttf.FUnitsPerEm()
@@ -177,7 +177,7 @@ func (f *Font) Render(s string) (image.Image, error) {
 // Glyph returns an image.Image containing the glyph.
 // If the glyph is in the cache then that is returned,
 // otherwise the glyph is rendered, cached, and returned.
-func (f *Font) glyph(ru rune) (image.Image, error) {
+func (f *font) glyph(ru rune) (image.Image, error) {
 	r, g, b, a := f.color.RGBA()
 	key := glyphKey{
 		rune: ru,
@@ -191,9 +191,9 @@ func (f *Font) glyph(ru rune) (image.Image, error) {
 		return img, nil
 	}
 	s := string([]rune{ru})
-	w := f.Width(s)
-	ext := f.Extents()
-	h := ext.Height
+	w := f.width(s)
+	ext := f.extents()
+	h := ext.height
 
 	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 	f.ctx.SetFontSize(f.size)
@@ -201,7 +201,7 @@ func (f *Font) glyph(ru rune) (image.Image, error) {
 	f.ctx.SetClip(img.Bounds())
 	f.ctx.SetDst(img)
 
-	pt := freetype.Pt(0, int(h+ext.Descent))
+	pt := freetype.Pt(0, int(h+ext.descent))
 	if _, err := f.ctx.DrawString(s, pt); err != nil {
 		return nil, err
 	}
