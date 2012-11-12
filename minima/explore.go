@@ -106,17 +106,18 @@ func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 5 // px
 
+	e.astro.body.Vel = ui.Pt(0, 0)
 	if e.keys&keyBits[ui.Left] != 0 {
-		e.astro.body.Vel = ui.Pt(-speed, 0)
+		e.astro.body.Vel.X -= speed
 	}
 	if e.keys&keyBits[ui.Right] != 0 {
-		e.astro.body.Vel = (ui.Pt(speed, 0))
+		e.astro.body.Vel.X += speed
 	}
 	if e.keys&keyBits[ui.Down] != 0 {
-		e.astro.body.Vel = (ui.Pt(0, speed))
+		e.astro.body.Vel.Y += speed
 	}
 	if e.keys&keyBits[ui.Up] != 0 {
-		e.astro.body.Vel = (ui.Pt(0, -speed))
+		e.astro.body.Vel.Y -= speed
 	}
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
