@@ -141,7 +141,10 @@ func (t *TitleScreen) loadWorld() {
 		}
 		go readErr(stderr, t.wgenErr)
 
-		cmd.Start()
+		if err := cmd.Start(); err != nil {
+			t.wChan <- err
+			return
+		}
 		w, err := world.Read(bufio.NewReader(stdout))
 		if err != nil {
 			t.wChan <- err
