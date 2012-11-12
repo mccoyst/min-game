@@ -3,6 +3,7 @@
 package world
 
 import (
+	"bufio"
 	"os"
 	"testing"
 )
@@ -16,9 +17,9 @@ func TestWriteRead(t *testing.T) {
 		}
 	}
 
-	w := Make(10, 10)
+	w := New(10, 10)
 	for i := range w.locs {
-		w.locs[i].Height = i % (MaxHeight + 1)
+		w.locs[i].Elevation = i % (MaxElevation + 1)
 		w.locs[i].Terrain = &Terrain[types[i%len(types)]]
 	}
 
@@ -31,7 +32,7 @@ func TestWriteRead(t *testing.T) {
 		t.Fatalf("Failed to write the world: %s", err)
 	}
 
-	u, err := Read(read)
+	u, err := Read(bufio.NewReader(read))
 	if err != nil {
 		t.Fatalf("Failed to read the world: %s", err)
 	}
@@ -52,7 +53,7 @@ func TestWriteRead(t *testing.T) {
 	for i, l0 := range w.locs {
 		l1 := u.locs[i]
 		if l0.Terrain != l1.Terrain {
-			ch0, ch1 := uint8('?'), uint8('?')
+			ch0, ch1 := '?', '?'
 			if l0.Terrain != nil {
 				ch0 = l0.Terrain.Char
 			}
@@ -62,7 +63,7 @@ func TestWriteRead(t *testing.T) {
 			t.Fatalf("Location %d: terrain mismatch: %p (%c) and %p (%c)", i,
 				l0.Terrain, ch0, l1.Terrain, ch1)
 		}
-		if l0.Height != l1.Height {
+		if l0.Height() != l1.Height() {
 			t.Fatalf("Location %d: height mismatch", i)
 		}
 	}
