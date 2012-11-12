@@ -154,9 +154,11 @@ func New(title string, w, h int) (*Ui, error) {
 		fontCache: make(map[string]*font),
 		txtCache:  make(map[textKey]*cachedText),
 	}
-	err := ui.SetFont("prstartk", 12)
+	if err := ui.SetFont("prstartk", 12); err != nil {
+		return nil, err
+	}
 	ui.SetColor(color.Black)
-	return ui, err
+	return ui, nil
 }
 
 func (ui *Ui) Close() {
