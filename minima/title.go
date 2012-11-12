@@ -39,7 +39,7 @@ func NewTitleScreen() *TitleScreen {
 func (t *TitleScreen) Draw(d Drawer) error {
 	if t.loading {
 		if t.genTxt == "" {
-			return nil
+			t.genTxt = "Reticulating Splines"
 		}
 		d.SetColor(Lime)
 		if err := d.SetFont("prstartk", 12); err != nil {
@@ -175,11 +175,11 @@ func pipes(cmd *exec.Cmd) (stdout, stderr io.Reader, err error) {
 func readErr(r io.Reader, strs chan<- string) {
 	in := bufio.NewReader(io.TeeReader(r, os.Stderr))
 	for {
-		line, err := readRunes(in, '\n')
+		_, err := readRunes(in, '\n')
 		if err != nil {
 			break
 		}
-		line, err = readRunes(in, '…')
+		line, err := readRunes(in, '…')
 		if err != nil {
 			break
 		}
