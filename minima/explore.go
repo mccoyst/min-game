@@ -35,16 +35,14 @@ func (e *ExploreScreen) CenterOnTile(x, y int) {
 
 func (e *ExploreScreen) Draw(d Drawer) error {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
-	x0 := int(e.cam.pt.X / TileSize)
+	x0 := int(math.Floor(e.cam.pt.X / TileSize))
 	xoff0 := -math.Mod(e.cam.pt.X, TileSize)
 	if e.cam.pt.X < 0 {
-		x0 -= 1
 		xoff0 = -TileSize + xoff0
 	}
-	y0 := int(e.cam.pt.Y / TileSize)
+	y0 := int(math.Floor(e.cam.pt.Y / TileSize))
 	yoff0 := -math.Mod(e.cam.pt.Y, TileSize)
 	if e.cam.pt.Y < 0 {
-		y0 -= 1
 		yoff0 = -TileSize + yoff0
 	}
 	pt := ui.Pt(xoff0, yoff0)
