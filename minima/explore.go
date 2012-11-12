@@ -107,17 +107,18 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 5 // px
 
 	if e.keys&keyBits[ui.Left] != 0 {
-		e.astro.Move(ui.Pt(-speed, 0))
+		e.astro.body.Vel = ui.Pt(-speed, 0)
 	}
 	if e.keys&keyBits[ui.Right] != 0 {
-		e.astro.Move(ui.Pt(speed, 0))
+		e.astro.body.Vel = (ui.Pt(speed, 0))
 	}
 	if e.keys&keyBits[ui.Down] != 0 {
-		e.astro.Move(ui.Pt(0, speed))
+		e.astro.body.Vel = (ui.Pt(0, speed))
 	}
 	if e.keys&keyBits[ui.Up] != 0 {
-		e.astro.Move(ui.Pt(0, -speed))
+		e.astro.body.Vel = (ui.Pt(0, -speed))
 	}
-	e.cam.Center(e.astro.box.Center())
+	e.astro.Move(e.wo)
+	e.cam.Center(e.astro.body.Box.Center())
 	return nil
 }

@@ -26,6 +26,16 @@ func (p Point) Sub(q Point) Point {
 	return Point{p.X - q.X, p.Y - q.Y}
 }
 
+// Mul returns the vector p*k.
+func (p Point) Mul(k float64) Point {
+	return Point{p.X * k, p.Y * k}
+}
+
+// Div returns the vector p/k.
+func (p Point) Div(k float64) Point {
+	return Point{p.X / k, p.Y / k}
+}
+
 // Eq returns whether p and q are equal.
 func (p Point) Eq(q Point) bool {
 	return p.X == q.X && p.Y == q.Y
@@ -106,4 +116,25 @@ func Rect(x0, y0, x1, y1 float64) Rectangle {
 		y0, y1 = y1, y0
 	}
 	return Rectangle{Point{x0, y0}, Point{x1, y1}}
+}
+
+// Intersect returns the largest rectangle contained by both r and s. If the
+// two rectangles do not overlap then the zero rectangle will be returned.
+func (r Rectangle) Intersect(s Rectangle) Rectangle {
+	if r.Min.X < s.Min.X {
+		r.Min.X = s.Min.X
+	}
+	if r.Min.Y < s.Min.Y {
+		r.Min.Y = s.Min.Y
+	}
+	if r.Max.X > s.Max.X {
+		r.Max.X = s.Max.X
+	}
+	if r.Max.Y > s.Max.Y {
+		r.Max.Y = s.Max.Y
+	}
+	if r.Min.X > r.Max.X || r.Min.Y > r.Max.Y {
+		return Rectangle{}
+	}
+	return r
 }

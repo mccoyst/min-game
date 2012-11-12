@@ -9,15 +9,20 @@ import (
 
 type Player struct {
 	wo  *world.World
-	box ui.Rectangle
+	body Body
 }
 
 func NewPlayer(wo *world.World, p ui.Point) *Player {
-	return &Player{wo, ui.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize)}
+	return &Player{
+		wo: wo,
+		body: Body{
+			Box: ui.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+		},
+	}
 }
 
-func (p *Player) Move(pt ui.Point) {
-	p.box = p.box.Add(pt)
+func (p *Player) Move(w *world.World) {
+	p.body.Move(w)
 }
 
 func (p *Player) Draw(d Drawer, cam Camera) error {
@@ -25,6 +30,6 @@ func (p *Player) Draw(d Drawer, cam Camera) error {
 		Name:   "Astronaut",
 		Bounds: ui.Rect(0, 0, TileSize, TileSize),
 		Shade:  1.0,
-	}, p.box.Min)
+	}, p.body.Box.Min)
 	return err
 }
