@@ -4,7 +4,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"errors"
 	"io"
 	"os"
 	"os/exec"
@@ -19,11 +19,11 @@ type TitleScreen struct {
 	// GenTxt is the last string from the level generator.
 	genTxt string
 
-	// strChan receives strings from wgen's stderr.
-	strChan <-chan string
+	// wgenErr receives strings from wgen's stderr.
+	wgenErr chan string
 
 	// wChan receieves the world from the reader.
-	wChan <-chan interface{}
+	wChan chan interface{}
 
 	frame int
 }
@@ -31,19 +31,19 @@ type TitleScreen struct {
 func NewTitleScreen() *TitleScreen {
 	t := &TitleScreen{}
 	if *worldOnStdin {
-		t.startLoading()
+		t.loadWorld()
 	}
 	return t
 }
 
 func (t *TitleScreen) Draw(d Drawer) error {
 	if t.loading {
+		if t.genTxt == "" {
+			t.genTxt = "Reticulating Splines"
+		}
 		d.SetColor(Lime)
 		if err := d.SetFont("prstartk", 12); err != nil {
 			return err
-		}
-		if t.genTxt == "" {
-			t.genTxt = "Generating World"
 		}
 		genSz := d.TextSize(t.genTxt)
 		_, err := d.Draw(t.genTxt, ui.Pt(0, ScreenDims.Y-genSz.Y))
@@ -84,122 +84,128 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 	switch k := e.(type) {
 	case ui.Key:
 		if k.Down && ui.DefaultKeymap[k.Code] == ui.Action {
-			t.startLoading()
+			t.loadWorld()
 		}
 	}
 	return nil
 }
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
-	if t.loading {
-		select {
-		case s, ok := <-t.strChan:
-			if !ok {
-				t.strChan = nil
-				break
-			}
-			t.genTxt = s
-		case i := <-t.wChan:
-			switch w := i.(type) {
-			case error:
-				return w
-			case *world.World:
-				for _ = range t.genTxt { // junk it
-				}
-				*worldOnStdin = false
-				stk.Push(NewExploreScreen(w))
-				t.loading = false
-			}
-		default:
+	if !t.loading {
+		return nil
+	}
+	select {
+	case s, ok := <-t.wgenErr:
+		if !ok {
+			t.wgenErr = nil
+			break
 		}
+		t.genTxt = s
+	case i := <-t.wChan:
+		if err, ok := i.(error); ok {
+			return err
+		}
+		for _ = range t.genTxt {
+		} // junk it
+		t.loading = false
+		stk.Push(NewExploreScreen(i.(*world.World)))
+	default:
 	}
 	return nil
 }
 
-func (t *TitleScreen) startLoading() {
-	t.wChan, t.strChan = readWorld()
+func (t *TitleScreen) loadWorld() {
+	t.wChan = make(chan interface{})
+	t.wgenErr = make(chan string, 1)
 	t.loading = true
-}
 
-func readWorld() (<-chan interface{}, <-chan string) {
-	ch := make(chan interface{})
-	strChan := make(chan string, 1)
 	go func() {
-		var r io.Reader = os.Stdin
-		var err error
-		var cmd *exec.Cmd
-
-		if !*worldOnStdin {
-			cmd = exec.Command("wgen")
-			if r, err = cmd.StdoutPipe(); err != nil {
-				ch <- err
-				return
+		if *worldOnStdin {
+			*worldOnStdin = false
+			t.wgenErr <- "Reading World"
+			close(t.wgenErr)
+			in := bufio.NewReader(os.Stdin)
+			if w, err := world.Read(in); err != nil {
+				t.wChan <- errors.New("Failed to read the world: " + err.Error())
+			} else {
+				t.wChan <- w
 			}
-			stderr, err := cmd.StderrPipe()
-			if err != nil {
-				ch <- err
-				return
-			}
-			go readErr(stderr, strChan)
-			cmd.Start()
-		} else {
-			fmt.Println("Sending Reading World")
-			strChan <- "Reading World"
-		}
-		w, err := world.Read(bufio.NewReader(r))
-		if err != nil {
-			ch <- err
 			return
 		}
 
-		if !*worldOnStdin {
-			if err = cmd.Wait(); err != nil {
-				ch <- err
-				return
-			}
+		cmd := exec.Command("wgen")
+		stdout, stderr, err := pipes(cmd)
+		if err != nil {
+			t.wChan <- err
+			return
 		}
-		ch <- w
+		go readErr(stderr, t.wgenErr)
+
+		if err := cmd.Start(); err != nil {
+			t.wChan <- err
+			return
+		}
+		w, err := world.Read(bufio.NewReader(stdout))
+		if err != nil {
+			t.wChan <- err
+			return
+		}
+		if err = cmd.Wait(); err != nil {
+			t.wChan <- err
+			return
+		}
+		t.wChan <- w
 	}()
-	return ch, strChan
 }
 
+// Pipes returns the standard output and error
+// pipes for a command.
+func pipes(cmd *exec.Cmd) (stdout, stderr io.Reader, err error) {
+	if stdout, err = cmd.StdoutPipe(); err != nil {
+		return
+	}
+	stderr, err = cmd.StderrPipe()
+	return
+}
+
+// ReadErr reads wgen's standard error, picks out
+// what it is currently doing and sends the strings
+// to the channel.
+// BUG(eaburns): readErr is pretty ugly.
 func readErr(r io.Reader, strs chan<- string) {
-	var err error
-	var runes []rune
-	in := bufio.NewReader(r)
+	in := bufio.NewReader(io.TeeReader(r, os.Stderr))
 	for {
-		var r rune
-		if r, _, err = in.ReadRune(); err != nil {
+		_, err := readRunes(in, '\n')
+		if err != nil {
 			break
 		}
-		os.Stderr.WriteString(string([]rune{r}))
-		if len(runes) > 0 && runes[0] == '…' {
-			if r == '\n' {
-				runes = runes[:0]
-			}
-			continue
+		line, err := readRunes(in, '…')
+		if err != nil {
+			break
 		}
-		if r == '…' || r == '\n' {
-			s := string(runes)
-			if s == "Writing the world" {
-				strs <- "Reading the world"
-				break
-			}
-			strs <- s
-			runes = runes[:0]
+		if line == "Writing the world" {
+			line = "Reading the world"
 		}
-		if r != '\n' {
-			runes = append(runes, r)
-		}
+		strs <- line
 	}
 	close(strs)
+}
 
-	// Junk the rest
-	for err == nil {
-		var b byte
-		b, err = in.ReadByte()
-		os.Stderr.Write([]byte{b})
+// readRunes returns all runes until the delimiter
+// is read or an error occurs.  The delimiter is not
+// included in the returned slice.
+func readRunes(in *bufio.Reader, delim rune) (string, error) {
+	var err error
+	var runes []rune
+	for {
+		var r rune
+		r, _, err = in.ReadRune()
+		if err != nil || r == delim {
+			break
+		}
+		runes = append(runes, r)
 	}
+	return string(runes), err
 }
 
 func actionKey() string {
