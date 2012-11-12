@@ -4,6 +4,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"os"
 	"os/exec"
@@ -37,12 +38,12 @@ func NewTitleScreen() *TitleScreen {
 
 func (t *TitleScreen) Draw(d Drawer) error {
 	if t.loading {
+		if t.genTxt == "" {
+			return nil
+		}
 		d.SetColor(Lime)
 		if err := d.SetFont("prstartk", 12); err != nil {
 			return err
-		}
-		if t.genTxt == "" {
-			t.genTxt = "Generating World"
 		}
 		genSz := d.TextSize(t.genTxt)
 		_, err := d.Draw(t.genTxt, ui.Pt(0, ScreenDims.Y-genSz.Y))
@@ -90,27 +91,25 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 }
 
 func (t *TitleScreen) Update(stk *ScreenStack) error {
-	if t.loading {
-		select {
-		case s, ok := <-t.wgenErr:
-			if !ok {
-				t.wgenErr = nil
-				break
-			}
-			t.genTxt = s
-		case i := <-t.wChan:
-			switch w := i.(type) {
-			case error:
-				return w
-			case *world.World:
-				for _ = range t.genTxt { // junk it
-				}
-				*worldOnStdin = false
-				stk.Push(NewExploreScreen(w))
-				t.loading = false
-			}
-		default:
+	if !t.loading {
+		return nil
+	}
+	select {
+	case s, ok := <-t.wgenErr:
+		if !ok {
+			t.wgenErr = nil
+			break
 		}
+		t.genTxt = s
+	case i := <-t.wChan:
+		if err, ok := i.(error); ok {
+			return err
+		}
+		for _ = range t.genTxt {
+		} // junk it
+		t.loading = false
+		stk.Push(NewExploreScreen(i.(*world.World)))
+	default:
 	}
 	return nil
 }
@@ -122,10 +121,12 @@ func (t *TitleScreen) loadWorld() {
 
 	go func() {
 		if *worldOnStdin {
+			*worldOnStdin = false
 			t.wgenErr <- "Reading World"
 			close(t.wgenErr)
-			if w, err := world.Read(bufio.NewReader(os.Stdin)); err != nil {
-				t.wChan <- err
+			in := bufio.NewReader(os.Stdin)
+			if w, err := world.Read(in); err != nil {
+				t.wChan <- errors.New("Failed to read the world: " + err.Error())
 			} else {
 				t.wChan <- w
 			}
@@ -169,38 +170,39 @@ func pipes(cmd *exec.Cmd) (stdout, stderr io.Reader, err error) {
 // to the channel.
 // BUG(eaburns): readErr is pretty ugly.
 func readErr(r io.Reader, strs chan<- string) {
-	var err error
-	var runes []rune
 	in := bufio.NewReader(io.TeeReader(r, os.Stderr))
 	for {
-		var r rune
-		if r, _, err = in.ReadRune(); err != nil {
+		line, err := readRunes(in, '\n')
+		if err != nil {
 			break
 		}
-		if len(runes) > 0 && runes[0] == '…' {
-			if r == '\n' {
-				runes = runes[:0]
-			}
-			continue
+		line, err = readRunes(in, '…')
+		if err != nil {
+			break
 		}
-		if r == '…' || r == '\n' {
-			s := string(runes)
-			if s == "Writing the world" {
-				strs <- "Reading the world"
-				break
-			}
-			strs <- s
-			runes = runes[:0]
+		if line == "Writing the world" {
+			line = "Reading the world"
 		}
-		if r != '\n' {
-			runes = append(runes, r)
-		}
+		strs <- line
 	}
-
 	close(strs)
-	for err != nil {
-		_, err = in.ReadByte()
+}
+
+// readRunes returns all runes until the delimiter
+// is read or an error occurs.  The delimiter is not
+// included in the returned slice.
+func readRunes(in *bufio.Reader, delim rune) (string, error) {
+	var err error
+	var runes []rune
+	for {
+		var r rune
+		r, _, err = in.ReadRune()
+		if err != nil || r == delim {
+			break
+		}
+		runes = append(runes, r)
 	}
+	return string(runes), err
 }
 
 func actionKey() string {

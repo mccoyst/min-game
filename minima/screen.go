@@ -67,7 +67,9 @@ func (s *ScreenStack) Run() {
 			if _, ok := e.(ui.Quit); ok {
 				return
 			}
-			s.top().Handle(s, e)
+			if err := s.top().Handle(s, e); err != nil {
+				panic(err)
+			}
 			if len(s.stk) == 0 {
 				return
 			}
@@ -75,10 +77,14 @@ func (s *ScreenStack) Run() {
 
 		s.win.SetColor(color.Black)
 		s.win.Clear()
-		s.top().Draw(s.win)
+		if err := s.top().Draw(s.win); err != nil {
+			panic(err)
+		}
 		s.win.Sync()
 
-		s.top().Update(s)
+		if err := s.top().Update(s); err != nil {
+			panic(err)
+		}
 		if len(s.stk) == 0 {
 			return
 		}
