@@ -3,7 +3,9 @@
 package main
 
 import (
+	"fmt"
 	"math"
+	"os"
 
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
@@ -55,65 +57,74 @@ var velScale = map[rune]float64{
 
 func meanHeight(box ui.Rectangle, w *world.World) float64 {
 	bc := box.Center()
-	wx := int(bc.X / TileSize)
-	wy := int(bc.Y / TileSize)
-	l := w.At(wx, wy)
-	locs := make([]struct {
-		loc *world.Loc
-		box ui.Rectangle
-	}, 9)
-	i := 0
+	wx := int(math.Floor(bc.X / TileSize))
+	wy := int(math.Floor(bc.Y / TileSize))
+
+	sum, area := 0.0, 0.0
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
-			locs[i].loc = w.At(l.X+dx, l.Y+dy)
+			l := w.At(wx+dx, wy+dy)
 			x, y := float64(l.X*TileSize), float64(l.Y*TileSize)
-			locs[i].box = ui.Rect(x, y, x+TileSize, y+TileSize)
-			i++
+			lbox := ui.Rect(x, y, x+TileSize, y+TileSize)
+			is := IsectWorld(w, box, lbox)
+			sum += float64(l.Elevation) * is.Dx() * is.Dy()
+			area += is.Dx() * is.Dy()
 		}
 	}
-
-	zrect := ui.Rectangle{}
-	sum, area := 0.0, 0.0
-	for i := 0; i < 9; i++ {
-		lbox := locs[i].box
-		is := IsectWorld(w, box, lbox)
-		if is.Eq(zrect) {
-			continue
-		}
-		sum += float64(locs[i].loc.Elevation) * is.Dx() * is.Dy()
-		area += is.Dx() * is.Dy()
+	if math.Abs(area-box.Dx()*box.Dy()) > 0.00001 {
+		fmt.Printf("area=%g\n\n", area)
+		os.Exit(1)
 	}
-
 	return sum / area
 }
 
 func IsectWorld(w *world.World, a, b ui.Rectangle) ui.Rectangle {
-	size := ui.Pt(float64(w.W)*TileSize, float64(w.H)*TileSize)
+	wSz := ui.Pt(float64(w.W)*TileSize, float64(w.H)*TileSize)
 
-	if !Wraps(a, size) && !Wraps(b, size) {
+	if !Wraps(a, wSz) && !Wraps(b, wSz) {
 		return a.Intersect(b)
 	}
 
-	zrect := ui.Rectangle{}
+	if Wraps(b, wSz) {
+		b = WrapMin(b, wSz)
+	}
 
-	if Wraps(b, size) {
-		b = WrapMin(b, size)
-		is := a.Intersect(b)
-		if !is.Eq(zrect) {
-			return is
+	dx := a.Dx()
+	if a.Min.X < 0 {
+		a.Min.X = wSz.X + math.Mod(a.Min.X, wSz.X)
+	} else if a.Min.X >= wSz.X {
+		a.Min.X = math.Mod(a.Min.X, wSz.X)
+	}
+	a.Max.X = a.Min.X + dx
+
+	if a.Min.X >= b.Max.X || a.Max.X < b.Min.X {
+		if a.Max.X < 0 {
+			a.Max.X = wSz.X - math.Mod(a.Max.X, wSz.X)
+		} else if a.Max.X >= wSz.X {
+			a.Max.X = math.Mod(a.Max.X, wSz.X)
 		}
-
-		b = WrapMax(b, size)
-		return a.Intersect(b)
+		a.Min.X = a.Max.X - dx
+	}
+	if a.Min.X >= b.Max.X || a.Max.X < b.Min.X {
+		return ui.Rectangle{}
 	}
 
-	a = WrapMin(a, size)
-	is := a.Intersect(b)
-	if !is.Eq(zrect) {
-		return is
+	dy := a.Dy()
+	if a.Min.Y < 0 {
+		a.Min.Y = wSz.Y + math.Mod(a.Min.Y, wSz.Y)
+	} else if a.Min.Y >= wSz.Y {
+		a.Min.Y = math.Mod(a.Min.Y, wSz.Y)
 	}
+	a.Max.Y = a.Min.Y + dy
 
-	a = WrapMax(a, size)
+	if a.Min.Y >= b.Max.Y || a.Max.Y < b.Min.Y {
+		if a.Max.Y < 0 {
+			a.Max.Y = wSz.Y - math.Mod(a.Max.Y, wSz.Y)
+		} else if a.Max.Y >= wSz.Y {
+			a.Max.Y = math.Mod(a.Max.Y, wSz.Y)
+		}
+		a.Min.Y = a.Max.Y - dy
+	}
 	return a.Intersect(b)
 }
 
@@ -123,13 +134,16 @@ func Wraps(r ui.Rectangle, sz ui.Point) bool {
 	}
 
 	max := r.Min.Add(sz)
-	return max.X < 0 && max.Y < 0 && max.X >= sz.X && max.Y >= sz.Y
+	return max.X < 0 || max.Y < 0 || max.X >= sz.X || max.Y >= sz.Y
 }
 
 func WrapMin(r ui.Rectangle, sz ui.Point) ui.Rectangle {
 	if r.Min.X >= 0 && r.Min.Y >= 0 && r.Min.X < sz.X && r.Min.Y < sz.Y {
 		return r
 	}
+
+	dx := r.Dx()
+	dy := r.Dy()
 
 	if r.Min.X < 0 {
 		r.Min.X = sz.X + math.Mod(r.Min.X, sz.X)
@@ -143,28 +157,8 @@ func WrapMin(r ui.Rectangle, sz ui.Point) ui.Rectangle {
 		r.Min.Y = math.Mod(r.Min.Y, sz.Y)
 	}
 
-	return r
-}
+	r.Max.X = r.Min.X + dx
+	r.Max.Y = r.Min.Y + dy
 
-func WrapMax(r ui.Rectangle, sz ui.Point) ui.Rectangle {
-	max := r.Max
-
-	if max.X >= 0 && max.Y >= 0 && max.X < sz.X && max.Y < sz.Y {
-		return r
-	}
-
-	if max.X < 0 {
-		max.X = sz.X + math.Mod(max.X, sz.X)
-	} else if max.X >= sz.X {
-		max.X = math.Mod(max.X, sz.X)
-	}
-
-	if max.Y < 0 {
-		max.Y = sz.Y + math.Mod(max.Y, sz.Y)
-	} else if max.Y >= sz.Y {
-		max.Y = math.Mod(max.Y, sz.Y)
-	}
-
-	r.Min = max.Sub(sz)
 	return r
 }

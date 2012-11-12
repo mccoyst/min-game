@@ -3,7 +3,7 @@
 package ui
 
 import (
-	"strconv"
+	"fmt"
 )
 
 // A Point is an X, Y coordinate pair. The axes increase right and down.
@@ -13,7 +13,7 @@ type Point struct {
 
 // String returns a string representation of p like "(3.00,4.01)".
 func (p Point) String() string {
-	return "(" + strconv.FormatFloat(p.X, 'f', -1, 64) + "," + strconv.FormatFloat(p.Y, 'f', -1, 64) + ")"
+	return fmt.Sprintf("(%4.2f, %4.2f)", p.X, p.Y)
 }
 
 // Add returns the vector p+q.
