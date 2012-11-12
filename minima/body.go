@@ -28,9 +28,10 @@ func (b *Body) Move(w *world.World) {
 	slope := (step - 1.0) / MaxDh
 	scale := dh*slope + 1.0
 	bc := b.Box.Center()
-	wx := int(bc.X / TileSize)
-	wy := int(bc.Y / TileSize)
+	wx := int(math.Floor(bc.X / TileSize))
+	wy := int(math.Floor(bc.Y / TileSize))
 	v := b.Vel.Mul(scale).Mul(velScale[w.At(wx, wy).Terrain.Char])
+	
 	if b.Vel.X < 0 && v.X == 0 {
 		v.X = -step
 	}
