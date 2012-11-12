@@ -19,13 +19,12 @@ func (b *Body) Move(w *world.World) {
 		return
 	}
 
-	box1 := b.Box
-	box1.Add(b.Vel)
+	box1 := b.Box.Add(b.Vel)
 	const MaxDh = 0.6
-	dh := math.Min(math.Abs(meanHeight(box1, w) - meanHeight(b.Box, w)), MaxDh)
-	step := 1.0/16
+	dh := math.Min(math.Abs(meanHeight(box1, w)-meanHeight(b.Box, w)), MaxDh)
+	step := 1.0 / 16
 	slope := (step - 1.0) / MaxDh
-	scale := dh * slope + 1.0
+	scale := dh*slope + 1.0
 	bc := b.Box.Center()
 	wx := int(bc.X / TileSize)
 	wy := int(bc.Y / TileSize)
@@ -59,13 +58,16 @@ func meanHeight(box ui.Rectangle, w *world.World) float64 {
 	wx := int(bc.X / TileSize)
 	wy := int(bc.Y / TileSize)
 	l := w.At(wx, wy)
-	locs := make([]struct{ loc *world.Loc; box ui.Rectangle }, 9)
+	locs := make([]struct {
+		loc *world.Loc
+		box ui.Rectangle
+	}, 9)
 	i := 0
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
-			locs[i].loc = w.At(l.X + dx, l.Y + dy)
+			locs[i].loc = w.At(l.X+dx, l.Y+dy)
 			x, y := float64(l.X*TileSize), float64(l.Y*TileSize)
-			locs[i].box = ui.Rect(x, y, x + TileSize, y + TileSize)
+			locs[i].box = ui.Rect(x, y, x+TileSize, y+TileSize)
 			i++
 		}
 	}

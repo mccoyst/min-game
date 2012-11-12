@@ -8,7 +8,7 @@ import (
 )
 
 type Player struct {
-	wo  *world.World
+	wo   *world.World
 	body Body
 }
 
