@@ -103,8 +103,17 @@ func (r Rectangle) Eq(s Rectangle) bool {
 
 // Overlaps returns whether r and s have a non-empty intersection.
 func (r Rectangle) Overlaps(s Rectangle) bool {
-	return r.Min.X < s.Max.X && s.Min.X < r.Max.X &&
-		r.Min.Y < s.Max.Y && s.Min.Y < r.Max.Y
+	return r.OverlapsX(s) && r.OverlapsY(s)
+}
+
+// OverlapsX returns whether r and s have a non-empty intersection in the x direction.
+func (r Rectangle) OverlapsX(s Rectangle) bool {
+	return r.Min.X < s.Max.X && s.Min.X < r.Max.X
+}
+
+// OverlapsY returns whether r and s have a non-empty intersection in the y direction.
+func (r Rectangle) OverlapsY(s Rectangle) bool {
+	return r.Min.Y < s.Max.Y && s.Min.Y < r.Max.Y
 }
 
 // Rect is shorthand for Rectangle{Pt(x0, y0), Pt(x1, y1)}.
