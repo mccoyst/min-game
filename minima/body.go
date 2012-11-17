@@ -22,16 +22,19 @@ func (b *Body) Move(w *world.World) {
 	}
 
 	box1 := b.Box.Add(b.Vel)
-	const MaxDh = 0.6
-	dh := math.Min(math.Abs(meanHeight(box1, w)-meanHeight(b.Box, w)), MaxDh)
-	step := 1.0 / 16
-	slope := (step - 1.0) / MaxDh
+
+	const (
+		MaxDh = 0.6
+		step  = 1.0 / 16
+		slope = (step - 1.0) / MaxDh
+	)
+	dh := math.Abs(avgElevation(box1, w) - avgElevation(b.Box, w))
+	dh = math.Min(dh, MaxDh)
+
 	scale := dh*slope + 1.0
-	bc := b.Box.Center()
-	wx := int(math.Floor(bc.X / TileSize))
-	wy := int(math.Floor(bc.Y / TileSize))
+	wx, wy := point2Tile(b.Box.Center())
 	v := b.Vel.Mul(scale).Mul(velScale[w.At(wx, wy).Terrain.Char])
-	
+
 	if b.Vel.X < 0 && v.X == 0 {
 		v.X = -step
 	}
@@ -56,18 +59,18 @@ var velScale = map[rune]float64{
 	'i': 0.4,
 }
 
-func meanHeight(box ui.Rectangle, w *world.World) float64 {
-	bc := box.Center()
-	wx := int(math.Floor(bc.X / TileSize))
-	wy := int(math.Floor(bc.Y / TileSize))
-
+// AvgElevation returns the average elevation of the world
+// locations covered by a rectangle.
+func avgElevation(box ui.Rectangle, w *world.World) float64 {
+	sz := worldSize(w)
+	wx, wy := point2Tile(box.Center())
 	sum, area := 0.0, 0.0
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
 			l := w.At(wx+dx, wy+dy)
 			x, y := float64(l.X*TileSize), float64(l.Y*TileSize)
 			lbox := ui.Rect(x, y, x+TileSize, y+TileSize)
-			is := IsectWorld(w, box, lbox)
+			is := isectTorus(box, lbox, sz)
 			sum += float64(l.Elevation) * is.Dx() * is.Dy()
 			area += is.Dx() * is.Dy()
 		}
@@ -79,87 +82,85 @@ func meanHeight(box ui.Rectangle, w *world.World) float64 {
 	return sum / area
 }
 
-func IsectWorld(w *world.World, a, b ui.Rectangle) ui.Rectangle {
-	wSz := ui.Pt(float64(w.W)*TileSize, float64(w.H)*TileSize)
+// Point2Tile returns the tile coordinate for a point
+func point2Tile(p ui.Point) (int, int) {
+	return int(math.Floor(p.X / TileSize)), int(math.Floor(p.Y / TileSize))
+}
 
-	if !Wraps(a, wSz) && !Wraps(b, wSz) {
-		return a.Intersect(b)
-	}
+// WorldSize returns the size of the world in pixels.
+func worldSize(w *world.World) ui.Point {
+	return ui.Pt(float64(w.W)*TileSize, float64(w.H)*TileSize)
+}
 
-	if Wraps(b, wSz) {
-		b = WrapMin(b, wSz)
-	}
-
-	dx := a.Dx()
-	if a.Min.X < 0 {
-		a.Min.X = wSz.X + math.Mod(a.Min.X, wSz.X)
-	} else if a.Min.X >= wSz.X {
-		a.Min.X = math.Mod(a.Min.X, wSz.X)
-	}
-	a.Max.X = a.Min.X + dx
-
-	if a.Min.X >= b.Max.X || a.Max.X < b.Min.X {
-		if a.Max.X < 0 {
-			a.Max.X = wSz.X - math.Mod(a.Max.X, wSz.X)
-		} else if a.Max.X >= wSz.X {
-			a.Max.X = math.Mod(a.Max.X, wSz.X)
-		}
-		a.Min.X = a.Max.X - dx
-	}
-	if a.Min.X >= b.Max.X || a.Max.X < b.Min.X {
+// isectTorus returns the intersection between two rectangles around
+// a torus of the given dimensions.
+func isectTorus(a, b ui.Rectangle, sz ui.Point) ui.Rectangle {
+	b = normRect(b, sz)
+	a, ok := align(a, b, sz)
+	if !ok {
 		return ui.Rectangle{}
-	}
-
-	dy := a.Dy()
-	if a.Min.Y < 0 {
-		a.Min.Y = wSz.Y + math.Mod(a.Min.Y, wSz.Y)
-	} else if a.Min.Y >= wSz.Y {
-		a.Min.Y = math.Mod(a.Min.Y, wSz.Y)
-	}
-	a.Max.Y = a.Min.Y + dy
-
-	if a.Min.Y >= b.Max.Y || a.Max.Y < b.Min.Y {
-		if a.Max.Y < 0 {
-			a.Max.Y = wSz.Y - math.Mod(a.Max.Y, wSz.Y)
-		} else if a.Max.Y >= wSz.Y {
-			a.Max.Y = math.Mod(a.Max.Y, wSz.Y)
-		}
-		a.Min.Y = a.Max.Y - dy
 	}
 	return a.Intersect(b)
 }
 
-func Wraps(r ui.Rectangle, sz ui.Point) bool {
-	if r.Min.X < 0 || r.Min.Y < 0 || r.Min.X >= sz.X || r.Min.Y >= sz.Y {
-		return true
+// Align attempts to align the a with b (which must be normalized)
+// around a torus so that they overlap. If they overlap then the
+// aligned version of a is returned with true, otherwise false is returned.
+func align(a, b ui.Rectangle, sz ui.Point) (ui.Rectangle, bool) {
+	var ok bool
+	if a, ok = alignX(a, b, sz.X); !ok {
+		return a, ok
 	}
-
-	max := r.Min.Add(sz)
-	return max.X < 0 || max.Y < 0 || max.X >= sz.X || max.Y >= sz.Y
+	return alignY(a, b, sz.Y)
 }
 
-func WrapMin(r ui.Rectangle, sz ui.Point) ui.Rectangle {
-	if r.Min.X >= 0 && r.Min.Y >= 0 && r.Min.X < sz.X && r.Min.Y < sz.Y {
+func alignX(a, b ui.Rectangle, width float64) (ui.Rectangle, bool) {
+	dx := a.Dx()
+
+	a.Min.X = wrap(a.Min.X, width)
+	a.Max.X = a.Min.X + dx
+	if a.OverlapsX(b) {
+		return a, true
+	}
+
+	a.Max.X = wrap(a.Max.X, width)
+	a.Min.X = a.Max.X - dx
+	return a, a.OverlapsX(b)
+}
+
+func alignY(a, b ui.Rectangle, height float64) (ui.Rectangle, bool) {
+	dy := a.Dy()
+
+	a.Min.Y = wrap(a.Min.Y, height)
+	a.Max.Y = a.Min.Y + dy
+	if a.OverlapsY(b) {
+		return a, true
+	}
+
+	a.Max.Y = wrap(a.Max.Y, height)
+	a.Min.Y = a.Max.Y - dy
+	return a, a.OverlapsY(b)
+}
+
+// NormRect returns a normalized form of r that is wrapped around
+// a torus with width and height given by worldSz such that its minimum
+// point is within the rectangle (0,0), (worldSz.X-1,worldSz.Y-1),
+func normRect(r ui.Rectangle, worldSz ui.Point) ui.Rectangle {
+	if r.Min.X >= 0 && r.Min.Y >= 0 && r.Min.X < worldSz.X && r.Min.Y < worldSz.Y {
 		return r
 	}
-
-	dx := r.Dx()
-	dy := r.Dy()
-
-	if r.Min.X < 0 {
-		r.Min.X = sz.X + math.Mod(r.Min.X, sz.X)
-	} else if r.Min.X >= sz.X {
-		r.Min.X = math.Mod(r.Min.X, sz.X)
-	}
-
-	if r.Min.Y < 0 {
-		r.Min.Y = sz.Y + math.Mod(r.Min.Y, sz.Y)
-	} else if r.Min.Y >= sz.Y {
-		r.Min.Y = math.Mod(r.Min.Y, sz.Y)
-	}
-
-	r.Max.X = r.Min.X + dx
-	r.Max.Y = r.Min.Y + dy
-
+	rectSz := r.Size()
+	r.Min.X = wrap(r.Min.X, worldSz.X)
+	r.Min.Y = wrap(r.Min.Y, worldSz.Y)
+	r.Max = r.Min.Add(rectSz)
 	return r
+}
+
+// Wrap returns x wrapped around at bound in both the positive
+// and negative direction.
+func wrap(x, bound float64) float64 {
+	if x = math.Mod(x, bound); x < 0 {
+		return bound + x
+	}
+	return x
 }
