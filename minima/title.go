@@ -36,6 +36,10 @@ func NewTitleScreen() *TitleScreen {
 	return t
 }
 
+func (t *TitleScreen) Transparent() bool {
+	return false
+}
+
 func (t *TitleScreen) Draw(d Drawer) error {
 	if t.loading {
 		if t.genTxt == "" {

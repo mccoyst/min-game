@@ -27,6 +27,10 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	return e
 }
 
+func (e *ExploreScreen) Transparent() bool {
+	return false
+}
+
 // CenterOnTile centers the display on a given tile.
 func (e *ExploreScreen) CenterOnTile(x, y int) {
 	e.cam.Center(ui.Pt(TileSize*float64(x)+TileSize/2,
@@ -95,6 +99,7 @@ var keyBits = map[ui.Button]uint8{
 	ui.Right: 1 << 1,
 	ui.Up:    1 << 2,
 	ui.Down:  1 << 3,
+	ui.Menu:  1 << 4,
 }
 
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
@@ -118,6 +123,12 @@ func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 
 func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 5 // px
+
+	if e.keys&keyBits[ui.Menu] != 0 {
+		stk.Push(NewPauseScreen())
+		e.keys &^= keyBits[ui.Menu]
+		return nil
+	}
 
 	e.astro.body.Vel = ui.Pt(0, 0)
 	if e.keys&keyBits[ui.Left] != 0 {

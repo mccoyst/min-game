@@ -55,6 +55,7 @@ const (
 	Up
 	Down
 	Action
+	Menu
 )
 
 var ButtonNames = map[Button]string{
@@ -64,6 +65,7 @@ var ButtonNames = map[Button]string{
 	Up:      "Up",
 	Down:    "Down",
 	Action:  "Action",
+	Menu:    "Menu",
 }
 
 func (b Button) String() string {
@@ -80,6 +82,7 @@ var (
 		KeyCode(C.SDLK_e): Up,
 		KeyCode(C.SDLK_d): Down,
 		KeyCode(C.SDLK_j): Action,
+		KeyCode(C.SDLK_k): Menu,
 	}
 
 	DvorakKeymap = map[KeyCode]Button{
@@ -88,6 +91,7 @@ var (
 		KeyCode(C.SDLK_PERIOD): Up,
 		KeyCode(C.SDLK_e):      Down,
 		KeyCode(C.SDLK_h):      Action,
+		KeyCode(C.SDLK_t):      Menu,
 	}
 )
 

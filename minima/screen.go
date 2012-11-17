@@ -31,6 +31,9 @@ type Screen interface {
 	// the next frame is drawn in order to allow the screen to update
 	// its state based on the events.
 	Update(*ScreenStack) error
+
+	// Transparent returns true iff the screen doesn't fill the window.
+	Transparent() bool
 }
 
 // A ScreenStack holds the stack of game screens.
@@ -77,6 +80,12 @@ func (s *ScreenStack) Run() {
 
 		s.win.SetColor(color.Black)
 		s.win.Clear()
+		if s.top().Transparent() && len(s.stk) > 1 {
+			if err := s.stk[len(s.stk)-2].Draw(s.win); err != nil {
+				panic(err)
+			}
+		}
+
 		if err := s.top().Draw(s.win); err != nil {
 			panic(err)
 		}
