@@ -142,7 +142,7 @@ func New(title string, w, h int) (*Ui, error) {
 		return nil, sdlError()
 	}
 
-	rend := C.SDL_CreateRenderer(win, -1, C.SDL_RENDERER_ACCELERATED)
+	rend := C.SDL_CreateRenderer(win, -1, C.SDL_RENDERER_ACCELERATED|C.SDL_RENDERER_PRESENTVSYNC)
 	if rend == nil {
 		return nil, sdlError()
 	}
