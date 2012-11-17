@@ -60,7 +60,21 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 		pt.X += TileSize
 	}
 
-	return e.astro.Draw(d, e.cam)
+	if err := e.astro.Draw(d, e.cam); err != nil {
+		return err
+	}
+
+	if !*locInfo {
+		return nil
+	}
+	if err := d.SetFont("prstartk", 14); err != nil {
+		return err
+	}
+	d.SetColor(White)
+	if _, err := d.Draw(e.astro.info, ui.Pt(0, 0)); err != nil {
+		return err
+	}
+	return nil
 }
 
 func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {

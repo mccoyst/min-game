@@ -18,6 +18,7 @@ var (
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
 	profile      = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
 	dvorak       = flag.Bool("dvorak", false, "use a Dvorak key map")
+	locInfo      = flag.Bool("locinfo", false, "display current location info")
 )
 
 var ScreenDims = ui.Pt(640, 480)

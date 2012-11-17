@@ -347,6 +347,9 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 	case Sprite:
 		return d.Bounds.Size(), drawSprite(ui, d, p)
 	case string:
+		if d == "" {
+			return Pt(0, 0), nil
+		}
 		return drawText(ui, d, p)
 	case image.Image:
 		return drawImage(ui, d, p)
