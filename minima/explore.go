@@ -95,20 +95,8 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
 }
 
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
-	switch k := ev.(type) {
-	case ui.Key:
-		if k.Repeat {
-			break
-		}
-		button, ok := ui.DefaultKeymap[k.Code]
-		if !ok {
-			break
-		}
-		if k.Down {
-			ex.keys |= button
-		} else {
-			ex.keys &^= button
-		}
+	if k, ok := ev.(ui.Key); ok && !k.Repeat && k.Down && ui.DefaultKeymap[k.Code] == ui.Menu {
+		stk.Push(NewPauseScreen())
 	}
 	return nil
 }
@@ -116,23 +104,17 @@ func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 5 // px
 
-	if e.keys&ui.Menu != 0 {
-		stk.Push(NewPauseScreen())
-		e.keys &^= ui.Menu
-		return nil
-	}
-
 	e.astro.body.Vel = ui.Pt(0, 0)
-	if e.keys&ui.Left != 0 {
+	if stk.buttons&ui.Left != 0 {
 		e.astro.body.Vel.X -= speed
 	}
-	if e.keys&ui.Right != 0 {
+	if stk.buttons&ui.Right != 0 {
 		e.astro.body.Vel.X += speed
 	}
-	if e.keys&ui.Down != 0 {
+	if stk.buttons&ui.Down != 0 {
 		e.astro.body.Vel.Y += speed
 	}
-	if e.keys&ui.Up != 0 {
+	if stk.buttons&ui.Up != 0 {
 		e.astro.body.Vel.Y -= speed
 	}
 	e.astro.Move(e.wo)
