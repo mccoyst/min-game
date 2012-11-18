@@ -37,7 +37,7 @@ func (p *PauseScreen) Handle(stk *ScreenStack, e ui.Event) error {
 		return nil
 	}
 
-	if key, ok := e.(ui.Key); ok && key.Down && !key.Repeat {
+	if key, ok := e.(ui.Key); ok && key.Down {
 		p.closing = true
 	}
 	return nil

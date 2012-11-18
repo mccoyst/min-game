@@ -95,7 +95,7 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
 }
 
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
-	if k, ok := ev.(ui.Key); ok && !k.Repeat && k.Down && k.Button == ui.Menu {
+	if k, ok := ev.(ui.Key); ok && k.Down && k.Button == ui.Menu {
 		stk.Push(NewPauseScreen())
 	}
 	return nil

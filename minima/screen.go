@@ -76,7 +76,7 @@ func (s *ScreenStack) Run() {
 				return
 
 			case ui.Key:
-				if k.Repeat || k.Button == ui.Unknown {
+				if k.Button == ui.Unknown {
 					break
 				} else if k.Down {
 					s.buttons |= k.Button
