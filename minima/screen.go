@@ -42,6 +42,9 @@ type ScreenStack struct {
 	win       *ui.Ui
 	nFrames   uint
 	meanFrame float64 // milliseconds
+
+	// Buttons is a bit set of the currently pressed buttons.
+	buttons ui.Button
 }
 
 // NewScreenStack returns a new screen stack with the given initial screen.
@@ -67,8 +70,23 @@ func (s *ScreenStack) Run() {
 			if e == nil {
 				break
 			}
-			if _, ok := e.(ui.Quit); ok {
+			switch k := e.(type) {
+			case ui.Quit:
 				return
+
+			case ui.Key:
+				if k.Repeat {
+					break
+				}
+				b, ok := ui.DefaultKeymap[k.Code]
+				if !ok {
+					break
+				}
+				if k.Down {
+					s.buttons |= b
+				} else {
+					s.buttons &^= b
+				}
 			}
 			if err := s.top().Handle(s, e); err != nil {
 				panic(err)
