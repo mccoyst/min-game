@@ -20,23 +20,9 @@ func (b *Body) Move(w *world.World) {
 	if b.Vel.X == 0 && b.Vel.Y == 0 {
 		return
 	}
-
-	// Scale down the velocity based on the terrain.
 	wx, wy := point2Tile(b.Box.Center())
 	maxVel := velScale[w.At(wx, wy).Terrain.Char] * b.Vel.Len()
-
-	const (
-		maxDh  = 0.6
-		minDh  = -maxDh
-		minVel = 1.0 / 16.0
-	)
-
-	box1 := b.Box.Add(b.Vel)
-	dh := avgElevation(box1, w) - avgElevation(b.Box, w)
-	dh = math.Max(math.Min(dh, maxDh), minDh)
-
-	slope := (minVel - maxVel) / maxDh
-	b.Box = b.Box.Add(vecNorm(b.Vel, dh*slope+maxVel))
+	b.Box = b.Box.Add(vecNorm(b.Vel, maxVel))
 }
 
 // VecNorm returns vec normalized to have the magnitude m.
