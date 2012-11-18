@@ -25,16 +25,15 @@ func (b *Body) Move(w *world.World) {
 	wx, wy := point2Tile(b.Box.Center())
 	maxVel := velScale[w.At(wx, wy).Terrain.Char] * b.Vel.Len()
 
-	// BUG(eaburns): speed should scale down exponentially with Δh.
 	const (
-		maxDh  = 0.4
-		minDh  = 0.0
+		maxDh  = 0.6
+		minDh  = -maxDh
 		minVel = 1.0 / 16.0
 	)
 
 	box1 := b.Box.Add(b.Vel)
-	dh := math.Abs(avgElevation(box1, w) - avgElevation(b.Box, w))
-	dh = math.Min(dh, maxDh)
+	dh := avgElevation(box1, w) - avgElevation(b.Box, w)
+	dh = math.Max(math.Min(dh, maxDh), minDh)
 
 	slope := (minVel - maxVel) / maxDh
 	b.Box = b.Box.Add(vecNorm(b.Vel, dh*slope+maxVel))
