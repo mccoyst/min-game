@@ -102,7 +102,7 @@ func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 }
 
 func (e *ExploreScreen) Update(stk *ScreenStack) error {
-	const speed = 5 // px
+	const speed = 4 // px
 
 	e.astro.body.Vel = ui.Pt(0, 0)
 	if stk.buttons&ui.Left != 0 {

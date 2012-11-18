@@ -21,33 +21,28 @@ func (b *Body) Move(w *world.World) {
 		return
 	}
 
-	box1 := b.Box.Add(b.Vel)
-
-	const (
-		MaxDh = 0.6
-		step  = 1.0 / 16
-		slope = (step - 1.0) / MaxDh
-	)
-	dh := math.Abs(avgElevation(box1, w) - avgElevation(b.Box, w))
-	dh = math.Min(dh, MaxDh)
-
-	scale := dh*slope + 1.0
+	// Scale down the velocity based on the terrain.
 	wx, wy := point2Tile(b.Box.Center())
-	v := b.Vel.Mul(scale).Mul(velScale[w.At(wx, wy).Terrain.Char])
+	maxVel := velScale[w.At(wx, wy).Terrain.Char] * b.Vel.Len()
 
-	if b.Vel.X < 0 && v.X == 0 {
-		v.X = -step
-	}
-	if b.Vel.X > 0 && v.X == 0 {
-		v.X = step
-	}
-	if b.Vel.Y < 0 && v.Y == 0 {
-		v.Y = -step
-	}
-	if b.Vel.Y > 0 && v.Y == 0 {
-		v.Y = step
-	}
-	b.Box = b.Box.Add(v)
+	// BUG(eaburns): speed should scale down exponentially with Δh.
+	const (
+		maxDh  = 0.4
+		minDh  = 0.0
+		minVel = 1.0 / 16.0
+	)
+
+	box1 := b.Box.Add(b.Vel)
+	dh := math.Abs(avgElevation(box1, w) - avgElevation(b.Box, w))
+	dh = math.Min(dh, maxDh)
+
+	slope := (minVel - maxVel) / maxDh
+	b.Box = b.Box.Add(vecNorm(b.Vel, dh*slope+maxVel))
+}
+
+// VecNorm returns vec normalized to have the magnitude m.
+func vecNorm(vec ui.Point, m float64) ui.Point {
+	return vec.Mul(m / vec.Len())
 }
 
 var velScale = map[rune]float64{

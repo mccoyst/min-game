@@ -4,6 +4,7 @@ package ui
 
 import (
 	"fmt"
+	"math"
 )
 
 // A Point is an X, Y coordinate pair. The axes increase right and down.
@@ -34,6 +35,11 @@ func (p Point) Mul(k float64) Point {
 // Div returns the vector p/k.
 func (p Point) Div(k float64) Point {
 	return Point{p.X / k, p.Y / k}
+}
+
+// Len returns the magnitude of the vector defined by p.
+func (p Point) Len() float64 {
+	return math.Sqrt(p.X*p.X + p.Y*p.Y)
 }
 
 // Eq returns whether p and q are equal.
