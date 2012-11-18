@@ -38,7 +38,6 @@ type Quit struct{}
 type KeyCode C.SDL_Keycode
 type Key struct {
 	Down   bool
-	Repeat bool
 	Button Button
 	Code   KeyCode
 }
@@ -187,9 +186,11 @@ func (ui *Ui) PollEvent() Event {
 		return Quit{}
 	case C.SDL_KEYDOWN, C.SDL_KEYUP:
 		k := (*C.SDL_KeyboardEvent)(unsafe.Pointer(&e))
+		if k.repeat != 0 {
+			return nil
+		}
 		return Key{
 			Down:   k._type == C.SDL_KEYDOWN,
-			Repeat: k.repeat != 0,
 			Button: CurrentKeymap[KeyCode(k.keysym.sym)],
 			Code:   KeyCode(k.keysym.sym),
 		}
