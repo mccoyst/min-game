@@ -6,6 +6,7 @@ import (
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"math"
+	"math/rand"
 )
 
 // TileSize is the width and height of a tile in pixels.
@@ -15,6 +16,7 @@ type ExploreScreen struct {
 	wo    *world.World
 	cam   Camera
 	astro *Player
+	gulls []*Gull
 
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
@@ -24,6 +26,11 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e := &ExploreScreen{wo: wo}
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, ui.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
+	for i := 0; i < 512; i++ {
+		e.gulls = append(e.gulls, NewGull(
+			randPoint(float64(wo.W*TileSize), float64(wo.H*TileSize)),
+			randPoint(2.0, 6.0)))
+	}
 	return e
 }
 
@@ -66,6 +73,12 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 
 	if err := e.astro.Draw(d, e.cam); err != nil {
 		return err
+	}
+
+	for _, g := range e.gulls {
+		if err := g.Draw(d, e.cam); err != nil {
+			return err
+		}
 	}
 
 	if !*locInfo {
@@ -119,5 +132,14 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	}
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
+
+	for _, g := range e.gulls {
+		g.Move(e.wo)
+	}
+
 	return nil
+}
+
+func randPoint(xmax, ymax float64) ui.Point {
+	return ui.Pt(rand.Float64()*xmax, rand.Float64()*ymax)
 }
