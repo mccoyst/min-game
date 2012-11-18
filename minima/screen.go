@@ -70,18 +70,17 @@ func (s *ScreenStack) Run() {
 			if e == nil {
 				break
 			}
-		evtype:
+
 			switch k := e.(type) {
 			case ui.Quit:
 				return
 
 			case ui.Key:
-				switch {
-				case k.Repeat || k.Button == ui.Unknown:
-					break evtype
-				case k.Down:
+				if k.Repeat || k.Button == ui.Unknown {
+					break
+				} else if k.Down {
 					s.buttons |= k.Button
-				default:
+				} else {
 					s.buttons &^= k.Button
 				}
 			}
