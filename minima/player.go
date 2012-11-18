@@ -26,6 +26,14 @@ type Player struct {
 const Tempo = 40
 
 var frames [][]ui.Rectangle
+var baseScales = map[rune]float64{
+	'g': 1.0,
+	'f': 0.85,
+	'm': 0.5,
+	'w': 0.1,
+	'd': 0.75,
+	'i': 0.4,
+}
 
 func init() {
 	// TODO(mccoyst): Read this info from a file
@@ -70,7 +78,7 @@ func (p *Player) Move(w *world.World) {
 		p.face = 1
 	}
 
-	p.body.Move(w)
+	p.body.Move(w, baseScales)
 
 	if !*locInfo {
 		return
