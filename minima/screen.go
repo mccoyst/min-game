@@ -70,22 +70,19 @@ func (s *ScreenStack) Run() {
 			if e == nil {
 				break
 			}
+		evtype:
 			switch k := e.(type) {
 			case ui.Quit:
 				return
 
 			case ui.Key:
-				if k.Repeat {
-					break
-				}
-				b, ok := ui.DefaultKeymap[k.Code]
-				if !ok {
-					break
-				}
-				if k.Down {
-					s.buttons |= b
-				} else {
-					s.buttons &^= b
+				switch {
+				case k.Repeat || k.Button == ui.Unknown:
+					break evtype
+				case k.Down:
+					s.buttons |= k.Button
+				default:
+					s.buttons &^= k.Button
 				}
 			}
 			if err := s.top().Handle(s, e); err != nil {

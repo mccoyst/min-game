@@ -87,7 +87,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 	switch k := e.(type) {
 	case ui.Key:
-		if k.Down && ui.DefaultKeymap[k.Code] == ui.Action {
+		if k.Down && k.Button == ui.Action {
 			t.loadWorld()
 		}
 	}
@@ -213,7 +213,7 @@ func readRunes(in *bufio.Reader, delim rune) (string, error) {
 }
 
 func actionKey() string {
-	for k, b := range ui.DefaultKeymap {
+	for k, b := range ui.CurrentKeymap {
 		if b == ui.Action {
 			return k.String()
 		}
