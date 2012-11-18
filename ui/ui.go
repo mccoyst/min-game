@@ -50,7 +50,7 @@ type Button int
 
 const (
 	Unknown Button = iota
-	Left
+	Left           = 1 << iota
 	Right
 	Up
 	Down

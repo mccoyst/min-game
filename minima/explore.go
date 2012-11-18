@@ -17,7 +17,7 @@ type ExploreScreen struct {
 	astro *Player
 
 	// Keys is a bitmask of the currently pressed keys.
-	keys uint8
+	keys ui.Button
 }
 
 func NewExploreScreen(wo *world.World) *ExploreScreen {
@@ -94,28 +94,20 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
 	return err
 }
 
-var keyBits = map[ui.Button]uint8{
-	ui.Left:  1 << 0,
-	ui.Right: 1 << 1,
-	ui.Up:    1 << 2,
-	ui.Down:  1 << 3,
-	ui.Menu:  1 << 4,
-}
-
 func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 	switch k := ev.(type) {
 	case ui.Key:
 		if k.Repeat {
 			break
 		}
-		bit, ok := keyBits[ui.DefaultKeymap[k.Code]]
+		button, ok := ui.DefaultKeymap[k.Code]
 		if !ok {
 			break
 		}
 		if k.Down {
-			ex.keys |= bit
+			ex.keys |= button
 		} else {
-			ex.keys &^= bit
+			ex.keys &^= button
 		}
 	}
 	return nil
@@ -124,23 +116,23 @@ func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 5 // px
 
-	if e.keys&keyBits[ui.Menu] != 0 {
+	if e.keys&ui.Menu != 0 {
 		stk.Push(NewPauseScreen())
-		e.keys &^= keyBits[ui.Menu]
+		e.keys &^= ui.Menu
 		return nil
 	}
 
 	e.astro.body.Vel = ui.Pt(0, 0)
-	if e.keys&keyBits[ui.Left] != 0 {
+	if e.keys&ui.Left != 0 {
 		e.astro.body.Vel.X -= speed
 	}
-	if e.keys&keyBits[ui.Right] != 0 {
+	if e.keys&ui.Right != 0 {
 		e.astro.body.Vel.X += speed
 	}
-	if e.keys&keyBits[ui.Down] != 0 {
+	if e.keys&ui.Down != 0 {
 		e.astro.body.Vel.Y += speed
 	}
-	if e.keys&keyBits[ui.Up] != 0 {
+	if e.keys&ui.Up != 0 {
 		e.astro.body.Vel.Y -= speed
 	}
 	e.astro.Move(e.wo)
