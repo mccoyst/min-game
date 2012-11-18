@@ -16,7 +16,7 @@ type Body struct {
 	Box ui.Rectangle
 }
 
-func (b *Body) Move(w *world.World) {
+func (b *Body) Move(w *world.World, velScale map[rune]float64) {
 	if b.Vel.X == 0 && b.Vel.Y == 0 {
 		return
 	}
@@ -28,15 +28,6 @@ func (b *Body) Move(w *world.World) {
 // VecNorm returns vec normalized to have the magnitude m.
 func vecNorm(vec ui.Point, m float64) ui.Point {
 	return vec.Mul(m / vec.Len())
-}
-
-var velScale = map[rune]float64{
-	'g': 1.0,
-	'f': 0.85,
-	'm': 0.5,
-	'w': 0.1,
-	'd': 0.75,
-	'i': 0.4,
 }
 
 // AvgElevation returns the average elevation of the world
