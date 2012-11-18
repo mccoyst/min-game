@@ -39,6 +39,7 @@ type KeyCode C.SDL_Keycode
 type Key struct {
 	Down   bool
 	Repeat bool
+	Button Button
 	Code   KeyCode
 }
 
@@ -76,6 +77,10 @@ func (b Button) String() string {
 }
 
 var (
+	// CurrentKeymap is the current keymap used to translate
+	// key code into Buttons.
+	CurrentKeymap = DefaultKeymap
+
 	DefaultKeymap = map[KeyCode]Button{
 		KeyCode(C.SDLK_s): Left,
 		KeyCode(C.SDLK_f): Right,
@@ -185,6 +190,7 @@ func (ui *Ui) PollEvent() Event {
 		return Key{
 			Down:   k._type == C.SDL_KEYDOWN,
 			Repeat: k.repeat != 0,
+			Button: CurrentKeymap[KeyCode(k.keysym.sym)],
 			Code:   KeyCode(k.keysym.sym),
 		}
 	}

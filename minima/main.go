@@ -41,7 +41,7 @@ func main() {
 	}
 
 	if *dvorak {
-		ui.DefaultKeymap = ui.DvorakKeymap
+		ui.CurrentKeymap = ui.DvorakKeymap
 	}
 
 	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y))
