@@ -11,7 +11,7 @@ type Gull struct {
 	body Body
 
 	face, frame int
-	ticks int
+	ticks       int
 }
 
 var gullFrames [][]ui.Rectangle
@@ -43,6 +43,10 @@ func NewGull(p, v ui.Point) *Gull {
 	}
 }
 
+func (g *Gull) Body() *Body {
+	return &g.body
+}
+
 func (g *Gull) Move(w *world.World) {
 	g.ticks++
 	if g.ticks >= Tempo {
@@ -72,9 +76,9 @@ func (g *Gull) Move(w *world.World) {
 
 func (g *Gull) Draw(d Drawer, cam Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
-		Name: "Bird0",
+		Name:   "Bird0",
 		Bounds: gullFrames[g.face][g.frame],
-		Shade: 1.0,
+		Shade:  1.0,
 	}, g.body.Box.Min)
 	return err
 }
