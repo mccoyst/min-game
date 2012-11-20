@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 )
 
@@ -16,7 +17,7 @@ type Gull struct {
 	ticks       int
 }
 
-var gullFrames [][]ui.Rectangle
+var gullFrames [][]geom.Rectangle
 var gullScales = map[rune]float64{
 	'g': 1.0,
 	'f': 1.0,
@@ -29,17 +30,17 @@ var gullScales = map[rune]float64{
 func init() {
 	// TODO(mccoyst): Read this info from a file
 	for y := 0; y < 4; y++ {
-		gullFrames = append(gullFrames, make([]ui.Rectangle, 2))
+		gullFrames = append(gullFrames, make([]geom.Rectangle, 2))
 		for x := 0; x < 2; x++ {
-			gullFrames[y][x] = ui.Rect(float64(x*TileSize), float64(y*TileSize), float64(x*TileSize+TileSize), float64(y*TileSize+TileSize))
+			gullFrames[y][x] = geom.Rect(float64(x*TileSize), float64(y*TileSize), float64(x*TileSize+TileSize), float64(y*TileSize+TileSize))
 		}
 	}
 }
 
-func NewGull(p, v ui.Point) *Gull {
+func NewGull(p, v geom.Point) *Gull {
 	return &Gull{
 		body: Body{
-			Box: ui.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 			Vel: v,
 		},
 	}

@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 )
 
@@ -56,7 +56,7 @@ func (f *flock) update(p *Player, w *world.World) {
 }
 
 func (f *flock) avoidPlayer(cur boid, p *Player, w *world.World) {
-	if p.body.Vel == ui.Pt(0, 0) || ptDist(cur.Body().Box.Center(), p.body.Box.Center(), worldSize(w)) > TileSize*3 {
+	if p.body.Vel == geom.Pt(0, 0) || ptDist(cur.Body().Box.Center(), p.body.Box.Center(), worldSize(w)) > TileSize*3 {
 		return
 	}
 	d := p.body.Box.Center().Sub(cur.Body().Box.Center())
@@ -65,7 +65,7 @@ func (f *flock) avoidPlayer(cur boid, p *Player, w *world.World) {
 
 func (f *flock) moveAway(cur boid, w *world.World) {
 	sz := worldSize(w)
-	var dist ui.Point
+	var dist geom.Point
 	for _, b := range f.boids {
 		
 		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.avoidDist {
@@ -91,7 +91,7 @@ func (f *flock) moveAway(cur boid, w *world.World) {
 
 func (f *flock) moveCloser(cur boid, w *world.World) {
 	sz := worldSize(w)
-	var avg ui.Point
+	var avg geom.Point
 	var n float64
 	for _, b := range f.boids {
 		
@@ -112,7 +112,7 @@ func (f *flock) moveCloser(cur boid, w *world.World) {
 
 func (f *flock) moveWith(cur boid, w *world.World) {
 	sz := worldSize(w)
-	var avg ui.Point
+	var avg geom.Point
 	var n float64
 	for _, b := range f.boids {
 		
@@ -133,16 +133,16 @@ func (f *flock) moveWith(cur boid, w *world.World) {
 
 // RandVel returns a random velocity within the speed limit
 // of the flock.
-func (f *flock) randVel() ui.Point {
+func (f *flock) randVel() geom.Point {
 	x := rand.Float64()*2 - 1
 	y := rand.Float64()*2 - 1
 	speed := rand.Float64() * f.maxSpeed
-	return vecNorm(ui.Pt(x, y), speed)
+	return vecNorm(geom.Pt(x, y), speed)
 }
 
 // ClampVel returns v, clamped so that its magnitude is no more
 // than a maximum value.
-func clampVel(v ui.Point, max float64) ui.Point {
+func clampVel(v geom.Point, max float64) geom.Point {
 	if v.Len() > max {
 		return vecNorm(v, max)
 	} else if v.Len() < -max {
@@ -152,7 +152,7 @@ func clampVel(v ui.Point, max float64) ui.Point {
 }
 
 // PtDist returns the distance of two points on a torus.
-func ptDist(a, b, sz ui.Point) float64 {
+func ptDist(a, b, sz geom.Point) float64 {
 	dx := dist(a.X, b.X, sz.X)
 	dy := dist(a.Y, b.Y, sz.Y)
 	return math.Sqrt(dx*dx + dy*dy)
