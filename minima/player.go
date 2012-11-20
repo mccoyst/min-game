@@ -84,7 +84,7 @@ func (p *Player) Move(w *world.World) {
 	if !*locInfo {
 		return
 	}
-	tx, ty := point2Tile(p.body.Box.Center())
+	tx, ty := w.Tile(p.body.Center())
 	if tx == p.tileX && ty == p.tileY {
 		return
 	}

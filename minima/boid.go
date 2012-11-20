@@ -56,10 +56,10 @@ func (f *flock) update(p *Player, w *world.World) {
 }
 
 func (f *flock) avoidPlayer(cur boid, p *Player, w *world.World) {
-	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.Dist(cur.Body().Box.Center(), p.body.Box.Center()) > TileSize*3 {
+	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.Dist(cur.Body().Center(), p.body.Center()) > TileSize*3 {
 		return
 	}
-	d := w.Pixels.Sub(p.body.Box.Center(), cur.Body().Box.Center())
+	d := w.Pixels.Sub(p.body.Center(), cur.Body().Center())
 	cur.Body().Vel = cur.Body().Vel.Sub(d.Div(5))
 }
 
@@ -67,10 +67,10 @@ func (f *flock) moveAway(cur boid, w *world.World) {
 	var dist geom.Point
 	for _, b := range f.boids {
 		
-		if b == cur || w.Pixels.Dist(b.Body().Box.Center(), cur.Body().Box.Center()) > f.avoidDist {
+		if b == cur || w.Pixels.Dist(b.Body().Center(), cur.Body().Center()) > f.avoidDist {
 			continue
 		}
-		diff := w.Pixels.Sub(cur.Body().Box.Center(), b.Body().Box.Center())
+		diff := w.Pixels.Sub(cur.Body().Center(), b.Body().Center())
 		sqrt := math.Sqrt(f.avoidDist)
 		if diff.X >= 0 {
 			diff.X = sqrt - diff.X
@@ -93,17 +93,16 @@ func (f *flock) moveCloser(cur boid, w *world.World) {
 	var n float64
 	for _, b := range f.boids {
 		
-		if b == cur || w.Pixels.Dist(b.Body().Box.Center(), cur.Body().Box.Center()) > f.localDist {
+		if b == cur || w.Pixels.Dist(b.Body().Center(), cur.Body().Center()) > f.localDist {
 			continue
 		}
 		n++
-		avg = avg.Add(w.Pixels.Sub(cur.Body().Box.Center(), b.Body().Box.Center()))
+		avg = avg.Add(w.Pixels.Sub(cur.Body().Center(), b.Body().Center()))
 	}
 	if n == 0 {
 		return
 	}
-	avg = avg.Div(n)
-	avg = vecNorm(avg, 0.05)
+	avg = avg.Div(n).Normalize().Mul(0.05)
 	cur.Body().Vel = cur.Body().Vel.Sub(avg)
 	cur.Body().Vel = clampVel(cur.Body().Vel, f.maxSpeed)
 }
@@ -113,7 +112,7 @@ func (f *flock) moveWith(cur boid, w *world.World) {
 	var n float64
 	for _, b := range f.boids {
 		
-		if b == cur || w.Pixels.Dist(b.Body().Box.Center(), cur.Body().Box.Center()) > f.localDist {
+		if b == cur || w.Pixels.Dist(b.Body().Center(), cur.Body().Center()) > f.localDist {
 			continue
 		}
 		n++
@@ -122,8 +121,7 @@ func (f *flock) moveWith(cur boid, w *world.World) {
 	if n == 0 {
 		return
 	}
-	avg = avg.Div(n)
-	avg = vecNorm(avg, 0.08)
+	avg = avg.Div(n).Normalize().Mul(0.08)
 	cur.Body().Vel = cur.Body().Vel.Add(avg)
 	cur.Body().Vel = clampVel(cur.Body().Vel, f.maxSpeed)
 }
@@ -134,16 +132,14 @@ func (f *flock) randVel() geom.Point {
 	x := rand.Float64()*2 - 1
 	y := rand.Float64()*2 - 1
 	speed := rand.Float64() * f.maxSpeed
-	return vecNorm(geom.Pt(x, y), speed)
+	return geom.Pt(x, y).Normalize().Mul(speed)
 }
 
 // ClampVel returns v, clamped so that its magnitude is no more
 // than a maximum value.
 func clampVel(v geom.Point, max float64) geom.Point {
 	if v.Len() > max {
-		return vecNorm(v, max)
-	} else if v.Len() < -max {
-		return vecNorm(v, -max)
+		return v.Normalize().Mul(max)
 	}
 	return v
 }
