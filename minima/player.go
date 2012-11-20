@@ -23,9 +23,8 @@ type Player struct {
 	ticks       int
 }
 
-const Tempo = 40
+var astroSheet SpriteSheet
 
-var frames [][]ui.Rectangle
 var baseScales = map[rune]float64{
 	'g': 1.0,
 	'f': 0.85,
@@ -36,12 +35,10 @@ var baseScales = map[rune]float64{
 }
 
 func init() {
-	// TODO(mccoyst): Read this info from a file
-	for y := 0; y < 4; y++ {
-		frames = append(frames, make([]ui.Rectangle, 2))
-		for x := 0; x < 2; x++ {
-			frames[y][x] = ui.Rect(float64(x*TileSize), float64(y*TileSize), float64(x*TileSize+TileSize), float64(y*TileSize+TileSize))
-		}
+	var err error
+	astroSheet, err = LoadSpriteSheet("Astronaut")
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -56,7 +53,7 @@ func NewPlayer(wo *world.World, p ui.Point) *Player {
 
 func (p *Player) Move(w *world.World) {
 	p.ticks++
-	if p.ticks >= Tempo {
+	if p.ticks >= astroSheet.Tempo {
 		p.frame++
 		if p.frame >= 2 {
 			p.frame = 0
@@ -94,8 +91,8 @@ func (p *Player) Move(w *world.World) {
 
 func (p *Player) Draw(d Drawer, cam Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
-		Name:   "Astronaut",
-		Bounds: frames[p.face][p.frame],
+		Name:   astroSheet.Name,
+		Bounds: astroSheet.Frame(p.face, p.frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
 	return err
