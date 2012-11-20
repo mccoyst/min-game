@@ -27,8 +27,8 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, ui.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
-	e.gulls.localDist = TileSize
-	e.gulls.avoidDist = TileSize / 2.0
+	e.gulls.localDist = TileSize*10
+	e.gulls.avoidDist = TileSize/2.0
 	e.gulls.maxSpeed = 2
 	xmin, xmax := float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
 	ymin, ymax := float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
@@ -138,7 +138,7 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
 
-	e.gulls.Move(e.wo)
+	e.gulls.Move(e.astro, e.wo)
 
 	return nil
 }

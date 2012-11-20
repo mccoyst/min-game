@@ -18,13 +18,6 @@ type flock struct {
 	// MaxSpeed is the fastest than any boid can move.
 	maxSpeed float64
 
-	// Goal is some random goal velocity.
-	goal ui.Point
-
-	// nGoal is the number of frames to add the goal velocity
-	// before using a new one.
-	nGoal int
-
 	boids []boid
 }
 
@@ -34,8 +27,8 @@ type boid interface {
 	Draw(Drawer, Camera) error
 }
 
-func (f *flock) Move(w *world.World) {
-	f.update(w)
+func (f *flock) Move(p *Player, w *world.World) {
+	f.update(p, w)
 	for _, b := range f.boids {
 		b.Move(w)
 	}
@@ -51,41 +44,95 @@ func (f *flock) Draw(d Drawer, cam Camera) error {
 }
 
 // Update updates the velocity of the boids in the flock.
-func (f *flock) update(w *world.World) {
+func (f *flock) update(p *Player, w *world.World) {
+
 	for _, b := range f.boids {
-		local := f.localBoids(w, b)
-		pt := b.Body().Box.Center()
-
-		avoid := ui.Pt(0, 0)
-		vel := ui.Pt(0, 0)
-		center := ui.Pt(0, 0)
-		for _, l := range local {
-			body := l.Body()
-			vel = vel.Add(body.Vel)
-			center = center.Add(body.Box.Center())
-			d := ptDist(pt, l.Body().Box.Center(), worldSize(w))
-			if d <= f.avoidDist {
-				avoid = avoid.Sub(l.Body().Box.Center().Sub(pt))
-			}
-		}
-
-		n := float64(len(local))
-		v := b.Body().Vel
-		avoid = avoid.Mul(2)
-		vel = v.Div(n).Sub(v).Div(8)
-		center = center.Div(n).Sub(pt).Div(100)
-		v = v.Add(avoid).Add(center).Add(vel)
-		v = v.Add(f.goal.Div(2))
-		b.Body().Vel = clampVel(v, f.maxSpeed)
-	}
-
-	f.nGoal--
-	if f.nGoal <= 0 {
-		f.goal = f.randVel()
-		f.nGoal = 100
+		f.moveWith(b, w)
+		f.moveCloser(b, w)
+		f.moveAway(b, w)
+		f.avoidPlayer(b, p, w)
+		b.Body().Vel = clampVel(b.Body().Vel, f.maxSpeed)
 	}
 }
 
+func (f *flock) avoidPlayer(cur boid, p *Player, w *world.World) {
+	if p.body.Vel == ui.Pt(0, 0) || ptDist(cur.Body().Box.Center(), p.body.Box.Center(), worldSize(w)) > TileSize*3 {
+		return
+	}
+	d := p.body.Box.Center().Sub(cur.Body().Box.Center())
+	cur.Body().Vel = cur.Body().Vel.Sub(d.Div(5))
+}
+
+func (f *flock) moveAway(cur boid, w *world.World) {
+	sz := worldSize(w)
+	var dist ui.Point
+	for _, b := range f.boids {
+		
+		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.avoidDist {
+			continue
+		}
+		diff := cur.Body().Box.Center().Sub(b.Body().Box.Center())
+		sqrt := math.Sqrt(f.avoidDist)
+		if diff.X >= 0 {
+			diff.X = sqrt - diff.X
+		} else {
+			diff.X = -sqrt - diff.X
+		}
+		if diff.Y >= 0 {
+			diff.Y = sqrt - diff.Y
+		} else {
+			diff.Y = -sqrt - diff.Y
+		}
+		dist = dist.Add(diff)
+	}
+
+	cur.Body().Vel = cur.Body().Vel.Sub(dist.Div(2))
+}
+
+func (f *flock) moveCloser(cur boid, w *world.World) {
+	sz := worldSize(w)
+	var avg ui.Point
+	var n float64
+	for _, b := range f.boids {
+		
+		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.localDist {
+			continue
+		}
+		n++
+		avg = avg.Add(cur.Body().Box.Center().Sub(b.Body().Box.Center()))
+	}
+	if n == 0 {
+		return
+	}
+	avg = avg.Div(n)
+	avg = vecNorm(avg, 0.05)
+	cur.Body().Vel = cur.Body().Vel.Sub(avg)
+	cur.Body().Vel = clampVel(cur.Body().Vel, f.maxSpeed)
+}
+
+func (f *flock) moveWith(cur boid, w *world.World) {
+	sz := worldSize(w)
+	var avg ui.Point
+	var n float64
+	for _, b := range f.boids {
+		
+		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.localDist {
+			continue
+		}
+		n++
+		avg = avg.Add(b.Body().Vel)
+	}
+	if n == 0 {
+		return
+	}
+	avg = avg.Div(n)
+	avg = vecNorm(avg, 0.08)
+	cur.Body().Vel = cur.Body().Vel.Add(avg)
+	cur.Body().Vel = clampVel(cur.Body().Vel, f.maxSpeed)
+}
+
+// RandVel returns a random velocity within the speed limit
+// of the flock.
 func (f *flock) randVel() ui.Point {
 	x := rand.Float64()*2 - 1
 	y := rand.Float64()*2 - 1
@@ -102,32 +149,6 @@ func clampVel(v ui.Point, max float64) ui.Point {
 		return vecNorm(v, -max)
 	}
 	return v
-}
-
-func (f *flock) localBoids(w *world.World, bd boid) []boid {
-	sz := worldSize(w)
-	pt := bd.Body().Box.Center()
-
-	var local []boid
-	var nearest boid
-	nearDist := math.Inf(1)
-	for _, b := range f.boids {
-		if bd == b {
-			continue
-		}
-		d := ptDist(pt, b.Body().Box.Center(), sz)
-		if d < nearDist {
-			nearest = b
-			nearDist = d
-		}
-		if d <= f.localDist {
-			local = append(local, b)
-		}
-	}
-	if len(local) == 0 && nearest != nil {
-		return []boid{nearest}
-	}
-	return local
 }
 
 // PtDist returns the distance of two points on a torus.
