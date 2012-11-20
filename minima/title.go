@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 )
@@ -50,7 +51,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 			return err
 		}
 		genSz := d.TextSize(t.genTxt)
-		_, err := d.Draw(t.genTxt, ui.Pt(0, ScreenDims.Y-genSz.Y))
+		_, err := d.Draw(t.genTxt, geom.Pt(0, ScreenDims.Y-genSz.Y))
 		return err
 	}
 
@@ -60,7 +61,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 	}
 	titleTxt := "MINIMA"
 	titleSz := d.TextSize(titleTxt)
-	titlePos := ui.Pt(ScreenDims.X/2-titleSz.X/2,
+	titlePos := geom.Pt(ScreenDims.X/2-titleSz.X/2,
 		ScreenDims.Y/2-titleSz.Y)
 	wh, err := d.Draw(titleTxt, titlePos)
 	if err != nil {
@@ -72,14 +73,14 @@ func (t *TitleScreen) Draw(d Drawer) error {
 	}
 	startTxt := "Press " + actionKey() + " to Start"
 	startSz := d.TextSize(startTxt)
-	startPos := ui.Pt(titlePos.X, titlePos.Y+wh.Y+startSz.Y)
+	startPos := geom.Pt(titlePos.X, titlePos.Y+wh.Y+startSz.Y)
 	if wh, err = d.Draw(startTxt, startPos); err != nil {
 		return err
 	}
 
 	crTxt := "© 2012 The Minima Authors"
 	crSz := d.TextSize(crTxt)
-	crPos := ui.Pt(ScreenDims.X/2-crSz.X/2, ScreenDims.Y-crSz.Y)
+	crPos := geom.Pt(ScreenDims.X/2-crSz.X/2, ScreenDims.Y-crSz.Y)
 	_, err = d.Draw(crTxt, crPos)
 	return err
 }

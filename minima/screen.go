@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/geom"
 )
 
 // A Drawer can draw things and change colors.
 type Drawer interface {
-	Draw(interface{}, ui.Point) (ui.Point, error)
+	Draw(interface{}, geom.Point) (geom.Point, error)
 	SetFont(name string, szPts float64) error
 	SetColor(color.Color)
-	TextSize(string) ui.Point
+	TextSize(string) geom.Point
 }
 
 // A Screen represents some game screen. E.g. the title, the main gameplay, etc.

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"fmt"
@@ -42,11 +43,11 @@ func init() {
 	}
 }
 
-func NewPlayer(wo *world.World, p ui.Point) *Player {
+func NewPlayer(wo *world.World, p geom.Point) *Player {
 	return &Player{
 		wo: wo,
 		body: Body{
-			Box: ui.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 		},
 	}
 }
@@ -80,13 +81,13 @@ func (p *Player) Move(w *world.World) {
 	if !*locInfo {
 		return
 	}
-	tx, ty := point2Tile(p.body.Box.Center())
+	tx, ty := w.Tile(p.body.Center())
 	if tx == p.tileX && ty == p.tileY {
 		return
 	}
 	p.tileX = tx
 	p.tileY = ty
-	p.info = fmt.Sprintf("%d,%d: %s, avg el=%4.2f", tx, ty, w.At(tx, ty).Terrain.Name, avgElevation(p.body.Box, w))
+	p.info = fmt.Sprintf("%d,%d: %s", tx, ty, w.At(tx, ty).Terrain.Name)
 }
 
 func (p *Player) Draw(d Drawer, cam Camera) error {

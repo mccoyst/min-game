@@ -3,6 +3,7 @@
 package main
 
 import (
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 )
 
@@ -28,7 +29,7 @@ func (p *PauseScreen) Draw(d Drawer) error {
 	txt := "PAUSED"
 	sz := d.TextSize(txt)
 
-	_, err := d.Draw(txt, ui.Pt(ScreenDims.X/2-sz.X/2, ScreenDims.Y/2-sz.Y))
+	_, err := d.Draw(txt, geom.Pt(ScreenDims.X/2-sz.X/2, ScreenDims.Y/2-sz.Y))
 	return err
 }
 
