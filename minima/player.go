@@ -90,7 +90,7 @@ func (p *Player) Move(w *world.World) {
 	}
 	p.tileX = tx
 	p.tileY = ty
-	p.info = fmt.Sprintf("%d,%d: %s, avg el=%4.2f", tx, ty, w.At(tx, ty).Terrain.Name, avgElevation(p.body.Box, w))
+	p.info = fmt.Sprintf("%d,%d: %s", tx, ty, w.At(tx, ty).Terrain.Name)
 }
 
 func (p *Player) Draw(d Drawer, cam Camera) error {

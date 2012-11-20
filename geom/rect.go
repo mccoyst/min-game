@@ -2,56 +2,6 @@
 
 package geom
 
-import (
-	"fmt"
-	"math"
-)
-
-// A Point is an X, Y coordinate pair. The axes increase right and down.
-type Point struct {
-	X, Y float64
-}
-
-// String returns a string representation of p like "(3.00,4.01)".
-func (p Point) String() string {
-	return fmt.Sprintf("(%4.2f, %4.2f)", p.X, p.Y)
-}
-
-// Add returns the vector p+q.
-func (p Point) Add(q Point) Point {
-	return Point{p.X + q.X, p.Y + q.Y}
-}
-
-// Sub returns the vector p-q.
-func (p Point) Sub(q Point) Point {
-	return Point{p.X - q.X, p.Y - q.Y}
-}
-
-// Mul returns the vector p*k.
-func (p Point) Mul(k float64) Point {
-	return Point{p.X * k, p.Y * k}
-}
-
-// Div returns the vector p/k.
-func (p Point) Div(k float64) Point {
-	return Point{p.X / k, p.Y / k}
-}
-
-// Len returns the magnitude of the vector defined by p.
-func (p Point) Len() float64 {
-	return math.Sqrt(p.X*p.X + p.Y*p.Y)
-}
-
-// Eq returns whether p and q are equal.
-func (p Point) Eq(q Point) bool {
-	return p.X == q.X && p.Y == q.Y
-}
-
-// Pt is shorthand for Point{X, Y}.
-func Pt(X, Y float64) Point {
-	return Point{X, Y}
-}
-
 // A Rectangle contains the points with Min.X <= X < Max.X, Min.Y <= Y < Max.Y.
 // It is well-formed if Min.X <= Max.X and likewise for Y. Points are always
 // well-formed. A rectangle's methods always return well-formed outputs for

@@ -56,22 +56,21 @@ func (f *flock) update(p *Player, w *world.World) {
 }
 
 func (f *flock) avoidPlayer(cur boid, p *Player, w *world.World) {
-	if p.body.Vel == geom.Pt(0, 0) || ptDist(cur.Body().Box.Center(), p.body.Box.Center(), worldSize(w)) > TileSize*3 {
+	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.Dist(cur.Body().Box.Center(), p.body.Box.Center()) > TileSize*3 {
 		return
 	}
-	d := p.body.Box.Center().Sub(cur.Body().Box.Center())
+	d := w.Pixels.Sub(p.body.Box.Center(), cur.Body().Box.Center())
 	cur.Body().Vel = cur.Body().Vel.Sub(d.Div(5))
 }
 
 func (f *flock) moveAway(cur boid, w *world.World) {
-	sz := worldSize(w)
 	var dist geom.Point
 	for _, b := range f.boids {
 		
-		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.avoidDist {
+		if b == cur || w.Pixels.Dist(b.Body().Box.Center(), cur.Body().Box.Center()) > f.avoidDist {
 			continue
 		}
-		diff := cur.Body().Box.Center().Sub(b.Body().Box.Center())
+		diff := w.Pixels.Sub(cur.Body().Box.Center(), b.Body().Box.Center())
 		sqrt := math.Sqrt(f.avoidDist)
 		if diff.X >= 0 {
 			diff.X = sqrt - diff.X
@@ -90,16 +89,15 @@ func (f *flock) moveAway(cur boid, w *world.World) {
 }
 
 func (f *flock) moveCloser(cur boid, w *world.World) {
-	sz := worldSize(w)
 	var avg geom.Point
 	var n float64
 	for _, b := range f.boids {
 		
-		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.localDist {
+		if b == cur || w.Pixels.Dist(b.Body().Box.Center(), cur.Body().Box.Center()) > f.localDist {
 			continue
 		}
 		n++
-		avg = avg.Add(cur.Body().Box.Center().Sub(b.Body().Box.Center()))
+		avg = avg.Add(w.Pixels.Sub(cur.Body().Box.Center(), b.Body().Box.Center()))
 	}
 	if n == 0 {
 		return
@@ -111,12 +109,11 @@ func (f *flock) moveCloser(cur boid, w *world.World) {
 }
 
 func (f *flock) moveWith(cur boid, w *world.World) {
-	sz := worldSize(w)
 	var avg geom.Point
 	var n float64
 	for _, b := range f.boids {
 		
-		if b == cur || ptDist(b.Body().Box.Center(), cur.Body().Box.Center(), sz) > f.localDist {
+		if b == cur || w.Pixels.Dist(b.Body().Box.Center(), cur.Body().Box.Center()) > f.localDist {
 			continue
 		}
 		n++
@@ -149,20 +146,4 @@ func clampVel(v geom.Point, max float64) geom.Point {
 		return vecNorm(v, -max)
 	}
 	return v
-}
-
-// PtDist returns the distance of two points on a torus.
-func ptDist(a, b, sz geom.Point) float64 {
-	dx := dist(a.X, b.X, sz.X)
-	dy := dist(a.Y, b.Y, sz.Y)
-	return math.Sqrt(dx*dx + dy*dy)
-}
-
-// Dist returns the distance between two values, wrapped at width.
-func dist(a, b, width float64) float64 {
-	min, max := wrap(a, width), wrap(b, width)
-	if min > max {
-		min, max = max, min
-	}
-	return math.Min(max-min, min+width-max)
 }
