@@ -3,6 +3,8 @@
 package main
 
 import (
+	"math"
+
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 )
@@ -57,17 +59,20 @@ func (g *Gull) Move(w *world.World) {
 		g.ticks = 0
 	}
 
+	dx, dy := g.body.Vel.X, g.body.Vel.Y
+	vertBiased := math.Abs(dy) > math.Abs(dx)
+
 	// TODO(mccoyst): read from the same file, yadda yadda
-	if g.body.Vel.Y > 0 {
+	if dy > 0 && vertBiased {
 		g.face = 0
 	}
-	if g.body.Vel.Y < 0 {
+	if dy < 0 && vertBiased {
 		g.face = 1
 	}
-	if g.body.Vel.X > 0 {
+	if dx > 0 && !vertBiased {
 		g.face = 3
 	}
-	if g.body.Vel.X < 0 {
+	if dx < 0 && !vertBiased {
 		g.face = 2
 	}
 
