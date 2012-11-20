@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 )
 
@@ -21,7 +22,7 @@ var (
 	locInfo      = flag.Bool("locinfo", false, "display current location info")
 )
 
-var ScreenDims = ui.Pt(640, 480)
+var ScreenDims = geom.Pt(640, 480)
 
 func init() {
 	runtime.LockOSThread()

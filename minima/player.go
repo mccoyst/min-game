@@ -3,6 +3,7 @@
 package main
 
 import (
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"fmt"
@@ -25,7 +26,7 @@ type Player struct {
 
 const Tempo = 40
 
-var frames [][]ui.Rectangle
+var frames [][]geom.Rectangle
 var baseScales = map[rune]float64{
 	'g': 1.0,
 	'f': 0.85,
@@ -38,18 +39,18 @@ var baseScales = map[rune]float64{
 func init() {
 	// TODO(mccoyst): Read this info from a file
 	for y := 0; y < 4; y++ {
-		frames = append(frames, make([]ui.Rectangle, 2))
+		frames = append(frames, make([]geom.Rectangle, 2))
 		for x := 0; x < 2; x++ {
-			frames[y][x] = ui.Rect(float64(x*TileSize), float64(y*TileSize), float64(x*TileSize+TileSize), float64(y*TileSize+TileSize))
+			frames[y][x] = geom.Rect(float64(x*TileSize), float64(y*TileSize), float64(x*TileSize+TileSize), float64(y*TileSize+TileSize))
 		}
 	}
 }
 
-func NewPlayer(wo *world.World, p ui.Point) *Player {
+func NewPlayer(wo *world.World, p geom.Point) *Player {
 	return &Player{
 		wo: wo,
 		body: Body{
-			Box: ui.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 		},
 	}
 }

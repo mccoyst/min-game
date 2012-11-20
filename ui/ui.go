@@ -31,6 +31,7 @@ import (
 	"image/png"
 	"os"
 	"unsafe"
+	"code.google.com/p/min-game/geom"
 )
 
 type Event interface{}
@@ -128,7 +129,7 @@ type textKey struct {
 type cachedText struct {
 	img   *sdlImg
 	frame uint64
-	rect  Rectangle
+	rect  geom.Rectangle
 }
 
 func New(title string, w, h int) (*Ui, error) {
@@ -293,7 +294,7 @@ func sdlError() error {
 // the image to be rendered, and its shading.
 type Sprite struct {
 	Name   string
-	Bounds Rectangle
+	Bounds geom.Rectangle
 	Shade  float32
 }
 
@@ -326,10 +327,10 @@ func (ui *Ui) SetFont(name string, sz float64) error {
 }
 
 // TextSize returns the size of the text when rendered in the current font.
-func (ui *Ui) TextSize(txt string) Point {
+func (ui *Ui) TextSize(txt string) geom.Point {
 	w := ui.font.width(txt)
 	h := ui.font.extents().height
-	return Pt(float64(w), float64(h))
+	return geom.Pt(float64(w), float64(h))
 }
 
 /*
@@ -340,7 +341,7 @@ will be rendered, or an error. Draw supports the following types:
 		The given string is drawn at p in the current font, in the
 		current color.
 
-	Rectangle
+	geom.Rectangle
 		The given rectangle is filled at offset p, in the current color.
 
 	Sprite
@@ -349,9 +350,9 @@ will be rendered, or an error. Draw supports the following types:
 	image.Image
 		The given image is drawn at offset p.
 */
-func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
+func (ui *Ui) Draw(i interface{}, p geom.Point) (geom.Point, error) {
 	switch d := i.(type) {
-	case Rectangle:
+	case geom.Rectangle:
 		loc := d.Min.Add(p)
 		fillRect(ui, int(loc.X), int(loc.Y), int(d.Dx()), int(d.Dy()))
 		return d.Size(), nil
@@ -359,7 +360,7 @@ func (ui *Ui) Draw(i interface{}, p Point) (Point, error) {
 		return d.Bounds.Size(), drawSprite(ui, d, p)
 	case string:
 		if d == "" {
-			return Pt(0, 0), nil
+			return geom.Pt(0, 0), nil
 		}
 		return drawText(ui, d, p)
 	case image.Image:
@@ -372,7 +373,7 @@ func fillRect(ui *Ui, x, y, w, h int) {
 	C.SDL_RenderFillRect(ui.rend, &C.SDL_Rect{C.int(x), C.int(y), C.int(w), C.int(h)})
 }
 
-func drawSprite(ui *Ui, s Sprite, p Point) error {
+func drawSprite(ui *Ui, s Sprite, p geom.Point) error {
 	img, err := loadImg(ui, "resrc/"+s.Name+".png")
 	if err != nil {
 		return err
@@ -381,7 +382,7 @@ func drawSprite(ui *Ui, s Sprite, p Point) error {
 	return nil
 }
 
-func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
+func (img *sdlImg) Draw(ui *Ui, s Sprite, p geom.Point) {
 	if s.Shade < 1.0 {
 		sh := C.Uint8(s.Shade * 255)
 		C.SDL_SetTextureColorMod(img.tex, sh, sh, sh)
@@ -394,7 +395,7 @@ func (img *sdlImg) Draw(ui *Ui, s Sprite, p Point) {
 
 // DrawText draws the string to the ui at the given point, 
 // using the ui's current font, and current color.
-func drawText(ui *Ui, txt string, p Point) (Point, error) {
+func drawText(ui *Ui, txt string, p geom.Point) (geom.Point, error) {
 	r, g, b, a := ui.color.RGBA()
 	key := textKey{
 		txt:  txt,
@@ -412,11 +413,11 @@ func drawText(ui *Ui, txt string, p Point) (Point, error) {
 	} else {
 		i, err := ui.font.render(txt)
 		if err != nil {
-			return Point{}, err
+			return geom.Point{}, err
 		}
 		img, err = newSdlImage(ui, i, "")
 		if err != nil {
-			return Point{}, err
+			return geom.Point{}, err
 		}
 		c = &cachedText{
 			img,
@@ -426,23 +427,23 @@ func drawText(ui *Ui, txt string, p Point) (Point, error) {
 		ui.txtCache[key] = c
 	}
 	img.Draw(ui, Sprite{Bounds: c.rect, Shade: 1.0}, p)
-	return Pt(float64(c.rect.Dx()), float64(c.rect.Dy())), nil
+	return geom.Pt(float64(c.rect.Dx()), float64(c.rect.Dy())), nil
 }
 
 // DrawImage draws an image to the UI at the given point.
-func drawImage(ui *Ui, i image.Image, p Point) (Point, error) {
+func drawImage(ui *Ui, i image.Image, p geom.Point) (geom.Point, error) {
 	s, err := newSdlImage(ui, i, "")
 	if err != nil {
-		return Point{}, err
+		return geom.Point{}, err
 	}
 	defer s.Close()
 
 	s.Draw(ui, Sprite{Bounds: toRect(i.Bounds()), Shade: 1.0}, p)
-	return Pt(float64(i.Bounds().Dx()), float64(i.Bounds().Dy())), nil
+	return geom.Pt(float64(i.Bounds().Dx()), float64(i.Bounds().Dy())), nil
 }
 
 // BUG(mccoyst): barf
-func toRect(r image.Rectangle) Rectangle {
-	return Rect(float64(r.Min.X), float64(r.Min.Y),
+func toRect(r image.Rectangle) geom.Rectangle {
+	return geom.Rect(float64(r.Min.X), float64(r.Min.Y),
 		float64(r.Max.X), float64(r.Max.Y))
 }
