@@ -34,10 +34,12 @@ func BenchmarkFontRender32(b *testing.B) {
 func render(b *testing.B, cnt int) {
 	b.StopTimer()
 
-	f, err := NewFont("../resrc/prstartk.ttf", 12, color.Black)
+	f, err := newFont("../resrc/prstartk.ttf")
 	if err != nil {
 		b.Fatal(err.Error())
 	}
+	f.setSize(12)
+	f.setColor(color.Black)
 
 	const NStrs = 100
 	strs := make([]string, NStrs)
@@ -53,7 +55,7 @@ func render(b *testing.B, cnt int) {
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {
-		if _, err = f.Render(strs[i%len(strs)]); err != nil {
+		if _, err = f.render(strs[i%len(strs)]); err != nil {
 			b.Fatal(err.Error())
 		}
 	}
