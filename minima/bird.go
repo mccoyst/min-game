@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 )
 
@@ -34,10 +35,10 @@ func init() {
 	}
 }
 
-func NewGull(p, v ui.Point) *Gull {
+func NewGull(p, v geom.Point) *Gull {
 	return &Gull{
 		body: Body{
-			Box: ui.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 			Vel: v,
 		},
 	}

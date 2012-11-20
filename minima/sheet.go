@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/geom"
 )
 
 type SpriteSheet struct {
@@ -30,9 +30,9 @@ func LoadSpriteSheet(s string) (SpriteSheet, error) {
 	return sh, err
 }
 
-func (sh *SpriteSheet) Frame(face, frame int) ui.Rectangle {
+func (sh *SpriteSheet) Frame(face, frame int) geom.Rectangle {
 	sz := float64(sh.FrameSize)
 	x := float64(frame) * sz
 	y := float64(face) * sz
-	return ui.Rect(x, y, x+sz, y+sz)
+	return geom.Rect(x, y, x+sz, y+sz)
 }

@@ -4,6 +4,7 @@ package main
 
 import (
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 	"math"
 	"math/rand"
@@ -25,7 +26,7 @@ type ExploreScreen struct {
 func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e := &ExploreScreen{wo: wo}
 	e.CenterOnTile(wo.X0, wo.Y0)
-	e.astro = NewPlayer(e.wo, ui.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
+	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
 	e.gulls.localDist = TileSize*10
 	e.gulls.avoidDist = TileSize/2.0
@@ -35,7 +36,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	for i := 0; i < 50; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
-		g := NewGull(ui.Pt(x, y), e.gulls.randVel())
+		g := NewGull(geom.Pt(x, y), e.gulls.randVel())
 		e.gulls.boids = append(e.gulls.boids, g)
 	}
 	return e
@@ -47,13 +48,13 @@ func (e *ExploreScreen) Transparent() bool {
 
 // CenterOnTile centers the display on a given tile.
 func (e *ExploreScreen) CenterOnTile(x, y int) {
-	e.cam.Center(ui.Pt(TileSize*float64(x)+TileSize/2,
+	e.cam.Center(geom.Pt(TileSize*float64(x)+TileSize/2,
 		TileSize*float64(y)+TileSize/2))
 }
 
 func (e *ExploreScreen) Draw(d Drawer) error {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
-	x0, y0 := point2Tile(e.cam.pt)
+	x0, y0 := e.wo.Tile(e.cam.pt)
 
 	xoff0 := -math.Mod(e.cam.pt.X, TileSize)
 	if e.cam.pt.X < 0 {
@@ -64,7 +65,7 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 		yoff0 = -TileSize + yoff0
 	}
 
-	pt := ui.Pt(xoff0, yoff0)
+	pt := geom.Pt(xoff0, yoff0)
 	for x := x0; x <= x0+w; x++ {
 		for y := y0; y <= y0+h; y++ {
 			l := e.wo.At(x, y)
@@ -93,19 +94,19 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 		return err
 	}
 	d.SetColor(White)
-	if _, err := d.Draw(e.astro.info, ui.Pt(0, 0)); err != nil {
+	if _, err := d.Draw(e.astro.info, geom.Pt(0, 0)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func drawCell(d Drawer, l *world.Loc, x, y int, pt ui.Point) error {
+func drawCell(d Drawer, l *world.Loc, x, y int, pt geom.Point) error {
 	const minSh = 0.05
 	const slope = (1 - minSh) / world.MaxElevation
 
 	_, err := d.Draw(ui.Sprite{
 		Name:   l.Terrain.Name,
-		Bounds: ui.Rect(0, 0, TileSize, TileSize),
+		Bounds: geom.Rect(0, 0, TileSize, TileSize),
 		Shade:  slope*float32(l.Elevation-l.Depth) + minSh,
 	}, pt)
 
@@ -122,7 +123,7 @@ func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
 func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	const speed = 4 // px
 
-	e.astro.body.Vel = ui.Pt(0, 0)
+	e.astro.body.Vel = geom.Pt(0, 0)
 	if stk.buttons&ui.Left != 0 {
 		e.astro.body.Vel.X -= speed
 	}
@@ -143,6 +144,6 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	return nil
 }
 
-func randPoint(xmax, ymax float64) ui.Point {
-	return ui.Pt(rand.Float64()*xmax, rand.Float64()*ymax)
+func randPoint(xmax, ymax float64) geom.Point {
+	return geom.Pt(rand.Float64()*xmax, rand.Float64()*ymax)
 }

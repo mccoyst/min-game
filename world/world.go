@@ -10,17 +10,28 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"math"
+
+	"code.google.com/p/min-game/geom"
 )
 
-const (
-	// MaxElevation is the number of distinct
-	// elevations, numbered 0..MaxElevation.
-	MaxElevation = 19
-)
+// MaxElevation is the number of distinct
+// elevations, numbered 0..MaxElevation.
+const MaxElevation = 19
+
+// TileSize is the size of a world tile in pixels.
+var TileSize = geom.Pt(32, 32)
 
 // World is the main container for the world
 // representation of minima.
 type World struct {
+	// Pixels is a Torus in the dimension of the world in pixels.
+	Pixels geom.Torus
+
+	// Could use a Torus for W and X, below, but it seems
+	// needless because they will always be nice and simple
+	// ints.
+
 	// W and H are the width and height of the world's
 	// location grid.
 	W, H int
@@ -87,6 +98,10 @@ func New(w, h int) *World {
 		panic("The world dimensions are too big")
 	}
 	return &World{
+		Pixels: geom.Torus{
+			W: float64(w)*TileSize.X,
+			H: float64(h)*TileSize.Y,
+		},
 		W:    w,
 		H:    h,
 		locs: makeLocs(w, h),
@@ -119,6 +134,10 @@ func (w *World) At(x, y int) *Loc {
 // torus shape.
 func (w *World) Wrap(x, y int) (int, int) {
 	return wrap(x, w.W), wrap(y, w.H)
+}
+
+func (w *World) Tile(p geom.Point) (int, int) {
+	return int(math.Floor(p.X/TileSize.X)), int(math.Floor(p.Y/TileSize.Y))
 }
 
 // wrap returns the value of n wrapped around if it goes
