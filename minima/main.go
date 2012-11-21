@@ -45,7 +45,7 @@ func main() {
 		ui.CurrentKeymap = ui.DvorakKeymap
 	}
 
-	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y))
+	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y), DumbFinder{})
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
 		os.Exit(1)
