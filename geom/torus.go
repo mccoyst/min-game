@@ -13,14 +13,16 @@ type Torus struct {
 
 // SqDist returns the squared distance of two points on the torus.
 func (t Torus) SqDist(a, b Point) float64 {
-	a, b = t.normPair(a, b)
-	return a.SqDist(b)
+	dx := math.Abs(a.X - b.X)
+	dx = math.Min(t.W-dx, dx)
+	dy := math.Abs(a.Y - b.Y)
+	dy = math.Min(t.H-dy, dy)
+	return dx*dx + dy*dy
 }
 
 // Dist returns the distance of two points on the torus.
 func (t Torus) Dist(a, b Point) float64 {
-	a, b = t.normPair(a, b)
-	return a.Dist(b)
+	return math.Sqrt(t.SqDist(a, b))
 }
 
 // Sub returns vector a - b respecting the torus.  For example,
@@ -40,6 +42,8 @@ func (t Torus) Norm(a Point) Point {
 // NormPair returns a pair of points where the first is equavalent
 // to a on the torus, but within (0,0)-(W-1, H-1), and the second
 // is the point equivalent to b that is nearest a.
+//
+// BUG(eaburns): This can probably be more efficient like SqDist.
 func (t Torus) normPair(a, b Point) (Point, Point) {
 	a = t.Norm(a)
 	b.X = nearWrap(a.X, b.X, t.W)
