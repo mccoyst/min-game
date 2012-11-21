@@ -24,15 +24,15 @@ type BoidInfo struct {
 	// MaxVelocity is the fastest that a boid can move.
 	MaxVelocity float64
 
-	// LocalDist is the distance determining when two boids
+	// LocalDist is the squared distance determining when two boids
 	// are flocking together.
 	LocalDist float64
 
-	// AvoidDist is the distance at which boids will avoid
+	// AvoidDist is the squared distance at which boids will avoid
 	// eachother.
 	AvoidDist float64
 
-	// PlayerDist is the distance at which boids will avoid
+	// PlayerDist is the squared distance at which boids will avoid
 	// the player. 
 	PlayerDist float64
 
@@ -67,9 +67,9 @@ func localBoids(boids Boids, w *world.World) [][]Boid {
 	local := make([][]Boid, boids.Len())
 	for i := range local {
 		boid := boids.Boid(i)
-		for j := i+1; j < boids.Len(); j++ {
+		for j := i + 1; j < boids.Len(); j++ {
 			b := boids.Boid(j)
-			if boid.dist(b, w) > localDist {
+			if boid.sqDist(b, w) > localDist {
 				continue
 			}
 			local[i] = append(local[i], b)
@@ -97,7 +97,7 @@ func (boid Boid) matchVel(local []Boid, bias float64) {
 func (boid Boid) moveCenter(local []Boid, bias float64, w *world.World) {
 	var avg geom.Point
 	for _, b := range local {
-		toCenter := w.Pixels.Sub(b.Center(), boid.Center())
+		toCenter := w.Pixels.Sub(b.Box.Min, boid.Box.Min)
 		avg = avg.Add(toCenter)
 	}
 	if len(local) == 0 {
@@ -111,7 +111,7 @@ func (boid Boid) moveCenter(local []Boid, bias float64, w *world.World) {
 func (boid Boid) avoidOthers(local []Boid, dist, bias float64, w *world.World) {
 	var a geom.Point
 	for _, b := range local {
-		if d := boid.dist(b, w); d > dist {
+		if d := boid.sqDist(b, w); d > dist {
 			continue
 		}
 		a = a.Add(avoidVec(boid.Center(), b.Center(), dist, w))
@@ -122,11 +122,11 @@ func (boid Boid) avoidOthers(local []Boid, dist, bias float64, w *world.World) {
 
 // AvoidPlayer attempts to avoid the player.
 func (boid Boid) avoidPlayer(p *Player, dist, bias float64, w *world.World) {
-	c := p.body.Center()
-	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.Dist(boid.Center(), c) > dist {
+	pt := p.body.Box.Min
+	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dist {
 		return
 	}
-	d := avoidVec(boid.Center(), c, dist, w).Mul(bias)
+	d := avoidVec(boid.Box.Min, pt, dist, w).Mul(bias)
 	boid.Vel = boid.Vel.Add(d)
 }
 
@@ -138,19 +138,19 @@ func (boid Boid) clampVel(max float64) {
 	}
 }
 
-// Dist returns the distance between two boids.
-func (b Boid) dist(o Boid, w *world.World) float64 {
-	return w.Pixels.Dist(b.Center(), o.Center())
+// SqDist returns the squared distance between two boids.
+func (b Boid) sqDist(o Boid, w *world.World) float64 {
+	return w.Pixels.SqDist(b.Box.Min, o.Box.Min)
 }
 
 // AvoidVec returns a vector to direct a away from b.
 //
 // The vector is biased such that it is stronger as the
 // objects get closer.
-func avoidVec(a, b geom.Point, dist float64, w *world.World) geom.Point {
-	sqrt := math.Sqrt(dist)
+func avoidVec(a, b geom.Point, sqDist float64, w *world.World) geom.Point {
+	sqrt := math.Sqrt(math.Sqrt(sqDist))
 	diff := w.Pixels.Sub(a, b)
-	diff.X = math.Copysign(sqrt - math.Abs(diff.X), diff.X)
-	diff.Y = math.Copysign(sqrt - math.Abs(diff.Y), diff.Y)
+	diff.X = math.Copysign(sqrt-math.Abs(diff.X), diff.X)
+	diff.Y = math.Copysign(sqrt-math.Abs(diff.Y), diff.Y)
 	return diff
 }
