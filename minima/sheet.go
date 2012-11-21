@@ -40,7 +40,7 @@ func (sh *SpriteSheet) Frame(face, frame int) geom.Rectangle {
 
 type Anim struct {
 	face, frame int
-	ticks int
+	ticks       int
 }
 
 func (a *Anim) Move(sh *SpriteSheet, vel geom.Point) {
