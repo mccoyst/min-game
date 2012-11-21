@@ -13,6 +13,7 @@ type Torus struct {
 
 // SqDist returns the squared distance of two points on the torus.
 func (t Torus) SqDist(a, b Point) float64 {
+	a, b = t.Norm(a), t.Norm(b)
 	dx := math.Abs(a.X - b.X)
 	dx = math.Min(t.W-dx, dx)
 	dy := math.Abs(a.Y - b.Y)
