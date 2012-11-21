@@ -42,10 +42,15 @@ func (p Point) Len() float64 {
 	return math.Sqrt(p.X*p.X + p.Y*p.Y)
 }
 
+// SqDist returns the squared distance between two points.
+func (p Point) SqDist(q Point) float64 {
+	dx, dy := p.X-q.X, p.Y-q.Y
+	return dx*dx + dy*dy
+}
+
 // Dist returns the distance of two points.
 func (p Point) Dist(q Point) float64 {
-	dx, dy := p.X - q.X, p.Y - q.Y
-	return math.Sqrt(dx*dx + dy*dy)
+	return math.Sqrt(p.SqDist(q))
 }
 
 // Normalize returns the vector normalized so that it has a magnitude of one.

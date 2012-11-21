@@ -3,8 +3,8 @@
 package main
 
 import (
-	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"math"
 	"math/rand"
@@ -28,6 +28,8 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
+	//	xmin, xmax := 0.0, float64(wo.W)*TileSize
+	//	ymin, ymax := 0.0, float64(wo.H)*TileSize
 	xmin, xmax := float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
 	ymin, ymax := float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
 	for i := 0; i < 50; i++ {
@@ -79,7 +81,7 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 	if err := e.astro.Draw(d, e.cam); err != nil {
 		return err
 	}
-	for _, g := range e.gulls {	
+	for _, g := range e.gulls {
 		if err := g.Draw(d, e.cam); err != nil {
 			return err
 		}
