@@ -56,16 +56,16 @@ func (p *Player) Move(w *world.World) {
 
 	// TODO(mccoyst): read from the same file, yadda yadda
 	if p.body.Vel.Y > 0 {
-		p.anim.face = 0
+		p.anim.face = astroSheet.South
 	}
 	if p.body.Vel.Y < 0 {
-		p.anim.face = 3
+		p.anim.face = astroSheet.North
 	}
 	if p.body.Vel.X > 0 {
-		p.anim.face = 2
+		p.anim.face = astroSheet.East
 	}
 	if p.body.Vel.X < 0 {
-		p.anim.face = 1
+		p.anim.face = astroSheet.West
 	}
 
 	p.body.Move(w, baseScales)
