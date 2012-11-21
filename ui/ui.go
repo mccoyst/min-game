@@ -25,13 +25,13 @@ static Uint32 sdl_rgba_fmt(int isLE){
 import "C"
 
 import (
+	"code.google.com/p/min-game/geom"
 	"errors"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 	"unsafe"
-	"code.google.com/p/min-game/geom"
 )
 
 // The Finder's Find method takes a filename of a resource and returns the full path to it.
@@ -169,7 +169,7 @@ func New(title string, w, h int, f Finder) (*Ui, error) {
 		imgCache:  make(map[string]*sdlImg),
 		fontCache: make(map[string]*font),
 		txtCache:  make(map[textKey]*cachedText),
-		f: f,
+		f:         f,
 	}
 	if err := ui.SetFont("prstartk", 12); err != nil {
 		return nil, err

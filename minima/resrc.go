@@ -2,7 +2,7 @@
 
 package main
 
-type DumbFinder struct{
+type DumbFinder struct {
 }
 
 func (d DumbFinder) Find(s string) string {
