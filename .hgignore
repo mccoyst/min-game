@@ -1,0 +1,15 @@
+syntax: glob
+wgen/wgen
+wimg/wimg
+game/minima
+mksheet/mksheet
+resrc/tiles.png
+resrc/astro.png
+*.o
+*.a
+*.d
+game/std.hpp.gch
+*.orig
+*.gcov
+*.gcda
+*.gcno

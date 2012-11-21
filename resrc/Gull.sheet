@@ -1,0 +1,9 @@
+{
+	"Name": "Bird0",
+	"FrameSize": 32,
+	"Tempo": 30,
+	"North": 1,
+	"East": 3,
+	"South": 0,
+	"West": 2
+}
