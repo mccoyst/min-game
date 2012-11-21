@@ -20,8 +20,7 @@ type Player struct {
 	// for debugging purposes.
 	info string
 
-	face, frame int
-	ticks       int
+	anim Anim
 }
 
 var astroSheet SpriteSheet
@@ -53,27 +52,20 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 }
 
 func (p *Player) Move(w *world.World) {
-	p.ticks++
-	if p.ticks >= astroSheet.Tempo {
-		p.frame++
-		if p.frame >= 2 {
-			p.frame = 0
-		}
-		p.ticks = 0
-	}
+	p.anim.Update(&astroSheet)
 
 	// TODO(mccoyst): read from the same file, yadda yadda
 	if p.body.Vel.Y > 0 {
-		p.face = 0
+		p.anim.face = 0
 	}
 	if p.body.Vel.Y < 0 {
-		p.face = 3
+		p.anim.face = 3
 	}
 	if p.body.Vel.X > 0 {
-		p.face = 2
+		p.anim.face = 2
 	}
 	if p.body.Vel.X < 0 {
-		p.face = 1
+		p.anim.face = 1
 	}
 
 	p.body.Move(w, baseScales)
@@ -93,7 +85,7 @@ func (p *Player) Move(w *world.World) {
 func (p *Player) Draw(d Drawer, cam Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
 		Name:   astroSheet.Name,
-		Bounds: astroSheet.Frame(p.face, p.frame),
+		Bounds: astroSheet.Frame(p.anim.face, p.anim.frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
 	return err

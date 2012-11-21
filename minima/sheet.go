@@ -36,3 +36,19 @@ func (sh *SpriteSheet) Frame(face, frame int) geom.Rectangle {
 	y := float64(face) * sz
 	return geom.Rect(x, y, x+sz, y+sz)
 }
+
+type Anim struct {
+	face, frame int
+	ticks int
+}
+
+func (a *Anim) Update(sh *SpriteSheet) {
+	a.ticks++
+	if a.ticks >= sh.Tempo {
+		a.frame++
+		if a.frame >= 2 {
+			a.frame = 0
+		}
+		a.ticks = 0
+	}
+}
