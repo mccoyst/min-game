@@ -43,8 +43,6 @@ func (t Torus) Norm(a Point) Point {
 // NormPair returns a pair of points where the first is equavalent
 // to a on the torus, but within (0,0)-(W-1, H-1), and the second
 // is the point equivalent to b that is nearest a.
-//
-// BUG(eaburns): This can probably be more efficient like SqDist.
 func (t Torus) normPair(a, b Point) (Point, Point) {
 	a = t.Norm(a)
 	b.X = nearWrap(a.X, b.X, t.W)
