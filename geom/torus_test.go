@@ -9,13 +9,13 @@ import (
 )
 
 func TestNearWrap(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		a, b, width, c float64
 	}{
-		{ 0, 0, 100, 0 },
-		{ 0, 100, 100, 0 },
-		{ 0, 99, 100, -1 },
-		{ 99, 100, 100, 100 },
+		{0, 0, 100, 0},
+		{0, 100, 100, 0},
+		{0, 99, 100, -1},
+		{99, 100, 100, 100},
 	}
 
 	for _, test := range tests {
@@ -27,18 +27,18 @@ func TestNearWrap(t *testing.T) {
 }
 
 func TestTorusDist(t *testing.T) {
-	torus := Torus{ W: 100, H: 100 }
-	tests := []struct{
+	torus := Torus{W: 100, H: 100}
+	tests := []struct {
 		a, b Point
-		d float64
+		d    float64
 	}{
-		{ Pt(0, 0), Pt(0, 0), 0 },
-		{ Pt(99, 99), Pt(99, 99), 0 },
-		{ Pt(100, 100), Pt(100, 100), 0 },
-		{ Pt(0, 0), Pt(100, 100), 0 },
-		{ Pt(99, 99), Pt(100, 100), math.Sqrt(2) },
-		{ Pt(99, 99), Pt(0, 0), math.Sqrt(2) },
-		{ Pt(99, 99), Pt(10, 10), math.Sqrt(11*11 + 11*11) },
+		{Pt(0, 0), Pt(0, 0), 0},
+		{Pt(99, 99), Pt(99, 99), 0},
+		{Pt(100, 100), Pt(100, 100), 0},
+		{Pt(0, 0), Pt(100, 100), 0},
+		{Pt(99, 99), Pt(100, 100), math.Sqrt(2)},
+		{Pt(99, 99), Pt(0, 0), math.Sqrt(2)},
+		{Pt(99, 99), Pt(10, 10), math.Sqrt(11*11 + 11*11)},
 	}
 
 	for _, test := range tests {
@@ -50,15 +50,15 @@ func TestTorusDist(t *testing.T) {
 }
 
 func TestTorusSub(t *testing.T) {
-	torus := Torus{ W: 100, H: 100 }
-	tests := []struct{
+	torus := Torus{W: 100, H: 100}
+	tests := []struct {
 		a, b, d Point
 	}{
-		{ Pt(0, 0), Pt(0, 0), Pt(0, 0) },
-		{ Pt(0, 0), Pt(1, 1), Pt(-1, -1) },
-		{ Pt(50,50), Pt(25,25), Pt(25,25) },
-		{ Pt(99,99), Pt(0, 0), Pt(-1, -1) },
-		{ Pt(0,0), Pt(99,99), Pt(1, 1) },
+		{Pt(0, 0), Pt(0, 0), Pt(0, 0)},
+		{Pt(0, 0), Pt(1, 1), Pt(-1, -1)},
+		{Pt(50, 50), Pt(25, 25), Pt(25, 25)},
+		{Pt(99, 99), Pt(0, 0), Pt(-1, -1)},
+		{Pt(0, 0), Pt(99, 99), Pt(1, 1)},
 	}
 
 	for _, test := range tests {
@@ -70,13 +70,13 @@ func TestTorusSub(t *testing.T) {
 }
 
 func TestAlign(t *testing.T) {
-	torus := Torus{100,100}
+	torus := Torus{100, 100}
 	tests := []struct {
-		a, b    Rectangle
+		a, b   Rectangle
 		balign Rectangle
 	}{
-		{Rect(0, 0, 1, 1), Rect(0, 0, 1, 1), Rect(0, 0, 1, 1) },
-		{Rect(0, 0, 1, 1), Rect(100, 100, 101, 101), Rect(0, 0, 1, 1) },
+		{Rect(0, 0, 1, 1), Rect(0, 0, 1, 1), Rect(0, 0, 1, 1)},
+		{Rect(0, 0, 1, 1), Rect(100, 100, 101, 101), Rect(0, 0, 1, 1)},
 		{Rect(0, 0, 1, 1), Rect(-100, -100, -99, -99), Rect(0, 0, 1, 1)},
 		{Rect(0, 0, 1, 1), Rect(100.5, 100.5, 101.5, 101.5), Rect(0.5, 0.5, 1.5, 1.5)},
 	}
@@ -92,12 +92,12 @@ func TestAlign(t *testing.T) {
 }
 
 func TestIsectTorus(t *testing.T) {
-	torus := Torus{100,100}
+	torus := Torus{100, 100}
 	z := Rectangle{}
 	tests := []struct {
-	a, b  Rectangle
-	isect Rectangle
-}{
+		a, b  Rectangle
+		isect Rectangle
+	}{
 		{Rect(0, 0, 1, 1), Rect(0, 0, 1, 1), Rect(0, 0, 1, 1)},
 		{Rect(0, 0, 0.5, 0.5), Rect(0, 0, 1, 1), Rect(0, 0, 0.5, 0.5)},
 		{Rect(0, 0, 1, 0.5), Rect(0, 0, 1, 1), Rect(0, 0, 1, 0.5)},
@@ -136,7 +136,7 @@ func TestIsectTorus(t *testing.T) {
 }
 
 func TestNormRect(t *testing.T) {
-	torus := Torus{100,100}
+	torus := Torus{100, 100}
 	tests := []struct {
 		a, n Rectangle
 	}{
@@ -153,7 +153,7 @@ func TestNormRect(t *testing.T) {
 }
 
 func TestNormRectQuick(t *testing.T) {
-	torus := Torus{100,100}
+	torus := Torus{100, 100}
 	f := func(x, y, w, h float64) bool {
 		r := torus.NormRect(Rect(x, y, x+w, y+w))
 		return r.Min.X >= 0 && r.Min.X < torus.W && r.Min.Y >= 0 && r.Min.Y <= torus.H
