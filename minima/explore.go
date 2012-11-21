@@ -29,20 +29,26 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
-	xmin, xmax := 0.0, float64(wo.W)*TileSize
-	ymin, ymax := 0.0, float64(wo.H)*TileSize
-	for i := 0; i < 50; i++ {
+	xmin, xmax := float64(wo.X0-8)*TileSize, float64(wo.X0+8)*TileSize
+	ymin, ymax := float64(wo.Y0-8)*TileSize, float64(wo.Y0+8)*TileSize
+	for i := 0; i < 25; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
 		e.gulls = append(e.gulls, NewGull(geom.Pt(x, y), vel))
 	}
 
-	xmin, xmax = float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
-	ymin, ymax = float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
-	for i := 0; i < 10; i++ {
-		x := rand.Float64()*(xmax-xmin) + xmin
-		y := rand.Float64()*(ymax-ymin) + ymin
+	for i := 0; i < 25; i++ {
+		var x, y float64
+		for i := 0; i < 1000; i++ {
+			x = rand.Float64()*(xmax-xmin) + xmin
+			y = rand.Float64()*(ymax-ymin) + ymin
+			pt := geom.Pt(x, y)
+			tx, ty := e.wo.Tile(pt.Add(world.TileSize.Div(2)))
+			if e.wo.At(tx, ty).Terrain.Char == 'g' {
+				break
+			}
+		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
 		e.cows = append(e.cows, NewCow(geom.Pt(x, y), vel))
 	}
