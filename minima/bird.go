@@ -3,6 +3,8 @@
 package main
 
 import (
+	"math"
+
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
