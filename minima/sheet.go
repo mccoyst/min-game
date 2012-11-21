@@ -4,6 +4,7 @@ package main
 
 import (
 	"encoding/json"
+	"math"
 	"os"
 
 	"code.google.com/p/min-game/geom"
@@ -35,4 +36,36 @@ func (sh *SpriteSheet) Frame(face, frame int) geom.Rectangle {
 	x := float64(frame) * sz
 	y := float64(face) * sz
 	return geom.Rect(x, y, x+sz, y+sz)
+}
+
+type Anim struct {
+	face, frame int
+	ticks int
+}
+
+func (a *Anim) Move(sh *SpriteSheet, vel geom.Point) {
+	a.ticks++
+	if a.ticks >= sh.Tempo {
+		a.frame++
+		if a.frame >= 2 {
+			a.frame = 0
+		}
+		a.ticks = 0
+	}
+
+	dx, dy := vel.X, vel.Y
+	vertBiased := math.Abs(dy) > math.Abs(dx)
+
+	if dy > 0 && vertBiased {
+		a.face = sh.South
+	}
+	if dy < 0 && vertBiased {
+		a.face = sh.North
+	}
+	if dx > 0 && !vertBiased {
+		a.face = sh.East
+	}
+	if dx < 0 && !vertBiased {
+		a.face = sh.West
+	}
 }
