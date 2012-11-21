@@ -72,13 +72,19 @@ func (cs Cows) Boid(n int) Boid {
 
 func (Cows) Info() BoidInfo {
 	return BoidInfo{
-		MaxVelocity: 1.0,
+		MaxVelocity: 0.5,
 		LocalDist:   math.Pow(TileSize*10.0, 2),
-		AvoidDist:   math.Pow(TileSize/2.0, 2),
-		PlayerDist:  math.Pow(TileSize*2, 2),
 		CenterBias:  0.01,
-		MatchBias:   0.02,
-		AvoidBias:   0.4,
-		PlayerBias:  0.4,
+		MatchBias:   0.01,
+
+		AvoidDist: math.Pow(TileSize*2, 2),
+		AvoidBias: 0.2,
+
+		PlayerDist: math.Pow(TileSize*2, 2),
+		PlayerBias: 0.2,
+
+		TerrainDist:  TileSize * 1.1,
+		TerrainBias:  0.5,
+		AvoidTerrain: "fmwdi",
 	}
 }

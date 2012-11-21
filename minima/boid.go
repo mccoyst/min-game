@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"strings"
 
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
@@ -32,18 +33,27 @@ type BoidInfo struct {
 	// eachother.
 	AvoidDist float64
 
-	// PlayerDist is the squared distance at which boids will avoid
-	// the player. 
-	PlayerDist float64
-
 	// These biases weight the three standard boid rules:
 	//	Move toward the center of neighbors.
 	//	Match the velocity of neighbors.
 	//	Avoid very close neighbors.
 	CenterBias, MatchBias, AvoidBias float64
 
+	// PlayerDist is the squared distance at which boids will avoid
+	// the player. 
+	PlayerDist float64
+
 	// PlayerBias is the weight applied to avoiding the player.
 	PlayerBias float64
+
+	// TerrainDist is the distance at which terrain is avoided.
+	TerrainDist float64
+
+	// TerrainBias is the weight applied to avoiding terrain.
+	TerrainBias float64
+
+	// AvoidTerrain is a string of terrain types that are avoided.
+	AvoidTerrain string
 }
 
 // UpdateBoids updates the velocity of the boids.
@@ -56,6 +66,7 @@ func UpdateBoids(boids Boids, p *Player, w *world.World) {
 		boid.moveCenter(l, info.CenterBias, w)
 		boid.avoidOthers(l, info.AvoidDist, info.AvoidBias, w)
 		boid.avoidPlayer(p, info.PlayerDist, info.PlayerBias, w)
+		boid.avoidTerrain(info.AvoidTerrain, info.TerrainDist, info.TerrainBias, w)
 		boid.clampVel(info.MaxVelocity)
 	}
 }
@@ -114,7 +125,7 @@ func (boid Boid) avoidOthers(local []Boid, dist, bias float64, w *world.World) {
 		if d := boid.sqDist(b, w); d > dist {
 			continue
 		}
-		a = a.Add(avoidVec(boid.Center(), b.Center(), dist, w))
+		a = a.Add(avoidVec(boid.Center(), b.Center(), math.Sqrt(dist), w))
 	}
 	a = a.Mul(bias)
 	boid.Vel = boid.Vel.Add(a)
@@ -126,8 +137,36 @@ func (boid Boid) avoidPlayer(p *Player, dist, bias float64, w *world.World) {
 	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dist {
 		return
 	}
-	d := avoidVec(boid.Box.Min, pt, dist, w).Mul(bias)
+	d := avoidVec(boid.Box.Min, pt, math.Sqrt(dist), w).Mul(bias)
 	boid.Vel = boid.Vel.Add(d)
+}
+
+// AvoidTerrain attempts to avoid certain types of terrain.
+func (boid Boid) avoidTerrain(kinds string, dist, bias float64, w *world.World) {
+	if kinds == "" {
+		return
+	}
+
+	var a geom.Point
+	sz := geom.Pt(dist, dist)
+	x0, y0 := w.Tile(boid.Box.Min.Sub(sz))
+	x1, y1 := w.Tile(boid.Box.Min.Add(sz))
+	for x := x0; x <= x1; x++ {
+		for y := y0; y <= y1; y++ {
+			if strings.IndexRune(kinds, w.At(x, y).Terrain.Char) < 0 {
+				continue
+			}
+			pt := geom.Pt(float64(x)*world.TileSize.X,
+				float64(y)*world.TileSize.Y)
+			if w.Pixels.Dist(boid.Box.Min, pt) > dist {
+				continue
+			}
+			d := avoidVec(boid.Box.Min, pt, dist, w)
+			a = a.Add(d)
+		}
+	}
+	a = a.Mul(bias)
+	boid.Vel = boid.Vel.Add(a)
 }
 
 // ClampVel clamps the boid's velocity to have a magnitude of
@@ -148,7 +187,7 @@ func (b Boid) sqDist(o Boid, w *world.World) float64 {
 // The vector is biased such that it is stronger as the
 // objects get closer.
 func avoidVec(a, b geom.Point, sqDist float64, w *world.World) geom.Point {
-	sqrt := math.Sqrt(math.Sqrt(sqDist))
+	sqrt := math.Sqrt(sqDist)
 	diff := w.Pixels.Sub(a, b)
 	diff.X = math.Copysign(sqrt-math.Abs(diff.X), diff.X)
 	diff.Y = math.Copysign(sqrt-math.Abs(diff.Y), diff.Y)
