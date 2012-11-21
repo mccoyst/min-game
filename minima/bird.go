@@ -3,8 +3,6 @@
 package main
 
 import (
-	"math"
-
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
@@ -47,25 +45,7 @@ func (g *Gull) Body() *Body {
 }
 
 func (g *Gull) Move(w *world.World) {
-	g.anim.Update(&gullSheet)
-
-	dx, dy := g.body.Vel.X, g.body.Vel.Y
-	vertBiased := math.Abs(dy) > math.Abs(dx)
-
-	// TODO(mccoyst): read from the same file, yadda yadda
-	if dy > 0 && vertBiased {
-		g.anim.face = gullSheet.South
-	}
-	if dy < 0 && vertBiased {
-		g.anim.face = gullSheet.North
-	}
-	if dx > 0 && !vertBiased {
-		g.anim.face = gullSheet.East
-	}
-	if dx < 0 && !vertBiased {
-		g.anim.face = gullSheet.West
-	}
-
+	g.anim.Move(&gullSheet, g.body.Vel)
 	g.body.Move(w, gullScales)
 }
 

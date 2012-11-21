@@ -4,6 +4,7 @@ package main
 
 import (
 	"encoding/json"
+	"math"
 	"os"
 
 	"code.google.com/p/min-game/geom"
@@ -42,7 +43,7 @@ type Anim struct {
 	ticks int
 }
 
-func (a *Anim) Update(sh *SpriteSheet) {
+func (a *Anim) Move(sh *SpriteSheet, vel geom.Point) {
 	a.ticks++
 	if a.ticks >= sh.Tempo {
 		a.frame++
@@ -50,5 +51,21 @@ func (a *Anim) Update(sh *SpriteSheet) {
 			a.frame = 0
 		}
 		a.ticks = 0
+	}
+
+	dx, dy := vel.X, vel.Y
+	vertBiased := math.Abs(dy) > math.Abs(dx)
+
+	if dy > 0 && vertBiased {
+		a.face = sh.South
+	}
+	if dy < 0 && vertBiased {
+		a.face = sh.North
+	}
+	if dx > 0 && !vertBiased {
+		a.face = sh.East
+	}
+	if dx < 0 && !vertBiased {
+		a.face = sh.West
 	}
 }
