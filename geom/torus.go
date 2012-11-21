@@ -112,6 +112,9 @@ func nearWrap(a, b, width float64) float64 {
 // Wrap returns x wrapped around at bound in both the positive
 // and negative direction.
 func wrap(x, bound float64) float64 {
+	if x >= 0 && x < bound {
+		return x
+	}
 	if x = math.Mod(x, bound); x < 0 {
 		return bound + x
 	}
