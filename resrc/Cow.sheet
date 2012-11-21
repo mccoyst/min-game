@@ -1,0 +1,9 @@
+{
+	"Name": "Cow",
+	"FrameSize": 32,
+	"Tempo": 50,
+	"North": 3,
+	"East": 1,
+	"South": 2,
+	"West": 0
+}
