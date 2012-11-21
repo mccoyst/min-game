@@ -17,7 +17,7 @@ type Gull struct {
 	ticks       int
 }
 
-var gullFrames [][]geom.Rectangle
+var gullSheet SpriteSheet
 var gullScales = map[rune]float64{
 	'g': 1.0,
 	'f': 1.0,
@@ -28,12 +28,10 @@ var gullScales = map[rune]float64{
 }
 
 func init() {
-	// TODO(mccoyst): Read this info from a file
-	for y := 0; y < 4; y++ {
-		gullFrames = append(gullFrames, make([]geom.Rectangle, 2))
-		for x := 0; x < 2; x++ {
-			gullFrames[y][x] = geom.Rect(float64(x*TileSize), float64(y*TileSize), float64(x*TileSize+TileSize), float64(y*TileSize+TileSize))
-		}
+	var err error
+	gullSheet, err = LoadSpriteSheet("Gull")
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -52,7 +50,7 @@ func (g *Gull) Body() *Body {
 
 func (g *Gull) Move(w *world.World) {
 	g.ticks++
-	if g.ticks >= Tempo {
+	if g.ticks >= gullSheet.Tempo {
 		g.frame++
 		if g.frame >= 2 {
 			g.frame = 0
@@ -82,8 +80,8 @@ func (g *Gull) Move(w *world.World) {
 
 func (g *Gull) Draw(d Drawer, cam Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
-		Name:   "Bird0",
-		Bounds: gullFrames[g.face][g.frame],
+		Name:   gullSheet.Name,
+		Bounds: gullSheet.Frame(g.face, g.frame),
 		Shade:  1.0,
 	}, g.body.Box.Min)
 	return err
