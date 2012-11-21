@@ -28,11 +28,11 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
-	xmin, xmax := 0.0, float64(wo.W)*TileSize
-	ymin, ymax := 0.0, float64(wo.H)*TileSize
-	//	xmin, xmax := float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
-	//	ymin, ymax := float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
-	for i := 0; i < 500; i++ {
+	//	xmin, xmax := 0.0, float64(wo.W)*TileSize
+	//	ymin, ymax := 0.0, float64(wo.H)*TileSize
+	xmin, xmax := float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
+	ymin, ymax := float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
+	for i := 0; i < 50; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
