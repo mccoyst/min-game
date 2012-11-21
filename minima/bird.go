@@ -5,8 +5,8 @@ package main
 import (
 	"math"
 
-	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 )
 
@@ -87,7 +87,6 @@ func (g *Gull) Draw(d Drawer, cam Camera) error {
 	return err
 }
 
-
 type Gulls []*Gull
 
 func (gs Gulls) Len() int {
@@ -95,18 +94,18 @@ func (gs Gulls) Len() int {
 }
 
 func (gs Gulls) Boid(n int) Boid {
-	return Boid{ &gs[n].body }
+	return Boid{&gs[n].body}
 }
 
 func (Gulls) Info() BoidInfo {
 	return BoidInfo{
 		MaxVelocity: 2.0,
-		LocalDist: TileSize*10.0,
-		AvoidDist: TileSize/2.0,
-		PlayerDist: TileSize*3,
-		CenterBias: 0.05,
-		MatchBias: 0.08,
-		AvoidBias: 0.5,
-		PlayerBias: 0.2,
+		LocalDist:   math.Pow(TileSize*10.0, 2),
+		AvoidDist:   math.Pow(TileSize/2.0, 2),
+		PlayerDist:  math.Pow(TileSize*3, 2),
+		CenterBias:  0.05,
+		MatchBias:   0.08,
+		AvoidBias:   0.5,
+		PlayerBias:  0.2,
 	}
 }

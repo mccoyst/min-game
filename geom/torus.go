@@ -11,6 +11,12 @@ type Torus struct {
 	W, H float64
 }
 
+// SqDist returns the squared distance of two points on the torus.
+func (t Torus) SqDist(a, b Point) float64 {
+	a, b = t.normPair(a, b)
+	return a.SqDist(b)
+}
+
 // Dist returns the distance of two points on the torus.
 func (t Torus) Dist(a, b Point) float64 {
 	a, b = t.normPair(a, b)
@@ -100,10 +106,10 @@ func nearWrap(a, b, width float64) float64 {
 
 	b = wrap(b, width)
 	n := b
-	if math.Abs(b + width - a) < math.Abs(n - a) {
+	if math.Abs(b+width-a) < math.Abs(n-a) {
 		n = b + width
 	}
-	if math.Abs(b - width - a) < math.Abs(n - a) {
+	if math.Abs(b-width-a) < math.Abs(n-a) {
 		n = b - width
 	}
 	return n
