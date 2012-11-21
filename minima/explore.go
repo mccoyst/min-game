@@ -18,6 +18,7 @@ type ExploreScreen struct {
 	cam   Camera
 	astro *Player
 	gulls Gulls
+	cows  Cows
 
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
@@ -28,15 +29,22 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
-	//	xmin, xmax := 0.0, float64(wo.W)*TileSize
-	//	ymin, ymax := 0.0, float64(wo.H)*TileSize
-	xmin, xmax := float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
-	ymin, ymax := float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
+	xmin, xmax := 0.0, float64(wo.W)*TileSize
+	ymin, ymax := 0.0, float64(wo.H)*TileSize
 	for i := 0; i < 50; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
 		e.gulls = append(e.gulls, NewGull(geom.Pt(x, y), vel))
+	}
+
+	xmin, xmax = float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
+	ymin, ymax = float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
+	for i := 0; i < 10; i++ {
+		x := rand.Float64()*(xmax-xmin) + xmin
+		y := rand.Float64()*(ymax-ymin) + ymin
+		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
+		e.cows = append(e.cows, NewCow(geom.Pt(x, y), vel))
 	}
 	return e
 }
@@ -83,6 +91,11 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 	}
 	for _, g := range e.gulls {
 		if err := g.Draw(d, e.cam); err != nil {
+			return err
+		}
+	}
+	for _, c := range e.cows {
+		if err := c.Draw(d, e.cam); err != nil {
 			return err
 		}
 	}
@@ -140,9 +153,13 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	e.cam.Center(e.astro.body.Box.Center())
 
 	UpdateBoids(e.gulls, e.astro, e.wo)
-
 	for _, g := range e.gulls {
 		g.Move(e.wo)
+	}
+
+	UpdateBoids(e.cows, e.astro, e.wo)
+	for _, c := range e.cows {
+		c.Move(e.wo)
 	}
 
 	return nil
