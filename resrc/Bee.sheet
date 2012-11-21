@@ -1,0 +1,9 @@
+{
+	"Name": "Bee",
+	"FrameSize": 16,
+	"Tempo": 20,
+	"North": 1,
+	"East": 3,
+	"South": 0,
+	"West": 2
+}
