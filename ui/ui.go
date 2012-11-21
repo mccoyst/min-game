@@ -25,13 +25,13 @@ static Uint32 sdl_rgba_fmt(int isLE){
 import "C"
 
 import (
+	"code.google.com/p/min-game/geom"
 	"errors"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 	"unsafe"
-	"code.google.com/p/min-game/geom"
 )
 
 type Event interface{}

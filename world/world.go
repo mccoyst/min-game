@@ -7,10 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"runtime"
 	"strings"
-	"math"
 
 	"code.google.com/p/min-game/geom"
 )
@@ -99,8 +99,8 @@ func New(w, h int) *World {
 	}
 	return &World{
 		Pixels: geom.Torus{
-			W: float64(w)*TileSize.X,
-			H: float64(h)*TileSize.Y,
+			W: float64(w) * TileSize.X,
+			H: float64(h) * TileSize.Y,
 		},
 		W:    w,
 		H:    h,
@@ -137,7 +137,7 @@ func (w *World) Wrap(x, y int) (int, int) {
 }
 
 func (w *World) Tile(p geom.Point) (int, int) {
-	return int(math.Floor(p.X/TileSize.X)), int(math.Floor(p.Y/TileSize.Y))
+	return int(math.Floor(p.X / TileSize.X)), int(math.Floor(p.Y / TileSize.Y))
 }
 
 // wrap returns the value of n wrapped around if it goes
