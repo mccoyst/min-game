@@ -52,22 +52,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 }
 
 func (p *Player) Move(w *world.World) {
-	p.anim.Update(&astroSheet)
-
-	// TODO(mccoyst): read from the same file, yadda yadda
-	if p.body.Vel.Y > 0 {
-		p.anim.face = astroSheet.South
-	}
-	if p.body.Vel.Y < 0 {
-		p.anim.face = astroSheet.North
-	}
-	if p.body.Vel.X > 0 {
-		p.anim.face = astroSheet.East
-	}
-	if p.body.Vel.X < 0 {
-		p.anim.face = astroSheet.West
-	}
-
+	p.anim.Move(&astroSheet, p.body.Vel)
 	p.body.Move(w, baseScales)
 
 	if !*locInfo {
