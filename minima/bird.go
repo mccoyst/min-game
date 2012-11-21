@@ -63,16 +63,16 @@ func (g *Gull) Move(w *world.World) {
 
 	// TODO(mccoyst): read from the same file, yadda yadda
 	if dy > 0 && vertBiased {
-		g.face = 0
+		g.face = gullSheet.South
 	}
 	if dy < 0 && vertBiased {
-		g.face = 1
+		g.face = gullSheet.North
 	}
 	if dx > 0 && !vertBiased {
-		g.face = 3
+		g.face = gullSheet.East
 	}
 	if dx < 0 && !vertBiased {
-		g.face = 2
+		g.face = gullSheet.West
 	}
 
 	g.body.Move(w, gullScales)
