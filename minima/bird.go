@@ -88,3 +88,27 @@ func (g *Gull) Draw(d Drawer, cam Camera) error {
 	}, g.body.Box.Min)
 	return err
 }
+
+
+type Gulls []*Gull
+
+func (gs Gulls) Len() int {
+	return len(gs)
+}
+
+func (gs Gulls) Boid(n int) Boid {
+	return Boid{ &gs[n].body }
+}
+
+func (Gulls) Info() BoidInfo {
+	return BoidInfo{
+		MaxVelocity: 2.0,
+		LocalDist: TileSize*10.0,
+		AvoidDist: TileSize/2.0,
+		PlayerDist: TileSize*3,
+		CenterBias: 0.05,
+		MatchBias: 0.08,
+		AvoidBias: 0.5,
+		PlayerBias: 0.2,
+	}
+}

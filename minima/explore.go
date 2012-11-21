@@ -17,7 +17,7 @@ type ExploreScreen struct {
 	wo    *world.World
 	cam   Camera
 	astro *Player
-	gulls flock
+	gulls Gulls
 
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
@@ -28,16 +28,13 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
-	e.gulls.localDist = TileSize*10
-	e.gulls.avoidDist = TileSize/2.0
-	e.gulls.maxSpeed = 2
 	xmin, xmax := float64(wo.X0-5)*TileSize, float64(wo.X0+5)*TileSize
 	ymin, ymax := float64(wo.Y0-5)*TileSize, float64(wo.Y0+5)*TileSize
 	for i := 0; i < 50; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
-		g := NewGull(geom.Pt(x, y), e.gulls.randVel())
-		e.gulls.boids = append(e.gulls.boids, g)
+		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
+		e.gulls = append(e.gulls, NewGull(geom.Pt(x, y), vel))
 	}
 	return e
 }
@@ -82,9 +79,10 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 	if err := e.astro.Draw(d, e.cam); err != nil {
 		return err
 	}
-
-	if err := e.gulls.Draw(d, e.cam); err != nil {
-		return err
+	for _, g := range e.gulls {	
+		if err := g.Draw(d, e.cam); err != nil {
+			return err
+		}
 	}
 
 	if !*locInfo {
@@ -139,7 +137,11 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
 
-	e.gulls.Move(e.astro, e.wo)
+	UpdateBoids(e.gulls, e.astro, e.wo)
+
+	for _, g := range e.gulls {
+		g.Move(e.wo)
+	}
 
 	return nil
 }
