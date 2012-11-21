@@ -34,6 +34,11 @@ import (
 	"unsafe"
 )
 
+// The Finder's Find method takes a filename of a resource and returns the full path to it.
+type Finder interface {
+	Find(string) string
+}
+
 type Event interface{}
 type Quit struct{}
 type KeyCode C.SDL_Keycode
@@ -118,6 +123,8 @@ type Ui struct {
 	imgCache  map[string]*sdlImg
 	fontCache map[string]*font
 	txtCache  map[textKey]*cachedText
+
+	f Finder
 }
 
 type textKey struct {
@@ -132,7 +139,7 @@ type cachedText struct {
 	rect  geom.Rectangle
 }
 
-func New(title string, w, h int) (*Ui, error) {
+func New(title string, w, h int, f Finder) (*Ui, error) {
 	e := C.SDL_Init(C.SDL_INIT_EVERYTHING)
 	if e != 0 {
 		return nil, sdlError()
@@ -162,6 +169,7 @@ func New(title string, w, h int) (*Ui, error) {
 		imgCache:  make(map[string]*sdlImg),
 		fontCache: make(map[string]*font),
 		txtCache:  make(map[textKey]*cachedText),
+		f:         f,
 	}
 	if err := ui.SetFont("prstartk", 12); err != nil {
 		return nil, err
@@ -316,7 +324,7 @@ func (ui *Ui) SetFont(name string, sz float64) error {
 	var ok bool
 	if ui.font, ok = ui.fontCache[name]; !ok {
 		var err error
-		if ui.font, err = newFont("resrc/" + name + ".ttf"); err != nil {
+		if ui.font, err = newFont(ui.f.Find(name + ".ttf")); err != nil {
 			return err
 		}
 		ui.fontCache[name] = ui.font
@@ -374,7 +382,7 @@ func fillRect(ui *Ui, x, y, w, h int) {
 }
 
 func drawSprite(ui *Ui, s Sprite, p geom.Point) error {
-	img, err := loadImg(ui, "resrc/"+s.Name+".png")
+	img, err := loadImg(ui, ui.f.Find(s.Name+".png"))
 	if err != nil {
 		return err
 	}

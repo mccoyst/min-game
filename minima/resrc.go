@@ -2,4 +2,9 @@
 
 package main
 
-var Images []string
+type DumbFinder struct{
+}
+
+func (d DumbFinder) Find(s string) string {
+	return "./resrc/" + s
+}

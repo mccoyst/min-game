@@ -12,9 +12,7 @@ import (
 
 type Gull struct {
 	body Body
-
-	face, frame int
-	ticks       int
+	anim Anim
 }
 
 var gullSheet SpriteSheet
@@ -49,39 +47,14 @@ func (g *Gull) Body() *Body {
 }
 
 func (g *Gull) Move(w *world.World) {
-	g.ticks++
-	if g.ticks >= gullSheet.Tempo {
-		g.frame++
-		if g.frame >= 2 {
-			g.frame = 0
-		}
-		g.ticks = 0
-	}
-
-	dx, dy := g.body.Vel.X, g.body.Vel.Y
-	vertBiased := math.Abs(dy) > math.Abs(dx)
-
-	// TODO(mccoyst): read from the same file, yadda yadda
-	if dy > 0 && vertBiased {
-		g.face = 0
-	}
-	if dy < 0 && vertBiased {
-		g.face = 1
-	}
-	if dx > 0 && !vertBiased {
-		g.face = 3
-	}
-	if dx < 0 && !vertBiased {
-		g.face = 2
-	}
-
+	g.anim.Move(&gullSheet, g.body.Vel)
 	g.body.Move(w, gullScales)
 }
 
 func (g *Gull) Draw(d Drawer, cam Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
 		Name:   gullSheet.Name,
-		Bounds: gullSheet.Frame(g.face, g.frame),
+		Bounds: gullSheet.Frame(g.anim.face, g.anim.frame),
 		Shade:  1.0,
 	}, g.body.Box.Min)
 	return err
