@@ -6,8 +6,8 @@ import (
 	"image/color"
 	"time"
 
-	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/ui"
 )
 
 // A Drawer can draw things and change colors.
