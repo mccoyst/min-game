@@ -21,25 +21,38 @@ type Boid struct {
 }
 
 // BoidInfo contains behavior information about boids.
+// The XxxBias terms are fairly arbitrary weights that are
+// applied to boid rules in order to prioritize them.
+// Unfortunately, the only good way to set them seems to
+// be painful trial-and-error.
 type BoidInfo struct {
 	// MaxVelocity is the fastest that a boid can move.
 	MaxVelocity float64
 
-	// LocalDist is the squared distance determining when two boids
+	// LocalDist is the distance determining when two boids
 	// are flocking together.
 	LocalDist float64
 
-	// AvoidDist is the squared distance at which boids will avoid
+	// MatchBias is multiplied by the velocity matching
+	// velocity.
+	MatchBias float64
+
+	// CenterDist is the minimum distance a boid must be
+	// away from the center before they try to center
+	// themselves.
+	CenterDist float64
+
+	// CenterBias is multiplied by the centering velocity.
+	CenterBias float64
+
+	// AvoidDist is the distance at which boids will avoid
 	// eachother.
 	AvoidDist float64
 
-	// These biases weight the three standard boid rules:
-	//	Move toward the center of neighbors.
-	//	Match the velocity of neighbors.
-	//	Avoid very close neighbors.
-	CenterBias, MatchBias, AvoidBias float64
+	// AvoidBias is multiplied by the avoid velocity.
+	AvoidBias float64
 
-	// PlayerDist is the squared distance at which boids will avoid
+	// PlayerDist is the distance at which boids will avoid
 	// the player. 
 	PlayerDist float64
 
@@ -62,11 +75,11 @@ func UpdateBoids(boids Boids, p *Player, w *world.World) {
 	local := localBoids(boids, w)
 	for i, l := range local {
 		boid := boids.Boid(i)
-		boid.matchVel(l, info.MatchBias)
-		boid.moveCenter(l, info.CenterBias, w)
-		boid.avoidOthers(l, info.AvoidDist, info.AvoidBias, w)
-		boid.avoidPlayer(p, info.PlayerDist, info.PlayerBias, w)
-		boid.avoidTerrain(info.AvoidTerrain, info.TerrainDist, info.TerrainBias, w)
+		boid.matchVel(l, info)
+		boid.moveCenter(l, info, w)
+		boid.avoidOthers(l, info, w)
+		boid.avoidPlayer(p, info, w)
+		boid.avoidTerrain(info, w)
 		boid.clampVel(info.MaxVelocity)
 	}
 }
@@ -75,12 +88,13 @@ func UpdateBoids(boids Boids, p *Player, w *world.World) {
 // are local to the Boid with the corresponding index.
 func localBoids(boids Boids, w *world.World) [][]Boid {
 	localDist := boids.Info().LocalDist
+	dd := localDist * localDist
 	local := make([][]Boid, boids.Len())
 	for i := range local {
 		boid := boids.Boid(i)
 		for j := i + 1; j < boids.Len(); j++ {
 			b := boids.Boid(j)
-			if boid.sqDist(b, w) > localDist {
+			if boid.sqDist(b, w) > dd {
 				continue
 			}
 			local[i] = append(local[i], b)
@@ -91,7 +105,7 @@ func localBoids(boids Boids, w *world.World) [][]Boid {
 }
 
 // MatchVel attempts to match the velocity of the local boids.
-func (boid Boid) matchVel(local []Boid, bias float64) {
+func (boid Boid) matchVel(local []Boid, i BoidInfo) {
 	var avg geom.Point
 	for _, b := range local {
 		avg = avg.Add(b.Vel)
@@ -99,73 +113,83 @@ func (boid Boid) matchVel(local []Boid, bias float64) {
 	if len(local) == 0 {
 		return
 	}
-	avg = avg.Div(float64(len(local))).Normalize().Mul(bias)
+	avg = avg.Div(float64(len(local))).Normalize().Mul(i.MatchBias)
 	boid.Vel = boid.Vel.Add(avg)
 }
 
 // MoveCenter attempts to move the boid toward the center
 // of its local flock mates.
-func (boid Boid) moveCenter(local []Boid, bias float64, w *world.World) {
-	var avg geom.Point
+func (boid Boid) moveCenter(local []Boid, i BoidInfo, w *world.World) {
+	var avg, c geom.Point
 	for _, b := range local {
 		toCenter := w.Pixels.Sub(b.Box.Min, boid.Box.Min)
+		c = c.Add(b.Box.Min)
 		avg = avg.Add(toCenter)
 	}
 	if len(local) == 0 {
 		return
 	}
-	avg = avg.Div(float64(len(local))).Normalize().Mul(bias)
+	n := float64(len(local))
+	c = c.Div(n)
+	if w.Pixels.SqDist(c, boid.Box.Min) < i.CenterDist*i.CenterDist {
+		return
+	}
+	avg = avg.Div(n).Normalize().Mul(i.CenterBias)
 	boid.Vel = boid.Vel.Add(avg)
 }
 
 // AvoidOthers attempts to avoid very close flock mates.
-func (boid Boid) avoidOthers(local []Boid, dist, bias float64, w *world.World) {
+func (boid Boid) avoidOthers(local []Boid, i BoidInfo, w *world.World) {
+	dd := i.AvoidDist * i.AvoidDist
 	var a geom.Point
 	for _, b := range local {
-		if d := boid.sqDist(b, w); d > dist {
+		if d := boid.sqDist(b, w); d > dd {
 			continue
 		}
-		a = a.Add(avoidVec(boid.Center(), b.Center(), math.Sqrt(dist), w))
+		a = a.Add(avoidVec(boid.Center(), b.Center(), i.AvoidDist, w))
 	}
-	a = a.Mul(bias)
+	a = a.Mul(i.AvoidBias)
 	boid.Vel = boid.Vel.Add(a)
 }
 
 // AvoidPlayer attempts to avoid the player.
-func (boid Boid) avoidPlayer(p *Player, dist, bias float64, w *world.World) {
+func (boid Boid) avoidPlayer(p *Player, i BoidInfo, w *world.World) {
+	dd := i.PlayerDist * i.PlayerDist
 	pt := p.body.Box.Min
-	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dist {
+	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dd {
 		return
 	}
-	d := avoidVec(boid.Box.Min, pt, math.Sqrt(dist), w).Mul(bias)
+	d := avoidVec(boid.Box.Min, pt, i.PlayerDist, w).Mul(i.PlayerBias)
 	boid.Vel = boid.Vel.Add(d)
 }
 
 // AvoidTerrain attempts to avoid certain types of terrain.
-func (boid Boid) avoidTerrain(kinds string, dist, bias float64, w *world.World) {
-	if kinds == "" {
+func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
+	if i.AvoidTerrain == "" {
 		return
 	}
 
 	var a geom.Point
-	sz := geom.Pt(dist, dist)
+	dd := i.TerrainDist * i.TerrainDist
+	sz := geom.Pt(i.TerrainDist, i.TerrainDist)
 	x0, y0 := w.Tile(boid.Box.Min.Sub(sz))
 	x1, y1 := w.Tile(boid.Box.Min.Add(sz))
+
 	for x := x0; x <= x1; x++ {
 		for y := y0; y <= y1; y++ {
-			if strings.IndexRune(kinds, w.At(x, y).Terrain.Char) < 0 {
+			r := w.At(x, y).Terrain.Char
+			if strings.IndexRune(i.AvoidTerrain, r) < 0 {
 				continue
 			}
 			pt := geom.Pt(float64(x)*world.TileSize.X,
 				float64(y)*world.TileSize.Y)
-			if w.Pixels.Dist(boid.Box.Min, pt) > dist {
+			if w.Pixels.SqDist(boid.Box.Min, pt) > dd {
 				continue
 			}
-			d := avoidVec(boid.Box.Min, pt, dist, w)
-			a = a.Add(d)
+			a = a.Add(avoidVec(boid.Box.Min, pt, i.TerrainDist, w))
 		}
 	}
-	a = a.Mul(bias)
+	a = a.Mul(i.TerrainBias)
 	boid.Vel = boid.Vel.Add(a)
 }
 
@@ -186,8 +210,8 @@ func (b Boid) sqDist(o Boid, w *world.World) float64 {
 //
 // The vector is biased such that it is stronger as the
 // objects get closer.
-func avoidVec(a, b geom.Point, sqDist float64, w *world.World) geom.Point {
-	sqrt := math.Sqrt(sqDist)
+func avoidVec(a, b geom.Point, dist float64, w *world.World) geom.Point {
+	sqrt := math.Sqrt(dist)
 	diff := w.Pixels.Sub(a, b)
 	diff.X = math.Copysign(sqrt-math.Abs(diff.X), diff.X)
 	diff.Y = math.Copysign(sqrt-math.Abs(diff.Y), diff.Y)

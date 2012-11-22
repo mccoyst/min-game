@@ -3,8 +3,6 @@
 package main
 
 import (
-	"math"
-
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
@@ -73,18 +71,21 @@ func (cs Cows) Boid(n int) Boid {
 func (Cows) Info() BoidInfo {
 	return BoidInfo{
 		MaxVelocity: 0.5,
-		LocalDist:   math.Pow(TileSize*10.0, 2),
-		CenterBias:  0.01,
-		MatchBias:   0.01,
+		LocalDist:   TileSize * 30.0,
 
-		AvoidDist: math.Pow(TileSize*2, 2),
-		AvoidBias: 0.2,
+		MatchBias: 0.0,
 
-		PlayerDist: math.Pow(TileSize*2, 2),
-		PlayerBias: 0.2,
+		CenterDist: TileSize * 15,
+		CenterBias: 0.005,
+
+		AvoidDist: TileSize * 1.5,
+		AvoidBias: 0.001,
+
+		PlayerDist: TileSize * 2,
+		PlayerBias: 0.02,
 
 		TerrainDist:  TileSize * 1.1,
-		TerrainBias:  0.5,
+		TerrainBias:  0.0005,
 		AvoidTerrain: "fmwdi",
 	}
 }
