@@ -31,7 +31,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 
 	xmin, xmax := float64(wo.X0-8)*TileSize, float64(wo.X0+8)*TileSize
 	ymin, ymax := float64(wo.Y0-8)*TileSize, float64(wo.Y0+8)*TileSize
-	for i := 0; i < 25; i++ {
+	for i := 0; i < 1; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
