@@ -75,11 +75,11 @@ func (Gulls) Info() BoidInfo {
 		CenterBias:   0.05,
 		MatchBias:    0.08,
 		AvoidDist:    TileSize / 2.0,
-		AvoidBias:    0.5,
+		AvoidBias:    0.08,
 		PlayerDist:   TileSize * 3,
 		PlayerBias:   0.2,
-		TerrainDist:  TileSize,
-		TerrainBias:  0.5,
+		TerrainDist:  TileSize * 1.5,
+		TerrainBias:  0.005,
 		AvoidTerrain: "i",
 	}
 }
