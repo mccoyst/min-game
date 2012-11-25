@@ -4,6 +4,7 @@ package main
 
 import (
 	"code.google.com/p/min-game/ai"
+	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
@@ -18,8 +19,8 @@ type ExploreScreen struct {
 	wo    *world.World
 	cam   ui.Camera
 	astro *Player
-	gulls Gulls
-	cows  Cows
+	gulls animal.Gulls
+	cows  animal.Cows
 
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
@@ -39,7 +40,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		e.gulls = append(e.gulls, NewGull(geom.Pt(x, y), vel))
+		e.gulls = append(e.gulls, animal.NewGull(geom.Pt(x, y), vel))
 	}
 
 	for i := 0; i < 25; i++ {
@@ -54,7 +55,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 			}
 		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		e.cows = append(e.cows, NewCow(geom.Pt(x, y), vel))
+		e.cows = append(e.cows, animal.NewCow(geom.Pt(x, y), vel))
 	}
 	return e
 }
