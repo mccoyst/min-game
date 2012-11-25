@@ -52,7 +52,7 @@ func main() {
 	}
 	defer u.Close()
 
-	stk := NewScreenStack(u, NewTitleScreen())
+	stk := ui.NewScreenStack(u, NewTitleScreen())
 	stk.Run()
-	fmt.Printf("mean frame time: %4.1fms\n", stk.meanFrame)
+	fmt.Printf("mean frame time: %4.1fms\n", stk.MeanFrame)
 }

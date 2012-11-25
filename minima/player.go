@@ -70,7 +70,7 @@ func (p *Player) Move(w *world.World) {
 	p.info = fmt.Sprintf("%d,%d: %s", tx, ty, w.At(tx, ty).Terrain.Name)
 }
 
-func (p *Player) Draw(d Drawer, cam ui.Camera) error {
+func (p *Player) Draw(d ui.Drawer, cam ui.Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
 		Name:   astroSheet.Name,
 		Bounds: astroSheet.Frame(p.anim.Face, p.anim.Frame),

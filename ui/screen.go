@@ -1,13 +1,12 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 
-package main
+package ui
 
 import (
 	"image/color"
 	"time"
 
 	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/ui"
 )
 
 // A Drawer can draw things and change colors.
@@ -26,7 +25,7 @@ type Screen interface {
 	// Handle is called for each event coming from the
 	// Ui, with the exception of the Close event which is
 	// intercepted by the ScreenStack to exit the program.
-	Handle(*ScreenStack, ui.Event) error
+	Handle(*ScreenStack, Event) error
 
 	// Update is called after all of the events are handled and after
 	// the next frame is drawn in order to allow the screen to update
@@ -40,21 +39,21 @@ type Screen interface {
 // A ScreenStack holds the stack of game screens.
 type ScreenStack struct {
 	stk       []Screen
-	win       *ui.Ui
+	win       *Ui
 	nFrames   uint
-	meanFrame float64 // milliseconds
+	MeanFrame float64 // milliseconds
 
 	// Buttons is a bit set of the currently pressed buttons.
-	buttons ui.Button
+	Buttons Button
 }
 
 // NewScreenStack returns a new screen stack with the given initial screen.
-func NewScreenStack(win *ui.Ui, first Screen) *ScreenStack {
+func NewScreenStack(win *Ui, first Screen) *ScreenStack {
 	return &ScreenStack{
 		stk:       []Screen{first},
 		win:       win,
 		nFrames:   0,
-		meanFrame: 0.0,
+		MeanFrame: 0.0,
 	}
 }
 
@@ -73,16 +72,16 @@ func (s *ScreenStack) Run() {
 			}
 
 			switch k := e.(type) {
-			case ui.Quit:
+			case Quit:
 				return
 
-			case ui.Key:
-				if k.Button == ui.Unknown {
+			case Key:
+				if k.Button == Unknown {
 					break
 				} else if k.Down {
-					s.buttons |= k.Button
+					s.Buttons |= k.Button
 				} else {
-					s.buttons &^= k.Button
+					s.Buttons &^= k.Button
 				}
 			}
 			if err := s.top().Handle(s, e); err != nil {
@@ -119,7 +118,7 @@ func (s *ScreenStack) Run() {
 		}
 		s.nFrames++
 		ms := frameLen.Seconds() * 1000
-		s.meanFrame += (ms - s.meanFrame) / float64(s.nFrames)
+		s.MeanFrame += (ms - s.MeanFrame) / float64(s.nFrames)
 	}
 }
 

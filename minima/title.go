@@ -41,7 +41,7 @@ func (t *TitleScreen) Transparent() bool {
 	return false
 }
 
-func (t *TitleScreen) Draw(d Drawer) error {
+func (t *TitleScreen) Draw(d ui.Drawer) error {
 	if t.loading {
 		if t.genTxt == "" {
 			t.genTxt = "Reticulating Splines"
@@ -85,7 +85,7 @@ func (t *TitleScreen) Draw(d Drawer) error {
 	return err
 }
 
-func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
+func (t *TitleScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch k := e.(type) {
 	case ui.Key:
 		if k.Down && k.Button == ui.Action {
@@ -95,7 +95,7 @@ func (t *TitleScreen) Handle(stk *ScreenStack, e ui.Event) error {
 	return nil
 }
 
-func (t *TitleScreen) Update(stk *ScreenStack) error {
+func (t *TitleScreen) Update(stk *ui.ScreenStack) error {
 	if !t.loading {
 		return nil
 	}
