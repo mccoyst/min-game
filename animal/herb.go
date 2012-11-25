@@ -16,17 +16,18 @@ import (
 type Herbivore struct {
 	Body phys.Body
 	Anim sprite.Anim
+	info *Info
 }
 
-func (h *Herbivore) Move(i *Info, w *world.World) {
-	h.Anim.Move(&i.Sheet, h.Body.Vel)
-	h.Body.Move(w, i.Affinity)
+func (h *Herbivore) Move(w *world.World) {
+	h.Anim.Move(&h.info.Sheet, h.Body.Vel)
+	h.Body.Move(w, h.info.Affinity)
 }
 
-func (h *Herbivore) Draw(i *Info, d Drawer, cam ui.Camera) error {
+func (h *Herbivore) Draw(d Drawer, cam ui.Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
-		Name:   i.Sheet.Name,
-		Bounds: i.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
+		Name:   h.info.Sheet.Name,
+		Bounds: h.info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
 		Shade:  1.0,
 	}, h.Body.Box.Min)
 	return err

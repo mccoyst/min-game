@@ -6,11 +6,11 @@ import (
 	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
-	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/world"
 )
 
-type Cow Herbivore
+type Cow struct {
+	Herbivore
+}
 
 var cowInfo Info
 
@@ -24,19 +24,14 @@ func init() {
 
 func NewCow(p, v geom.Point) *Cow {
 	return &Cow{
-		Body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
-			Vel: v,
+		Herbivore{
+			Body: phys.Body{
+				Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
+				Vel: v,
+			},
+			info: &cowInfo,
 		},
 	}
-}
-
-func (c *Cow) Draw(d Drawer, cam ui.Camera) error {
-	return (*Herbivore)(c).Draw(&cowInfo, d, cam)
-}
-
-func (c *Cow) Move(w *world.World) {
-	(*Herbivore)(c).Move(&cowInfo, w)
 }
 
 type Cows []*Cow
