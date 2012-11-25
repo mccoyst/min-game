@@ -6,11 +6,11 @@ import (
 	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
-	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/world"
 )
 
-type Gull Herbivore
+type Gull struct {
+	Herbivore
+}
 
 var gullInfo Info
 
@@ -24,19 +24,14 @@ func init() {
 
 func NewGull(p, v geom.Point) *Gull {
 	return &Gull{
-		Body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
-			Vel: v,
+		Herbivore{
+			Body: phys.Body{
+				Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
+				Vel: v,
+			},
+			info: &gullInfo,
 		},
 	}
-}
-
-func (g *Gull) Draw(d Drawer, cam ui.Camera) error {
-	return (*Herbivore)(g).Draw(&gullInfo, d, cam)
-}
-
-func (g *Gull) Move(w *world.World) {
-	(*Herbivore)(g).Move(&gullInfo, w)
 }
 
 type Gulls []*Gull
