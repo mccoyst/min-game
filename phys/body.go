@@ -1,6 +1,6 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 
-package main
+package phys
 
 import (
 	"code.google.com/p/min-game/geom"
@@ -12,7 +12,7 @@ type Body struct {
 	Box geom.Rectangle
 }
 
-func (b *Body) Move(w *world.World, velScale map[rune]float64) {
+func (b *Body) Move(w *world.World, velScale map[string]float64) {
 	if b.Vel.X == 0 && b.Vel.Y == 0 {
 		return
 	}

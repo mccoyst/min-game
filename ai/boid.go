@@ -1,10 +1,13 @@
-package main
+// © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
+
+package ai
 
 import (
 	"math"
 	"strings"
 
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/world"
 )
 
@@ -17,7 +20,7 @@ type Boids interface {
 
 // A Boid is a bird-like (cow-like, or fish-like) object.
 type Boid struct {
-	*Body
+	*phys.Body
 }
 
 // BoidInfo contains behavior information about boids.
@@ -70,7 +73,7 @@ type BoidInfo struct {
 }
 
 // UpdateBoids updates the velocity of the boids.
-func UpdateBoids(boids Boids, p *Player, w *world.World) {
+func UpdateBoids(boids Boids, p *phys.Body, w *world.World) {
 	info := boids.Info()
 	local := localBoids(boids, w)
 	for i, l := range local {
@@ -153,10 +156,10 @@ func (boid Boid) avoidOthers(local []Boid, i BoidInfo, w *world.World) {
 }
 
 // AvoidPlayer attempts to avoid the player.
-func (boid Boid) avoidPlayer(p *Player, i BoidInfo, w *world.World) {
+func (boid Boid) avoidPlayer(p *phys.Body, i BoidInfo, w *world.World) {
 	dd := i.PlayerDist * i.PlayerDist
-	pt := p.body.Box.Min
-	if p.body.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dd {
+	pt := p.Box.Min
+	if p.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dd {
 		return
 	}
 	d := avoidVec(boid.Box.Min, pt, i.PlayerDist, w).Mul(i.PlayerBias)
@@ -178,7 +181,7 @@ func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
 	for x := x0; x <= x1; x++ {
 		for y := y0; y <= y1; y++ {
 			r := w.At(x, y).Terrain.Char
-			if strings.IndexRune(i.AvoidTerrain, r) < 0 {
+			if strings.IndexRune(i.AvoidTerrain, rune(r[0])) < 0 {
 				continue
 			}
 			pt := geom.Pt(float64(x)*world.TileSize.X,

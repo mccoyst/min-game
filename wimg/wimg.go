@@ -77,7 +77,7 @@ func (w *worldImg) At(x, y int) color.Color {
 	if f > 1 {
 		panic("Color factor is >1 in worldImg.At")
 	}
-	c := colors[loc.Terrain.Char]
+	c := colors[loc.Terrain.Char[0]]
 	return color.RGBA{
 		R: uint8(float64(c.R) * f),
 		G: uint8(float64(c.G) * f),

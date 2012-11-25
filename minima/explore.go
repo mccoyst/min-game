@@ -3,6 +3,7 @@
 package main
 
 import (
+	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
@@ -15,7 +16,7 @@ const TileSize = 32
 
 type ExploreScreen struct {
 	wo    *world.World
-	cam   Camera
+	cam   ui.Camera
 	astro *Player
 	gulls Gulls
 	cows  Cows
@@ -25,7 +26,10 @@ type ExploreScreen struct {
 }
 
 func NewExploreScreen(wo *world.World) *ExploreScreen {
-	e := &ExploreScreen{wo: wo}
+	e := &ExploreScreen{
+		wo:  wo,
+		cam: ui.Camera{Dims: ScreenDims},
+	}
 	e.CenterOnTile(wo.X0, wo.Y0)
 	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
 
@@ -45,7 +49,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 			y = rand.Float64()*(ymax-ymin) + ymin
 			pt := geom.Pt(x, y)
 			tx, ty := e.wo.Tile(pt.Add(world.TileSize.Div(2)))
-			if e.wo.At(tx, ty).Terrain.Char == 'g' {
+			if e.wo.At(tx, ty).Terrain.Char == "g" {
 				break
 			}
 		}
@@ -67,14 +71,14 @@ func (e *ExploreScreen) CenterOnTile(x, y int) {
 
 func (e *ExploreScreen) Draw(d Drawer) error {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
-	x0, y0 := e.wo.Tile(e.cam.pt)
+	x0, y0 := e.wo.Tile(e.cam.Pt)
 
-	xoff0 := -math.Mod(e.cam.pt.X, TileSize)
-	if e.cam.pt.X < 0 {
+	xoff0 := -math.Mod(e.cam.Pt.X, TileSize)
+	if e.cam.Pt.X < 0 {
 		xoff0 = -TileSize + xoff0
 	}
-	yoff0 := -math.Mod(e.cam.pt.Y, TileSize)
-	if e.cam.pt.Y < 0 {
+	yoff0 := -math.Mod(e.cam.Pt.Y, TileSize)
+	if e.cam.Pt.Y < 0 {
 		yoff0 = -TileSize + yoff0
 	}
 
@@ -158,12 +162,12 @@ func (e *ExploreScreen) Update(stk *ScreenStack) error {
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
 
-	UpdateBoids(e.gulls, e.astro, e.wo)
+	ai.UpdateBoids(e.gulls, &e.astro.body, e.wo)
 	for _, g := range e.gulls {
 		g.Move(e.wo)
 	}
 
-	UpdateBoids(e.cows, e.astro, e.wo)
+	ai.UpdateBoids(e.cows, &e.astro.body, e.wo)
 	for _, c := range e.cows {
 		c.Move(e.wo)
 	}

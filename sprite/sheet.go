@@ -1,6 +1,6 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 
-package main
+package sprite
 
 import (
 	"encoding/json"
@@ -10,15 +10,15 @@ import (
 	"code.google.com/p/min-game/geom"
 )
 
-type SpriteSheet struct {
+type Sheet struct {
 	Name                     string
 	FrameSize                int
 	Tempo                    int
 	North, East, South, West int
 }
 
-func LoadSpriteSheet(s string) (SpriteSheet, error) {
-	var sh SpriteSheet
+func LoadSheet(s string) (Sheet, error) {
+	var sh Sheet
 
 	f, err := os.Open("resrc/" + s + ".sheet")
 	if err != nil {
@@ -31,41 +31,41 @@ func LoadSpriteSheet(s string) (SpriteSheet, error) {
 	return sh, err
 }
 
-func (sh *SpriteSheet) Frame(face, frame int) geom.Rectangle {
+func (sh *Sheet) Frame(Face, Frame int) geom.Rectangle {
 	sz := float64(sh.FrameSize)
-	x := float64(frame) * sz
-	y := float64(face) * sz
+	x := float64(Frame) * sz
+	y := float64(Face) * sz
 	return geom.Rect(x, y, x+sz, y+sz)
 }
 
 type Anim struct {
-	face, frame int
-	ticks       int
+	Face, Frame int
+	Ticks       int
 }
 
-func (a *Anim) Move(sh *SpriteSheet, vel geom.Point) {
-	a.ticks++
-	if a.ticks >= sh.Tempo {
-		a.frame++
-		if a.frame >= 2 {
-			a.frame = 0
+func (a *Anim) Move(sh *Sheet, vel geom.Point) {
+	a.Ticks++
+	if a.Ticks >= sh.Tempo {
+		a.Frame++
+		if a.Frame >= 2 {
+			a.Frame = 0
 		}
-		a.ticks = 0
+		a.Ticks = 0
 	}
 
 	dx, dy := vel.X, vel.Y
 	vertBiased := math.Abs(dy) > math.Abs(dx)
 
 	if dy > 0 && vertBiased {
-		a.face = sh.South
+		a.Face = sh.South
 	}
 	if dy < 0 && vertBiased {
-		a.face = sh.North
+		a.Face = sh.North
 	}
 	if dx > 0 && !vertBiased {
-		a.face = sh.East
+		a.Face = sh.East
 	}
 	if dx < 0 && !vertBiased {
-		a.face = sh.West
+		a.Face = sh.West
 	}
 }
