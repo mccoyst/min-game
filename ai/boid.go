@@ -181,7 +181,7 @@ func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
 	for x := x0; x <= x1; x++ {
 		for y := y0; y <= y1; y++ {
 			r := w.At(x, y).Terrain.Char
-			if strings.IndexRune(i.AvoidTerrain, rune(r[0])) < 0 {
+			if strings.Index(i.AvoidTerrain, r) < 0 {
 				continue
 			}
 			pt := geom.Pt(float64(x)*world.TileSize.X,
