@@ -142,7 +142,7 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 	tmap := makeTopoMap(w)
 	var land []*contour
 	for _, c := range tmap.conts {
-		if strings.ContainsRune(fertile, rune(c.terrain.Char[0])) {
+		if strings.Contains(fertile, c.terrain.Char) {
 			land = append(land, c)
 		}
 	}
@@ -174,7 +174,7 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 		var adj []*contour
 		for _, a := range c.adj {
 
-			if strings.ContainsRune(fertile, rune(a.terrain.Char[0])) &&
+			if strings.Contains(fertile, a.terrain.Char) &&
 				n+a.size < maxSz {
 				adj = append(adj, a)
 			}
