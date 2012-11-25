@@ -5,7 +5,6 @@ package animal
 import (
 	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/phys"
 )
 
 type Gull struct {
@@ -23,15 +22,7 @@ func init() {
 }
 
 func NewGull(p, v geom.Point) *Gull {
-	return &Gull{
-		Herbivore{
-			Body: phys.Body{
-				Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
-				Vel: v,
-			},
-			info: &gullInfo,
-		},
-	}
+	return &Gull{gullInfo.SpawnHerbivore(p, v)}
 }
 
 type Gulls []*Gull
