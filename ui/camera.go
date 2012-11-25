@@ -3,8 +3,6 @@
 package ui
 
 import (
-	"image/color"
-
 	"code.google.com/p/min-game/geom"
 )
 
@@ -24,13 +22,4 @@ func (c *Camera) Center(v geom.Point) {
 
 func (c *Camera) Draw(d Drawer, x interface{}, p geom.Point) (geom.Point, error) {
 	return d.Draw(x, p.Sub(c.Pt))
-}
-
-// TODO: ugggggh
-// A Drawer can draw things and change colors.
-type Drawer interface {
-	Draw(interface{}, geom.Point) (geom.Point, error)
-	SetFont(name string, szPts float64) error
-	SetColor(color.Color)
-	TextSize(string) geom.Point
 }

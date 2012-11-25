@@ -70,7 +70,7 @@ func (e *ExploreScreen) CenterOnTile(x, y int) {
 		TileSize*float64(y)+TileSize/2))
 }
 
-func (e *ExploreScreen) Draw(d Drawer) error {
+func (e *ExploreScreen) Draw(d ui.Drawer) error {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
 	x0, y0 := e.wo.Tile(e.cam.Pt)
 
@@ -124,7 +124,7 @@ func (e *ExploreScreen) Draw(d Drawer) error {
 	return nil
 }
 
-func drawCell(d Drawer, l *world.Loc, x, y int, pt geom.Point) error {
+func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) error {
 	const minSh = 0.15
 	const slope = (1 - minSh) / world.MaxElevation
 
@@ -137,27 +137,27 @@ func drawCell(d Drawer, l *world.Loc, x, y int, pt geom.Point) error {
 	return err
 }
 
-func (ex *ExploreScreen) Handle(stk *ScreenStack, ev ui.Event) error {
+func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	if k, ok := ev.(ui.Key); ok && k.Down && k.Button == ui.Menu {
 		stk.Push(NewPauseScreen())
 	}
 	return nil
 }
 
-func (e *ExploreScreen) Update(stk *ScreenStack) error {
+func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	const speed = 4 // px
 
 	e.astro.body.Vel = geom.Pt(0, 0)
-	if stk.buttons&ui.Left != 0 {
+	if stk.Buttons&ui.Left != 0 {
 		e.astro.body.Vel.X -= speed
 	}
-	if stk.buttons&ui.Right != 0 {
+	if stk.Buttons&ui.Right != 0 {
 		e.astro.body.Vel.X += speed
 	}
-	if stk.buttons&ui.Down != 0 {
+	if stk.Buttons&ui.Down != 0 {
 		e.astro.body.Vel.Y += speed
 	}
-	if stk.buttons&ui.Up != 0 {
+	if stk.Buttons&ui.Up != 0 {
 		e.astro.body.Vel.Y -= speed
 	}
 	e.astro.Move(e.wo)

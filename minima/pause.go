@@ -20,7 +20,7 @@ func (p *PauseScreen) Transparent() bool {
 	return true
 }
 
-func (p *PauseScreen) Draw(d Drawer) error {
+func (p *PauseScreen) Draw(d ui.Drawer) error {
 	d.SetColor(White)
 	if err := d.SetFont("prstartk", p.size); err != nil {
 		return err
@@ -33,7 +33,7 @@ func (p *PauseScreen) Draw(d Drawer) error {
 	return err
 }
 
-func (p *PauseScreen) Handle(stk *ScreenStack, e ui.Event) error {
+func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	if p.closing {
 		return nil
 	}
@@ -44,7 +44,7 @@ func (p *PauseScreen) Handle(stk *ScreenStack, e ui.Event) error {
 	return nil
 }
 
-func (p *PauseScreen) Update(stk *ScreenStack) error {
+func (p *PauseScreen) Update(stk *ui.ScreenStack) error {
 	if !p.closing {
 		return nil
 	}

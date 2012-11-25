@@ -32,12 +32,3 @@ func (h *Herbivore) Draw(d Drawer, cam ui.Camera) error {
 	}, h.Body.Box.Min)
 	return err
 }
-
-// TODO: ugggggh
-// A Drawer can draw things and change colors.
-type Drawer interface {
-	Draw(interface{}, geom.Point) (geom.Point, error)
-	SetFont(name string, szPts float64) error
-	SetColor(color.Color)
-	TextSize(string) geom.Point
-}
