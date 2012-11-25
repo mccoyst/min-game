@@ -1,23 +1,22 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 
-package main
+package animal
 
 import (
 	"code.google.com/p/min-game/ai"
-	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 )
 
-type Cow animal.Herbivore
+type Cow Herbivore
 
-var cowInfo animal.Info
+var cowInfo Info
 
 func init() {
 	var err error
-	cowInfo, err = animal.LoadInfo("Cow")
+	cowInfo, err = LoadInfo("Cow")
 	if err != nil {
 		panic(err)
 	}
@@ -26,18 +25,18 @@ func init() {
 func NewCow(p, v geom.Point) *Cow {
 	return &Cow{
 		Body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
 			Vel: v,
 		},
 	}
 }
 
 func (c *Cow) Draw(d Drawer, cam ui.Camera) error {
-	return (*animal.Herbivore)(c).Draw(&cowInfo, d, cam)
+	return (*Herbivore)(c).Draw(&cowInfo, d, cam)
 }
 
 func (c *Cow) Move(w *world.World) {
-	(*animal.Herbivore)(c).Move(&cowInfo, w)
+	(*Herbivore)(c).Move(&cowInfo, w)
 }
 
 type Cows []*Cow

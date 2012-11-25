@@ -1,23 +1,22 @@
 // © 2012 the Minima Authors under the MIT license. See AUTHORS for the list of authors.
 
-package main
+package animal
 
 import (
 	"code.google.com/p/min-game/ai"
-	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 )
 
-type Gull animal.Herbivore
+type Gull Herbivore
 
-var gullInfo animal.Info
+var gullInfo Info
 
 func init() {
 	var err error
-	gullInfo, err = animal.LoadInfo("Gull")
+	gullInfo, err = LoadInfo("Gull")
 	if err != nil {
 		panic(err)
 	}
@@ -26,18 +25,18 @@ func init() {
 func NewGull(p, v geom.Point) *Gull {
 	return &Gull{
 		Body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rect(p.X, p.Y, p.X+32, p.Y+32),
 			Vel: v,
 		},
 	}
 }
 
 func (g *Gull) Draw(d Drawer, cam ui.Camera) error {
-	return (*animal.Herbivore)(g).Draw(&gullInfo, d, cam)
+	return (*Herbivore)(g).Draw(&gullInfo, d, cam)
 }
 
 func (g *Gull) Move(w *world.World) {
-	(*animal.Herbivore)(g).Move(&gullInfo, w)
+	(*Herbivore)(g).Move(&gullInfo, w)
 }
 
 type Gulls []*Gull
