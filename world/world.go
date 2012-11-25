@@ -165,7 +165,7 @@ func wrap(n, bound int) int {
 func (w *World) LocsWithType(types string) []*Loc {
 	var locs []*Loc
 	for i, loc := range w.locs {
-		if strings.ContainsRune(types, rune(loc.Terrain.Char[0])) {
+		if strings.Contains(types, loc.Terrain.Char) {
 			locs = append(locs, &w.locs[i])
 		}
 	}
@@ -187,7 +187,7 @@ func (w *World) Write(out io.Writer) error {
 		if l.Terrain == nil {
 			panic("Nil terrain")
 		}
-		if _, err = fmt.Fprintf(out, "%c %d %d\n", l.Terrain.Char, l.Elevation, l.Depth); err != nil {
+		if _, err = fmt.Fprintf(out, "%s %d %d\n", l.Terrain.Char, l.Elevation, l.Depth); err != nil {
 			return err
 		}
 	}
@@ -226,7 +226,7 @@ func Read(in *bufio.Reader) (*World, error) {
 		if dp > el {
 			return nil, fmt.Errorf("Location %d: depth is greater than elevation", i)
 		}
-		if int(ch) >= len(Terrain) || Terrain[ch].Char[0] == 0 {
+		if int(ch) >= len(Terrain) || Terrain[ch].Char == "" {
 			return nil, fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
 		}
 		w.locs[i].Terrain = &Terrain[ch]
