@@ -69,7 +69,7 @@ func (l Loc) Height() int {
 // TerrainType holds information on a given type of terrain.
 type TerrainType struct {
 	// Char is the character representing this terrain type.
-	Char rune
+	Char string
 
 	// Name is a human readable name of the terrain type.
 	Name string
@@ -79,13 +79,13 @@ type TerrainType struct {
 // representations, indexed by the terrain type's
 // unique character.
 var Terrain = []TerrainType{
-	'g': {'g', "Grass"},
-	'm': {'m', "Mountain"},
-	'w': {'w', "Water"},
-	'l': {'l', "Lava"},
-	'd': {'d', "Desert"},
-	'f': {'f', "Tree"},
-	'i': {'i', "Glacier"},
+	'g': {"g", "Grass"},
+	'm': {"m", "Mountain"},
+	'w': {"w", "Water"},
+	'l': {"l", "Lava"},
+	'd': {"d", "Desert"},
+	'f': {"f", "Tree"},
+	'i': {"i", "Glacier"},
 }
 
 // New returns a world of the given dimensions.
@@ -165,7 +165,7 @@ func wrap(n, bound int) int {
 func (w *World) LocsWithType(types string) []*Loc {
 	var locs []*Loc
 	for i, loc := range w.locs {
-		if strings.ContainsRune(types, rune(loc.Terrain.Char)) {
+		if strings.ContainsRune(types, rune(loc.Terrain.Char[0])) {
 			locs = append(locs, &w.locs[i])
 		}
 	}
@@ -226,7 +226,7 @@ func Read(in *bufio.Reader) (*World, error) {
 		if dp > el {
 			return nil, fmt.Errorf("Location %d: depth is greater than elevation", i)
 		}
-		if int(ch) >= len(Terrain) || Terrain[ch].Char == 0 {
+		if int(ch) >= len(Terrain) || Terrain[ch].Char[0] == 0 {
 			return nil, fmt.Errorf("Location %d: invalid terrain: %c", i, ch)
 		}
 		w.locs[i].Terrain = &Terrain[ch]

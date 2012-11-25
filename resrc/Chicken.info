@@ -1,0 +1,20 @@
+{
+	"Name": "Chicken",
+	"Sheet": {
+		"Name": "Chicken",
+		"FrameSize": 32,
+		"Tempo": 40,
+		"North": 3,
+		"East": 1,
+		"South": 2,
+		"West": 0
+	},
+	"Affinity": {
+		"g": 1.0,
+		"f": 1.0,
+		"m", 0.75,
+		"w", 0.0,
+		"d", 1.0,
+		"i", 0.25
+	}
+}

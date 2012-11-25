@@ -88,12 +88,12 @@ func main() {
 	counts := make([]int, len(world.Terrain))
 	for x := 0; x < w.W; x++ {
 		for y := 0; y < w.H; y++ {
-			counts[int(w.At(x, y).Terrain.Char)]++
+			counts[int(w.At(x, y).Terrain.Char[0])]++
 		}
 	}
 	for i, count := range counts {
 		t := &world.Terrain[i]
-		if t.Char != 0 {
+		if t.Char != "" {
 			fmt.Fprintf(os.Stderr, "%.2f%% %s\n",
 				float64(count)/float64(w.H*w.W)*100, t.Name)
 		}

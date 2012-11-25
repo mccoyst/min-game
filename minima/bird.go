@@ -3,29 +3,21 @@
 package main
 
 import (
+	"code.google.com/p/min-game/ai"
+	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 )
 
-type Gull struct {
-	body Body
-	anim Anim
-}
+type Gull animal.Herbivore
 
-var gullSheet SpriteSheet
-var gullScales = map[rune]float64{
-	'g': 1.0,
-	'f': 1.0,
-	'm': 1.0,
-	'w': 1.0,
-	'd': 1.0,
-	'i': 0.1,
-}
+var gullInfo animal.Info
 
 func init() {
 	var err error
-	gullSheet, err = LoadSpriteSheet("Gull")
+	gullInfo, err = animal.LoadInfo("Gull")
 	if err != nil {
 		panic(err)
 	}
@@ -33,29 +25,19 @@ func init() {
 
 func NewGull(p, v geom.Point) *Gull {
 	return &Gull{
-		body: Body{
+		Body: phys.Body{
 			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 			Vel: v,
 		},
 	}
 }
 
-func (g *Gull) Body() *Body {
-	return &g.body
+func (g *Gull) Draw(d Drawer, cam ui.Camera) error {
+	return (*animal.Herbivore)(g).Draw(&gullInfo, d, cam)
 }
 
 func (g *Gull) Move(w *world.World) {
-	g.anim.Move(&gullSheet, g.body.Vel)
-	g.body.Move(w, gullScales)
-}
-
-func (g *Gull) Draw(d Drawer, cam Camera) error {
-	_, err := cam.Draw(d, ui.Sprite{
-		Name:   gullSheet.Name,
-		Bounds: gullSheet.Frame(g.anim.face, g.anim.frame),
-		Shade:  1.0,
-	}, g.body.Box.Min)
-	return err
+	(*animal.Herbivore)(g).Move(&gullInfo, w)
 }
 
 type Gulls []*Gull
@@ -64,22 +46,10 @@ func (gs Gulls) Len() int {
 	return len(gs)
 }
 
-func (gs Gulls) Boid(n int) Boid {
-	return Boid{&gs[n].body}
+func (gs Gulls) Boid(n int) ai.Boid {
+	return ai.Boid{&gs[n].Body}
 }
 
-func (Gulls) Info() BoidInfo {
-	return BoidInfo{
-		MaxVelocity:  2.0,
-		LocalDist:    TileSize * 10.0,
-		CenterBias:   0.05,
-		MatchBias:    0.08,
-		AvoidDist:    TileSize / 2.0,
-		AvoidBias:    0.08,
-		PlayerDist:   TileSize * 3,
-		PlayerBias:   0.2,
-		TerrainDist:  TileSize * 1.5,
-		TerrainBias:  0.005,
-		AvoidTerrain: "i",
-	}
+func (Gulls) Info() ai.BoidInfo {
+	return gullInfo.BoidInfo
 }

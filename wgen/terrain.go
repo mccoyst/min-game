@@ -80,7 +80,7 @@ func addLiquid(w *world.World, ch uint8, minSz, maxSz, minAmt, maxAmt, maxHt int
 		min := mins[i]
 		mins[i], mins = mins[len(mins)-1], mins[:len(mins)-1]
 
-		if min.terrain.Char != 'g' {
+		if min.terrain.Char != "g" {
 			continue
 		}
 
@@ -142,7 +142,7 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 	tmap := makeTopoMap(w)
 	var land []*contour
 	for _, c := range tmap.conts {
-		if strings.ContainsRune(fertile, rune(c.terrain.Char)) {
+		if strings.ContainsRune(fertile, rune(c.terrain.Char[0])) {
 			land = append(land, c)
 		}
 	}
@@ -174,7 +174,7 @@ func growTerrain(w *world.World, fertile string, ch uint8, minSz, maxSz int, see
 		var adj []*contour
 		for _, a := range c.adj {
 
-			if strings.ContainsRune(fertile, rune(a.terrain.Char)) &&
+			if strings.ContainsRune(fertile, rune(a.terrain.Char[0])) &&
 				n+a.size < maxSz {
 				adj = append(adj, a)
 			}

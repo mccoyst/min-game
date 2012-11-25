@@ -3,15 +3,18 @@
 package main
 
 import (
+	"fmt"
+
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/phys"
+	"code.google.com/p/min-game/sprite"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
-	"fmt"
 )
 
 type Player struct {
 	wo   *world.World
-	body Body
+	body phys.Body
 
 	// TileX and tileX give the coordinates of the player's current tile. 
 	tileX, tileY int
@@ -20,23 +23,23 @@ type Player struct {
 	// for debugging purposes.
 	info string
 
-	anim Anim
+	anim sprite.Anim
 }
 
-var astroSheet SpriteSheet
+var astroSheet sprite.Sheet
 
-var baseScales = map[rune]float64{
-	'g': 1.0,
-	'f': 0.85,
-	'm': 0.5,
-	'w': 0.1,
-	'd': 0.75,
-	'i': 0.4,
+var baseScales = map[string]float64{
+	"g": 1.0,
+	"f": 0.85,
+	"m": 0.5,
+	"w": 0.1,
+	"d": 0.75,
+	"i": 0.4,
 }
 
 func init() {
 	var err error
-	astroSheet, err = LoadSpriteSheet("Astronaut")
+	astroSheet, err = sprite.LoadSheet("Astronaut")
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +48,7 @@ func init() {
 func NewPlayer(wo *world.World, p geom.Point) *Player {
 	return &Player{
 		wo: wo,
-		body: Body{
+		body: phys.Body{
 			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 		},
 	}
@@ -67,10 +70,10 @@ func (p *Player) Move(w *world.World) {
 	p.info = fmt.Sprintf("%d,%d: %s", tx, ty, w.At(tx, ty).Terrain.Name)
 }
 
-func (p *Player) Draw(d Drawer, cam Camera) error {
+func (p *Player) Draw(d Drawer, cam ui.Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
 		Name:   astroSheet.Name,
-		Bounds: astroSheet.Frame(p.anim.face, p.anim.frame),
+		Bounds: astroSheet.Frame(p.anim.Face, p.anim.Frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
 	return err
