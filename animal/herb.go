@@ -3,9 +3,6 @@
 package animal
 
 import (
-	"image/color"
-
-	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/sprite"
 	"code.google.com/p/min-game/ui"
@@ -24,7 +21,7 @@ func (h *Herbivore) Move(w *world.World) {
 	h.Body.Move(w, h.info.Affinity)
 }
 
-func (h *Herbivore) Draw(d Drawer, cam ui.Camera) error {
+func (h *Herbivore) Draw(d ui.Drawer, cam ui.Camera) error {
 	_, err := cam.Draw(d, ui.Sprite{
 		Name:   h.info.Sheet.Name,
 		Bounds: h.info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
