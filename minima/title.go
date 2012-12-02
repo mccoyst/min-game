@@ -56,7 +56,7 @@ func (t *TitleScreen) Draw(d ui.Drawer) error {
 	}
 
 	d.SetColor(White)
-	if err := d.SetFont("prstartk", 64); err != nil {
+	if err := d.SetFont("bit_outline", 96); err != nil {
 		return err
 	}
 	titleTxt := "MINIMA"
@@ -73,7 +73,7 @@ func (t *TitleScreen) Draw(d ui.Drawer) error {
 	}
 	startTxt := "Press " + actionKey() + " to Start"
 	startSz := d.TextSize(startTxt)
-	startPos := geom.Pt(titlePos.X, titlePos.Y+wh.Y+startSz.Y)
+	startPos := geom.Pt(ScreenDims.X/2-startSz.X/2, titlePos.Y+wh.Y+startSz.Y)
 	if wh, err = d.Draw(startTxt, startPos); err != nil {
 		return err
 	}
