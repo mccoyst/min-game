@@ -95,6 +95,11 @@ func (p *Player) Draw(d ui.Drawer, cam ui.Camera) error {
 	return p.drawO2(d)
 }
 
+func (p *Player) RefillO2() {
+	p.o2 = 100
+	p.o2ticks = 0
+}
+
 func (p *Player) drawO2(d ui.Drawer) error {
 	chunks := 10
 	left := p.o2 / chunks
