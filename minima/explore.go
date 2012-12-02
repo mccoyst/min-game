@@ -19,6 +19,7 @@ type ExploreScreen struct {
 	wo    *world.World
 	cam   ui.Camera
 	astro *Player
+	base  Base
 	gulls animal.Gulls
 	cows  animal.Cows
 
@@ -32,7 +33,9 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 		cam: ui.Camera{Dims: ScreenDims},
 	}
 	e.CenterOnTile(wo.X0, wo.Y0)
-	e.astro = NewPlayer(e.wo, geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize)))
+	crashSite := geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize))
+	e.astro = NewPlayer(e.wo, crashSite)
+	e.base = NewBase(crashSite)
 
 	xmin, xmax := float64(wo.X0-8)*TileSize, float64(wo.X0+8)*TileSize
 	ymin, ymax := float64(wo.Y0-8)*TileSize, float64(wo.Y0+8)*TileSize
@@ -97,6 +100,10 @@ func (e *ExploreScreen) Draw(d ui.Drawer) error {
 		pt.X += TileSize
 	}
 
+	if err := e.base.Draw(d, e.cam); err != nil {
+		return err
+	}
+
 	if err := e.astro.Draw(d, e.cam); err != nil {
 		return err
 	}
@@ -138,8 +145,18 @@ func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) error {
 }
 
 func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
-	if k, ok := ev.(ui.Key); ok && k.Down && k.Button == ui.Menu {
+	k, ok := ev.(ui.Key)
+	if !ok || !k.Down {
+		return nil
+	}
+
+	switch k.Button {
+	case ui.Menu:
 		stk.Push(NewPauseScreen())
+	case ui.Action:
+		if ex.astro.body.Box.Overlaps(ex.base.Box) {
+			stk.Push(NewPauseScreen())
+		}
 	}
 	return nil
 }
