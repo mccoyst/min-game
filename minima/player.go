@@ -24,6 +24,10 @@ type Player struct {
 	info string
 
 	anim sprite.Anim
+
+	o2max   int
+	o2      int
+	o2ticks int
 }
 
 var astroSheet sprite.Sheet
@@ -51,10 +55,18 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		body: phys.Body{
 			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 		},
+		o2max: 100,
+		o2:    100,
 	}
 }
 
 func (p *Player) Move(w *world.World) {
+	p.o2ticks++
+	if p.o2ticks > p.o2max && p.o2 > 0 {
+		p.o2--
+		p.o2ticks = 0
+	}
+
 	p.anim.Move(&astroSheet, p.body.Vel)
 	p.body.Move(w, baseScales)
 
@@ -76,5 +88,46 @@ func (p *Player) Draw(d ui.Drawer, cam ui.Camera) error {
 		Bounds: astroSheet.Frame(p.anim.Face, p.anim.Frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return p.drawO2(d)
+}
+
+func (p *Player) drawO2(d ui.Drawer) error {
+	chunks := 10
+	left := p.o2 / chunks
+	chunk := geom.Rect(0, 0, 10, 10)
+
+	dx, dy := 10.0, 10.0
+	pt := geom.Pt(dx, dy)
+
+	d.SetColor(Sky)
+	i := 0
+	for ; i < left; i++ {
+		_, err := d.Draw(chunk, pt)
+		if err != nil {
+			return err
+		}
+		pt.X += dx + 4
+	}
+
+	part := p.o2 % chunks
+	if part != 0 {
+		frac := float64(part) / float64(chunks)
+
+		c := Sky
+		c.R = uint8(float64(c.R) * frac)
+		c.G = uint8(float64(c.G) * frac)
+		c.B = uint8(float64(c.B) * frac)
+		d.SetColor(c)
+
+		_, err := d.Draw(chunk, pt)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

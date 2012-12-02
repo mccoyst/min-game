@@ -9,4 +9,5 @@ var (
 	White = color.RGBA{222, 238, 214, 255}
 
 	Lime = color.RGBA{109, 170, 44, 255}
+	Sky  = color.RGBA{109, 194, 202, 255}
 )
