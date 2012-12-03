@@ -164,6 +164,19 @@ func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	const speed = 4 // px
 
+	if e.astro.o2 == 0 {
+		et := e.astro.FindEtele()
+		if et == nil || !et.Use() {
+			// TODO: game over, man
+		} else {
+			e.astro.body.Vel = geom.Pt(0, 0)
+			dims := geom.Pt(e.astro.body.Box.Dx(), e.astro.body.Box.Dy())
+			e.astro.body.Box.Min = e.base.Box.Min
+			e.astro.body.Box.Max = e.base.Box.Min.Add(dims)
+			e.astro.RefillO2()
+		}
+	}
+
 	e.astro.body.Vel = geom.Pt(0, 0)
 	if stk.Buttons&ui.Left != 0 {
 		e.astro.body.Vel.X -= speed

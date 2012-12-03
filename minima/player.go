@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/sprite"
 	"code.google.com/p/min-game/ui"
@@ -28,6 +29,16 @@ type Player struct {
 	o2max   int
 	o2      int
 	o2ticks int
+
+	suit    []Augment
+	maxAugs int
+}
+
+// An Augment is something that can be plugged into the player's suit.
+type Augment interface {
+	Name() string
+	Desc() string
+	Use() bool
 }
 
 var astroSheet sprite.Sheet
@@ -55,8 +66,10 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		body: phys.Body{
 			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 		},
-		o2max: 100,
-		o2:    100,
+		o2max:   50,
+		o2:      50,
+		suit:    []Augment{&item.Etele{3}},
+		maxAugs: 2,
 	}
 }
 
@@ -134,5 +147,14 @@ func (p *Player) drawO2(d ui.Drawer) error {
 		}
 	}
 
+	return nil
+}
+
+func (p *Player) FindEtele() *item.Etele {
+	for _, a := range p.suit {
+		if et, ok := a.(*item.Etele); ok {
+			return et
+		}
+	}
 	return nil
 }
