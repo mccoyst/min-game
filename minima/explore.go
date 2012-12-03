@@ -167,7 +167,7 @@ func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	if e.astro.o2 == 0 {
 		et := e.astro.FindEtele()
 		if et == nil || !et.Use() {
-			// TODO: game over, man
+			stk.Push(NewGameOverScreen())
 		} else {
 			e.astro.body.Vel = geom.Pt(0, 0)
 			dims := geom.Pt(e.astro.body.Box.Dx(), e.astro.body.Box.Dy())
