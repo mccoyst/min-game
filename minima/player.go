@@ -68,7 +68,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		},
 		o2max:   50,
 		o2:      50,
-		suit:    []Augment{&item.Etele{3}},
+		suit:    []Augment{&item.Etele{3}, nil},
 		maxAugs: 2,
 	}
 }
@@ -109,7 +109,7 @@ func (p *Player) Draw(d ui.Drawer, cam ui.Camera) error {
 }
 
 func (p *Player) RefillO2() {
-	p.o2 = 100
+	p.o2 = p.o2max
 	p.o2ticks = 0
 }
 

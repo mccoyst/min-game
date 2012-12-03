@@ -152,7 +152,7 @@ func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 
 	switch k.Button {
 	case ui.Menu:
-		stk.Push(NewPauseScreen())
+		stk.Push(NewPauseScreen(ex.astro))
 	case ui.Action:
 		if ex.astro.body.Box.Overlaps(ex.base.Box) {
 			stk.Push(NewBaseScreen(ex.astro, &ex.base))
