@@ -50,8 +50,7 @@ func (s *BaseScreen) Draw(d ui.Drawer) error {
 	_, err := d.Draw(geom.Rectangle{
 		Min: origin,
 		Max: origin.Add(ScreenDims).Sub(origin.Mul(2)),
-	},
-		geom.Pt(0, 0))
+	}, geom.Pt(0, 0))
 	if err != nil {
 		return err
 	}
