@@ -7,8 +7,6 @@ import (
 	"os"
 
 	"code.google.com/p/min-game/ai"
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/sprite"
 )
 
@@ -32,15 +30,4 @@ func LoadInfo(s string) (Info, error) {
 	dec := json.NewDecoder(f)
 	err = dec.Decode(&i)
 	return i, err
-}
-
-func (i *Info) SpawnHerbivore(p, v geom.Point) Herbivore {
-	sz := float64(i.Sheet.FrameSize)
-	return Herbivore{
-		Body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+sz, p.Y+sz),
-			Vel: v,
-		},
-		info: i,
-	}
 }

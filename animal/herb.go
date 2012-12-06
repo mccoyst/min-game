@@ -6,6 +6,8 @@ import (
 	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/sprite"
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/ai"
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 )
 
@@ -13,19 +15,61 @@ import (
 type Herbivore struct {
 	Body phys.Body
 	Anim sprite.Anim
+}
+
+type Herbivores struct {
 	info *Info
+	herbs []*Herbivore
 }
 
-func (h *Herbivore) Move(w *world.World) {
-	h.Anim.Move(&h.info.Sheet, h.Body.Vel)
-	h.Body.Move(w, h.info.Affinity)
+func MakeHerbivores(name string) (Herbivores, error) {
+	i, err := LoadInfo(name)
+	if err != nil {
+		return Herbivores{}, err
+	}
+	return Herbivores{ &i, nil }, err
 }
 
-func (h *Herbivore) Draw(d ui.Drawer, cam ui.Camera) error {
-	_, err := cam.Draw(d, ui.Sprite{
-		Name:   h.info.Sheet.Name,
-		Bounds: h.info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
-		Shade:  1.0,
-	}, h.Body.Box.Min)
-	return err
+func (hs Herbivores) Move(w *world.World) {
+	for _, h := range hs.herbs {
+		h.Anim.Move(&hs.info.Sheet, h.Body.Vel)
+		h.Body.Move(w, hs.info.Affinity)
+	}
+}
+
+func (hs Herbivores) Draw(d ui.Drawer, cam ui.Camera) error {
+	for _, h := range hs.herbs {	
+		_, err := cam.Draw(d, ui.Sprite{
+			Name:   hs.info.Sheet.Name,
+			Bounds: hs.info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
+			Shade:  1.0,
+		}, h.Body.Box.Min)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Spawn spawns a new Herbivore for this Herbivores collection.
+func (hs *Herbivores) Spawn(p, v geom.Point) {
+	sz := float64(hs.info.Sheet.FrameSize)
+	hs.herbs = append(hs.herbs, &Herbivore{
+		Body: phys.Body{
+			Box: geom.Rect(p.X, p.Y, p.X+sz, p.Y+sz),
+			Vel: v,
+		},
+	})
+}
+
+func (hs Herbivores) Len() int {
+	return len(hs.herbs)
+}
+
+func (hs Herbivores) Boid(n int) ai.Boid {
+	return ai.Boid{&hs.herbs[n].Body}
+}
+
+func (hs Herbivores) BoidInfo() ai.BoidInfo {
+	return hs.info.BoidInfo
 }

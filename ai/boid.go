@@ -15,7 +15,7 @@ import (
 type Boids interface {
 	Len() int
 	Boid(int) Boid
-	Info() BoidInfo
+	BoidInfo() BoidInfo
 }
 
 // A Boid is a bird-like (cow-like, or fish-like) object.
@@ -74,7 +74,7 @@ type BoidInfo struct {
 
 // UpdateBoids updates the velocity of the boids.
 func UpdateBoids(boids Boids, p *phys.Body, w *world.World) {
-	info := boids.Info()
+	info := boids.BoidInfo()
 	local := localBoids(boids, w)
 	for i, l := range local {
 		boid := boids.Boid(i)
@@ -90,7 +90,7 @@ func UpdateBoids(boids Boids, p *phys.Body, w *world.World) {
 // LocalBoids returns a slice containing the Boids that
 // are local to the Boid with the corresponding index.
 func localBoids(boids Boids, w *world.World) [][]Boid {
-	localDist := boids.Info().LocalDist
+	localDist := boids.BoidInfo().LocalDist
 	dd := localDist * localDist
 	local := make([][]Boid, boids.Len())
 	for i := range local {
