@@ -20,8 +20,8 @@ type ExploreScreen struct {
 	cam   ui.Camera
 	astro *Player
 	base  Base
-	gulls animal.Gulls
-	cows  animal.Cows
+	gulls animal.Herbivores
+	cows  animal.Herbivores
 
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
@@ -39,13 +39,22 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 
 	xmin, xmax := float64(wo.X0-8)*TileSize, float64(wo.X0+8)*TileSize
 	ymin, ymax := float64(wo.Y0-8)*TileSize, float64(wo.Y0+8)*TileSize
+	var err error
+	e.gulls, err = animal.MakeHerbivores("Gull")
+	if err != nil {
+		panic(err)
+	}
 	for i := 0; i < 25; i++ {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		e.gulls = append(e.gulls, animal.NewGull(geom.Pt(x, y), vel))
+		e.gulls.Spawn(geom.Pt(x, y), vel)
 	}
 
+	e.cows, err = animal.MakeHerbivores("Cow")
+	if err != nil {
+		panic(err)
+	}
 	for i := 0; i < 25; i++ {
 		var x, y float64
 		for i := 0; i < 1000; i++ {
@@ -58,7 +67,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 			}
 		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		e.cows = append(e.cows, animal.NewCow(geom.Pt(x, y), vel))
+		e.cows.Spawn(geom.Pt(x, y), vel)
 	}
 	return e
 }
@@ -107,15 +116,11 @@ func (e *ExploreScreen) Draw(d ui.Drawer) error {
 	if err := e.astro.Draw(d, e.cam); err != nil {
 		return err
 	}
-	for _, g := range e.gulls {
-		if err := g.Draw(d, e.cam); err != nil {
-			return err
-		}
+	if err := e.gulls.Draw(d, e.cam); err != nil {
+		return err
 	}
-	for _, c := range e.cows {
-		if err := c.Draw(d, e.cam); err != nil {
-			return err
-		}
+	if err := e.cows.Draw(d, e.cam); err != nil {
+		return err
 	}
 
 	if !*locInfo {
@@ -194,14 +199,10 @@ func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	e.cam.Center(e.astro.body.Box.Center())
 
 	ai.UpdateBoids(e.gulls, &e.astro.body, e.wo)
-	for _, g := range e.gulls {
-		g.Move(e.wo)
-	}
+	e.gulls.Move(e.wo)
 
 	ai.UpdateBoids(e.cows, &e.astro.body, e.wo)
-	for _, c := range e.cows {
-		c.Move(e.wo)
-	}
+	e.cows.Move(e.wo)
 
 	return nil
 }
