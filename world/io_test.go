@@ -10,17 +10,17 @@ import (
 
 // TestWriteRead tests writing a world and reading it back.
 func TestWriteRead(t *testing.T) {
-	var types []int
+	var types []string
 	for _, t := range Terrain {
-		if int(t.Char) != 0 {
-			types = append(types, int(t.Char))
+		if t.Char != "" {
+			types = append(types, t.Char)
 		}
 	}
 
 	w := New(10, 10)
 	for i := range w.locs {
 		w.locs[i].Elevation = i % (MaxElevation + 1)
-		w.locs[i].Terrain = &Terrain[types[i%len(types)]]
+		w.locs[i].Terrain = &Terrain[types[i%len(types)][0]]
 	}
 
 	read, write, err := os.Pipe()
@@ -53,7 +53,7 @@ func TestWriteRead(t *testing.T) {
 	for i, l0 := range w.locs {
 		l1 := u.locs[i]
 		if l0.Terrain != l1.Terrain {
-			ch0, ch1 := '?', '?'
+			ch0, ch1 := "?", "?"
 			if l0.Terrain != nil {
 				ch0 = l0.Terrain.Char
 			}
