@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 
+	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
@@ -113,7 +114,11 @@ func (t *TitleScreen) Update(stk *ui.ScreenStack) error {
 		for _ = range t.genTxt {
 		} // junk it
 		t.loading = false
-		stk.Push(NewExploreScreen(i.(*world.World)))
+		wanims := i.(struct {
+			*world.World
+			animal.Animals
+		})
+		stk.Push(NewExploreScreen(wanims.World, wanims.Animals))
 	default:
 	}
 	return nil
@@ -130,15 +135,22 @@ func (t *TitleScreen) loadWorld() {
 			t.wgenErr <- "Reading World"
 			close(t.wgenErr)
 			in := bufio.NewReader(os.Stdin)
-			if w, err := world.Read(in); err != nil {
+			w, err := world.Read(in)
+			if err != nil {
 				t.wChan <- errors.New("Failed to read the world: " + err.Error())
-			} else {
-				t.wChan <- w
 			}
+			anims, err := animal.Read(in)
+			if err != nil {
+				t.wChan <- errors.New("Failed to read the animals: " + err.Error())
+			}
+			t.wChan <- struct {
+				*world.World
+				animal.Animals
+			}{w, anims}
 			return
 		}
 
-		cmd := exec.Command("wgen")
+		cmd := exec.Command("sh", "-c", "wgen | cowgen")
 		stdout, stderr, err := pipes(cmd)
 		if err != nil {
 			t.wChan <- err
@@ -150,16 +162,24 @@ func (t *TitleScreen) loadWorld() {
 			t.wChan <- err
 			return
 		}
-		w, err := world.Read(bufio.NewReader(stdout))
+		in := bufio.NewReader(stdout)
+		w, err := world.Read(in)
 		if err != nil {
 			t.wChan <- err
 			return
+		}
+		anims, err := animal.Read(in)
+		if err != nil {
+			t.wChan <- errors.New("Failed to read the animals: " + err.Error())
 		}
 		if err = cmd.Wait(); err != nil {
 			t.wChan <- err
 			return
 		}
-		t.wChan <- w
+		t.wChan <- struct {
+			*world.World
+			animal.Animals
+		}{w, anims}
 	}()
 }
 

@@ -3,7 +3,6 @@
 package main
 
 import (
-	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
@@ -20,14 +19,12 @@ type ExploreScreen struct {
 	cam   ui.Camera
 	astro *Player
 	base  Base
-	gulls animal.Herbivores
-	cows  animal.Herbivores
-
+	anims animal.Animals
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
 }
 
-func NewExploreScreen(wo *world.World) *ExploreScreen {
+func NewExploreScreen(wo *world.World, anims animal.Animals) *ExploreScreen {
 	e := &ExploreScreen{
 		wo:  wo,
 		cam: ui.Camera{Dims: ScreenDims},
@@ -36,39 +33,7 @@ func NewExploreScreen(wo *world.World) *ExploreScreen {
 	crashSite := geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize))
 	e.astro = NewPlayer(e.wo, crashSite)
 	e.base = NewBase(crashSite)
-
-	xmin, xmax := float64(wo.X0-8)*TileSize, float64(wo.X0+8)*TileSize
-	ymin, ymax := float64(wo.Y0-8)*TileSize, float64(wo.Y0+8)*TileSize
-	var err error
-	e.gulls, err = animal.MakeHerbivores("Gull")
-	if err != nil {
-		panic(err)
-	}
-	for i := 0; i < 25; i++ {
-		x := rand.Float64()*(xmax-xmin) + xmin
-		y := rand.Float64()*(ymax-ymin) + ymin
-		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		e.gulls.Spawn(geom.Pt(x, y), vel)
-	}
-
-	e.cows, err = animal.MakeHerbivores("Cow")
-	if err != nil {
-		panic(err)
-	}
-	for i := 0; i < 25; i++ {
-		var x, y float64
-		for i := 0; i < 1000; i++ {
-			x = rand.Float64()*(xmax-xmin) + xmin
-			y = rand.Float64()*(ymax-ymin) + ymin
-			pt := geom.Pt(x, y)
-			tx, ty := e.wo.Tile(pt.Add(world.TileSize.Div(2)))
-			if e.wo.At(tx, ty).Terrain.Char == "g" {
-				break
-			}
-		}
-		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		e.cows.Spawn(geom.Pt(x, y), vel)
-	}
+	e.anims = anims
 	return e
 }
 
@@ -116,10 +81,7 @@ func (e *ExploreScreen) Draw(d ui.Drawer) error {
 	if err := e.astro.Draw(d, e.cam); err != nil {
 		return err
 	}
-	if err := e.gulls.Draw(d, e.cam); err != nil {
-		return err
-	}
-	if err := e.cows.Draw(d, e.cam); err != nil {
+	if err := e.anims.Draw(d, e.cam); err != nil {
 		return err
 	}
 
@@ -198,11 +160,7 @@ func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
 
-	ai.UpdateBoids(e.gulls, &e.astro.body, e.wo)
-	e.gulls.Move(e.wo)
-
-	ai.UpdateBoids(e.cows, &e.astro.body, e.wo)
-	e.cows.Move(e.wo)
+	e.anims.Move(&e.astro.body, e.wo)
 
 	return nil
 }
