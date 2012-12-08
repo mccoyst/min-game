@@ -3,11 +3,11 @@
 package animal
 
 import (
+	"code.google.com/p/min-game/ai"
+	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
 	"code.google.com/p/min-game/sprite"
 	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/ai"
-	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 )
 
@@ -18,8 +18,8 @@ type Herbivore struct {
 }
 
 type Herbivores struct {
-	info *Info
-	herbs []*Herbivore
+	Info  *Info
+	Herbs []*Herbivore
 }
 
 func MakeHerbivores(name string) (Herbivores, error) {
@@ -27,21 +27,21 @@ func MakeHerbivores(name string) (Herbivores, error) {
 	if err != nil {
 		return Herbivores{}, err
 	}
-	return Herbivores{ &i, nil }, err
+	return Herbivores{&i, nil}, err
 }
 
 func (hs Herbivores) Move(w *world.World) {
-	for _, h := range hs.herbs {
-		h.Anim.Move(&hs.info.Sheet, h.Body.Vel)
-		h.Body.Move(w, hs.info.Affinity)
+	for _, h := range hs.Herbs {
+		h.Anim.Move(&hs.Info.Sheet, h.Body.Vel)
+		h.Body.Move(w, hs.Info.Affinity)
 	}
 }
 
 func (hs Herbivores) Draw(d ui.Drawer, cam ui.Camera) error {
-	for _, h := range hs.herbs {	
+	for _, h := range hs.Herbs {
 		_, err := cam.Draw(d, ui.Sprite{
-			Name:   hs.info.Sheet.Name,
-			Bounds: hs.info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
+			Name:   hs.Info.Sheet.Name,
+			Bounds: hs.Info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
 			Shade:  1.0,
 		}, h.Body.Box.Min)
 		if err != nil {
@@ -53,8 +53,8 @@ func (hs Herbivores) Draw(d ui.Drawer, cam ui.Camera) error {
 
 // Spawn spawns a new Herbivore for this Herbivores collection.
 func (hs *Herbivores) Spawn(p, v geom.Point) {
-	sz := float64(hs.info.Sheet.FrameSize)
-	hs.herbs = append(hs.herbs, &Herbivore{
+	sz := float64(hs.Info.Sheet.FrameSize)
+	hs.Herbs = append(hs.Herbs, &Herbivore{
 		Body: phys.Body{
 			Box: geom.Rect(p.X, p.Y, p.X+sz, p.Y+sz),
 			Vel: v,
@@ -63,13 +63,13 @@ func (hs *Herbivores) Spawn(p, v geom.Point) {
 }
 
 func (hs Herbivores) Len() int {
-	return len(hs.herbs)
+	return len(hs.Herbs)
 }
 
 func (hs Herbivores) Boid(n int) ai.Boid {
-	return ai.Boid{&hs.herbs[n].Body}
+	return ai.Boid{&hs.Herbs[n].Body}
 }
 
 func (hs Herbivores) BoidInfo() ai.BoidInfo {
-	return hs.info.BoidInfo
+	return hs.Info.BoidInfo
 }
