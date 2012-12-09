@@ -18,5 +18,5 @@ var elemDesc = map[string]string{
 	"Uranium": `Uranium is of great interest because of its application to nuclear power
 		and nuclear weapons. Uranium contamination is an emotive environmental
 		problem. It is not particularly rare and is more common than beryllium
-		or tungsten for instance.`, // http://www.webelements.com/uranium/
+		or tungsten for instance. [br] [br] http://www.webelements.com/uranium`,
 }

@@ -10,6 +10,8 @@ import (
 	"code.google.com/p/min-game/ui"
 )
 
+// WordWrap draws text to the screen, bounded by the given rectangle. The special token "[br]" inserts a line break.
+// Any text that does not fit beyond bounds.Max.Y is truncated.
 func WordWrap(d ui.Drawer, text string, bounds geom.Rectangle) {
 	words := strings.Fields(text)
 	if len(words) == 0 {
@@ -26,12 +28,18 @@ func WordWrap(d ui.Drawer, text string, bounds geom.Rectangle) {
 		spword := " " + word
 		wsz = d.TextSize(spword)
 
-		if wp.X+wsz.X > bounds.Max.X {
+		if wp.X+wsz.X > bounds.Max.X || word == "[br]" {
 			wp.Y += wsz.Y * 1.5
 			if wp.Y > bounds.Max.Y {
 				return
 			}
 			wp.X = left
+			if word == "[br]" {
+				continue
+			}
+		}
+
+		if wp.X == left {
 			spword = word
 		}
 
