@@ -78,26 +78,26 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		p.selected--
 		if p.selected < 0 {
 			if p.inPack {
-				p.selected = p.astro.maxPack - 1
+				p.selected = len(p.astro.pack) - 1
 			} else {
-				p.selected = p.astro.maxAugs - 1
+				p.selected = len(p.astro.suit) - 1
 			}
 		}
 	case ui.Right:
 		p.selected++
-		if p.inPack && p.selected == p.astro.maxPack {
+		if p.inPack && p.selected == len(p.astro.pack) {
 			p.selected = 0
 		}
-		if !p.inPack && p.selected == p.astro.maxAugs {
+		if !p.inPack && p.selected == len(p.astro.suit) {
 			p.selected = 0
 		}
 	case ui.Up, ui.Down:
 		p.inPack = !p.inPack
-		if p.inPack && p.selected >= p.astro.maxPack {
-			p.selected = p.astro.maxPack - 1
+		if p.inPack && p.selected >= len(p.astro.pack) {
+			p.selected = len(p.astro.pack) - 1
 		}
-		if !p.inPack && p.selected >= p.astro.maxAugs {
-			p.selected = p.astro.maxAugs - 1
+		if !p.inPack && p.selected >= len(p.astro.suit) {
+			p.selected = len(p.astro.suit) - 1
 		}
 	}
 

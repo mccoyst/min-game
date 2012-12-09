@@ -30,11 +30,8 @@ type Player struct {
 	o2      int
 	o2ticks int
 
-	suit    []Augment
-	maxAugs int
-
-	pack    []Item
-	maxPack int
+	suit []Augment
+	pack []Item
 }
 
 // An Item is something that can go in the backpack.
@@ -74,12 +71,10 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		body: phys.Body{
 			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
 		},
-		o2max:   50,
-		o2:      50,
-		suit:    []Augment{&item.Etele{3}, nil},
-		maxAugs: 2,
-		pack:    []Item{nil, nil, &item.Element{"Uranium"}, nil},
-		maxPack: 4,
+		o2max: 50,
+		o2:    50,
+		suit:  []Augment{&item.Etele{3}, nil},
+		pack:  []Item{nil, nil, &item.Element{"Uranium"}, nil},
 	}
 }
 
