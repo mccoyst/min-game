@@ -24,9 +24,7 @@ func (p *PauseScreen) Transparent() bool {
 }
 
 func (p *PauseScreen) Draw(d ui.Drawer) error {
-	if err := d.SetFont("prstartk", 16); err != nil {
-		return err
-	}
+	d.SetFont("prstartk", 16)
 
 	origin := geom.Pt(32, 32)
 	pad := 4.0

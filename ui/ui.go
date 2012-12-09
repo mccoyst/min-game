@@ -171,9 +171,7 @@ func New(title string, w, h int, f Finder) (*Ui, error) {
 		txtCache:  make(map[textKey]*cachedText),
 		f:         f,
 	}
-	if err := ui.SetFont("prstartk", 12); err != nil {
-		return nil, err
-	}
+	ui.SetFont("prstartk", 12)
 	ui.SetColor(color.Black)
 	return ui, nil
 }
@@ -320,18 +318,17 @@ func (ui *Ui) SetColor(col color.Color) {
 }
 
 // SetFont sets the current font face and size.
-func (ui *Ui) SetFont(name string, sz float64) error {
+func (ui *Ui) SetFont(name string, sz float64) {
 	var ok bool
 	if ui.font, ok = ui.fontCache[name]; !ok {
 		var err error
 		if ui.font, err = newFont(ui.f.Find(name + ".ttf")); err != nil {
-			return err
+			panic(err)
 		}
 		ui.fontCache[name] = ui.font
 	}
 	ui.font.setSize(sz)
 	ui.font.setColor(ui.color)
-	return nil
 }
 
 // TextSize returns the size of the text when rendered in the current font.
