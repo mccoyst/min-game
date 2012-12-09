@@ -20,12 +20,12 @@ import (
 const TileSize = 32
 
 type Game struct {
-	wo       *world.World
-	cam      ui.Camera
-	astro    *Player
-	base     Base
-	herbs    []animal.Herbivores
-	treasure []Treasure
+	wo         *world.World
+	cam        ui.Camera
+	base       Base
+	Astro      *Player
+	Herbivores []animal.Herbivores
+	Treasure   []Treasure
 }
 
 // ReadGame returns a *Game, read from the given
@@ -40,37 +40,17 @@ func ReadGame(r io.Reader) (*Game, error) {
 		return nil, err
 	}
 	crashSite := geom.Pt(float64(e.wo.X0*TileSize), float64(e.wo.Y0*TileSize))
-	e.astro = NewPlayer(e.wo, crashSite)
+	e.Astro = NewPlayer(e.wo, crashSite)
 	e.base = NewBase(crashSite)
 
-	dec := json.NewDecoder(in)
-	for {
-		var name string
-		err = dec.Decode(&name)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-
-		switch name {
-		case "herbs":
-			var h animal.Herbivores
-			if err = dec.Decode(&h); err != nil {
-				return nil, err
-			}
-			e.herbs = append(e.herbs, h)
-
-		default:
-			panic("unknown input section: " + name)
-		}
+	if err := json.NewDecoder(in).Decode(&e); err != nil {
+		panic(err)
 	}
 
 	// for now
-	e.treasure = []Treasure{Treasure{&item.Element{"Uranium"}, e.astro.body.Box.Add(geom.Pt(128, 128))}}
+	e.Treasure = []Treasure{Treasure{&item.Element{"Uranium"}, e.Astro.body.Box.Add(geom.Pt(128, 128))}}
 
-	e.CenterOnTile(e.wo.Tile(e.astro.body.Center()))
+	e.CenterOnTile(e.wo.Tile(e.Astro.body.Center()))
 
 	return e, nil
 }
@@ -110,25 +90,25 @@ func (e *Game) Draw(d ui.Drawer) {
 	}
 
 	e.base.Draw(d, e.cam)
-	for _, t := range e.treasure {
+	for _, t := range e.Treasure {
 		if t.Item != nil {
 			t.Draw(d, e.cam)
 		}
 	}
-	e.astro.Draw(d, e.cam)
-	for i := range e.herbs {
-		e.herbs[i].Draw(d, e.cam)
+	e.Astro.Draw(d, e.cam)
+	for i := range e.Herbivores {
+		e.Herbivores[i].Draw(d, e.cam)
 	}
 
-	e.astro.drawO2(d)
+	e.Astro.drawO2(d)
 
 	if !*locInfo {
 		return
 	}
 	d.SetFont("prstartk", 14)
 	d.SetColor(White)
-	sz := d.TextSize(e.astro.info)
-	d.Draw(e.astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))
+	sz := d.TextSize(e.Astro.info)
+	d.Draw(e.Astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))
 }
 
 func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) {
@@ -150,16 +130,16 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 
 	switch k.Button {
 	case ui.Menu:
-		stk.Push(NewPauseScreen(ex.astro))
+		stk.Push(NewPauseScreen(ex.Astro))
 	case ui.Action:
-		if ex.astro.body.Box.Overlaps(ex.base.Box) {
-			stk.Push(NewBaseScreen(ex.astro, &ex.base))
+		if ex.Astro.body.Box.Overlaps(ex.base.Box) {
+			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
 		}
-		for i, t := range ex.treasure {
-			if t.Item != nil && ex.astro.body.Box.Overlaps(t.Box) {
-				if ex.astro.PutPack(t.Item) {
+		for i, t := range ex.Treasure {
+			if t.Item != nil && ex.Astro.body.Box.Overlaps(t.Box) {
+				if ex.Astro.PutPack(t.Item) {
 					stk.Push(NewTreasureGet(t.Item.Name()))
-					ex.treasure[i].Item = nil
+					ex.Treasure[i].Item = nil
 					break
 				} else {
 					stk.Push(NewNormalMessage("You don't have room for that in your pack."))
@@ -174,38 +154,38 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 func (e *Game) Update(stk *ui.ScreenStack) error {
 	const speed = 4 // px
 
-	if e.astro.o2 == 0 {
-		et := e.astro.FindEtele()
+	if e.Astro.o2 == 0 {
+		et := e.Astro.FindEtele()
 		if et == nil || !et.Use() {
 			stk.Push(NewGameOverScreen())
 		} else {
-			e.astro.body.Vel = geom.Pt(0, 0)
-			dims := geom.Pt(e.astro.body.Box.Dx(), e.astro.body.Box.Dy())
-			e.astro.body.Box.Min = e.base.Box.Min
-			e.astro.body.Box.Max = e.base.Box.Min.Add(dims)
-			e.astro.RefillO2()
+			e.Astro.body.Vel = geom.Pt(0, 0)
+			dims := geom.Pt(e.Astro.body.Box.Dx(), e.Astro.body.Box.Dy())
+			e.Astro.body.Box.Min = e.base.Box.Min
+			e.Astro.body.Box.Max = e.base.Box.Min.Add(dims)
+			e.Astro.RefillO2()
 		}
 	}
 
-	e.astro.body.Vel = geom.Pt(0, 0)
+	e.Astro.body.Vel = geom.Pt(0, 0)
 	if stk.Buttons&ui.Left != 0 {
-		e.astro.body.Vel.X -= speed
+		e.Astro.body.Vel.X -= speed
 	}
 	if stk.Buttons&ui.Right != 0 {
-		e.astro.body.Vel.X += speed
+		e.Astro.body.Vel.X += speed
 	}
 	if stk.Buttons&ui.Down != 0 {
-		e.astro.body.Vel.Y += speed
+		e.Astro.body.Vel.Y += speed
 	}
 	if stk.Buttons&ui.Up != 0 {
-		e.astro.body.Vel.Y -= speed
+		e.Astro.body.Vel.Y -= speed
 	}
-	e.astro.Move(e.wo)
-	e.cam.Center(e.astro.body.Box.Center())
+	e.Astro.Move(e.wo)
+	e.cam.Center(e.Astro.body.Box.Center())
 
-	for i := range e.herbs {
-		ai.UpdateBoids(e.herbs[i], &e.astro.body, e.wo)
-		e.herbs[i].Move(e.wo)
+	for i := range e.Herbivores {
+		ai.UpdateBoids(e.Herbivores[i], &e.Astro.body, e.wo)
+		e.Herbivores[i].Move(e.wo)
 	}
 
 	return nil
