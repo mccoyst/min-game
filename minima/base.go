@@ -44,13 +44,13 @@ func (s *BaseScreen) Transparent() bool {
 
 func (s *BaseScreen) Draw(d ui.Drawer) {
 	origin := geom.Pt(32, 32)
-	d.SetColor(Black)
+	d.SetColor(White)
 	d.Draw(geom.Rectangle{
 		Min: origin,
 		Max: origin.Add(ScreenDims).Sub(origin.Mul(2)),
 	}, geom.Pt(0, 0))
 
-	d.SetColor(White)
+	d.SetColor(Black)
 	d.SetFont("prstartk", 16)
 	d.Draw("Something will go here.", origin.Add(geom.Pt(16, 16)))
 }
