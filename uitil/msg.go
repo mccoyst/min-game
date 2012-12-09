@@ -21,12 +21,9 @@ func WordWrap(d ui.Drawer, text string, bounds geom.Rectangle) {
 	left := bounds.Min.X
 	wp := bounds.Min
 
-	wsz := d.Draw(words[0], wp)
-	wp.X += wsz.X
-
-	for _, word := range words[1:] {
+	for _, word := range words {
 		spword := " " + word
-		wsz = d.TextSize(spword)
+		wsz := d.TextSize(spword)
 
 		if wp.X+wsz.X > bounds.Max.X || word == "[br]" {
 			wp.Y += wsz.Y * 1.5
