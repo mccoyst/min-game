@@ -48,7 +48,7 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 
 	for i, a := range p.astro.suit {
 		if i == p.selected {
-			d.SetColor(Lemon)
+			d.SetColor(Black)
 			d.Draw(geom.Rectangle{
 				Min: pt.Sub(geom.Pt(2, 2)),
 				Max: pt.Add(geom.Pt(34, 34)),
