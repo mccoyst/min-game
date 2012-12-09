@@ -5,6 +5,7 @@ package main
 import (
 	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"math"
@@ -15,11 +16,12 @@ import (
 const TileSize = 32
 
 type ExploreScreen struct {
-	wo      *world.World
-	cam     ui.Camera
-	astro   *Player
-	base    Base
-	animals animal.Animals
+	wo       *world.World
+	cam      ui.Camera
+	astro    *Player
+	base     Base
+	animals  animal.Animals
+	treasure []Treasure
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
 }
@@ -34,6 +36,7 @@ func NewExploreScreen(wo *world.World, animals animal.Animals) *ExploreScreen {
 	e.astro = NewPlayer(e.wo, crashSite)
 	e.base = NewBase(crashSite)
 	e.animals = animals
+	e.treasure = []Treasure{Treasure{&item.Element{"Uranium"}, e.astro.body.Box.Add(geom.Pt(128, 128))}}
 	return e
 }
 
@@ -72,6 +75,9 @@ func (e *ExploreScreen) Draw(d ui.Drawer) {
 	}
 
 	e.base.Draw(d, e.cam)
+	for _, t := range e.treasure {
+		t.Draw(d, e.cam)
+	}
 	e.astro.Draw(d, e.cam)
 	e.animals.Draw(d, e.cam)
 
