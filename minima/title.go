@@ -4,6 +4,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"os"
 	"os/exec"
@@ -118,7 +119,7 @@ func (t *TitleScreen) loadWorld() {
 			in := bufio.NewReader(os.Stdin)
 			e, err := ReadGame(in)
 			if err != nil {
-				t.wChan <- err
+				t.wChan <- errors.New("Failed to read the game state: " + err.Error())
 			}
 			t.wChan <- e
 			return
@@ -139,7 +140,7 @@ func (t *TitleScreen) loadWorld() {
 		in := bufio.NewReader(stdout)
 		e, err := ReadGame(in)
 		if err != nil {
-			t.wChan <- err
+			t.wChan <- errors.New("Failed to read the game state: " + err.Error())
 			return
 		}
 		if err = cmd.Wait(); err != nil {
