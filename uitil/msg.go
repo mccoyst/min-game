@@ -11,18 +11,30 @@ import (
 
 func WordWrap(d ui.Drawer, text string, bounds geom.Rectangle) {
 	words := strings.Fields(text)
+	if len(words) == 0 {
+		return
+	}
 
 	left := bounds.Min.X
 	wp := bounds.Min
-	for _, word := range words {
-		word += " "
-		wsz := d.TextSize(word)
-		if wp.X+wsz.X > bounds.Dx() {
+
+	wsz := d.Draw(words[0], wp)
+	wp.X += wsz.X
+
+	for _, word := range words[1:] {
+		spword := " " + word
+		wsz = d.TextSize(spword)
+
+		if wp.X+wsz.X > bounds.Max.X {
 			wp.Y += wsz.Y * 1.5
+			if wp.Y > bounds.Max.Y {
+				return
+			}
 			wp.X = left
+			spword = word
 		}
 
-		d.Draw(word, wp)
+		wsz = d.Draw(spword, wp)
 		wp.X += wsz.X
 	}
 }
