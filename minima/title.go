@@ -123,6 +123,12 @@ func (t *TitleScreen) loadWorld() {
 		}
 
 		wgen := exec.Command("wgen")
+		stderr, err := wgen.StderrPipe()
+		if err != nil {
+			panic(err)
+		}
+		go readErr(stderr, t.wgenErr)
+
 		p, err := pipeline.New(
 			wgen,
 			exec.Command("herbgen"),
@@ -130,16 +136,11 @@ func (t *TitleScreen) loadWorld() {
 		if err != nil {
 			panic(err)
 		}
-		stderr, err := wgen.StderrPipe()
-		if err != nil {
-			panic(err)
-		}
+
 		stdout, err := p.Last().StdoutPipe()
 		if err != nil {
 			panic(err)
 		}
-		go readErr(stderr, t.wgenErr)
-
 		if err := p.Start(); err != nil {
 			panic(err)
 		}
