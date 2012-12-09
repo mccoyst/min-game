@@ -55,9 +55,14 @@ func (mb *MessageBox) Transparent() bool {
 }
 
 func (mb *MessageBox) Draw(d ui.Drawer) {
+	border := mb.Box.Pad(mb.Pad)
+	d.SetColor(mb.Fg)
+	d.Draw(border, geom.Pt(0, 0))
+
 	d.SetFont(mb.Font, mb.Fontsz)
 	d.SetColor(mb.Bg)
 	d.Draw(mb.Box, geom.Pt(0, 0))
+
 	d.SetColor(mb.Fg)
 	WordWrap(d, mb.Text, mb.Box.Rpad(mb.Pad))
 }
