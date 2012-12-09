@@ -22,20 +22,5 @@ func (t *Treasure) Draw(d ui.Drawer, cam ui.Camera) {
 }
 
 func NewTreasureGet(name string) *uitil.MessageBox {
-	origin := geom.Pt(32, 32)
-	dims := geom.Pt(ScreenDims.X, ScreenDims.Y/2)
-	box := geom.Rectangle{
-		Min: origin,
-		Max: origin.Add(dims).Sub(origin.Mul(2)),
-	}
-
-	return &uitil.MessageBox{
-		Text:   "Bravo! You got the " + name + "!",
-		Font:   "prstartk",
-		Fontsz: 16,
-		Fg:     Black,
-		Bg:     White,
-		Box:    box,
-		Pad:    4.0,
-	}
+	return NewNormalMessage("Bravo! You got the " + name + "!")
 }

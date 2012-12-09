@@ -171,7 +171,7 @@ func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 					ex.treasure[i].Item = nil
 					break
 				} else {
-					stk.Push(NewTreasureGet("big fat NOTHING"))
+					stk.Push(NewNormalMessage("You don't have room for that in your pack."))
 					break
 				}
 			}
