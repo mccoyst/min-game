@@ -8,6 +8,7 @@ import (
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/rand"
 	"os"
@@ -24,8 +25,7 @@ func main() {
 		panic(err)
 	}
 
-	var anims animal.Animals
-	anims.Gulls, err = animal.MakeHerbivores("Gull")
+	gulls, err := animal.MakeHerbivores("Gull")
 	if err != nil {
 		panic(err)
 	}
@@ -35,10 +35,22 @@ func main() {
 		x := rand.Float64()*(xmax-xmin) + xmin
 		y := rand.Float64()*(ymax-ymin) + ymin
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		anims.Gulls.Spawn(geom.Pt(x, y), vel)
+		gulls.Spawn(geom.Pt(x, y), vel)
 	}
 
-	anims.Cows, err = animal.MakeHerbivores("Cow")
+	b, err := json.MarshalIndent(gulls, "", "\t")
+	if err != nil {
+		panic(err)
+	}
+	b = append(b, '\n')
+	if _, err := fmt.Fprintln(out, "herbs", len(b)); err != nil {
+		panic(err)
+	}
+	if _, err := out.Write(b); err != nil {
+		panic(err)
+	}
+
+	cows, err := animal.MakeHerbivores("Cow")
 	if err != nil {
 		panic(err)
 	}
@@ -54,11 +66,15 @@ func main() {
 			}
 		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		anims.Cows.Spawn(geom.Pt(x, y), vel)
+		cows.Spawn(geom.Pt(x, y), vel)
 	}
 
-	b, err := json.Marshal(anims)
+	b, err = json.MarshalIndent(cows, "", "\t")
 	if err != nil {
+		panic(err)
+	}
+	b = append(b, '\n')
+	if _, err := fmt.Fprintln(out, "herbs", len(b)); err != nil {
 		panic(err)
 	}
 	if _, err := out.Write(b); err != nil {

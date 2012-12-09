@@ -3,11 +3,17 @@
 package main
 
 import (
+	"bufio"
+	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"math"
 	"math/rand"
 )
@@ -20,24 +26,62 @@ type ExploreScreen struct {
 	cam      ui.Camera
 	astro    *Player
 	base     Base
-	animals  animal.Animals
+	herbs    []animal.Herbivores
 	treasure []Treasure
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
 }
 
-func NewExploreScreen(wo *world.World, animals animal.Animals) *ExploreScreen {
+// ReadExploreScreen reads an the items of an ExploreScreen
+// from the given reader and returns it, or an error if an error
+// was encountered.
+func ReadExploreScreen(r io.Reader) (*ExploreScreen, error) {
 	e := &ExploreScreen{
-		wo:  wo,
 		cam: ui.Camera{Dims: ScreenDims},
 	}
-	e.CenterOnTile(wo.X0, wo.Y0)
-	crashSite := geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize))
+	in := bufio.NewReader(r)
+	var err error
+	if e.wo, err = world.Read(in); err != nil {
+		return nil, err
+	}
+	crashSite := geom.Pt(float64(e.wo.X0*TileSize), float64(e.wo.Y0*TileSize))
 	e.astro = NewPlayer(e.wo, crashSite)
 	e.base = NewBase(crashSite)
-	e.animals = animals
+
+	for {
+		var name string
+		var size int64
+		_, err = fmt.Fscanln(in, &name, &size)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		switch name {
+		case "herbs":
+			b, err := ioutil.ReadAll(&io.LimitedReader{in, size})
+			if err != nil {
+				return nil, err
+			}
+			var h animal.Herbivores
+			if err = json.Unmarshal(b, &h); err != nil {
+				return nil, err
+			}
+			e.herbs = append(e.herbs, h)
+
+		default:
+			panic("unknown input section: " + name)
+		}
+	}
+
+	// for now
 	e.treasure = []Treasure{Treasure{&item.Element{"Uranium"}, e.astro.body.Box.Add(geom.Pt(128, 128))}}
-	return e
+
+	e.CenterOnTile(e.wo.Tile(e.astro.body.Center()))
+
+	return e, nil
 }
 
 func (e *ExploreScreen) Transparent() bool {
@@ -81,7 +125,9 @@ func (e *ExploreScreen) Draw(d ui.Drawer) {
 		}
 	}
 	e.astro.Draw(d, e.cam)
-	e.animals.Draw(d, e.cam)
+	for i := range e.herbs {
+		e.herbs[i].Draw(d, e.cam)
+	}
 
 	e.astro.drawO2(d)
 
@@ -166,7 +212,10 @@ func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
 
-	e.animals.Move(&e.astro.body, e.wo)
+	for i := range e.herbs {
+		ai.UpdateBoids(e.herbs[i], &e.astro.body, e.wo)
+		e.herbs[i].Move(e.wo)
+	}
 
 	return nil
 }
