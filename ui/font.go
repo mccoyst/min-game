@@ -120,10 +120,12 @@ func (f *font) extents() fontExtents {
 	em := f.ttf.FUnitsPerEm()
 	bounds := f.ttf.Bounds(em)
 	scale := (f.size / ptInch * pxInch) / float64(em)
+	a := int(float64(bounds.YMax)*scale + 0.5)
+	d := int(float64(bounds.YMin)*scale - 0.5)
 	return fontExtents{
-		height:  int(float64(bounds.YMax-bounds.YMin)*scale + 0.5),
-		ascent:  int(float64(bounds.YMax)*scale + 0.5),
-		descent: int(float64(bounds.YMin)*scale + 0.5),
+		height:  a - d,
+		ascent:  a,
+		descent: d,
 	}
 }
 
