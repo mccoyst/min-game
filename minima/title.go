@@ -155,20 +155,9 @@ func (t *TitleScreen) loadWorld() {
 	}()
 }
 
-// Pipes returns the standard output and error
-// pipes for a command.
-func pipes(cmd *exec.Cmd) (stdout, stderr io.Reader, err error) {
-	if stdout, err = cmd.StdoutPipe(); err != nil {
-		return
-	}
-	stderr, err = cmd.StderrPipe()
-	return
-}
-
 // ReadErr reads wgen's standard error, picks out
 // what it is currently doing and sends the strings
 // to the channel.
-// BUG(eaburns): readErr is pretty ugly.
 func readErr(r io.Reader, strs chan<- string) {
 	in := bufio.NewReader(io.TeeReader(r, os.Stderr))
 	for {
