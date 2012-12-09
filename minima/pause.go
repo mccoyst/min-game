@@ -3,10 +3,9 @@
 package main
 
 import (
-	"strings"
-
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/uitil"
 )
 
 type PauseScreen struct {
@@ -81,24 +80,9 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	d.SetColor(Black)
 	d.Draw(descBounds, geom.Pt(0, 0))
 
-	desc := p.astro.suit[p.selected].Desc()
-	words := strings.Fields(desc)
-
 	d.SetColor(White)
-
-	left := descBounds.Min.X + pad
-	wp := geom.Pt(left, descBounds.Min.Y+pad)
-	for _, word := range words {
-		word += " "
-		wsz := d.TextSize(word)
-		if wp.X+wsz.X > descBounds.Dx() {
-			wp.Y += wsz.Y + pad
-			wp.X = left
-		}
-
-		d.Draw(word, wp)
-		wp.X += wsz.X
-	}
+	desc := p.astro.suit[p.selected].Desc()
+	uitil.WordWrap(d, desc, descBounds.Rpad(pad))
 }
 
 func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
