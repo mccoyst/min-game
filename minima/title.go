@@ -138,7 +138,7 @@ func (t *TitleScreen) loadWorld() {
 			return
 		}
 
-		cmd := exec.Command("sh", "-c", "wgen | cowgen")
+		cmd := exec.Command("sh", "-c", "wgen | herbgen")
 		stdout, stderr, err := pipes(cmd)
 		if err != nil {
 			t.wChan <- err
