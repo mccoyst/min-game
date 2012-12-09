@@ -26,8 +26,6 @@ type Game struct {
 	base     Base
 	herbs    []animal.Herbivores
 	treasure []Treasure
-	// Keys is a bitmask of the currently pressed keys.
-	keys ui.Button
 }
 
 // ReadGame returns a *Game, read from the given
