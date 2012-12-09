@@ -131,7 +131,9 @@ func (t *TitleScreen) loadWorld() {
 
 		p, err := pipeline.New(
 			wgen,
-			exec.Command("herbgen"),
+			exec.Command("herbnear", "-num", "25", "-name", "Cow"),
+			exec.Command("herbnear", "-num", "25", "-name", "Gull"),
+			exec.Command("tee", "cur"),
 		)
 		if err != nil {
 			panic(err)
