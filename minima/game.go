@@ -30,9 +30,8 @@ type Game struct {
 	keys ui.Button
 }
 
-// ReadGame reads an the items of an Game
-// from the given reader and returns it, or an error if an error
-// was encountered.
+// ReadGame returns a *Game, read from the given
+// reader.
 func ReadGame(r io.Reader) (*Game, error) {
 	e := &Game{
 		cam: ui.Camera{Dims: ScreenDims},
