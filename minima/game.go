@@ -11,9 +11,7 @@ import (
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"encoding/json"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"math/rand"
 )
@@ -48,25 +46,21 @@ func ReadGame(r io.Reader) (*Game, error) {
 	e.astro = NewPlayer(e.wo, crashSite)
 	e.base = NewBase(crashSite)
 
+	dec := json.NewDecoder(in)
 	for {
 		var name string
-		var size int64
-		_, err = fmt.Fscanln(in, &name, &size)
-		if err == io.EOF {
-			break
-		}
+		err = dec.Decode(&name)
 		if err != nil {
+			if err == io.EOF {
+				break
+			}
 			return nil, err
 		}
 
 		switch name {
 		case "herbs":
-			b, err := ioutil.ReadAll(&io.LimitedReader{in, size})
-			if err != nil {
-				return nil, err
-			}
 			var h animal.Herbivores
-			if err = json.Unmarshal(b, &h); err != nil {
+			if err = dec.Decode(&h); err != nil {
 				return nil, err
 			}
 			e.herbs = append(e.herbs, h)

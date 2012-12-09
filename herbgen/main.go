@@ -8,7 +8,6 @@ import (
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/world"
 	"encoding/json"
-	"fmt"
 	"io"
 	"math/rand"
 	"os"
@@ -25,6 +24,8 @@ func main() {
 		panic(err)
 	}
 
+	enc := json.NewEncoder(out)
+
 	gulls, err := animal.MakeHerbivores("Gull")
 	if err != nil {
 		panic(err)
@@ -38,15 +39,10 @@ func main() {
 		gulls.Spawn(geom.Pt(x, y), vel)
 	}
 
-	b, err := json.MarshalIndent(gulls, "", "\t")
-	if err != nil {
+	if err = enc.Encode("herbs"); err != nil {
 		panic(err)
 	}
-	b = append(b, '\n')
-	if _, err := fmt.Fprintln(out, "herbs", len(b)); err != nil {
-		panic(err)
-	}
-	if _, err := out.Write(b); err != nil {
+	if err = enc.Encode(gulls); err != nil {
 		panic(err)
 	}
 
@@ -69,15 +65,10 @@ func main() {
 		cows.Spawn(geom.Pt(x, y), vel)
 	}
 
-	b, err = json.MarshalIndent(cows, "", "\t")
-	if err != nil {
+	if err = enc.Encode("herbs"); err != nil {
 		panic(err)
 	}
-	b = append(b, '\n')
-	if _, err := fmt.Fprintln(out, "herbs", len(b)); err != nil {
-		panic(err)
-	}
-	if _, err := out.Write(b); err != nil {
+	if err = enc.Encode(cows); err != nil {
 		panic(err)
 	}
 }
