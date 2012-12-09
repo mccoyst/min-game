@@ -83,12 +83,15 @@ func (e *ExploreScreen) Draw(d ui.Drawer) {
 	e.astro.Draw(d, e.cam)
 	e.animals.Draw(d, e.cam)
 
+	e.astro.drawO2(d)
+
 	if !*locInfo {
 		return
 	}
 	d.SetFont("prstartk", 14)
 	d.SetColor(White)
-	d.Draw(e.astro.info, geom.Pt(0, 0))
+	sz := d.TextSize(e.astro.info)
+	d.Draw(e.astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))
 }
 
 func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) {
