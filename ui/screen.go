@@ -11,7 +11,7 @@ import (
 
 // A Drawer can draw things and change colors.
 type Drawer interface {
-	Draw(interface{}, geom.Point) (geom.Point, error)
+	Draw(interface{}, geom.Point) geom.Point
 	SetFont(name string, szPts float64)
 	SetColor(color.Color)
 	TextSize(string) geom.Point
@@ -20,7 +20,7 @@ type Drawer interface {
 // A Screen represents some game screen. E.g. the title, the main gameplay, etc.
 type Screen interface {
 	// Draw should send draw commands via the given Writer.
-	Draw(Drawer) error
+	Draw(Drawer)
 
 	// Handle is called for each event coming from the
 	// Ui, with the exception of the Close event which is
@@ -95,14 +95,10 @@ func (s *ScreenStack) Run() {
 		s.win.SetColor(color.Black)
 		s.win.Clear()
 		if s.top().Transparent() && len(s.stk) > 1 {
-			if err := s.stk[len(s.stk)-2].Draw(s.win); err != nil {
-				panic(err)
-			}
+			s.stk[len(s.stk)-2].Draw(s.win)
 		}
 
-		if err := s.top().Draw(s.win); err != nil {
-			panic(err)
-		}
+		s.top().Draw(s.win)
 		s.win.Sync()
 
 		if err := s.top().Update(s); err != nil {

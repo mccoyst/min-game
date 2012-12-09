@@ -18,12 +18,9 @@ func (t *GameOverScreen) Transparent() bool {
 	return false
 }
 
-func (t *GameOverScreen) Draw(d ui.Drawer) error {
+func (t *GameOverScreen) Draw(d ui.Drawer) {
 	d.SetColor(Red)
-	_, err := d.Draw(geom.Rect(0, 0, ScreenDims.X, ScreenDims.Y), geom.Pt(0, 0))
-	if err != nil {
-		return err
-	}
+	d.Draw(geom.Rect(0, 0, ScreenDims.X, ScreenDims.Y), geom.Pt(0, 0))
 
 	d.SetColor(Black)
 	d.SetFont("bit_outline", 96)
@@ -31,18 +28,13 @@ func (t *GameOverScreen) Draw(d ui.Drawer) error {
 	textSz := d.TextSize(text)
 	textPos := geom.Pt(ScreenDims.X/2-textSz.X/2,
 		ScreenDims.Y/2-textSz.Y)
-	wh, err := d.Draw(text, textPos)
-	if err != nil {
-		return err
-	}
+	wh := d.Draw(text, textPos)
 
 	d.SetFont("prstartk", 12)
 	flavor := "…and there was nothing…"
 	flavorSz := d.TextSize(flavor)
 	flavorPos := geom.Pt(ScreenDims.X/2-flavorSz.X/2, textPos.Y+wh.Y+flavorSz.Y)
-	_, err = d.Draw(flavor, flavorPos)
-
-	return err
+	d.Draw(flavor, flavorPos)
 }
 
 func (t *GameOverScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {

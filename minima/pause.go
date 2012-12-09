@@ -23,7 +23,7 @@ func (p *PauseScreen) Transparent() bool {
 	return true
 }
 
-func (p *PauseScreen) Draw(d ui.Drawer) error {
+func (p *PauseScreen) Draw(d ui.Drawer) {
 	d.SetFont("prstartk", 16)
 
 	origin := geom.Pt(32, 32)
@@ -39,49 +39,38 @@ func (p *PauseScreen) Draw(d ui.Drawer) error {
 	}
 
 	d.SetColor(Black)
-	_, err := d.Draw(suitBounds, geom.Pt(0, 0))
-	if err != nil {
-		return err
-	}
+	d.Draw(suitBounds, geom.Pt(0, 0))
 
 	pt := origin.Add(geom.Pt(pad, pad))
 
 	d.SetColor(White)
-	_, err = d.Draw(suitLabel, pt)
-	if err != nil {
-		return err
-	}
+	d.Draw(suitLabel, pt)
 	pt.X += suitSz.X + pad
 
 	for i, a := range p.astro.suit {
 		if i == p.selected {
 			d.SetColor(Lemon)
-			_, err = d.Draw(geom.Rectangle{
+			d.Draw(geom.Rectangle{
 				Min: pt.Sub(geom.Pt(2, 2)),
 				Max: pt.Add(geom.Pt(34, 34)),
 			}, geom.Pt(0, 0))
-			if err != nil {
-				return err
-			}
 		}
 
 		if a == nil {
 			continue
 		}
 
-		_, err = d.Draw(ui.Sprite{
+		d.Draw(ui.Sprite{
 			Name:   a.Name(),
 			Bounds: geom.Rect(0, 0, 32, 32),
 			Shade:  1.0,
 		}, pt)
-		if err != nil {
-			return err
-		}
+
 		pt.X += 32.0 + pad
 	}
 
 	if p.astro.suit[p.selected] == nil {
-		return nil
+		return
 	}
 
 	descBounds := geom.Rectangle{
@@ -90,10 +79,7 @@ func (p *PauseScreen) Draw(d ui.Drawer) error {
 	}
 
 	d.SetColor(Black)
-	_, err = d.Draw(descBounds, geom.Pt(0, 0))
-	if err != nil {
-		return err
-	}
+	d.Draw(descBounds, geom.Pt(0, 0))
 
 	desc := p.astro.suit[p.selected].Desc()
 	words := strings.Fields(desc)
@@ -110,15 +96,9 @@ func (p *PauseScreen) Draw(d ui.Drawer) error {
 			wp.X = left
 		}
 
-		_, err = d.Draw(word, wp)
-		if err != nil {
-			return err
-		}
-
+		d.Draw(word, wp)
 		wp.X += wsz.X
 	}
-
-	return err
 }
 
 func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {

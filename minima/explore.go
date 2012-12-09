@@ -47,7 +47,7 @@ func (e *ExploreScreen) CenterOnTile(x, y int) {
 		TileSize*float64(y)+TileSize/2))
 }
 
-func (e *ExploreScreen) Draw(d ui.Drawer) error {
+func (e *ExploreScreen) Draw(d ui.Drawer) {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
 	x0, y0 := e.wo.Tile(e.cam.Pt)
 
@@ -64,49 +64,34 @@ func (e *ExploreScreen) Draw(d ui.Drawer) error {
 	for x := x0; x <= x0+w; x++ {
 		for y := y0; y <= y0+h; y++ {
 			l := e.wo.At(x, y)
-			err := drawCell(d, l, x, y, pt)
-			if err != nil {
-				return err
-			}
+			drawCell(d, l, x, y, pt)
 			pt.Y += TileSize
 		}
 		pt.Y = yoff0
 		pt.X += TileSize
 	}
 
-	if err := e.base.Draw(d, e.cam); err != nil {
-		return err
-	}
-
-	if err := e.astro.Draw(d, e.cam); err != nil {
-		return err
-	}
-	if err := e.anims.Draw(d, e.cam); err != nil {
-		return err
-	}
+	e.base.Draw(d, e.cam)
+	e.astro.Draw(d, e.cam)
+	e.anims.Draw(d, e.cam)
 
 	if !*locInfo {
-		return nil
+		return
 	}
 	d.SetFont("prstartk", 14)
 	d.SetColor(White)
-	if _, err := d.Draw(e.astro.info, geom.Pt(0, 0)); err != nil {
-		return err
-	}
-	return nil
+	d.Draw(e.astro.info, geom.Pt(0, 0))
 }
 
-func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) error {
+func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) {
 	const minSh = 0.15
 	const slope = (1 - minSh) / world.MaxElevation
 
-	_, err := d.Draw(ui.Sprite{
+	d.Draw(ui.Sprite{
 		Name:   l.Terrain.Name,
 		Bounds: geom.Rect(0, 0, TileSize, TileSize),
 		Shade:  slope*float32(l.Elevation-l.Depth) + minSh,
 	}, pt)
-
-	return err
 }
 
 func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {

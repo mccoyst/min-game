@@ -20,6 +20,6 @@ func (c *Camera) Center(v geom.Point) {
 	c.Pt.Y = v.Y - c.Dims.Y/2.0
 }
 
-func (c *Camera) Draw(d Drawer, x interface{}, p geom.Point) (geom.Point, error) {
+func (c *Camera) Draw(d Drawer, x interface{}, p geom.Point) geom.Point {
 	return d.Draw(x, p.Sub(c.Pt))
 }

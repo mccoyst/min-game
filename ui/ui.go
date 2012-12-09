@@ -355,17 +355,18 @@ will be rendered, or an error. Draw supports the following types:
 	image.Image
 		The given image is drawn at offset p.
 */
-func (ui *Ui) Draw(i interface{}, p geom.Point) (geom.Point, error) {
+func (ui *Ui) Draw(i interface{}, p geom.Point) geom.Point {
 	switch d := i.(type) {
 	case geom.Rectangle:
 		loc := d.Min.Add(p)
 		fillRect(ui, int(loc.X), int(loc.Y), int(d.Dx()), int(d.Dy()))
-		return d.Size(), nil
+		return d.Size()
 	case Sprite:
-		return d.Bounds.Size(), drawSprite(ui, d, p)
+		drawSprite(ui, d, p)
+		return d.Bounds.Size()
 	case string:
 		if d == "" {
-			return geom.Pt(0, 0), nil
+			return geom.Pt(0, 0)
 		}
 		return drawText(ui, d, p)
 	case image.Image:
@@ -400,7 +401,7 @@ func (img *sdlImg) Draw(ui *Ui, s Sprite, p geom.Point) {
 
 // DrawText draws the string to the ui at the given point, 
 // using the ui's current font, and current color.
-func drawText(ui *Ui, txt string, p geom.Point) (geom.Point, error) {
+func drawText(ui *Ui, txt string, p geom.Point) geom.Point {
 	r, g, b, a := ui.color.RGBA()
 	key := textKey{
 		txt:  txt,
@@ -418,11 +419,11 @@ func drawText(ui *Ui, txt string, p geom.Point) (geom.Point, error) {
 	} else {
 		i, err := ui.font.render(txt)
 		if err != nil {
-			return geom.Point{}, err
+			panic(err)
 		}
 		img, err = newSdlImage(ui, i, "")
 		if err != nil {
-			return geom.Point{}, err
+			panic(err)
 		}
 		c = &cachedText{
 			img,
@@ -432,19 +433,19 @@ func drawText(ui *Ui, txt string, p geom.Point) (geom.Point, error) {
 		ui.txtCache[key] = c
 	}
 	img.Draw(ui, Sprite{Bounds: c.rect, Shade: 1.0}, p)
-	return geom.Pt(float64(c.rect.Dx()), float64(c.rect.Dy())), nil
+	return geom.Pt(float64(c.rect.Dx()), float64(c.rect.Dy()))
 }
 
 // DrawImage draws an image to the UI at the given point.
-func drawImage(ui *Ui, i image.Image, p geom.Point) (geom.Point, error) {
+func drawImage(ui *Ui, i image.Image, p geom.Point) geom.Point {
 	s, err := newSdlImage(ui, i, "")
 	if err != nil {
-		return geom.Point{}, err
+		panic(err)
 	}
 	defer s.Close()
 
 	s.Draw(ui, Sprite{Bounds: toRect(i.Bounds()), Shade: 1.0}, p)
-	return geom.Pt(float64(i.Bounds().Dx()), float64(i.Bounds().Dy())), nil
+	return geom.Pt(float64(i.Bounds().Dx()), float64(i.Bounds().Dy()))
 }
 
 // BUG(mccoyst): barf
