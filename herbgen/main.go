@@ -6,8 +6,8 @@ import (
 	"bufio"
 	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/json"
 	"code.google.com/p/min-game/world"
-	"encoding/json"
 	"io"
 	"math/rand"
 	"os"
@@ -24,8 +24,6 @@ func main() {
 		panic(err)
 	}
 
-	enc := json.NewEncoder(out)
-
 	gulls, err := animal.MakeHerbivores("Gull")
 	if err != nil {
 		panic(err)
@@ -39,10 +37,7 @@ func main() {
 		gulls.Spawn(geom.Pt(x, y), vel)
 	}
 
-	if err = enc.Encode("herbs"); err != nil {
-		panic(err)
-	}
-	if err = enc.Encode(gulls); err != nil {
+	if err = json.Encode(out, "herbs", gulls); err != nil {
 		panic(err)
 	}
 
@@ -65,10 +60,7 @@ func main() {
 		cows.Spawn(geom.Pt(x, y), vel)
 	}
 
-	if err = enc.Encode("herbs"); err != nil {
-		panic(err)
-	}
-	if err = enc.Encode(cows); err != nil {
+	if err = json.Encode(out, "herbs", cows); err != nil {
 		panic(err)
 	}
 }
