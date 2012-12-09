@@ -37,12 +37,12 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 		Max: origin.Add(geom.Pt(width, height)),
 	}
 
-	d.SetColor(Black)
+	d.SetColor(White)
 	d.Draw(suitBounds, geom.Pt(0, 0))
 
 	pt := origin.Add(geom.Pt(pad, pad))
 
-	d.SetColor(White)
+	d.SetColor(Black)
 	d.Draw(suitLabel, pt)
 	pt.X += suitSz.X + pad
 
@@ -77,10 +77,10 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 		Max: geom.Pt(ScreenDims.X-origin.X, ScreenDims.Y-origin.Y),
 	}
 
-	d.SetColor(Black)
+	d.SetColor(White)
 	d.Draw(descBounds, geom.Pt(0, 0))
 
-	d.SetColor(White)
+	d.SetColor(Black)
 	desc := p.astro.suit[p.selected].Desc()
 	uitil.WordWrap(d, desc, descBounds.Rpad(pad))
 }
