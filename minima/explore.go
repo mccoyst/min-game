@@ -88,9 +88,7 @@ func (e *ExploreScreen) Draw(d ui.Drawer) error {
 	if !*locInfo {
 		return nil
 	}
-	if err := d.SetFont("prstartk", 14); err != nil {
-		return err
-	}
+	d.SetFont("prstartk", 14)
 	d.SetColor(White)
 	if _, err := d.Draw(e.astro.info, geom.Pt(0, 0)); err != nil {
 		return err

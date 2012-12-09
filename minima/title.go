@@ -48,18 +48,14 @@ func (t *TitleScreen) Draw(d ui.Drawer) error {
 			t.genTxt = "Reticulating Splines"
 		}
 		d.SetColor(Lime)
-		if err := d.SetFont("prstartk", 12); err != nil {
-			return err
-		}
+		d.SetFont("prstartk", 12)
 		genSz := d.TextSize(t.genTxt)
 		_, err := d.Draw(t.genTxt, geom.Pt(0, ScreenDims.Y-genSz.Y))
 		return err
 	}
 
 	d.SetColor(White)
-	if err := d.SetFont("bit_outline", 96); err != nil {
-		return err
-	}
+	d.SetFont("bit_outline", 96)
 	titleTxt := "MINIMA"
 	titleSz := d.TextSize(titleTxt)
 	titlePos := geom.Pt(ScreenDims.X/2-titleSz.X/2,
@@ -69,9 +65,7 @@ func (t *TitleScreen) Draw(d ui.Drawer) error {
 		return err
 	}
 
-	if err := d.SetFont("prstartk", 12); err != nil {
-		return err
-	}
+	d.SetFont("prstartk", 12)
 	startTxt := "Press " + actionKey() + " to Start"
 	startSz := d.TextSize(startTxt)
 	startPos := geom.Pt(ScreenDims.X/2-startSz.X/2, titlePos.Y+wh.Y+startSz.Y)

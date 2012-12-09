@@ -56,9 +56,7 @@ func (s *BaseScreen) Draw(d ui.Drawer) error {
 	}
 
 	d.SetColor(White)
-	if err := d.SetFont("prstartk", 16); err != nil {
-		return err
-	}
+	d.SetFont("prstartk", 16)
 
 	_, err = d.Draw("Something will go here.", origin.Add(geom.Pt(16, 16)))
 	return err

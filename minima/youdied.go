@@ -26,9 +26,7 @@ func (t *GameOverScreen) Draw(d ui.Drawer) error {
 	}
 
 	d.SetColor(Black)
-	if err := d.SetFont("bit_outline", 96); err != nil {
-		return err
-	}
+	d.SetFont("bit_outline", 96)
 	text := "You Died"
 	textSz := d.TextSize(text)
 	textPos := geom.Pt(ScreenDims.X/2-textSz.X/2,
@@ -38,9 +36,7 @@ func (t *GameOverScreen) Draw(d ui.Drawer) error {
 		return err
 	}
 
-	if err := d.SetFont("prstartk", 12); err != nil {
-		return err
-	}
+	d.SetFont("prstartk", 12)
 	flavor := "…and there was nothing…"
 	flavorSz := d.TextSize(flavor)
 	flavorPos := geom.Pt(ScreenDims.X/2-flavorSz.X/2, textPos.Y+wh.Y+flavorSz.Y)
