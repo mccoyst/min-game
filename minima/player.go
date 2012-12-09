@@ -152,3 +152,14 @@ func (p *Player) FindEtele() *item.Etele {
 	}
 	return nil
 }
+
+// PutPack tries to add i to the player's backpack, and returns true iff successful.
+func (p *Player) PutPack(i Item) bool {
+	for j := range p.pack {
+		if p.pack[j] == nil {
+			p.pack[j] = i
+			return true
+		}
+	}
+	return false
+}

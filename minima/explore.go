@@ -76,7 +76,9 @@ func (e *ExploreScreen) Draw(d ui.Drawer) {
 
 	e.base.Draw(d, e.cam)
 	for _, t := range e.treasure {
-		t.Draw(d, e.cam)
+		if t.Item != nil {
+			t.Draw(d, e.cam)
+		}
 	}
 	e.astro.Draw(d, e.cam)
 	e.animals.Draw(d, e.cam)
@@ -112,6 +114,18 @@ func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	case ui.Action:
 		if ex.astro.body.Box.Overlaps(ex.base.Box) {
 			stk.Push(NewBaseScreen(ex.astro, &ex.base))
+		}
+		for i, t := range ex.treasure {
+			if t.Item != nil && ex.astro.body.Box.Overlaps(t.Box) {
+				if ex.astro.PutPack(t.Item) {
+					stk.Push(NewTreasureGet(t.Item.Name()))
+					ex.treasure[i].Item = nil
+					break
+				} else {
+					stk.Push(NewTreasureGet("big fat NOTHING"))
+					break
+				}
+			}
 		}
 	}
 	return nil
