@@ -4,7 +4,7 @@ package main
 
 import (
 	"bufio"
-	"errors"
+	"github.com/mccoyst/pipeline"
 	"io"
 	"os"
 	"os/exec"
@@ -22,8 +22,8 @@ type TitleScreen struct {
 	// wgenErr receives strings from wgen's stderr.
 	wgenErr chan string
 
-	// wChan receieves the world from the reader.
-	wChan chan interface{}
+	// gameChan receieves the *Game from the reader.
+	gameChan chan *Game
 
 	frame int
 }
@@ -93,21 +93,18 @@ func (t *TitleScreen) Update(stk *ui.ScreenStack) error {
 			break
 		}
 		t.genTxt = s
-	case i := <-t.wChan:
-		if err, ok := i.(error); ok {
-			return err
-		}
+	case g := <-t.gameChan:
 		for _ = range t.genTxt {
 		} // junk it
 		t.loading = false
-		stk.Push(i.(*Game))
+		stk.Push(g)
 	default:
 	}
 	return nil
 }
 
 func (t *TitleScreen) loadWorld() {
-	t.wChan = make(chan interface{})
+	t.gameChan = make(chan *Game)
 	t.wgenErr = make(chan string, 1)
 	t.loading = true
 
@@ -117,37 +114,44 @@ func (t *TitleScreen) loadWorld() {
 			t.wgenErr <- "Reading World"
 			close(t.wgenErr)
 			in := bufio.NewReader(os.Stdin)
-			e, err := ReadGame(in)
+			g, err := ReadGame(in)
 			if err != nil {
-				t.wChan <- errors.New("Failed to read the game state: " + err.Error())
+				panic(err)
 			}
-			t.wChan <- e
+			t.gameChan <- g
 			return
 		}
 
-		cmd := exec.Command("sh", "-c", "wgen | herbgen")
-		stdout, stderr, err := pipes(cmd)
+		wgen := exec.Command("wgen")
+		p, err := pipeline.New(
+			wgen,
+			exec.Command("herbgen"),
+		)
 		if err != nil {
-			t.wChan <- err
-			return
+			panic(err)
+		}
+		stderr, err := wgen.StderrPipe()
+		if err != nil {
+			panic(err)
+		}
+		stdout, err := p.Last().StdoutPipe()
+		if err != nil {
+			panic(err)
 		}
 		go readErr(stderr, t.wgenErr)
 
-		if err := cmd.Start(); err != nil {
-			t.wChan <- err
-			return
+		if err := p.Start(); err != nil {
+			panic(err)
 		}
 		in := bufio.NewReader(stdout)
-		e, err := ReadGame(in)
+		g, err := ReadGame(in)
 		if err != nil {
-			t.wChan <- errors.New("Failed to read the game state: " + err.Error())
-			return
+			panic(err)
 		}
-		if err = cmd.Wait(); err != nil {
-			t.wChan <- err
-			return
+		if errs := p.Wait(); len(errs) > 0 {
+			panic(errs)
 		}
-		t.wChan <- e
+		t.gameChan <- g
 	}()
 }
 
