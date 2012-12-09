@@ -15,16 +15,16 @@ import (
 const TileSize = 32
 
 type ExploreScreen struct {
-	wo    *world.World
-	cam   ui.Camera
-	astro *Player
-	base  Base
-	anims animal.Animals
+	wo      *world.World
+	cam     ui.Camera
+	astro   *Player
+	base    Base
+	animals animal.Animals
 	// Keys is a bitmask of the currently pressed keys.
 	keys ui.Button
 }
 
-func NewExploreScreen(wo *world.World, anims animal.Animals) *ExploreScreen {
+func NewExploreScreen(wo *world.World, animals animal.Animals) *ExploreScreen {
 	e := &ExploreScreen{
 		wo:  wo,
 		cam: ui.Camera{Dims: ScreenDims},
@@ -33,7 +33,7 @@ func NewExploreScreen(wo *world.World, anims animal.Animals) *ExploreScreen {
 	crashSite := geom.Pt(float64(wo.X0*TileSize), float64(wo.Y0*TileSize))
 	e.astro = NewPlayer(e.wo, crashSite)
 	e.base = NewBase(crashSite)
-	e.anims = anims
+	e.animals = animals
 	return e
 }
 
@@ -73,7 +73,7 @@ func (e *ExploreScreen) Draw(d ui.Drawer) {
 
 	e.base.Draw(d, e.cam)
 	e.astro.Draw(d, e.cam)
-	e.anims.Draw(d, e.cam)
+	e.animals.Draw(d, e.cam)
 
 	if !*locInfo {
 		return
@@ -143,7 +143,7 @@ func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
 	e.astro.Move(e.wo)
 	e.cam.Center(e.astro.body.Box.Center())
 
-	e.anims.Move(&e.astro.body, e.wo)
+	e.animals.Move(&e.astro.body, e.wo)
 
 	return nil
 }
