@@ -99,7 +99,7 @@ func (t *TitleScreen) Update(stk *ui.ScreenStack) error {
 		for _ = range t.genTxt {
 		} // junk it
 		t.loading = false
-		stk.Push(i.(*ExploreScreen))
+		stk.Push(i.(*Game))
 	default:
 	}
 	return nil
@@ -116,7 +116,7 @@ func (t *TitleScreen) loadWorld() {
 			t.wgenErr <- "Reading World"
 			close(t.wgenErr)
 			in := bufio.NewReader(os.Stdin)
-			e, err := ReadExploreScreen(in)
+			e, err := ReadGame(in)
 			if err != nil {
 				t.wChan <- err
 			}
@@ -137,7 +137,7 @@ func (t *TitleScreen) loadWorld() {
 			return
 		}
 		in := bufio.NewReader(stdout)
-		e, err := ReadExploreScreen(in)
+		e, err := ReadGame(in)
 		if err != nil {
 			t.wChan <- err
 			return

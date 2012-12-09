@@ -21,7 +21,7 @@ import (
 // TileSize is the width and height of a tile in pixels.
 const TileSize = 32
 
-type ExploreScreen struct {
+type Game struct {
 	wo       *world.World
 	cam      ui.Camera
 	astro    *Player
@@ -32,11 +32,11 @@ type ExploreScreen struct {
 	keys ui.Button
 }
 
-// ReadExploreScreen reads an the items of an ExploreScreen
+// ReadGame reads an the items of an Game
 // from the given reader and returns it, or an error if an error
 // was encountered.
-func ReadExploreScreen(r io.Reader) (*ExploreScreen, error) {
-	e := &ExploreScreen{
+func ReadGame(r io.Reader) (*Game, error) {
+	e := &Game{
 		cam: ui.Camera{Dims: ScreenDims},
 	}
 	in := bufio.NewReader(r)
@@ -84,17 +84,17 @@ func ReadExploreScreen(r io.Reader) (*ExploreScreen, error) {
 	return e, nil
 }
 
-func (e *ExploreScreen) Transparent() bool {
+func (e *Game) Transparent() bool {
 	return false
 }
 
 // CenterOnTile centers the display on a given tile.
-func (e *ExploreScreen) CenterOnTile(x, y int) {
+func (e *Game) CenterOnTile(x, y int) {
 	e.cam.Center(geom.Pt(TileSize*float64(x)+TileSize/2,
 		TileSize*float64(y)+TileSize/2))
 }
 
-func (e *ExploreScreen) Draw(d ui.Drawer) {
+func (e *Game) Draw(d ui.Drawer) {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
 	x0, y0 := e.wo.Tile(e.cam.Pt)
 
@@ -151,7 +151,7 @@ func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) {
 	}, pt)
 }
 
-func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
+func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	k, ok := ev.(ui.Key)
 	if !ok || !k.Down {
 		return nil
@@ -180,7 +180,7 @@ func (ex *ExploreScreen) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	return nil
 }
 
-func (e *ExploreScreen) Update(stk *ui.ScreenStack) error {
+func (e *Game) Update(stk *ui.ScreenStack) error {
 	const speed = 4 // px
 
 	if e.astro.o2 == 0 {
