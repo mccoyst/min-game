@@ -106,8 +106,6 @@ func (p *Player) Draw(d ui.Drawer, cam ui.Camera) {
 		Bounds: astroSheet.Frame(p.anim.Face, p.anim.Frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
-
-	p.drawO2(d)
 }
 
 func (p *Player) RefillO2() {
