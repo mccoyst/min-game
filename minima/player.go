@@ -32,12 +32,20 @@ type Player struct {
 
 	suit    []Augment
 	maxAugs int
+
+	pack    []Item
+	maxPack int
 }
 
-// An Augment is something that can be plugged into the player's suit.
-type Augment interface {
+// An Item is something that can go in the backpack.
+type Item interface {
 	Name() string
 	Desc() string
+}
+
+// An Augment is an item that can be plugged into the player's suit.
+type Augment interface {
+	Item
 	Use() bool
 }
 
@@ -70,6 +78,8 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		o2:      50,
 		suit:    []Augment{&item.Etele{3}, nil},
 		maxAugs: 2,
+		pack:    []Item{nil, nil, &item.Element{"Uranium"}, nil},
+		maxPack: 4,
 	}
 }
 
