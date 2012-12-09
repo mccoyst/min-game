@@ -42,7 +42,7 @@ func (t *TitleScreen) Transparent() bool {
 	return false
 }
 
-func (t *TitleScreen) Draw(d ui.Drawer) error {
+func (t *TitleScreen) Draw(d ui.Drawer) {
 	if t.loading {
 		if t.genTxt == "" {
 			t.genTxt = "Reticulating Splines"
@@ -50,8 +50,8 @@ func (t *TitleScreen) Draw(d ui.Drawer) error {
 		d.SetColor(Lime)
 		d.SetFont("prstartk", 12)
 		genSz := d.TextSize(t.genTxt)
-		_, err := d.Draw(t.genTxt, geom.Pt(0, ScreenDims.Y-genSz.Y))
-		return err
+		d.Draw(t.genTxt, geom.Pt(0, ScreenDims.Y-genSz.Y))
+		return
 	}
 
 	d.SetColor(White)
@@ -60,24 +60,18 @@ func (t *TitleScreen) Draw(d ui.Drawer) error {
 	titleSz := d.TextSize(titleTxt)
 	titlePos := geom.Pt(ScreenDims.X/2-titleSz.X/2,
 		ScreenDims.Y/2-titleSz.Y)
-	wh, err := d.Draw(titleTxt, titlePos)
-	if err != nil {
-		return err
-	}
+	wh := d.Draw(titleTxt, titlePos)
 
 	d.SetFont("prstartk", 12)
 	startTxt := "Press " + actionKey() + " to Start"
 	startSz := d.TextSize(startTxt)
 	startPos := geom.Pt(ScreenDims.X/2-startSz.X/2, titlePos.Y+wh.Y+startSz.Y)
-	if wh, err = d.Draw(startTxt, startPos); err != nil {
-		return err
-	}
+	wh = d.Draw(startTxt, startPos)
 
 	crTxt := "© 2012 The Minima Authors"
 	crSz := d.TextSize(crTxt)
 	crPos := geom.Pt(ScreenDims.X/2-crSz.X/2, ScreenDims.Y-crSz.Y)
-	_, err = d.Draw(crTxt, crPos)
-	return err
+	d.Draw(crTxt, crPos)
 }
 
 func (t *TitleScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {

@@ -40,14 +40,9 @@ func Read(r io.Reader) (Animals, error) {
 	return anims, err
 }
 
-func (a Animals) Draw(d ui.Drawer, cam ui.Camera) error {
-	if err := a.Gulls.Draw(d, cam); err != nil {
-		return err
-	}
-	if err := a.Cows.Draw(d, cam); err != nil {
-		return err
-	}
-	return nil
+func (a Animals) Draw(d ui.Drawer, cam ui.Camera) {
+	a.Gulls.Draw(d, cam)
+	a.Cows.Draw(d, cam)
 }
 
 func (a Animals) Move(astro *phys.Body, w *world.World) {

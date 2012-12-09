@@ -37,18 +37,14 @@ func (hs Herbivores) Move(w *world.World) {
 	}
 }
 
-func (hs Herbivores) Draw(d ui.Drawer, cam ui.Camera) error {
+func (hs Herbivores) Draw(d ui.Drawer, cam ui.Camera) {
 	for _, h := range hs.Herbs {
-		_, err := cam.Draw(d, ui.Sprite{
+		cam.Draw(d, ui.Sprite{
 			Name:   hs.Info.Sheet.Name,
 			Bounds: hs.Info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
 			Shade:  1.0,
 		}, h.Body.Box.Min)
-		if err != nil {
-			return err
-		}
 	}
-	return nil
 }
 
 // Spawn spawns a new Herbivore for this Herbivores collection.

@@ -20,14 +20,12 @@ func NewBase(p geom.Point) Base {
 	}
 }
 
-func (b *Base) Draw(d ui.Drawer, cam ui.Camera) error {
-	_, err := cam.Draw(d, ui.Sprite{
+func (b *Base) Draw(d ui.Drawer, cam ui.Camera) {
+	cam.Draw(d, ui.Sprite{
 		Name:   "Base",
 		Bounds: geom.Rect(0, 0, b.Box.Dx(), b.Box.Dy()),
 		Shade:  1.0,
 	}, b.Box.Min)
-
-	return err
 }
 
 type BaseScreen struct {
@@ -44,22 +42,17 @@ func (s *BaseScreen) Transparent() bool {
 	return true
 }
 
-func (s *BaseScreen) Draw(d ui.Drawer) error {
+func (s *BaseScreen) Draw(d ui.Drawer) {
 	origin := geom.Pt(32, 32)
 	d.SetColor(Black)
-	_, err := d.Draw(geom.Rectangle{
+	d.Draw(geom.Rectangle{
 		Min: origin,
 		Max: origin.Add(ScreenDims).Sub(origin.Mul(2)),
 	}, geom.Pt(0, 0))
-	if err != nil {
-		return err
-	}
 
 	d.SetColor(White)
 	d.SetFont("prstartk", 16)
-
-	_, err = d.Draw("Something will go here.", origin.Add(geom.Pt(16, 16)))
-	return err
+	d.Draw("Something will go here.", origin.Add(geom.Pt(16, 16)))
 }
 
 func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {

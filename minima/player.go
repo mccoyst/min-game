@@ -95,17 +95,14 @@ func (p *Player) Move(w *world.World) {
 	p.info = fmt.Sprintf("%d,%d: %s", tx, ty, w.At(tx, ty).Terrain.Name)
 }
 
-func (p *Player) Draw(d ui.Drawer, cam ui.Camera) error {
-	_, err := cam.Draw(d, ui.Sprite{
+func (p *Player) Draw(d ui.Drawer, cam ui.Camera) {
+	cam.Draw(d, ui.Sprite{
 		Name:   astroSheet.Name,
 		Bounds: astroSheet.Frame(p.anim.Face, p.anim.Frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
-	if err != nil {
-		return err
-	}
 
-	return p.drawO2(d)
+	p.drawO2(d)
 }
 
 func (p *Player) RefillO2() {
@@ -113,7 +110,7 @@ func (p *Player) RefillO2() {
 	p.o2ticks = 0
 }
 
-func (p *Player) drawO2(d ui.Drawer) error {
+func (p *Player) drawO2(d ui.Drawer) {
 	chunks := 10
 	left := p.o2 / chunks
 	chunk := geom.Rect(0, 0, 10, 10)
@@ -124,10 +121,7 @@ func (p *Player) drawO2(d ui.Drawer) error {
 	d.SetColor(Sky)
 	i := 0
 	for ; i < left; i++ {
-		_, err := d.Draw(chunk, pt)
-		if err != nil {
-			return err
-		}
+		d.Draw(chunk, pt)
 		pt.X += dx + 4
 	}
 
@@ -141,13 +135,8 @@ func (p *Player) drawO2(d ui.Drawer) error {
 		c.B = uint8(float64(c.B) * frac)
 		d.SetColor(c)
 
-		_, err := d.Draw(chunk, pt)
-		if err != nil {
-			return err
-		}
+		d.Draw(chunk, pt)
 	}
-
-	return nil
 }
 
 func (p *Player) FindEtele() *item.Etele {
