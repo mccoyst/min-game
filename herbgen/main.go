@@ -6,8 +6,8 @@ import (
 	"bufio"
 	"code.google.com/p/min-game/animal"
 	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/json"
 	"code.google.com/p/min-game/world"
+	"encoding/json"
 	"io"
 	"math/rand"
 	"os"
@@ -24,6 +24,16 @@ func main() {
 		panic(err)
 	}
 
+	game := make(map[string]interface{})
+	if err = json.NewDecoder(os.Stdin).Decode(&game); err != nil && err != io.EOF {
+		panic(err)
+	}
+
+	var herbs []interface{}
+	if hs, ok := game["Herbivores"]; ok {
+		herbs = hs.([]interface{})
+	}
+
 	gulls, err := animal.MakeHerbivores("Gull")
 	if err != nil {
 		panic(err)
@@ -36,10 +46,7 @@ func main() {
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
 		gulls.Spawn(geom.Pt(x, y), vel)
 	}
-
-	if err = json.Encode(out, "herbs", gulls); err != nil {
-		panic(err)
-	}
+	herbs = append(herbs, gulls)
 
 	cows, err := animal.MakeHerbivores("Cow")
 	if err != nil {
@@ -59,8 +66,14 @@ func main() {
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
 		cows.Spawn(geom.Pt(x, y), vel)
 	}
+	herbs = append(herbs, cows)
 
-	if err = json.Encode(out, "herbs", cows); err != nil {
+	game["Herbivores"] = herbs
+	b, err := json.MarshalIndent(game, "", "\t")
+	if err != nil {
+		panic(err)
+	}
+	if _, err := out.Write(b); err != nil {
 		panic(err)
 	}
 }
