@@ -104,6 +104,15 @@ func (r Rectangle) Intersect(s Rectangle) Rectangle {
 	return r
 }
 
+// Pad returns a rectangle with p added to the left, right, top, and bottom of r.
+func (r Rectangle) Pad(p float64) Rectangle {
+	r.Min.X -= p
+	r.Min.Y -= p
+	r.Max.X += p
+	r.Max.Y += p
+	return r
+}
+
 // Rpad returns a rectangle with p removed from the left, right, top, and bottom of r.
 func (r Rectangle) Rpad(p float64) Rectangle {
 	r.Min.X += p

@@ -44,10 +44,12 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	}
 
 	descBounds := geom.Rectangle{
-		Min: geom.Pt(origin.X, pt.Y+pad*2),
+		Min: geom.Pt(origin.X, pt.Y+pad),
 		Max: geom.Pt(ScreenDims.X-origin.X, ScreenDims.Y-origin.Y),
 	}
 
+	d.SetColor(Black)
+	d.Draw(descBounds.Pad(pad), geom.Pt(0, 0))
 	d.SetColor(White)
 	d.Draw(descBounds, geom.Pt(0, 0))
 
@@ -122,6 +124,9 @@ func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []Item, hil
 		Min: origin,
 		Max: origin.Add(geom.Pt(width, height)),
 	}
+
+	d.SetColor(Black)
+	d.Draw(bounds.Pad(pad), geom.Pt(0, 0))
 
 	d.SetColor(White)
 	d.Draw(bounds, geom.Pt(0, 0))
