@@ -122,19 +122,25 @@ func (t *TitleScreen) loadWorld() {
 			return
 		}
 
-		wgen := exec.Command("wgen")
+		cmds := []*exec.Cmd {
+			exec.Command("wgen"),
+			exec.Command("herbnear", "-num", "25", "-name", "Cow"),
+			exec.Command("herbnear", "-num", "25", "-name", "Gull"),
+		}
+
+		if *debug {
+			cmds = append(cmds, exec.Command("tee", "cur"))
+		}
+
+		wgen := cmds[0]
 		stderr, err := wgen.StderrPipe()
 		if err != nil {
 			panic(err)
 		}
 		go readErr(stderr, t.wgenErr)
 
-		p, err := pipeline.New(
-			wgen,
-			exec.Command("herbnear", "-num", "25", "-name", "Cow"),
-			exec.Command("herbnear", "-num", "25", "-name", "Gull"),
-			exec.Command("tee", "cur"),
-		)
+		p, err := pipeline.New(cmds...)
+
 		if err != nil {
 			panic(err)
 		}
