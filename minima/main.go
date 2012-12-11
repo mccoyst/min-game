@@ -20,6 +20,7 @@ var (
 	profile      = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
 	dvorak       = flag.Bool("dvorak", false, "use a Dvorak key map")
 	debug 	=flag.Bool("debug", false,  "turn on debug printing")
+	vsyncoff 	=flag.Bool("vsyncoff", false,  "turn off vsyncing")
 )
 
 var ScreenDims = geom.Pt(640, 480)
@@ -45,7 +46,7 @@ func main() {
 		ui.CurrentKeymap = ui.DvorakKeymap
 	}
 
-	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y), DumbFinder{})
+	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y), DumbFinder{}, !*vsyncoff)
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
 		os.Exit(1)
