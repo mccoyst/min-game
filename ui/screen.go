@@ -65,6 +65,13 @@ const FrameMsec = 16 * time.Millisecond
 func (s *ScreenStack) Run() {
 	for {
 		frameStart := time.Now()
+	
+		s.top().Draw(s.win)
+		
+		syncStart := time.Now()
+		s.win.Sync()
+		syncTime := time.Since(syncStart)
+
 		for {
 			e := s.win.PollEvent()
 			if e == nil {
@@ -98,9 +105,6 @@ func (s *ScreenStack) Run() {
 			s.stk[len(s.stk)-2].Draw(s.win)
 		}
 
-		s.top().Draw(s.win)
-		s.win.Sync()
-
 		if err := s.top().Update(s); err != nil {
 			panic(err)
 		}
@@ -108,7 +112,7 @@ func (s *ScreenStack) Run() {
 			return
 		}
 
-		frameLen := time.Now().Sub(frameStart)
+		frameLen := time.Since(frameStart) - syncTime
 		if frameLen < FrameMsec {
 			time.Sleep(FrameMsec - frameLen)
 		}
