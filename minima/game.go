@@ -102,7 +102,7 @@ func (e *Game) Draw(d ui.Drawer) {
 
 	e.Astro.drawO2(d)
 
-	if !*locInfo {
+	if !*debug {
 		return
 	}
 	d.SetFont("prstartk", 14)

@@ -19,7 +19,6 @@ var (
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
 	profile      = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
 	dvorak       = flag.Bool("dvorak", false, "use a Dvorak key map")
-	locInfo      = flag.Bool("locinfo", false, "display current location info")
 	debug 	=flag.Bool("debug", false,  "turn on debug printing")
 )
 
@@ -31,10 +30,6 @@ func init() {
 
 func main() {
 	flag.Parse()
-
-	if *debug {
-		*locInfo = true
-	}
 
 	if *profile {
 		p, err := os.Create("./prof.txt")
