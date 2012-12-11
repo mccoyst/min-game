@@ -88,7 +88,7 @@ func (p *Player) Move(w *world.World) {
 	p.anim.Move(&astroSheet, p.body.Vel)
 	p.body.Move(w, baseScales)
 
-	if !*locInfo {
+	if !*debug {
 		return
 	}
 	tx, ty := w.Tile(p.body.Center())
