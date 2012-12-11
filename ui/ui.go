@@ -139,7 +139,7 @@ type cachedText struct {
 	rect  geom.Rectangle
 }
 
-func New(title string, w, h int, f Finder) (*Ui, error) {
+func New(title string, w, h int, f Finder, vsync bool) (*Ui, error) {
 	e := C.SDL_Init(C.SDL_INIT_EVERYTHING)
 	if e != 0 {
 		return nil, sdlError()
@@ -157,9 +157,14 @@ func New(title string, w, h int, f Finder) (*Ui, error) {
 	if win == nil {
 		return nil, sdlError()
 	}
+	
+	var renderOptions _Ctype_Uint32 = C.SDL_RENDERER_ACCELERATED
+	if vsync {
+		renderOptions |= C.SDL_RENDERER_PRESENTVSYNC
+	}
 
-	rend := C.SDL_CreateRenderer(win, -1, C.SDL_RENDERER_ACCELERATED|C.SDL_RENDERER_PRESENTVSYNC)
-	//C.SDL_RENDERER_PRESENTVSYNC
+	rend := C.SDL_CreateRenderer(win, -1, renderOptions)
+	
 	if rend == nil {
 		return nil, sdlError()
 	}
