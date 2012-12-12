@@ -3,10 +3,9 @@
 package ui
 
 import (
+	"code.google.com/p/min-game/geom"
 	"image/color"
 	"time"
-
-	"code.google.com/p/min-game/geom"
 )
 
 // A Drawer can draw things and change colors.
@@ -66,6 +65,12 @@ func (s *ScreenStack) Run() {
 	for {
 		frameStart := time.Now()
 
+		s.win.SetColor(color.Black)
+		s.win.Clear()
+		if s.top().Transparent() && len(s.stk) > 1 {
+			s.stk[len(s.stk)-2].Draw(s.win)
+		}
+
 		s.top().Draw(s.win)
 
 		syncStart := time.Now()
@@ -99,12 +104,6 @@ func (s *ScreenStack) Run() {
 			}
 		}
 
-		s.win.SetColor(color.Black)
-		s.win.Clear()
-		if s.top().Transparent() && len(s.stk) > 1 {
-			s.stk[len(s.stk)-2].Draw(s.win)
-		}
-
 		if err := s.top().Update(s); err != nil {
 			panic(err)
 		}
@@ -112,13 +111,14 @@ func (s *ScreenStack) Run() {
 			return
 		}
 
-		frameLen := time.Since(frameStart) - syncTime
-		if frameLen < FrameMsec {
-			time.Sleep(FrameMsec - frameLen)
-		}
+		frameLen := time.Since(frameStart) // - syncTime
 		s.nFrames++
 		ms := frameLen.Seconds() * 1000
 		s.MeanFrame += (ms - s.MeanFrame) / float64(s.nFrames)
+
+		if frameLen < FrameMsec {
+			time.Sleep(FrameMsec - time.Since(frameStart))
+		}
 	}
 }
 
