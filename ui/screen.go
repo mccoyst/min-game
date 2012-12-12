@@ -111,7 +111,7 @@ func (s *ScreenStack) Run() {
 			return
 		}
 
-		frameLen := time.Since(frameStart) // - syncTime
+		frameLen := time.Since(frameStart) - syncTime
 		s.nFrames++
 		ms := frameLen.Seconds() * 1000
 		s.MeanFrame += (ms - s.MeanFrame) / float64(s.nFrames)
