@@ -128,6 +128,7 @@ func (t *TitleScreen) loadWorld() {
 			gen("wgen"),
 			gen("herbnear -num 25 -name Cow"),
 			gen("herbnear -num 25 -name Gull"),
+			gen("herbnear -num 25 -name Guppy"),
 			gen("itemnear -num 5 -name Uranium"),
 		}
 

@@ -52,19 +52,30 @@ func main() {
 	}
 
 	for i := 0; i < *num; i++ {
-		var x, y float64
-		for i := 0; i < 1000; i++ {
-			x = rand.Float64()*(xmax-xmin) + xmin
-			y = rand.Float64()*(ymax-ymin) + ymin
-			pt := geom.Pt(x, y)
-			tx, ty := w.Tile(pt.Add(world.TileSize.Div(2)))
-			tname := w.At(tx, ty).Terrain.Char
+		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
+		for tries := 0; tries < 1000; tries++ {
+			x := rand.Float64()*(xmax-xmin) + xmin
+			y := rand.Float64()*(ymax-ymin) + ymin
+
+			herbs.Spawn(geom.Pt(x, y), vel)
+			h := herbs.Herbs[len(herbs.Herbs)-1]
+
+			tname := w.At(w.Tile(h.Body.Center())).Terrain.Char
 			if herbs.Info.Affinity[tname] == maxAffinity {
 				break
 			}
+
+			// retry
+			herbs.Herbs = herbs.Herbs[:len(herbs.Herbs)-1]
 		}
-		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		herbs.Spawn(geom.Pt(x, y), vel)
+	}
+
+	for _, h := range herbs.Herbs {
+		tx, ty := w.Tile(h.Body.Center())
+		tname := w.At(tx, ty).Terrain.Char
+		if *name == "Guppy" && tname != "w" {
+			panic("Err")
+		}
 	}
 
 	game := make(map[string]interface{})
