@@ -29,6 +29,6 @@
 		"PlayerBias": 0.02,
 		"PlayerDist": 32,
 		"TerrainBias": 0.1,
-		"TerrainDist": 35
+		"TerrainDist": 24
 	}
 }
