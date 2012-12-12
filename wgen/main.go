@@ -22,7 +22,7 @@ const (
 var (
 	width      = flag.Int("w", 500, "World width")
 	height     = flag.Int("h", 500, "World height")
-	seed       = flag.Int64("seed", 0, "Random seed: 0 == use time")
+	seed       = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
 	cpuprofile = flag.String("cprof", "", "Write cpu profile to file")
 	memprofile = flag.String("mprof", "", "Write mem profile to file")
 	quiet      = flag.Bool("q", false, "Silence all output")
@@ -38,10 +38,6 @@ func main() {
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
-	}
-
-	if *seed == 0 {
-		*seed = int64(time.Now().Nanosecond())
 	}
 	rand.Seed(*seed)
 	fmt.Println("# seed", *seed)

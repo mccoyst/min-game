@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"time"
 
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
@@ -21,6 +22,7 @@ var (
 	dvorak       = flag.Bool("dvorak", false, "use a Dvorak key map")
 	debug        = flag.Bool("debug", false, "turn on debug printing")
 	vsyncoff     = flag.Bool("vsyncoff", false, "turn off vsyncing")
+	seed         = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
 )
 
 var ScreenDims = geom.Pt(640, 480)
