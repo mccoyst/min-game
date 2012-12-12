@@ -8,6 +8,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
@@ -123,10 +125,10 @@ func (t *TitleScreen) loadWorld() {
 		}
 
 		cmds := []*exec.Cmd{
-			exec.Command("wgen"),
-			exec.Command("herbnear", "-num", "25", "-name", "Cow"),
-			exec.Command("herbnear", "-num", "25", "-name", "Gull"),
-			exec.Command("itemnear", "-num", "5", "-name", "Uranium"),
+			gen("wgen"),
+			gen("herbnear -num 25 -name Cow"),
+			gen("herbnear -num 25 -name Gull"),
+			gen("itemnear -num 5 -name Uranium"),
 		}
 
 		if *debug {
@@ -163,6 +165,14 @@ func (t *TitleScreen) loadWorld() {
 		}
 		t.gameChan <- g
 	}()
+}
+
+// Gen returns a command for an XXXgen program.  The command
+// is given by a string, followed by "-seed" and the random seed.
+func gen(s string) *exec.Cmd {
+	fs := strings.Fields(s)
+	fs = append(fs, "-seed", strconv.FormatInt(*seed, 10))
+	return exec.Command(fs[0], fs[1:]...)
 }
 
 // ReadErr reads wgen's standard error, picks out

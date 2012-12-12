@@ -11,18 +11,21 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"time"
 )
 
 var (
 	name   = flag.String("name", "Uranium", "Name of the item to generate")
 	num    = flag.Int("num", 1, "Number to generate")
 	radius = flag.Int("radius", 4, "Radius (in tiles) around start location")
+	seed   = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
 )
 
 const TileSize = 32
 
 func main() {
 	flag.Parse()
+	rand.Seed(*seed)
 
 	in := bufio.NewReader(os.Stdin)
 	w, err := world.Read(in)
