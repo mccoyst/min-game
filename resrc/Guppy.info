@@ -12,9 +12,22 @@
 	"Affinity": {
 		"g": 0.0,
 		"f": 0.0,
-		"m", 0.0,
-		"w", 1.0,
-		"d", 0.0,
-		"i", 0.0
+		"m": 0.0,
+		"w": 1.0,
+		"d": 0.0,
+		"i": 0.0
+	},
+	"BoidInfo": {
+		"MaxVelocity": 2.0,
+		"LocalDist": 320.0,
+		"CenterBias": 0.05,
+		"MatchBias": 0.08,
+		"AvoidDist": 16,
+		"AvoidBias": 0.08,
+		"PlayerDist": 96,
+		"PlayerBias": 0.2,
+		"TerrainDist": 48,
+		"TerrainBias": 0.1,
+		"AvoidTerrain": "gfmdi"
 	}
 }
