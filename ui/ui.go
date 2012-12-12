@@ -5,7 +5,7 @@ package ui
 /*
 #include <SDL.h>
 
-#cgo darwin CFLAGS: -I/Users/steve/Code/src/sdl2/include
+#cgo darwin CFLAGS: -I/usr/local/include/SDL
 #cgo darwin LDFLAGS: -framework SDL2
 
 #cgo linux CFLAGS: -I/usr/local/include/SDL2
