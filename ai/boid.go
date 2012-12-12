@@ -158,11 +158,11 @@ func (boid Boid) avoidOthers(local []Boid, i BoidInfo, w *world.World) {
 // AvoidPlayer attempts to avoid the player.
 func (boid Boid) avoidPlayer(p *phys.Body, i BoidInfo, w *world.World) {
 	dd := i.PlayerDist * i.PlayerDist
-	pt := p.Box.Min
-	if p.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Min, pt) > dd {
+	pt := p.Box.Center()
+	if p.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Center(), pt) > dd {
 		return
 	}
-	d := avoidVec(boid.Box.Min, pt, i.PlayerDist, w).Mul(i.PlayerBias)
+	d := avoidVec(boid.Box.Center(), pt, i.PlayerDist, w).Mul(i.PlayerBias)
 	boid.Vel = boid.Vel.Add(d)
 }
 
