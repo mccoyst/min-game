@@ -157,14 +157,14 @@ func New(title string, w, h int, f Finder, vsync bool) (*Ui, error) {
 	if win == nil {
 		return nil, sdlError()
 	}
-	
+
 	var renderOptions _Ctype_Uint32 = C.SDL_RENDERER_ACCELERATED
 	if vsync {
 		renderOptions |= C.SDL_RENDERER_PRESENTVSYNC
 	}
 
 	rend := C.SDL_CreateRenderer(win, -1, renderOptions)
-	
+
 	if rend == nil {
 		return nil, sdlError()
 	}

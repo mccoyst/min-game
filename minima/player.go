@@ -61,8 +61,8 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		},
 		o2max: 50,
 		o2:    50,
-		suit:  []*item.Item{&item.Item{item.ETele, 3}, nil},
-		pack:  []*item.Item{nil, nil, &item.Item{"Uranium", 0}, nil},
+		suit:  []*item.Item{item.New(item.ETele), nil},
+		pack:  []*item.Item{nil, nil, item.New(item.Uranium), nil},
 	}
 }
 

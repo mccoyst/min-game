@@ -46,12 +46,7 @@ func ReadGame(r io.Reader) (*Game, error) {
 	if err := json.NewDecoder(in).Decode(&e); err != nil {
 		panic(err)
 	}
-
-	// for now
-	e.Treasure = []item.Treasure{{&item.Item{"Uranium", 0}, e.Astro.body.Box.Add(geom.Pt(128, 128))}}
-
 	e.CenterOnTile(e.wo.Tile(e.Astro.body.Center()))
-
 	return e, nil
 }
 
@@ -144,10 +139,10 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			if t.Item == nil || !ex.Astro.body.Box.Overlaps(t.Box) {
 				continue
 			}
-			scr :=NewNormalMessage("You don't have room for that in your pack.")
+			scr := NewNormalMessage("You don't have room for that in your pack.")
 			if ex.Astro.PutPack(t.Item) {
-					scr = NewNormalMessage("Bravo! You got the " + t.Name + "!")
-					ex.Treasure[i].Item = nil
+				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
+				ex.Treasure[i].Item = nil
 			}
 			stk.Push(scr)
 			break
@@ -163,7 +158,7 @@ func (e *Game) Update(stk *ui.ScreenStack) error {
 		et := e.Astro.FindEtele()
 		if et == nil || et.Uses == 0 {
 			stk.Push(NewGameOverScreen())
-		} else { 
+		} else {
 			et.Uses--
 			e.Astro.body.Vel = geom.Pt(0, 0)
 			dims := geom.Pt(e.Astro.body.Box.Dx(), e.Astro.body.Box.Dy())

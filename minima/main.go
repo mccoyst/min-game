@@ -19,8 +19,8 @@ var (
 	worldOnStdin = flag.Bool("stdin", false, "read the world from stdin")
 	profile      = flag.Bool("profile", false, "enable CPU profiling to ./prof.txt")
 	dvorak       = flag.Bool("dvorak", false, "use a Dvorak key map")
-	debug 	=flag.Bool("debug", false,  "turn on debug printing")
-	vsyncoff 	=flag.Bool("vsyncoff", false,  "turn off vsyncing")
+	debug        = flag.Bool("debug", false, "turn on debug printing")
+	vsyncoff     = flag.Bool("vsyncoff", false, "turn off vsyncing")
 )
 
 var ScreenDims = geom.Pt(640, 480)

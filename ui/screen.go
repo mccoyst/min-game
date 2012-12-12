@@ -65,9 +65,9 @@ const FrameMsec = 16 * time.Millisecond
 func (s *ScreenStack) Run() {
 	for {
 		frameStart := time.Now()
-	
+
 		s.top().Draw(s.win)
-		
+
 		syncStart := time.Now()
 		s.win.Sync()
 		syncTime := time.Since(syncStart)
