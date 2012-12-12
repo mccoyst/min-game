@@ -25,7 +25,7 @@ type Game struct {
 	base       Base
 	Astro      *Player
 	Herbivores []animal.Herbivores
-	Treasure   []Treasure
+	Treasure   []item.Treasure
 }
 
 // ReadGame returns a *Game, read from the given
@@ -48,7 +48,7 @@ func ReadGame(r io.Reader) (*Game, error) {
 	}
 
 	// for now
-	e.Treasure = []Treasure{Treasure{&item.Element{"Uranium"}, e.Astro.body.Box.Add(geom.Pt(128, 128))}}
+	e.Treasure = []item.Treasure{{&item.Item{"Uranium", 0}, e.Astro.body.Box.Add(geom.Pt(128, 128))}}
 
 	e.CenterOnTile(e.wo.Tile(e.Astro.body.Center()))
 
@@ -91,9 +91,14 @@ func (e *Game) Draw(d ui.Drawer) {
 
 	e.base.Draw(d, e.cam)
 	for _, t := range e.Treasure {
-		if t.Item != nil {
-			t.Draw(d, e.cam)
+		if t.Item == nil {
+			continue
 		}
+		e.cam.Draw(d, ui.Sprite{
+			Name:   "Present",
+			Bounds: geom.Rect(0, 0, t.Box.Dx(), t.Box.Dy()),
+			Shade:  1.0, //TODO: should shade with altitude
+		}, t.Box.Min)
 	}
 	e.Astro.Draw(d, e.cam)
 	for i := range e.Herbivores {
@@ -136,16 +141,16 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
 		}
 		for i, t := range ex.Treasure {
-			if t.Item != nil && ex.Astro.body.Box.Overlaps(t.Box) {
-				if ex.Astro.PutPack(t.Item) {
-					stk.Push(NewTreasureGet(t.Item.Name()))
-					ex.Treasure[i].Item = nil
-					break
-				} else {
-					stk.Push(NewNormalMessage("You don't have room for that in your pack."))
-					break
-				}
+			if t.Item == nil || !ex.Astro.body.Box.Overlaps(t.Box) {
+				continue
 			}
+			scr :=NewNormalMessage("You don't have room for that in your pack.")
+			if ex.Astro.PutPack(t.Item) {
+					scr = NewNormalMessage("Bravo! You got the " + t.Name + "!")
+					ex.Treasure[i].Item = nil
+			}
+			stk.Push(scr)
+			break
 		}
 	}
 	return nil
@@ -156,9 +161,10 @@ func (e *Game) Update(stk *ui.ScreenStack) error {
 
 	if e.Astro.o2 == 0 {
 		et := e.Astro.FindEtele()
-		if et == nil || !et.Use() {
+		if et == nil || et.Uses == 0 {
 			stk.Push(NewGameOverScreen())
-		} else {
+		} else { 
+			et.Uses--
 			e.Astro.body.Vel = geom.Pt(0, 0)
 			dims := geom.Pt(e.Astro.body.Box.Dx(), e.Astro.body.Box.Dy())
 			e.Astro.body.Box.Min = e.base.Box.Min

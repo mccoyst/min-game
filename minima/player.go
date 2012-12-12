@@ -30,20 +30,8 @@ type Player struct {
 	o2      int
 	o2ticks int
 
-	suit []Augment
-	pack []Item
-}
-
-// An Item is something that can go in the backpack.
-type Item interface {
-	Name() string
-	Desc() string
-}
-
-// An Augment is an item that can be plugged into the player's suit.
-type Augment interface {
-	Item
-	Use() bool
+	suit []*item.Item
+	pack []*item.Item
 }
 
 var astroSheet sprite.Sheet
@@ -73,8 +61,8 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		},
 		o2max: 50,
 		o2:    50,
-		suit:  []Augment{&item.Etele{3}, nil},
-		pack:  []Item{nil, nil, &item.Element{"Uranium"}, nil},
+		suit:  []*item.Item{&item.Item{item.ETele, 3}, nil},
+		pack:  []*item.Item{nil, nil, &item.Item{"Uranium", 0}, nil},
 	}
 }
 
@@ -142,17 +130,18 @@ func (p *Player) drawO2(d ui.Drawer) {
 	}
 }
 
-func (p *Player) FindEtele() *item.Etele {
-	for _, a := range p.suit {
-		if et, ok := a.(*item.Etele); ok {
-			return et
+// FindEtele returns the E-Tele item from the player's suit, or nil if it is not found.
+func (p *Player) FindEtele() *item.Item {
+	for _, i := range p.suit {
+		if i.Name == item.ETele {
+			return i
 		}
 	}
 	return nil
 }
 
 // PutPack tries to add i to the player's backpack, and returns true iff successful.
-func (p *Player) PutPack(i Item) bool {
+func (p *Player) PutPack(i *item.Item) bool {
 	for j := range p.pack {
 		if p.pack[j] == nil {
 			p.pack[j] = i
