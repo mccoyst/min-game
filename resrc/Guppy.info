@@ -27,8 +27,8 @@
 		"MatchBias": 0.08,
 		"MaxVelocity": 1.5,
 		"PlayerBias": 0.02,
-		"PlayerDist": 32,
-		"TerrainBias": 0.1,
+		"PlayerDist": 64,
+		"TerrainBias": 0.2,
 		"TerrainDist": 24
 	}
 }
