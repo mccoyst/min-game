@@ -5,6 +5,7 @@ package main
 import (
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
+	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/uitil"
 )
 
@@ -29,7 +30,7 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	origin := geom.Pt(32, 32)
 	pad := 4.0
 
-	suit := make([]Item, 0, len(p.astro.suit))
+	suit := make([]*item.Item, 0, len(p.astro.suit))
 	for _, a := range p.astro.suit {
 		suit = append(suit, a)
 	}
@@ -115,7 +116,7 @@ func (p *PauseScreen) Update(stk *ui.ScreenStack) error {
 	return nil
 }
 
-func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []Item, hilight bool, pad float64, origin geom.Point) geom.Point {
+func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []*item.Item, hilight bool, pad float64, origin geom.Point) geom.Point {
 	size := d.TextSize(label)
 
 	width := 32.0*float64(len(items)) + pad*float64(len(items)+3) + size.X
@@ -148,7 +149,7 @@ func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []Item, hil
 
 		if a != nil {
 			d.Draw(ui.Sprite{
-				Name:   a.Name(),
+				Name:   a.Name,
 				Bounds: geom.Rect(0, 0, 32, 32),
 				Shade:  1.0,
 			}, pt)
