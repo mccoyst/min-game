@@ -184,12 +184,12 @@ func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
 			if strings.Index(i.AvoidTerrain, r) < 0 {
 				continue
 			}
-			pt := geom.Pt(float64(x)*world.TileSize.X,
-				float64(y)*world.TileSize.Y)
-			if w.Pixels.SqDist(boid.Box.Min, pt) > dd {
+			pt := geom.Pt((float64(x)+0.5)*world.TileSize.X,
+				(float64(y)+0.5)*world.TileSize.Y)
+			if w.Pixels.SqDist(boid.Box.Center(), pt) > dd {
 				continue
 			}
-			a = a.Add(avoidVec(boid.Box.Min, pt, i.TerrainDist, w))
+			a = a.Add(avoidVec(boid.Box.Center(), pt, i.TerrainDist, w))
 		}
 	}
 	a = a.Mul(i.TerrainBias)
