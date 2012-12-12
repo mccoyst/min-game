@@ -122,10 +122,11 @@ func (t *TitleScreen) loadWorld() {
 			return
 		}
 
-		cmds := []*exec.Cmd {
+		cmds := []*exec.Cmd{
 			exec.Command("wgen"),
 			exec.Command("herbnear", "-num", "25", "-name", "Cow"),
 			exec.Command("herbnear", "-num", "25", "-name", "Gull"),
+			exec.Command("itemnear", "-num", "5", "-name", "Uranium"),
 		}
 
 		if *debug {
