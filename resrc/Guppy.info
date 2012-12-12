@@ -23,11 +23,11 @@
 		"CenterBias": 0.05,
 		"MatchBias": 0.08,
 		"AvoidDist": 16,
-		"AvoidBias": 0.08,
-		"PlayerDist": 96,
-		"PlayerBias": 0.2,
-		"TerrainDist": 48,
-		"TerrainBias": 0.1,
+		"AvoidBias": 0.02,
+		"PlayerDist": 32,
+		"PlayerBias": 0.02,
+		"TerrainDist": 32,
+		"TerrainBias": 0.2,
 		"AvoidTerrain": "gfmdi"
 	}
 }
