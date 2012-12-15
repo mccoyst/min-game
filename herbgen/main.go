@@ -6,12 +6,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"io"
+	gomath "math"
 	"math/rand"
 	"os"
+	"sort"
 	"time"
 
 	"code.google.com/p/min-game/animal"
@@ -46,6 +49,13 @@ func main() {
 		panic(err)
 	}
 
+	herbs := placeHerbs(w)
+
+	writeGame(in, out, herbs)
+}
+
+// PlaceHerbs places herbivores in the world.
+func placeHerbs(w *world.World) animal.Herbivores {
 	herbs, err := animal.MakeHerbivores(*name)
 	if err != nil {
 		panic(err)
@@ -58,26 +68,25 @@ func main() {
 		drawProbs(w, ls, ps)
 	}
 
-	for n := 0; n < *num && len(ls) > 0; n++ {
-		l := ls[len(ls)-1]
-		p := rand.Float64()
-		for i := 0; i < len(ls); i++ {
-			p -= ps[i]
-			if p < 0 {
-				l = ls[i]
-				ls[i] = ls[len(ls)-1]
-				ls = ls[:len(ls)-1]
-				ps[i] = ps[len(ps)-1]
-				ps = ps[:len(ps)-1]
-				break
-			}
-		}
+	for i := 1; i < len(ps); i++ {
+		ps[i] += ps[i-1]
+	}
+	if gomath.Abs(ps[len(ps)-1]-1.0) > 0.0001 {
+		panic(fmt.Sprintf("Probs don't sum to 1, they sum to %f", ps[len(ps)-1]))
+	}
+	ps[len(ps)-1] = 1 // Get rid of possible rounding issues.
 
+	for n := 0; n < *num && len(ls) > 0; n++ {
+		p := rand.Float64()
+		i := sort.SearchFloat64s(ps, p)
+		if i >= len(ps) || ps[i] > p {
+			i--
+		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
-		herbs.Spawn(l.Point(), vel)
+		herbs.Spawn(ls[i].Point(), vel)
 	}
 
-	writeGame(in, out, herbs)
+	return herbs
 }
 
 // writeGame reads the game state, adds the herbivores, and writes it out.
