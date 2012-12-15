@@ -4,6 +4,7 @@ package main
 
 import (
 	"bufio"
+	"code.google.com/p/min-game/math"
 	"code.google.com/p/min-game/world"
 	"flag"
 	"fmt"
@@ -143,7 +144,7 @@ const (
 // growLand generates a random height for the mean
 // of the given Gaussian2d and grows the world
 // around it.
-func growLand(w *world.World, g *Gaussian2d) {
+func growLand(w *world.World, g *math.Gaussian2d) {
 	const s = 2.0 // standard deviations to grow around
 	xmin, xmax := int(g.Mx-s*g.Sx), int(g.Mx+s*g.Sx)
 	ymin, ymax := int(g.My-s*g.Sy), int(g.My+s*g.Sy)
@@ -160,8 +161,8 @@ func growLand(w *world.World, g *Gaussian2d) {
 // gaussians returns a channel upon which the
 // given number of random Gaussians will be
 // sent.
-func gaussians(w *world.World, num int) <-chan *Gaussian2d {
-	ch := make(chan *Gaussian2d, 100)
+func gaussians(w *world.World, num int) <-chan *math.Gaussian2d {
+	ch := make(chan *math.Gaussian2d, 100)
 	go func() {
 		for i := 0; i < num; i++ {
 			ch <- randomGaussian2d(w)
@@ -174,7 +175,7 @@ func gaussians(w *world.World, num int) <-chan *Gaussian2d {
 // randomGaussian2d returns a random Gaussian2d that
 // is generated using the maxStdev, minStdev, stdevGrowth,
 // meanGrowth, maxCov, and minCov constants.
-func randomGaussian2d(w *world.World) *Gaussian2d {
+func randomGaussian2d(w *world.World) *math.Gaussian2d {
 	mx := rand.Float64() * float64(w.W)
 	my := rand.Float64() * float64(w.H)
 
@@ -187,7 +188,7 @@ func randomGaussian2d(w *world.World) *Gaussian2d {
 	}
 	cov := rand.Float64()*(maxCov-minCov) + minCov
 
-	return NewGaussian2d(mx, my, sx, sy, ht, cov)
+	return math.NewGaussian2d(mx, my, sx, sy, ht, cov)
 }
 
 // placeStart places the start location on a random grass tile.

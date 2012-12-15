@@ -66,6 +66,12 @@ func (l Loc) Height() int {
 	return l.Elevation - l.Depth
 }
 
+// Point returns the point representing the upper-left corner
+// of this location.
+func (l Loc) Point() geom.Point {
+	return geom.Pt(float64(l.X)*TileSize.X, float64(l.Y)*TileSize.Y)
+}
+
 // TerrainType holds information on a given type of terrain.
 type TerrainType struct {
 	// Char is the character representing this terrain type.
