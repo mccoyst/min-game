@@ -63,18 +63,18 @@ func (t Torus) NormRect(r Rectangle) Rectangle {
 //
 // Both a and b must be smaller than the size of the torus.
 func (t Torus) Intersect(a, b Rectangle) Rectangle {
-	a, b = t.align(a, b)
+	a, b = t.AlignRects(a, b)
 	return a.Intersect(b)
 }
 
-// Alignh returns a pair of rectangles.  The first is the normalized equivalent
+// AlignRects returns a pair of rectangles.  The first is the normalized equivalent
 // of a.  The second is equivalent to b on the torus.  If there is b equivalent
 // that overlaps a on the torus, then it is returned, otherwise it is any b
 // equivalent.
 //
 // Both a and b are assumed to be smaller than the width and
 // height of the torus.
-func (t Torus) align(a, b Rectangle) (Rectangle, Rectangle) {
+func (t Torus) AlignRects(a, b Rectangle) (Rectangle, Rectangle) {
 	if a.Dx() >= t.W || a.Dy() >= t.H {
 		panic("Torus.align, rectangle a is too big")
 	} else if b.Dx() >= t.W || b.Dy() >= t.H {
