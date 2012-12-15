@@ -11,6 +11,7 @@ import (
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math"
 	"math/rand"
@@ -65,11 +66,12 @@ func (e *Game) Draw(d ui.Drawer) {
 	x0, y0 := e.wo.Tile(e.cam.Pt)
 
 	xoff0 := -math.Mod(e.cam.Pt.X, TileSize)
-	if e.cam.Pt.X < 0 {
+	if xoff0 > 0 && e.cam.Pt.X < 0 {
 		xoff0 = -TileSize + xoff0
 	}
+
 	yoff0 := -math.Mod(e.cam.Pt.Y, TileSize)
-	if e.cam.Pt.Y < 0 {
+	if yoff0 > 0 && e.cam.Pt.Y < 0 {
 		yoff0 = -TileSize + yoff0
 	}
 
