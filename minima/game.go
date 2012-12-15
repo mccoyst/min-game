@@ -11,7 +11,6 @@ import (
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/world"
 	"encoding/json"
-	"fmt"
 	"io"
 	"math"
 	"math/rand"
