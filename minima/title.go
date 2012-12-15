@@ -177,6 +177,7 @@ func (t *TitleScreen) loadWorld() {
 func gen(s string) *exec.Cmd {
 	fs := strings.Fields(s)
 	fs = append(fs, "-seed", strconv.FormatInt(*seed, 10))
+	*seed++
 	return exec.Command(fs[0], fs[1:]...)
 }
 
