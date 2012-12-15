@@ -31,23 +31,22 @@ type Game struct {
 // ReadGame returns a *Game, read from the given
 // reader.
 func ReadGame(r io.Reader) (*Game, error) {
-	e := &Game{
-		cam: ui.Camera{Dims: ScreenDims},
-	}
+	g := new(Game)
 	in := bufio.NewReader(r)
 	var err error
-	if e.wo, err = world.Read(in); err != nil {
+	if g.wo, err = world.Read(in); err != nil {
 		return nil, err
 	}
-	crashSite := geom.Pt(float64(e.wo.X0*TileSize), float64(e.wo.Y0*TileSize))
-	e.Astro = NewPlayer(e.wo, crashSite)
-	e.base = NewBase(crashSite)
+	g.cam = ui.Camera{Torus: g.wo.Pixels, Dims: ScreenDims}
+	crashSite := geom.Pt(float64(g.wo.X0*TileSize), float64(g.wo.Y0*TileSize))
+	g.Astro = NewPlayer(g.wo, crashSite)
+	g.base = NewBase(crashSite)
 
-	if err := json.NewDecoder(in).Decode(&e); err != nil {
+	if err := json.NewDecoder(in).Decode(&g); err != nil {
 		panic(err)
 	}
-	e.CenterOnTile(e.wo.Tile(e.Astro.body.Center()))
-	return e, nil
+	g.CenterOnTile(g.wo.Tile(g.Astro.body.Center()))
+	return g, nil
 }
 
 func (e *Game) Transparent() bool {
