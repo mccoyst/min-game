@@ -38,11 +38,11 @@ var astroSheet sprite.Sheet
 
 var baseScales = map[string]float64{
 	"g": 1.0,
-	"f": 0.85,
-	"m": 0.5,
-	"w": 0.1,
-	"d": 0.75,
-	"i": 0.4,
+	"f": 1.0,
+	"m": 1,
+	"w": 1,
+	"d": 1,
+	"i": 1,
 }
 
 func init() {

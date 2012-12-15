@@ -154,7 +154,7 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 func (e *Game) Update(stk *ui.ScreenStack) error {
 	const speed = 4 // px
 
-	if e.Astro.o2 == 0 {
+	if e.Astro.o2 == 0 && false {
 		et := e.Astro.FindEtele()
 		if et == nil || et.Uses == 0 {
 			stk.Push(NewGameOverScreen())
