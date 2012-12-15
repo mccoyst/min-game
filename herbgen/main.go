@@ -79,7 +79,7 @@ func placeHerbs(w *world.World) animal.Herbivores {
 	for n := 0; n < *num && len(ls) > 0; n++ {
 		p := rand.Float64()
 		i := sort.SearchFloat64s(ps, p)
-		if i >= len(ps) || ps[i] > p {
+		if i != 0 && (i >= len(ps) || ps[i] > p) {
 			i--
 		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
