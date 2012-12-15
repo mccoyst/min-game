@@ -38,11 +38,11 @@ var astroSheet sprite.Sheet
 
 var baseScales = map[string]float64{
 	"g": 1.0,
-	"f": 1.0,
-	"m": 1,
-	"w": 1,
-	"d": 1,
-	"i": 1,
+	"f": 0.85,
+	"m": 0.5,
+	"w": 0.1,
+	"d": 0.75,
+	"i": 0.4,
 }
 
 func init() {
@@ -54,6 +54,11 @@ func init() {
 }
 
 func NewPlayer(wo *world.World, p geom.Point) *Player {
+	if *debug {
+		for i := range baseScales {
+			baseScales[i] = 1.0
+		}
+	}
 	return &Player{
 		wo: wo,
 		body: phys.Body{
