@@ -135,6 +135,7 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	case ui.Action:
 		if ex.Astro.body.Box.Overlaps(ex.base.Box) {
 			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
+			return nil
 		}
 		for i, t := range ex.Treasure {
 			if t.Item == nil || !ex.Astro.body.Box.Overlaps(t.Box) {
