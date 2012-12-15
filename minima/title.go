@@ -162,7 +162,11 @@ func (t *TitleScreen) loadWorld() {
 			panic(err)
 		}
 		if errs := p.Wait(); len(errs) > 0 {
-			panic(errs)
+			s := ""
+			for _, e := range errs {
+				s += e.Error() + "\n"
+			}
+			panic(s)
 		}
 		t.gameChan <- g
 	}()
