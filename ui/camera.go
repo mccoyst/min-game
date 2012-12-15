@@ -7,8 +7,9 @@ import (
 )
 
 type Camera struct {
-	Pt   geom.Point
-	Dims geom.Point
+	Torus geom.Torus
+	Pt    geom.Point
+	Dims  geom.Point
 }
 
 func (c *Camera) Move(v geom.Point) {
@@ -20,6 +21,14 @@ func (c *Camera) Center(v geom.Point) {
 	c.Pt.Y = v.Y - c.Dims.Y/2.0
 }
 
-func (c *Camera) Draw(d Drawer, x interface{}, p geom.Point) geom.Point {
-	return d.Draw(x, p.Sub(c.Pt))
+func (c *Camera) Rect() geom.Rectangle {
+	return geom.Rect(c.Pt.X, c.Pt.Y, c.Pt.X+c.Dims.X, c.Pt.Y+c.Dims.Y)
+}
+
+func (c *Camera) Draw(d Drawer, s Sprite, p geom.Point) geom.Point {
+	sz := s.Bounds.Size()
+	p = p.Sub(c.Pt)
+	rect := geom.Rect(p.X, p.Y, p.X+sz.X, p.Y+sz.Y)
+	_, rect = c.Torus.AlignRects(c.Rect(), rect)
+	return d.Draw(s, rect.Min)
 }
