@@ -132,10 +132,6 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	case ui.Menu:
 		stk.Push(NewPauseScreen(ex.Astro))
 	case ui.Action:
-		if ex.Astro.body.Box.Overlaps(ex.base.Box) {
-			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
-			return nil
-		}
 		for i, t := range ex.Treasure {
 			if t.Item == nil || !ex.Astro.body.Box.Overlaps(t.Box) {
 				continue
@@ -146,7 +142,11 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 				ex.Treasure[i].Item = nil
 			}
 			stk.Push(scr)
-			break
+			return nil
+		}
+		if ex.Astro.body.Box.Overlaps(ex.base.Box) {
+			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
+			return nil
 		}
 	}
 	return nil
