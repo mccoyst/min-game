@@ -166,7 +166,8 @@ func pipe() (p pipeline.P, stdout, stderr io.Reader, err error) {
 	}
 
 	if *debug {
-		cmds = append(cmds, exec.Command("tee", "cur"))
+		cmds = append(cmds, exec.Command("wimg", "-e", "-o", "cur.png"))
+		cmds = append(cmds, exec.Command("tee", "cur.world"))
 	}
 
 	p, err = pipeline.New(cmds...)

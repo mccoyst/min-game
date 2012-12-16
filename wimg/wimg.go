@@ -4,12 +4,16 @@ package main
 
 import (
 	"bufio"
-	"code.google.com/p/min-game/world"
+	"encoding/json"
 	"flag"
 	"image"
 	"image/color"
 	"image/png"
+	"io"
 	"os"
+
+	"code.google.com/p/min-game/animal"
+	"code.google.com/p/min-game/world"
 )
 
 var (
@@ -18,12 +22,36 @@ var (
 	depth   = flag.Bool("d", true, "Draw water depth")
 )
 
+type game struct {
+	Herbivores []animal.Herbivores
+}
+
 func main() {
 	flag.Parse()
 
-	w, err := world.Read(bufio.NewReader(os.Stdin))
+	stdin := io.Reader(os.Stdin)
+	if *echo {
+		stdin = io.TeeReader(os.Stdin, os.Stdout)
+	}
+	in := bufio.NewReader(stdin)
+	w, err := world.Read(in)
 	if err != nil {
 		panic(err)
+	}
+
+	var g game
+	err = json.NewDecoder(in).Decode(&g)
+	if err != nil && err != io.EOF {
+		panic("Error reading game: " + err.Error())
+	}
+
+	colors := make(map[*world.Loc]color.Color)
+
+	red := color.RGBA{R: 255, A: 255}
+	for _, herbs := range g.Herbivores {
+		for _, h := range herbs.Herbs {
+			colors[w.At(w.Tile(h.Body.Center()))] = red
+		}
 	}
 
 	out, err := os.Create(*outFile)
@@ -31,20 +59,13 @@ func main() {
 		panic(err)
 	}
 	defer out.Close()
-	png.Encode(out, &worldImg{w, *depth})
-
-	if *echo {
-		out := bufio.NewWriter(os.Stdout)
-		defer out.Flush()
-		if err := w.Write(out); err != nil {
-			panic(err)
-		}
-	}
+	png.Encode(out, &worldImg{w, colors, *depth})
 }
 
 type worldImg struct {
 	*world.World
-	depth bool
+	colors map[*world.Loc]color.Color
+	depth  bool
 }
 
 // Bounds implements the Bounds() method of
@@ -69,6 +90,9 @@ var (
 // image.Image interface.
 func (w *worldImg) At(x, y int) color.Color {
 	loc := w.World.At(x, y)
+	if c, ok := w.colors[loc]; ok {
+		return c
+	}
 	el := loc.Elevation
 	if w.depth {
 		el -= loc.Depth
