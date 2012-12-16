@@ -192,9 +192,10 @@ func (t *TitleScreen) loadWorld() {
 // is given by a string, followed by "-seed" and the random seed.
 func gen(s string) *exec.Cmd {
 	fs := strings.Fields(s)
-	fs = append(fs, "-seed", strconv.FormatInt(*seed, 10))
+	cmd := fs[0]
+	fs = append([]string{"-seed", strconv.FormatInt(*seed, 10)}, fs[1:]...)
 	*seed++
-	return exec.Command(fs[0], fs[1:]...)
+	return exec.Command(cmd, fs...)
 }
 
 // ReadErr reads wgen's standard error, picks out
