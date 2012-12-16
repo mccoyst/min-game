@@ -4,11 +4,14 @@ package main
 
 import (
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
 )
 
 type Base struct {
 	Box geom.Rectangle
+
+	Storage []*item.Item
 }
 
 func NewBase(p geom.Point) Base {
@@ -17,6 +20,7 @@ func NewBase(p geom.Point) Base {
 			Min: p,
 			Max: p.Add(geom.Pt(64, 64)),
 		},
+		Storage: []*item.Item{item.New(item.ETele)},
 	}
 }
 
@@ -32,10 +36,23 @@ type BaseScreen struct {
 	astro   *Player
 	base    *Base
 	closing bool
+
+	rowLen   int
+	selected int
 }
 
+const pad = 4
+
+var origin = geom.Pt(32, 32)
+var bounds = geom.Rectangle{
+	Min: origin,
+	Max: origin.Add(geom.Pt(ScreenDims.X, ScreenDims.Y/2)).Sub(origin.Mul(2)),
+}
+var packBounds = bounds.Add(geom.Pt(0, bounds.Dy()+3*pad+32))
+
 func NewBaseScreen(astro *Player, base *Base) *BaseScreen {
-	return &BaseScreen{astro, base, false}
+	r := int((bounds.Dx() - pad) / (TileSize + pad))
+	return &BaseScreen{astro, base, false, r, 0}
 }
 
 func (s *BaseScreen) Transparent() bool {
@@ -43,16 +60,77 @@ func (s *BaseScreen) Transparent() bool {
 }
 
 func (s *BaseScreen) Draw(d ui.Drawer) {
-	origin := geom.Pt(32, 32)
+	d.SetColor(Black)
+	d.Draw(bounds.Pad(pad), geom.Pt(0, 0))
+
 	d.SetColor(White)
-	d.Draw(geom.Rectangle{
-		Min: origin,
-		Max: origin.Add(ScreenDims).Sub(origin.Mul(2)),
-	}, geom.Pt(0, 0))
+	d.Draw(bounds, geom.Pt(0, 0))
 
 	d.SetColor(Black)
 	d.SetFont("prstartk", 16)
-	d.Draw("Something will go here.", origin.Add(geom.Pt(16, 16)))
+	pt := d.Draw("Storage", bounds.Min.Add(geom.Pt(pad, pad)))
+
+	pt.X = bounds.Min.X + pad
+	pt.Y = bounds.Min.Add(geom.Pt(pad, pad)).Y + pt.Y + pad
+	for i, a := range s.base.Storage {
+		if i == s.selected {
+			d.SetColor(Black)
+			d.Draw(geom.Rectangle{
+				Min: pt.Sub(geom.Pt(2, 2)),
+				Max: pt.Add(geom.Pt(34, 34)),
+			}, geom.Pt(0, 0))
+		}
+
+		if a != nil {
+			d.Draw(ui.Sprite{
+				Name:   a.Name,
+				Bounds: geom.Rect(0, 0, 32, 32),
+				Shade:  1.0,
+			}, pt)
+		}
+
+		pt.X += TileSize + pad
+		if i >= s.rowLen {
+			pt.Y += TileSize + pad
+			pt.X = origin.X + pad
+		}
+	}
+
+	d.SetColor(Black)
+	d.Draw(packBounds.Pad(pad), geom.Pt(0, 0))
+
+	d.SetColor(White)
+	d.Draw(packBounds, geom.Pt(0, 0))
+
+	d.SetColor(Black)
+	d.SetFont("prstartk", 16)
+	pt = d.Draw("Pack", packBounds.Min.Add(geom.Pt(pad, pad)))
+
+	pt.X = packBounds.Min.X + pad
+	pt.Y = packBounds.Min.Add(geom.Pt(pad, pad)).Y + pt.Y + pad
+	for i, a := range s.astro.pack {
+		if i == s.selected {
+			d.SetColor(Black)
+			d.Draw(geom.Rectangle{
+				Min: pt.Sub(geom.Pt(2, 2)),
+				Max: pt.Add(geom.Pt(34, 34)),
+			}, geom.Pt(0, 0))
+		}
+
+		if a != nil {
+			d.Draw(ui.Sprite{
+				Name:   a.Name,
+				Bounds: geom.Rect(0, 0, 32, 32),
+				Shade:  1.0,
+			}, pt)
+		}
+
+		pt.X += TileSize + pad
+		if i >= s.rowLen {
+			pt.Y += TileSize + pad
+			pt.X = origin.X + pad
+		}
+	}
 }
 
 func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
@@ -60,8 +138,15 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		return nil
 	}
 
-	if key, ok := e.(ui.Key); ok && key.Down {
+	key, ok := e.(ui.Key)
+	if !ok || !key.Down {
+		return nil
+	}
+
+	switch key.Button {
+	case ui.Menu:
 		s.closing = true
+	case ui.Left:
 	}
 	return nil
 }
