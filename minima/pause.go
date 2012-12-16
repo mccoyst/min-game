@@ -30,12 +30,8 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	origin := geom.Pt(32, 32)
 	pad := 4.0
 
-	suit := make([]*item.Item, 0, len(p.astro.suit))
-	for _, a := range p.astro.suit {
-		suit = append(suit, a)
-	}
-	pt := p.drawInventory(d, "Suit: ", suit, !p.inPack, pad, origin)
-	pt = p.drawInventory(d, "Pack: ", p.astro.pack, p.inPack, pad, geom.Pt(origin.X, pt.Y+pad))
+	pt := p.drawInventory(d, "Suit: ", pad, origin)
+	pt = p.drawInventory(d, "Pack: ", pad, geom.Pt(origin.X, pt.Y+pad))
 
 	if p.inPack && p.astro.pack[p.selected] == nil {
 		return
@@ -116,47 +112,44 @@ func (p *PauseScreen) Update(stk *ui.ScreenStack) error {
 	return nil
 }
 
-func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []*item.Item, hilight bool, pad float64, origin geom.Point) geom.Point {
-	size := d.TextSize(label)
+func (p *PauseScreen) drawInventory(d ui.Drawer, label string, pad float64, origin geom.Point) geom.Point {
+	return DrawInventory(PauseInv{p, label}, d, pad, origin, true)
+}
 
-	width := 32.0*float64(len(items)) + pad*float64(len(items)+3) + size.X
-	height := 32 + pad*2
-	bounds := geom.Rectangle{
-		Min: origin,
-		Max: origin.Add(geom.Pt(width, height)),
+type PauseInv struct {
+	p     *PauseScreen
+	label string
+}
+
+func (p PauseInv) Label() string {
+	return p.label
+}
+
+func (p PauseInv) Len() int {
+	if p.label == "Pack: " {
+		return len(p.p.astro.pack)
 	}
+	return len(p.p.astro.suit)
+}
 
-	d.SetColor(Black)
-	d.Draw(bounds.Pad(pad), geom.Pt(0, 0))
-
-	d.SetColor(White)
-	d.Draw(bounds, geom.Pt(0, 0))
-
-	pt := origin.Add(geom.Pt(pad, pad))
-
-	d.SetColor(Black)
-	d.Draw(label, pt)
-	pt.X += size.X + pad
-
-	for i, a := range items {
-		if hilight && i == p.selected {
-			d.SetColor(Black)
-			d.Draw(geom.Rectangle{
-				Min: pt.Sub(geom.Pt(2, 2)),
-				Max: pt.Add(geom.Pt(34, 34)),
-			}, geom.Pt(0, 0))
-		}
-
-		if a != nil {
-			d.Draw(ui.Sprite{
-				Name:   a.Name,
-				Bounds: geom.Rect(0, 0, 32, 32),
-				Shade:  1.0,
-			}, pt)
-		}
-
-		pt.X += 32.0 + pad
+func (p PauseInv) Selected(i int) bool {
+	if p.label == "Pack: " && p.p.inPack || p.label == "Suit: " && !p.p.inPack {
+		return i == p.p.selected
 	}
+	return false
+}
 
-	return bounds.Max
+func (p PauseInv) Get(i int) *item.Item {
+	if p.label == "Pack: " {
+		return p.p.astro.pack[i]
+	}
+	return p.p.astro.suit[i]
+}
+
+func (p PauseInv) Set(i int, n *item.Item) {
+	if p.label == "Pack: " {
+		p.p.astro.pack[i] = n
+	} else {
+		p.p.astro.suit[i] = n
+	}
 }
