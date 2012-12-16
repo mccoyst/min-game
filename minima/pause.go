@@ -30,12 +30,8 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	origin := geom.Pt(32, 32)
 	pad := 4.0
 
-	suit := make([]*item.Item, 0, len(p.astro.suit))
-	for _, a := range p.astro.suit {
-		suit = append(suit, a)
-	}
-	pt := p.drawInventory(d, "Suit: ", suit, !p.inPack, pad, origin)
-	pt = p.drawInventory(d, "Pack: ", p.astro.pack, p.inPack, pad, geom.Pt(origin.X, pt.Y+pad))
+	pt := p.drawInventory(d, "Suit: ", pad, origin)
+	pt = p.drawInventory(d, "Pack: ", pad, geom.Pt(origin.X, pt.Y+pad))
 
 	if p.inPack && p.astro.pack[p.selected] == nil {
 		return
@@ -116,7 +112,7 @@ func (p *PauseScreen) Update(stk *ui.ScreenStack) error {
 	return nil
 }
 
-func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []*item.Item, hilight bool, pad float64, origin geom.Point) geom.Point {
+func (p *PauseScreen) drawInventory(d ui.Drawer, label string, pad float64, origin geom.Point) geom.Point {
 	return DrawInventory(PauseInv{p, label}, d, pad, origin, true)
 }
 
