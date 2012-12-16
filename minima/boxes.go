@@ -33,7 +33,7 @@ type Inventory interface {
 	Len() int
 	Selected(int) bool
 	Get(int) *item.Item
-	Set(int)
+	Set(int, *item.Item)
 }
 
 func DrawInventory(i Inventory, d ui.Drawer, pad float64, origin geom.Point, fit bool) geom.Point {
