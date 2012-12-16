@@ -4,15 +4,16 @@ package main
 
 import (
 	"bufio"
-	"github.com/mccoyst/pipeline"
 	"io"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/ui"
+	"github.com/mccoyst/pipeline"
 )
 
 type TitleScreen struct {
@@ -124,33 +125,12 @@ func (t *TitleScreen) loadWorld() {
 			return
 		}
 
-		cmds := []*exec.Cmd{
-			gen("wgen"),
-			gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
-			gen("itemnear -num 5 -name Uranium"),
-		}
-
-		if *debug {
-			cmds = append(cmds, exec.Command("tee", "cur"))
-		}
-
-		wgen := cmds[0]
-		stderr, err := wgen.StderrPipe()
+		p, stdout, stderr, err := pipe()
 		if err != nil {
 			panic(err)
 		}
 		go readErr(stderr, t.wgenErr)
 
-		p, err := pipeline.New(cmds...)
-
-		if err != nil {
-			panic(err)
-		}
-
-		stdout, err := p.Last().StdoutPipe()
-		if err != nil {
-			panic(err)
-		}
 		if err := p.Start(); err != nil {
 			panic(err)
 		}
@@ -170,6 +150,46 @@ func (t *TitleScreen) loadWorld() {
 	}()
 }
 
+// Pipe returns the pipeline along with the standard output of
+// the process in the pipe, and an aggregate standand error.
+func pipe() (p pipeline.P, stdout, stderr io.Reader, err error) {
+	cmds := []*exec.Cmd{
+		gen("wgen"),
+		gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
+		gen("itemnear -num 5 -name Uranium"),
+	}
+	if *debug {
+		cmds = append(cmds, exec.Command("tee", "cur"))
+	}
+
+	stderrin, stderrout, err := os.Pipe()
+	if err != nil {
+		return p, nil, nil, err
+	}
+	for _, c := range cmds {
+		go func(c *exec.Cmd) {
+			stderr, err := c.StderrPipe()
+			if err != nil {
+				panic(err)
+			}
+			if _, err = io.Copy(stderrout, stderr); err != nil {
+				panic(err)
+			}
+		}(c)
+	}
+
+	p, err = pipeline.New(cmds...)
+	if err != nil {
+		return p, nil, nil, err
+	}
+	stdout, err = p.Last().StdoutPipe()
+	if err != nil {
+		return p, nil, nil, err
+	}
+
+	return p, stdout, stderrin, nil
+}
+
 // Gen returns a command for an XXXgen program.  The command
 // is given by a string, followed by "-seed" and the random seed.
 func gen(s string) *exec.Cmd {
@@ -186,35 +206,35 @@ func gen(s string) *exec.Cmd {
 func readErr(r io.Reader, strs chan<- string) {
 	in := bufio.NewReader(io.TeeReader(r, os.Stderr))
 	for {
-		_, err := readRunes(in, '\n')
+		s, err := readRunes(in, "…\n")
 		if err != nil {
 			break
 		}
-		line, err := readRunes(in, '…')
-		if err != nil {
-			break
+		r, sz := utf8.DecodeLastRuneInString(s)
+		if r == '\n' {
+			continue
 		}
-		if line == "Writing the world" {
-			line = "Reading the world"
-		}
-		strs <- line
+		strs <- s[:len(s)-sz]
 	}
 	close(strs)
 }
 
-// readRunes returns all runes until the delimiter
-// is read or an error occurs.  The delimiter is not
-// included in the returned slice.
-func readRunes(in *bufio.Reader, delim rune) (string, error) {
+// readRunes returns all runes until a delimiter
+// is read or an error occurs.  If a delimiter is
+// read then it is included in the returned string.
+func readRunes(in *bufio.Reader, delims string) (string, error) {
 	var err error
 	var runes []rune
 	for {
 		var r rune
 		r, _, err = in.ReadRune()
-		if err != nil || r == delim {
+		if err != nil {
 			break
 		}
 		runes = append(runes, r)
+		if strings.ContainsRune(delims, r) {
+			break
+		}
 	}
 	return string(runes), err
 }
