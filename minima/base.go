@@ -59,6 +59,7 @@ func (s *BaseScreen) Transparent() bool {
 }
 
 func (s *BaseScreen) Draw(d ui.Drawer) {
+	d.SetFont("prstartk", 16)
 	pt := DrawInventory(BaseInv{s, "Pack"}, d, pad, origin, true)
 	DrawInventory(BaseInv{s, "Storage"}, d, pad, geom.Pt(origin.X, pt.Y+32+2*pad), false)
 }
@@ -115,6 +116,30 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Menu:
 		s.closing = true
 	case ui.Left:
+		s.selected--
+		if s.selected < 0 {
+			if s.inPack {
+				s.selected = len(s.astro.pack) - 1
+			} else {
+				s.selected = len(s.base.Storage) - 1
+			}
+		}
+	case ui.Right:
+		s.selected++
+		if s.inPack && s.selected == len(s.astro.pack) {
+			s.selected = 0
+		}
+		if !s.inPack && s.selected == len(s.base.Storage) {
+			s.selected = 0
+		}
+	case ui.Up, ui.Down:
+		s.inPack = !s.inPack
+		if s.inPack && s.selected >= len(s.astro.pack) {
+			s.selected = len(s.astro.pack) - 1
+		}
+		if !s.inPack && s.selected >= len(s.base.Storage) {
+			s.selected = len(s.base.Storage) - 1
+		}
 	}
 	return nil
 }
