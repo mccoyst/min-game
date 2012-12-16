@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"image"
@@ -37,21 +38,34 @@ func main() {
 	rand.Seed(*seed)
 
 	in := bufio.NewReader(os.Stdin)
-	var err error
-	w, err := world.Read(in)
+	w, game, err := read(in)
 	if err != nil {
 		panic(err)
 	}
 
+	// Write the world immediately so that other connections in the
+	// pipe can begin reading it.
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
 	if err := w.Write(out); err != nil {
 		panic(err)
 	}
+	out.Flush()
 
+	fmt.Fprintf(os.Stderr, "Generating %s… ", *name)
+	start := time.Now()
 	herbs := placeHerbs(w)
+	fmt.Fprintf(os.Stderr, "%s\n", time.Since(start))
 
-	writeGame(in, out, herbs)
+	if hs, ok := game["Herbivores"]; ok {
+		game["Herbivores"] = append(hs.([]interface{}), herbs)
+	} else {
+		game["Herbivores"] = []interface{}{herbs}
+	}
+
+	if err := write(out, game); err != nil {
+		panic(err)
+	}
 }
 
 // PlaceHerbs places herbivores in the world.
@@ -87,28 +101,6 @@ func placeHerbs(w *world.World) animal.Herbivores {
 	}
 
 	return herbs
-}
-
-// writeGame reads the game state, adds the herbivores, and writes it out.
-func writeGame(in *bufio.Reader, out *bufio.Writer, herbs animal.Herbivores) {
-	game := make(map[string]interface{})
-	err := json.NewDecoder(in).Decode(&game)
-	if err != nil && err != io.EOF {
-		panic("Error reading JSON for " + *name + " " + err.Error())
-	}
-	if hs, ok := game["Herbivores"]; ok {
-		game["Herbivores"] = append(hs.([]interface{}), herbs)
-	} else {
-		game["Herbivores"] = []interface{}{herbs}
-	}
-
-	b, err := json.MarshalIndent(game, "", "\t")
-	if err != nil {
-		panic(err)
-	}
-	if _, err := out.Write(b); err != nil {
-		panic(err)
-	}
 }
 
 // Locs returns the valid locations to place this herbivore type.
@@ -177,6 +169,30 @@ func randomGaussian2d(w *world.World) *math.Gaussian2d {
 	ht := 1.0
 	cov := 0.0
 	return math.NewGaussian2d(mx, my, *stdev, *stdev, ht, cov)
+}
+
+// Read reads the world and the game, returning them or an error.
+func read(in *bufio.Reader) (*world.World, map[string]interface{}, error) {
+	w, err := world.Read(in)
+	if err != nil {
+		return nil, nil, errors.New("Error reading world: " + err.Error())
+	}
+	game := make(map[string]interface{})
+	err = json.NewDecoder(in).Decode(&game)
+	if err != nil && err != io.EOF {
+		return nil, nil, errors.New("Error reading game: " + err.Error())
+	}
+	return w, game, nil
+}
+
+// write writes the game to out.
+func write(out *bufio.Writer, game map[string]interface{}) error {
+	b, err := json.MarshalIndent(game, "", "\t")
+	if err != nil {
+		return err
+	}
+	_, err = out.Write(b)
+	return err
 }
 
 // DrawProbs draws the world, with cells shaded lighter
