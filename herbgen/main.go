@@ -16,6 +16,7 @@ import (
 	"math/rand"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 
 	"code.google.com/p/min-game/animal"
@@ -25,10 +26,8 @@ import (
 )
 
 var (
-	name = flag.String("name", "Gull", "Name of the herbivores to generate")
-	num  = flag.Int("num", 25, "Number to generate")
 	seed = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
-	draw = flag.String("draw", "", "Draw the probability distribution to an image")
+	draw = flag.Bool("draw", false, "Draw the probability distribution to an image")
 )
 
 func main() {
@@ -50,16 +49,26 @@ func main() {
 	}
 	out.Flush()
 
-	fmt.Fprintf(os.Stderr, "Generating %s… ", *name)
-	start := time.Now()
-	herbs := placeHerbs(w)
-	fmt.Fprintf(os.Stderr, "%s\n", time.Since(start))
-
+	var herbs []interface{}
 	if hs, ok := game["Herbivores"]; ok {
-		game["Herbivores"] = append(hs.([]interface{}), herbs)
-	} else {
-		game["Herbivores"] = []interface{}{herbs}
+		herbs = hs.([]interface{})
 	}
+
+	for i := 0; i < len(flag.Args()); i += 2 {
+		num, err := strconv.Atoi(flag.Arg(i))
+		if err != nil {
+			panic(err)
+		}
+		name := flag.Arg(i + 1)
+
+		fmt.Fprintf(os.Stderr, "Generating %s… ", name)
+		start := time.Now()
+		hs := placeHerbs(w, name, num, i)
+		fmt.Fprintf(os.Stderr, "%s\n", time.Since(start))
+		herbs = append(herbs, hs)
+	}
+
+	game["Herbivores"] = herbs
 
 	if err := write(out, game); err != nil {
 		panic(err)
@@ -67,17 +76,19 @@ func main() {
 }
 
 // PlaceHerbs places herbivores in the world.
-func placeHerbs(w *world.World) animal.Herbivores {
-	herbs, err := animal.MakeHerbivores(*name)
+func placeHerbs(w *world.World, name string, num, i int) animal.Herbivores {
+	herbs, err := animal.MakeHerbivores(name)
 	if err != nil {
 		panic(err)
 	}
 
 	ls := locs(w, herbs)
-	ps := probs(w, ls, herbs)
+	dist := herbs.Info.BoidInfo.LocalDist
+	stdev := (dist / 2) / gomath.Sqrt(world.TileSize.X*world.TileSize.Y)
+	ps := probs(w, ls, num/10, stdev)
 
-	if *draw != "" {
-		drawProbs(w, ls, ps)
+	if *draw {
+		drawProbs(w, ls, ps, name, i)
 	}
 
 	for i := 1; i < len(ps); i++ {
@@ -90,7 +101,7 @@ func placeHerbs(w *world.World) animal.Herbivores {
 
 	left := len(ls)
 
-	for n := 0; n < *num && left > 0; n++ {
+	for n := 0; n < num && left > 0; n++ {
 		p := rand.Float64()
 		i := sort.SearchFloat64s(ps, p)
 		if i >= len(ps) {
@@ -135,12 +146,12 @@ func locs(w *world.World, herbs animal.Herbivores) []*world.Loc {
 }
 
 // Probs returns the probability corresponding to each location.
-func probs(w *world.World, locs []*world.Loc, h animal.Herbivores) []float64 {
+func probs(w *world.World, locs []*world.Loc, n int, stdev float64) []float64 {
 	wprobs := make([]float64, w.W*w.H)
 
-	gauss := make([]*math.Gaussian2d, *num/10)
+	gauss := make([]*math.Gaussian2d, n)
 	for i := range gauss {
-		gauss[i] = randGauss(w, locs, h)
+		gauss[i] = randGauss(w, locs, stdev)
 	}
 
 	const s = 2.0 // σ to compute prob around each gauss.
@@ -185,9 +196,7 @@ func probs(w *world.World, locs []*world.Loc, h animal.Herbivores) []float64 {
 }
 
 // randGauss returns a random Gaussian2d.
-func randGauss(w *world.World, ls []*world.Loc, h animal.Herbivores) *math.Gaussian2d {
-	dist := h.Info.BoidInfo.LocalDist
-	stdev := (dist / 2) / gomath.Sqrt(world.TileSize.X*world.TileSize.Y)
+func randGauss(w *world.World, ls []*world.Loc, stdev float64) *math.Gaussian2d {
 	i := rand.Int31n(int32(len(ls)))
 	pt := ls[i].Point().Add(world.TileSize.Div(2))
 	ht := 1.0
@@ -221,8 +230,8 @@ func write(out *bufio.Writer, game map[string]interface{}) error {
 
 // DrawProbs draws the world, with cells shaded lighter
 // if they have a greater probability of containing an animal.
-func drawProbs(w *world.World, locs []*world.Loc, probs []float64) {
-	out, err := os.Create(*draw)
+func drawProbs(w *world.World, locs []*world.Loc, probs []float64, name string, i int) {
+	out, err := os.Create(fmt.Sprintf("%s-%d-%d.png", name, *seed, i))
 	if err != nil {
 		panic(err)
 	}
