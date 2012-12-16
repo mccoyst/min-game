@@ -91,14 +91,14 @@ func (b BaseInv) Get(n int) *item.Item {
 	if b.label == "Pack" {
 		return b.s.astro.pack[n]
 	}
-	return b.s.astro.suit[n]
+	return b.s.base.Storage[n]
 }
 
 func (b BaseInv) Set(n int, i *item.Item) {
 	if b.label == "Pack" {
 		b.s.astro.pack[n] = i
 	} else {
-		b.s.astro.suit[n] = i
+		b.s.base.Storage[n] = i
 	}
 }
 
@@ -115,6 +115,28 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch key.Button {
 	case ui.Menu:
 		s.closing = true
+	case ui.Action:
+		if s.inPack && s.astro.pack[s.selected] != nil {
+			i := s.astro.pack[s.selected]
+			s.astro.pack[s.selected] = nil
+			j := 0
+			for j < len(s.base.Storage) {
+				if s.base.Storage[j] == nil {
+					s.base.Storage[j] = i
+					break
+				}
+				j++
+			}
+			if j == len(s.base.Storage) {
+				s.base.Storage = append(s.base.Storage, i)
+			}
+		}
+		if !s.inPack && s.base.Storage[s.selected] != nil {
+			i := s.base.Storage[s.selected]
+			if s.astro.PutPack(i) {
+				s.base.Storage[s.selected] = nil
+			}
+		}
 	case ui.Left:
 		s.selected--
 		if s.selected < 0 {
