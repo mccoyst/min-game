@@ -21,14 +21,10 @@ func (c *Camera) Center(v geom.Point) {
 	c.Pt.Y = v.Y - c.Dims.Y/2.0
 }
 
-func (c *Camera) Rect() geom.Rectangle {
-	return geom.Rect(c.Pt.X, c.Pt.Y, c.Pt.X+c.Dims.X, c.Pt.Y+c.Dims.Y)
-}
-
 func (c *Camera) Draw(d Drawer, s Sprite, p geom.Point) geom.Point {
-	sz := s.Bounds.Size()
+	screen := geom.Rect(0, 0, c.Dims.X, c.Dims.Y)
 	p = p.Sub(c.Pt)
-	rect := geom.Rect(p.X, p.Y, p.X+sz.X, p.Y+sz.Y)
-	_, rect = c.Torus.AlignRects(c.Rect(), rect)
-	return d.Draw(s, rect.Min)
+	box := geom.Rect(p.X, p.Y, p.X+s.Bounds.Dx(), p.Y+s.Bounds.Dy())
+	_, box = c.Torus.AlignRects(screen, box)
+	return d.Draw(s, box.Min)
 }
