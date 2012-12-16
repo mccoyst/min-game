@@ -141,6 +141,10 @@ func (t *TitleScreen) loadWorld() {
 			gen("herbgen -num 25 -ngauss 1 -name Cow -stdev 10"),
 			gen("herbgen -num 25 -ngauss 1 -name Cow -stdev 10"),
 			gen("herbgen -num 25 -ngauss 1 -name Cow -stdev 10"),
+			gen("herbgen -num 5 -ngauss 1 -name Chicken -stdev 5"),
+			gen("herbgen -num 5 -ngauss 1 -name Chicken -stdev 5"),
+			gen("herbgen -num 5 -ngauss 1 -name Chicken -stdev 5"),
+			gen("herbgen -num 5 -ngauss 1 -name Chicken -stdev 5"),
 			gen("itemnear -num 5 -name Uranium"),
 		}
 
