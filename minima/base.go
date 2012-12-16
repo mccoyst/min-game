@@ -37,7 +37,7 @@ type BaseScreen struct {
 	base    *Base
 	closing bool
 
-	rowLen   int
+	inPack   bool
 	selected int
 }
 
@@ -51,8 +51,7 @@ var bounds = geom.Rectangle{
 var packBounds = bounds.Add(geom.Pt(0, bounds.Dy()+3*pad+32))
 
 func NewBaseScreen(astro *Player, base *Base) *BaseScreen {
-	r := int((bounds.Dx() - pad) / (TileSize + pad))
-	return &BaseScreen{astro, base, false, r, 0}
+	return &BaseScreen{astro, base, false, false, 0}
 }
 
 func (s *BaseScreen) Transparent() bool {
@@ -60,76 +59,45 @@ func (s *BaseScreen) Transparent() bool {
 }
 
 func (s *BaseScreen) Draw(d ui.Drawer) {
-	d.SetColor(Black)
-	d.Draw(bounds.Pad(pad), geom.Pt(0, 0))
+	pt := DrawInventory(BaseInv{s, "Pack"}, d, pad, origin, true)
+	DrawInventory(BaseInv{s, "Storage"}, d, pad, geom.Pt(origin.X, pt.Y+32+2*pad), false)
+}
 
-	d.SetColor(White)
-	d.Draw(bounds, geom.Pt(0, 0))
+type BaseInv struct {
+	s     *BaseScreen
+	label string
+}
 
-	d.SetColor(Black)
-	d.SetFont("prstartk", 16)
-	pt := d.Draw("Storage", bounds.Min.Add(geom.Pt(pad, pad)))
+func (b BaseInv) Label() string {
+	return b.label
+}
 
-	pt.X = bounds.Min.X + pad
-	pt.Y = bounds.Min.Add(geom.Pt(pad, pad)).Y + pt.Y + pad
-	for i, a := range s.base.Storage {
-		if i == s.selected {
-			d.SetColor(Black)
-			d.Draw(geom.Rectangle{
-				Min: pt.Sub(geom.Pt(2, 2)),
-				Max: pt.Add(geom.Pt(34, 34)),
-			}, geom.Pt(0, 0))
-		}
-
-		if a != nil {
-			d.Draw(ui.Sprite{
-				Name:   a.Name,
-				Bounds: geom.Rect(0, 0, 32, 32),
-				Shade:  1.0,
-			}, pt)
-		}
-
-		pt.X += TileSize + pad
-		if i >= s.rowLen {
-			pt.Y += TileSize + pad
-			pt.X = origin.X + pad
-		}
+func (b BaseInv) Len() int {
+	if b.label == "Pack" {
+		return len(b.s.astro.pack)
 	}
+	return len(b.s.base.Storage)
+}
 
-	d.SetColor(Black)
-	d.Draw(packBounds.Pad(pad), geom.Pt(0, 0))
+func (b BaseInv) Selected(n int) bool {
+	if b.label == "Pack" && b.s.inPack || b.label == "Storage" && !b.s.inPack {
+		return b.s.selected == n
+	}
+	return false
+}
 
-	d.SetColor(White)
-	d.Draw(packBounds, geom.Pt(0, 0))
+func (b BaseInv) Get(n int) *item.Item {
+	if b.label == "Pack" {
+		return b.s.astro.pack[n]
+	}
+	return b.s.astro.suit[n]
+}
 
-	d.SetColor(Black)
-	d.SetFont("prstartk", 16)
-	pt = d.Draw("Pack", packBounds.Min.Add(geom.Pt(pad, pad)))
-
-	pt.X = packBounds.Min.X + pad
-	pt.Y = packBounds.Min.Add(geom.Pt(pad, pad)).Y + pt.Y + pad
-	for i, a := range s.astro.pack {
-		if i == s.selected {
-			d.SetColor(Black)
-			d.Draw(geom.Rectangle{
-				Min: pt.Sub(geom.Pt(2, 2)),
-				Max: pt.Add(geom.Pt(34, 34)),
-			}, geom.Pt(0, 0))
-		}
-
-		if a != nil {
-			d.Draw(ui.Sprite{
-				Name:   a.Name,
-				Bounds: geom.Rect(0, 0, 32, 32),
-				Shade:  1.0,
-			}, pt)
-		}
-
-		pt.X += TileSize + pad
-		if i >= s.rowLen {
-			pt.Y += TileSize + pad
-			pt.X = origin.X + pad
-		}
+func (b BaseInv) Set(n int, i *item.Item) {
+	if b.label == "Pack" {
+		b.s.astro.pack[n] = i
+	} else {
+		b.s.astro.suit[n] = i
 	}
 }
 
