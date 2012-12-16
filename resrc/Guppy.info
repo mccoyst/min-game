@@ -29,6 +29,7 @@
 		"PlayerBias": 0.02,
 		"PlayerDist": 64,
 		"TerrainBias": 0.2,
-		"TerrainDist": 24
+		"TerrainDist": 24,
+		"MaxDepth": 2
 	}
 }

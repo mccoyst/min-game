@@ -70,6 +70,10 @@ type BoidInfo struct {
 
 	// AvoidTerrain is a string of terrain types that are avoided.
 	AvoidTerrain string
+
+	// MaxDepth is the maximum water depth before this boid
+	// attempts to avoid.
+	MaxDepth int
 }
 
 // UpdateBoids updates the velocity of the boids.
@@ -180,8 +184,9 @@ func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
 
 	for x := x0; x <= x1; x++ {
 		for y := y0; y <= y1; y++ {
-			r := w.At(x, y).Terrain.Char
-			if strings.Index(i.AvoidTerrain, r) < 0 {
+			l := w.At(x, y)
+			ch := l.Terrain.Char
+			if l.Depth <= i.MaxDepth && strings.Index(i.AvoidTerrain, ch) < 0 {
 				continue
 			}
 			pt := geom.Pt((float64(x)+0.5)*world.TileSize.X,

@@ -60,8 +60,9 @@ func main() {
 			herbs.Spawn(geom.Pt(x, y), vel)
 			h := herbs.Herbs[len(herbs.Herbs)-1]
 
-			tname := w.At(w.Tile(h.Body.Center())).Terrain.Char
-			if herbs.Info.Affinity[tname] == maxAffinity {
+			loc := w.At(w.Tile(h.Body.Center()))
+			tname := loc.Terrain.Char
+			if herbs.Info.BoidInfo.MaxDepth <= loc.Depth && herbs.Info.Affinity[tname] == maxAffinity {
 				break
 			}
 

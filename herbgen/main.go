@@ -61,7 +61,7 @@ func placeHerbs(w *world.World) animal.Herbivores {
 		panic(err)
 	}
 
-	ls := locs(w, herbs.Info.Affinity)
+	ls := locs(w, herbs)
 	ps := probs(w, ls)
 
 	if *draw != "" {
@@ -112,10 +112,10 @@ func writeGame(in *bufio.Reader, out *bufio.Writer, herbs animal.Herbivores) {
 }
 
 // Locs returns the valid locations to place this herbivore type.
-func locs(w *world.World, affinity map[string]float64) []*world.Loc {
+func locs(w *world.World, herbs animal.Herbivores) []*world.Loc {
 	var typs []string
 	maxAffinity := 0.0
-	for t, a := range affinity {
+	for t, a := range herbs.Info.Affinity {
 		if a > maxAffinity {
 			typs = []string{t}
 			maxAffinity = a
@@ -126,8 +126,12 @@ func locs(w *world.World, affinity map[string]float64) []*world.Loc {
 
 	var locs []*world.Loc
 	for _, t := range typs {
-		ts := w.LocsWithType(t)
-		locs = append(locs, ts...)
+		ls := w.LocsWithType(t)
+		for _, l := range ls {
+			if l.Depth <= herbs.Info.BoidInfo.MaxDepth {
+				locs = append(locs, l)
+			}
+		}
 	}
 
 	return locs
