@@ -126,25 +126,7 @@ func (t *TitleScreen) loadWorld() {
 
 		cmds := []*exec.Cmd{
 			gen("wgen"),
-			gen("herbgen -num 25 -name Gull"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 10 -name Guppy"),
-			gen("herbgen -num 25 -name Cow"),
-			gen("herbgen -num 25 -name Cow"),
-			gen("herbgen -num 25 -name Cow"),
-			gen("herbgen -num 25 -name Cow"),
-			gen("herbgen -num 5 -name Chicken"),
-			gen("herbgen -num 5 -name Chicken"),
-			gen("herbgen -num 5 -name Chicken"),
-			gen("herbgen -num 5 -name Chicken"),
+			gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
 			gen("itemnear -num 5 -name Uranium"),
 		}
 
