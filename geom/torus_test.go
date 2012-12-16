@@ -73,7 +73,7 @@ func TestTorusSub(t *testing.T) {
 	}
 }
 
-func TestAlign(t *testing.T) {
+func TestAlignRects(t *testing.T) {
 	torus := Torus{100, 100}
 	tests := []struct {
 		a, b   Rectangle
@@ -85,7 +85,7 @@ func TestAlign(t *testing.T) {
 		{Rect(0, 0, 1, 1), Rect(100.5, 100.5, 101.5, 101.5), Rect(0.5, 0.5, 1.5, 1.5)},
 	}
 	for _, test := range tests {
-		a, b := torus.align(test.a, test.b)
+		a, b := torus.AlignRects(test.a, test.b)
 		if a != torus.NormRect(test.a) {
 			t.Fatalf("%s is not normalized %s, wanted %s", a, test.a, torus.NormRect(test.a))
 		}
