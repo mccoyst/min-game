@@ -1,0 +1,20 @@
+{
+	"Name": "Bee",
+	"Sheet": {
+		"Name": "Bee",
+		"FrameSize": 16,
+		"Tempo": 20,
+		"North": 1,
+		"East": 3,
+		"South": 0,
+		"West": 2
+	},
+	"Affinity": {
+		"g": 1.0,
+		"f": 1.0,
+		"m", 0.5,
+		"w", 0.0,
+		"d", 1.0,
+		"i", 0.1
+	}
+}
