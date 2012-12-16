@@ -25,12 +25,10 @@ import (
 )
 
 var (
-	name   = flag.String("name", "Gull", "Name of the herbivores to generate")
-	num    = flag.Int("num", 25, "Number to generate")
-	stdev  = flag.Float64("stdev", 20, "Standard deviation of high-probability regions")
-	ngauss = flag.Int("ngauss", 5, "Number high-probability regions")
-	seed   = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
-	draw   = flag.String("draw", "", "Draw the probability distribution to an image")
+	name = flag.String("name", "Gull", "Name of the herbivores to generate")
+	num  = flag.Int("num", 25, "Number to generate")
+	seed = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
+	draw = flag.String("draw", "", "Draw the probability distribution to an image")
 )
 
 func main() {
@@ -76,7 +74,7 @@ func placeHerbs(w *world.World) animal.Herbivores {
 	}
 
 	ls := locs(w, herbs)
-	ps := probs(w, ls)
+	ps := probs(w, ls, herbs)
 
 	if *draw != "" {
 		drawProbs(w, ls, ps)
@@ -137,12 +135,12 @@ func locs(w *world.World, herbs animal.Herbivores) []*world.Loc {
 }
 
 // Probs returns the probability corresponding to each location.
-func probs(w *world.World, locs []*world.Loc) []float64 {
+func probs(w *world.World, locs []*world.Loc, h animal.Herbivores) []float64 {
 	wprobs := make([]float64, w.W*w.H)
 
-	gauss := make([]*math.Gaussian2d, *ngauss)
+	gauss := make([]*math.Gaussian2d, *num/10)
 	for i := range gauss {
-		gauss[i] = randomGaussian2d(w)
+		gauss[i] = randGauss(w, locs, h)
 	}
 
 	const s = 2.0 // σ to compute prob around each gauss.
@@ -186,13 +184,15 @@ func probs(w *world.World, locs []*world.Loc) []float64 {
 	return probs
 }
 
-// randomGaussian2d returns a random Gaussian2d.
-func randomGaussian2d(w *world.World) *math.Gaussian2d {
-	mx := rand.Float64() * float64(w.W)
-	my := rand.Float64() * float64(w.H)
+// randGauss returns a random Gaussian2d.
+func randGauss(w *world.World, ls []*world.Loc, h animal.Herbivores) *math.Gaussian2d {
+	dist := h.Info.BoidInfo.LocalDist
+	stdev := (dist / 2) / gomath.Sqrt(world.TileSize.X*world.TileSize.Y)
+	i := rand.Int31n(int32(len(ls)))
+	pt := ls[i].Point().Add(world.TileSize.Div(2))
 	ht := 1.0
 	cov := 0.0
-	return math.NewGaussian2d(mx, my, *stdev, *stdev, ht, cov)
+	return math.NewGaussian2d(pt.X, pt.Y, stdev, stdev, ht, cov)
 }
 
 // Read reads the world and the game, returning them or an error.
