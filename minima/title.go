@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	"code.google.com/p/min-game/geom"
@@ -114,7 +115,7 @@ func (t *TitleScreen) loadWorld() {
 	go func() {
 		if *worldOnStdin {
 			*worldOnStdin = false
-			t.wgenErr <- "Reading World"
+			t.wgenErr <- "Reading the world"
 			close(t.wgenErr)
 			in := bufio.NewReader(os.Stdin)
 			g, err := ReadGame(in)
@@ -158,24 +159,14 @@ func pipe() (p pipeline.P, stdout, stderr io.Reader, err error) {
 		gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
 		gen("itemnear -num 5 -name Uranium"),
 	}
-	if *debug {
-		cmds = append(cmds, exec.Command("tee", "cur"))
-	}
 
-	stderrin, stderrout, err := os.Pipe()
+	stderr, err = stderrs(cmds)
 	if err != nil {
 		return p, nil, nil, err
 	}
-	for _, c := range cmds {
-		go func(c *exec.Cmd) {
-			stderr, err := c.StderrPipe()
-			if err != nil {
-				panic(err)
-			}
-			if _, err = io.Copy(stderrout, stderr); err != nil {
-				panic(err)
-			}
-		}(c)
+
+	if *debug {
+		cmds = append(cmds, exec.Command("tee", "cur"))
 	}
 
 	p, err = pipeline.New(cmds...)
@@ -187,7 +178,34 @@ func pipe() (p pipeline.P, stdout, stderr io.Reader, err error) {
 		return p, nil, nil, err
 	}
 
-	return p, stdout, stderrin, nil
+	return p, stdout, stderr, nil
+}
+
+// Stderrs returns a pipe that aggregates the standard errors of all commands.
+func stderrs(cmds []*exec.Cmd) (io.Reader, error) {
+	stderrin, stderrout, err := os.Pipe()
+	if err != nil {
+		return nil, err
+	}
+	var wg sync.WaitGroup
+	wg.Add(len(cmds))
+	for _, c := range cmds {
+		go func(c *exec.Cmd) {
+			stderr, err := c.StderrPipe()
+			if err != nil {
+				panic(err)
+			}
+			if _, err = io.Copy(stderrout, stderr); err != nil {
+				panic(err)
+			}
+			wg.Done()
+		}(c)
+	}
+	go func() {
+		wg.Wait()
+		stderrout.Close()
+	}()
+	return stderrin, nil
 }
 
 // Gen returns a command for an XXXgen program.  The command
@@ -216,6 +234,7 @@ func readErr(r io.Reader, strs chan<- string) {
 		}
 		strs <- s[:len(s)-sz]
 	}
+	strs <- "Reading the world"
 	close(strs)
 }
 
