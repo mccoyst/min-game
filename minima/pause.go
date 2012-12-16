@@ -117,46 +117,43 @@ func (p *PauseScreen) Update(stk *ui.ScreenStack) error {
 }
 
 func (p *PauseScreen) drawInventory(d ui.Drawer, label string, items []*item.Item, hilight bool, pad float64, origin geom.Point) geom.Point {
-	size := d.TextSize(label)
+	return DrawInventory(PauseInv{p, label}, d, pad, origin, true)
+}
 
-	width := 32.0*float64(len(items)) + pad*float64(len(items)+3) + size.X
-	height := 32 + pad*2
-	bounds := geom.Rectangle{
-		Min: origin,
-		Max: origin.Add(geom.Pt(width, height)),
+type PauseInv struct {
+	p     *PauseScreen
+	label string
+}
+
+func (p PauseInv) Label() string {
+	return p.label
+}
+
+func (p PauseInv) Len() int {
+	if p.label == "Pack: " {
+		return len(p.p.astro.pack)
 	}
+	return len(p.p.astro.suit)
+}
 
-	d.SetColor(Black)
-	d.Draw(bounds.Pad(pad), geom.Pt(0, 0))
-
-	d.SetColor(White)
-	d.Draw(bounds, geom.Pt(0, 0))
-
-	pt := origin.Add(geom.Pt(pad, pad))
-
-	d.SetColor(Black)
-	d.Draw(label, pt)
-	pt.X += size.X + pad
-
-	for i, a := range items {
-		if hilight && i == p.selected {
-			d.SetColor(Black)
-			d.Draw(geom.Rectangle{
-				Min: pt.Sub(geom.Pt(2, 2)),
-				Max: pt.Add(geom.Pt(34, 34)),
-			}, geom.Pt(0, 0))
-		}
-
-		if a != nil {
-			d.Draw(ui.Sprite{
-				Name:   a.Name,
-				Bounds: geom.Rect(0, 0, 32, 32),
-				Shade:  1.0,
-			}, pt)
-		}
-
-		pt.X += 32.0 + pad
+func (p PauseInv) Selected(i int) bool {
+	if p.label == "Pack: " && p.p.inPack || p.label == "Suit: " && !p.p.inPack {
+		return i == p.p.selected
 	}
+	return false
+}
 
-	return bounds.Max
+func (p PauseInv) Get(i int) *item.Item {
+	if p.label == "Pack: " {
+		return p.p.astro.pack[i]
+	}
+	return p.p.astro.suit[i]
+}
+
+func (p PauseInv) Set(i int, n *item.Item) {
+	if p.label == "Pack: " {
+		p.p.astro.pack[i] = n
+	} else {
+		p.p.astro.suit[i] = n
+	}
 }
