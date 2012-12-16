@@ -90,14 +90,21 @@ func placeHerbs(w *world.World) animal.Herbivores {
 	}
 	ps[len(ps)-1] = 1 // Get rid of possible rounding issues.
 
-	for n := 0; n < *num && len(ls) > 0; n++ {
+	left := len(ls)
+
+	for n := 0; n < *num && left > 0; n++ {
 		p := rand.Float64()
 		i := sort.SearchFloat64s(ps, p)
-		if i != 0 && (i >= len(ps) || ps[i] > p) {
-			i--
+		if i >= len(ps) {
+			i = len(ps) - 1
+		}
+		for ls[i] == nil { // Used: just scan for a free loc from i.
+			i = (i + 1) % len(ls)
 		}
 		vel := geom.Pt(rand.Float64(), rand.Float64()).Normalize()
 		herbs.Spawn(ls[i].Point(), vel)
+		ls[i] = nil
+		left--
 	}
 
 	return herbs
