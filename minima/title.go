@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"sync"
 	"unicode/utf8"
 
 	"code.google.com/p/min-game/geom"
@@ -125,12 +124,36 @@ func (t *TitleScreen) loadWorld() {
 			t.gameChan <- g
 			return
 		}
+		cmds := []*exec.Cmd{
+			gen("wgen"),
+			gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
+			gen("itemnear -num 5 -name Uranium"),
+		}
 
-		p, stdout, stderr, err := pipe()
+		stderrin, stderrout, err := os.Pipe()
 		if err != nil {
 			panic(err)
 		}
-		go readErr(stderr, t.wgenErr)
+		defer stderrin.Close()
+		defer stderrout.Close()
+		for _, c := range cmds {
+			c.Stderr = stderrout
+		}
+		go readErr(stderrin, t.wgenErr)
+
+		if *debug {
+			cmds = append(cmds, exec.Command("wimg", "-e", "-o", "cur.png"))
+			cmds = append(cmds, exec.Command("tee", "cur.world"))
+		}
+
+		p, err := pipeline.New(cmds...)
+		if err != nil {
+			panic(err)
+		}
+		stdout, err := p.Last().StdoutPipe()
+		if err != nil {
+			panic(err)
+		}
 
 		if err := p.Start(); err != nil {
 			panic(err)
@@ -149,64 +172,6 @@ func (t *TitleScreen) loadWorld() {
 		}
 		t.gameChan <- g
 	}()
-}
-
-// Pipe returns the pipeline along with the standard output of
-// the process in the pipe, and an aggregate standand error.
-func pipe() (p pipeline.P, stdout, stderr io.Reader, err error) {
-	cmds := []*exec.Cmd{
-		gen("wgen"),
-		gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
-		gen("itemnear -num 5 -name Uranium"),
-	}
-
-	stderr, err = stderrs(cmds)
-	if err != nil {
-		return p, nil, nil, err
-	}
-
-	if *debug {
-		cmds = append(cmds, exec.Command("wimg", "-e", "-o", "cur.png"))
-		cmds = append(cmds, exec.Command("tee", "cur.world"))
-	}
-
-	p, err = pipeline.New(cmds...)
-	if err != nil {
-		return p, nil, nil, err
-	}
-	stdout, err = p.Last().StdoutPipe()
-	if err != nil {
-		return p, nil, nil, err
-	}
-
-	return p, stdout, stderr, nil
-}
-
-// Stderrs returns a pipe that aggregates the standard errors of all commands.
-func stderrs(cmds []*exec.Cmd) (io.Reader, error) {
-	stderrin, stderrout, err := os.Pipe()
-	if err != nil {
-		return nil, err
-	}
-	var wg sync.WaitGroup
-	wg.Add(len(cmds))
-	for _, c := range cmds {
-		go func(c *exec.Cmd) {
-			stderr, err := c.StderrPipe()
-			if err != nil {
-				panic(err)
-			}
-			if _, err = io.Copy(stderrout, stderr); err != nil {
-				panic(err)
-			}
-			wg.Done()
-		}(c)
-	}
-	go func() {
-		wg.Wait()
-		stderrout.Close()
-	}()
-	return stderrin, nil
 }
 
 // Gen returns a command for an XXXgen program.  The command
