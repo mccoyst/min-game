@@ -73,6 +73,17 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch key.Button {
 	case ui.Menu:
 		p.closing = true
+	case ui.Action:
+		if p.inPack && p.astro.pack[p.selected] != nil {
+			if p.astro.PutSuit(p.astro.pack[p.selected]) {
+				p.astro.pack[p.selected] = nil
+			}
+		}
+		if !p.inPack && p.astro.suit[p.selected] != nil {
+			if p.astro.PutPack(p.astro.suit[p.selected]) {
+				p.astro.suit[p.selected] = nil
+			}
+		}
 	case ui.Left:
 		p.selected--
 		if p.selected < 0 {

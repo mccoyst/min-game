@@ -155,3 +155,14 @@ func (p *Player) PutPack(i *item.Item) bool {
 	}
 	return false
 }
+
+// PutSuit tries to add i to the player's suit, and returns true iff successful.
+func (p *Player) PutSuit(i *item.Item) bool {
+	for j := range p.suit {
+		if p.suit[j] == nil {
+			p.suit[j] = i
+			return true
+		}
+	}
+	return false
+}
