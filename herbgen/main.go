@@ -159,9 +159,26 @@ func probs(w *world.World, locs []*world.Loc) []float64 {
 
 	sum := 0.0
 	probs := make([]float64, len(locs))
+	min := gomath.Inf(1)
+	nzero := 0.0
 	for i, l := range locs {
 		probs[i] = wprobs[l.X*w.H+l.Y]
+		if probs[i] == 0 {
+			nzero++
+			continue
+		}
+		if probs[i] < min {
+			min = probs[i]
+		}
 		sum += probs[i]
+	}
+	for i := range probs {
+		if probs[i] == 0 {
+			probs[i] = min / nzero
+		}
+	}
+	if nzero > 0 {
+		sum += min
 	}
 	for i := range probs {
 		probs[i] /= sum
