@@ -67,6 +67,13 @@ func (t Torus) Intersect(a, b Rectangle) Rectangle {
 	return a.Intersect(b)
 }
 
+// Hits returns true if the two rectangles intersect on the torus.
+//
+// Both a and b must be smaller than the size of the torus.
+func (t Torus) Hits(a, b Rectangle) bool {
+	return t.Intersect(a, b) != Rectangle{}
+}
+
 // AlignRects returns a pair of rectangles.  The first is the normalized equivalent
 // of a.  The second is equivalent to b on the torus.  If there is b equivalent
 // that overlaps a on the torus, then it is returned, otherwise it is any b

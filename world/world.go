@@ -146,7 +146,8 @@ func (w *World) Wrap(x, y int) (int, int) {
 }
 
 func (w *World) Tile(p geom.Point) (int, int) {
-	return int(math.Floor(p.X / TileSize.X)), int(math.Floor(p.Y / TileSize.Y))
+	return wrap(int(math.Floor(p.X/TileSize.X)), w.W),
+		wrap(int(math.Floor(p.Y/TileSize.Y)), w.H)
 }
 
 // wrap returns the value of n wrapped around if it goes
