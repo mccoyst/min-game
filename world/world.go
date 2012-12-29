@@ -10,7 +10,10 @@ import (
 	"math"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"code.google.com/p/min-game/geom"
 )
@@ -189,9 +192,21 @@ func (w *World) Write(out io.Writer) error {
 	if _, err = fmt.Fprintln(out, w.W, w.H); err != nil {
 		return err
 	}
-	for _, l := range w.locs {
+	var n int
+	for i := 0; i < len(w.locs); i += n {
+		l := w.locs[i]
 		if l.Terrain == nil {
 			panic("Nil terrain")
+		}
+
+		for n = 1; i+n < len(w.locs); n++ {
+			l2 := w.locs[i+n]
+			if l.Terrain != l2.Terrain || l.Elevation != l2.Elevation || l.Depth != l2.Depth {
+				break
+			}
+		}
+		if n > 1 {
+			fmt.Fprintln(out, n)
 		}
 		if _, err = fmt.Fprintf(out, "%s %d %d\n", l.Terrain.Char, l.Elevation, l.Depth); err != nil {
 			return err
@@ -216,15 +231,38 @@ func Read(in *bufio.Reader) (*World, error) {
 	}
 
 	w := New(width, height)
+
+	var el, dp int
+	var ch rune
+	var repeat int
+
 	for i := range w.locs {
-		var el, dp int
-		var ch rune
+		if repeat > 0 {
+			w.locs[i].Terrain = &Terrain[ch]
+			w.locs[i].Elevation = el
+			w.locs[i].Depth = dp
+			repeat--
+			continue
+		}
+
 		if line, err = readLine(in); err != nil {
 			return nil, err
 		}
+
+		r, _ := utf8.DecodeRuneInString(line)
+		if unicode.IsDigit(r) {
+			repeat, err = strconv.Atoi(line)
+			if err != nil {
+				return nil, fmt.Errorf("Bad run-length encoding line=[%s]: %s", line, err)
+			}
+			if line, err = readLine(in); err != nil {
+				return nil, err
+			}
+			repeat-- // we are about to read and set the 1st occurrence
+		}
+
 		if _, err = fmt.Sscanf(line, "%c %d %d", &ch, &el, &dp); err != nil {
-			fmt.Fprintln(os.Stderr, "failed to scan", line)
-			return nil, err
+			return nil, fmt.Errorf("Failed to scan line [%s]: %s", line, err)
 		}
 		if el < 0 || el > MaxElevation {
 			return nil, fmt.Errorf("Location %d: elevation %d is out of bounds", i, el)
@@ -244,6 +282,9 @@ func Read(in *bufio.Reader) (*World, error) {
 		return nil, err
 	}
 	_, err = fmt.Sscanln(line, &w.X0, &w.Y0)
+	if err != nil {
+		err = fmt.Errorf("Failed to scan initial location [%s]: %s", line, err)
+	}
 	return w, err
 }
 
