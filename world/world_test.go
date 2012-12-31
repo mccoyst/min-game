@@ -82,9 +82,7 @@ func TestWriteReadRuns(t *testing.T) {
 		}
 	}
 
-	run := rand.Intn(4) + 1
-	var el, de, te int
-
+	var run, el, de, te int
 	w := New(10, 10)
 	for i := range w.locs {
 		if run == 0 {
