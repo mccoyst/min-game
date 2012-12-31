@@ -62,7 +62,7 @@ func main() {
 
 			loc := w.At(w.Tile(h.Body.Center()))
 			tname := loc.Terrain.Char
-			if herbs.Info.BoidInfo.MaxDepth <= loc.Depth && herbs.Info.Affinity[tname] == maxAffinity {
+			if loc.Depth <= herbs.Info.BoidInfo.MaxDepth && herbs.Info.Affinity[tname] == maxAffinity {
 				break
 			}
 
