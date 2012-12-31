@@ -15,9 +15,8 @@ import (
 
 // Herbivore is a struct representing basic herding, non-agressive, herbivorous animals.
 type Herbivore struct {
-	Body       phys.Body
-	Anim       sprite.Anim
-	ThinkGroup uint
+	Anim sprite.Anim
+	Boid ai.Boid
 }
 
 type Herbivores struct {
@@ -35,8 +34,8 @@ func MakeHerbivores(name string) (Herbivores, error) {
 
 func (hs Herbivores) Move(w *world.World) {
 	for _, h := range hs.Herbs {
-		h.Anim.Move(&hs.Info.Sheet, h.Body.Vel)
-		h.Body.Move(w, hs.Info.Affinity)
+		h.Anim.Move(&hs.Info.Sheet, h.Boid.Body.Vel)
+		h.Boid.Body.Move(w, hs.Info.Affinity)
 	}
 }
 
@@ -46,28 +45,28 @@ func (hs Herbivores) Draw(d ui.Drawer, cam ui.Camera) {
 			Name:   hs.Info.Sheet.Name,
 			Bounds: hs.Info.Sheet.Frame(h.Anim.Face, h.Anim.Frame),
 			Shade:  1.0,
-		}, h.Body.Box.Min)
+		}, h.Boid.Body.Box.Min)
 	}
 }
 
 // Spawn spawns a new Herbivore for this Herbivores collection.
 func (hs *Herbivores) Spawn(p, v geom.Point) {
 	sz := float64(hs.Info.Sheet.FrameSize)
-	hs.Herbs = append(hs.Herbs, &Herbivore{
-		Body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+sz, p.Y+sz),
-			Vel: v,
-		},
-		ThinkGroup: uint(rand.Intn(ai.NThinkGroups)),
-	})
+	h := new(Herbivore)
+	h.Boid.Body = phys.Body{
+		Box: geom.Rect(p.X, p.Y, p.X+sz, p.Y+sz),
+		Vel: v,
+	}
+	h.Boid.ThinkGroup = uint(rand.Intn(ai.NThinkGroups))
+	hs.Herbs = append(hs.Herbs, h)
 }
 
 func (hs Herbivores) Len() int {
 	return len(hs.Herbs)
 }
 
-func (hs Herbivores) Boid(n int) ai.Boid {
-	return ai.Boid{&hs.Herbs[n].Body, hs.Herbs[n].ThinkGroup}
+func (hs Herbivores) Boid(n int) *ai.Boid {
+	return &hs.Herbs[n].Boid
 }
 
 func (hs Herbivores) BoidInfo() ai.BoidInfo {
