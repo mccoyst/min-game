@@ -24,11 +24,11 @@
 		"CenterDist": 480,
 		"CenterBias": 0.01,
 		"AvoidDist": 48,
-		"AvoidBias": 0.005,
+		"AvoidBias": 0.01,
 		"PlayerDist": 64,
 		"PlayerBias": 0.02,
 		"TerrainDist": 35.2,
-		"TerrainBias": 0.01,
+		"TerrainBias": 0.0005,
 		"AvoidTerrain": "fmwdi"
 	}
 }
