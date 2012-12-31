@@ -186,7 +186,7 @@ func (e *Game) Update(stk *ui.ScreenStack) error {
 	e.cam.Center(e.Astro.body.Box.Center())
 
 	for i := range e.Herbivores {
-		ai.UpdateBoids(e.Herbivores[i], &e.Astro.body, e.wo)
+		ai.UpdateBoids(stk.NFrames, e.Herbivores[i], &e.Astro.body, e.wo)
 		e.Herbivores[i].Move(e.wo)
 	}
 

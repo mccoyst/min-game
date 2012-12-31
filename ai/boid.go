@@ -18,9 +18,18 @@ type Boids interface {
 	BoidInfo() BoidInfo
 }
 
+const (
+	// NThinkGroups is the number of think groups.
+	NThinkGroups = 6 // At 60 frames per second, this gives us thinking at 10Hz
+)
+
 // A Boid is a bird-like (cow-like, or fish-like) object.
 type Boid struct {
 	*phys.Body
+
+	// ThinkGroup is the number of the group with with this boid
+	// considers its local neighbors when updating.
+	ThinkGroup uint
 }
 
 // BoidInfo contains behavior information about boids.
@@ -77,9 +86,9 @@ type BoidInfo struct {
 }
 
 // UpdateBoids updates the velocity of the boids.
-func UpdateBoids(boids Boids, p *phys.Body, w *world.World) {
+func UpdateBoids(nframes uint, boids Boids, p *phys.Body, w *world.World) {
 	info := boids.BoidInfo()
-	local := localBoids(boids, w)
+	local := localBoids(nframes, boids, w)
 	for i, l := range local {
 		boid := boids.Boid(i)
 		boid.matchVel(l, info)
@@ -93,15 +102,19 @@ func UpdateBoids(boids Boids, p *phys.Body, w *world.World) {
 
 // LocalBoids returns a slice containing the Boids that
 // are local to the Boid with the corresponding index.
-func localBoids(boids Boids, w *world.World) [][]Boid {
+func localBoids(nframes uint, boids Boids, w *world.World) [][]Boid {
 	localDist := boids.BoidInfo().LocalDist
 	dd := localDist * localDist
 	local := make([][]Boid, boids.Len())
+	tGroup := nframes % NThinkGroups
 	for i := range local {
 		boid := boids.Boid(i)
-		for j := i + 1; j < boids.Len(); j++ {
+		if tGroup != boid.ThinkGroup {
+			continue
+		}
+		for j := 0; j < boids.Len(); j++ {
 			b := boids.Boid(j)
-			if boid.sqDist(b, w) > dd {
+			if j == i || boid.sqDist(b, w) > dd {
 				continue
 			}
 			local[i] = append(local[i], b)

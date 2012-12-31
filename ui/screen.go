@@ -39,7 +39,7 @@ type Screen interface {
 type ScreenStack struct {
 	stk       []Screen
 	win       *Ui
-	nFrames   uint
+	NFrames   uint
 	MeanFrame float64 // milliseconds
 
 	// Buttons is a bit set of the currently pressed buttons.
@@ -51,7 +51,7 @@ func NewScreenStack(win *Ui, first Screen) *ScreenStack {
 	return &ScreenStack{
 		stk:       []Screen{first},
 		win:       win,
-		nFrames:   0,
+		NFrames:   0,
 		MeanFrame: 0.0,
 	}
 }
@@ -112,9 +112,9 @@ func (s *ScreenStack) Run() {
 		}
 
 		frameLen := time.Since(frameStart) - syncTime
-		s.nFrames++
+		s.NFrames++
 		ms := frameLen.Seconds() * 1000
-		s.MeanFrame += (ms - s.MeanFrame) / float64(s.nFrames)
+		s.MeanFrame += (ms - s.MeanFrame) / float64(s.NFrames)
 
 		if frameLen < FrameMsec {
 			time.Sleep(FrameMsec - time.Since(frameStart))

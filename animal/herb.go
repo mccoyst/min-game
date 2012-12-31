@@ -3,6 +3,8 @@
 package animal
 
 import (
+	"math/rand"
+
 	"code.google.com/p/min-game/ai"
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/phys"
@@ -13,8 +15,9 @@ import (
 
 // Herbivore is a struct representing basic herding, non-agressive, herbivorous animals.
 type Herbivore struct {
-	Body phys.Body
-	Anim sprite.Anim
+	Body       phys.Body
+	Anim       sprite.Anim
+	ThinkGroup uint
 }
 
 type Herbivores struct {
@@ -55,6 +58,7 @@ func (hs *Herbivores) Spawn(p, v geom.Point) {
 			Box: geom.Rect(p.X, p.Y, p.X+sz, p.Y+sz),
 			Vel: v,
 		},
+		ThinkGroup: uint(rand.Intn(ai.NThinkGroups)),
 	})
 }
 
@@ -63,7 +67,7 @@ func (hs Herbivores) Len() int {
 }
 
 func (hs Herbivores) Boid(n int) ai.Boid {
-	return ai.Boid{&hs.Herbs[n].Body}
+	return ai.Boid{&hs.Herbs[n].Body, hs.Herbs[n].ThinkGroup}
 }
 
 func (hs Herbivores) BoidInfo() ai.BoidInfo {

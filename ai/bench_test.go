@@ -45,7 +45,7 @@ func updateN(n int, b *testing.B) {
 	bds = boidVal.Interface().(boids)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		UpdateBoids(bds, p, w)
+		UpdateBoids(uint(i), bds, p, w)
 	}
 }
 
