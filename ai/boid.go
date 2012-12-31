@@ -27,7 +27,7 @@ const (
 type Boid struct {
 	*phys.Body
 
-	// ThinkGroup is the number of the group with with this boid
+	// ThinkGroup is the number of the group with which this boid
 	// considers its local neighbors when updating.
 	ThinkGroup uint
 }
