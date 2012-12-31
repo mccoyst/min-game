@@ -153,19 +153,17 @@ func (w *World) Tile(p geom.Point) (int, int) {
 // wrap returns the value of n wrapped around if it goes
 // above bound-1 or below zero.
 func wrap(n, bound int) int {
+	if bound <= 0 {
+		panic("Bad bound in wrap")
+	}
+
 	if n >= 0 && n < bound {
 		return n
 	}
 
-	if bound <= 0 {
-		panic("Bad bound in wrap")
-	}
 	n %= bound
 	if n < 0 {
 		n = bound + n
-		if n < 0 {
-			panic("A value wrapped to a negative")
-		}
 	}
 	return n
 }
