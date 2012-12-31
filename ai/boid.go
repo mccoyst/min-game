@@ -267,7 +267,7 @@ func newGrid(w, h int, t geom.Torus) *grid {
 	}
 }
 
-// At returns the the cell for x, y
+// At returns the index for the cell x, y.
 func (g *grid) index(x, y int) int {
 	return wrap(x, g.w)*g.h + wrap(y, g.h)
 }
