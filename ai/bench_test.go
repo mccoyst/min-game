@@ -122,6 +122,6 @@ func (boids) BoidInfo() BoidInfo {
 		PlayerBias:   0.02,
 		TerrainDist:  35.2,
 		TerrainBias:  0.0005,
-		AvoidTerrain: "g",
+		AvoidTerrain: "",
 	}
 }
