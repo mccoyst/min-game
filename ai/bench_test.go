@@ -13,7 +13,6 @@ package ai
 
 import (
 	"math/rand"
-	"reflect"
 	"testing"
 
 	"code.google.com/p/min-game/geom"
@@ -75,53 +74,5 @@ func benchPlayer() *phys.Body {
 	return &phys.Body{
 		Vel: geom.Point{rand.Float64(), rand.Float64()},
 		Box: geom.Rect(x, y, x+boidWidth, y+boidHeight),
-	}
-}
-
-type boids []Boid
-
-var (
-	// BoidWidth and BoidHeight define the size of randomly generated boids.
-	boidWidth  = world.TileSize.X
-	boidHeight = world.TileSize.Y
-)
-
-// Generate returns the given number of random boids, implementing the
-// quick.Generator interface.
-func (boids) Generate(r *rand.Rand, size int) reflect.Value {
-	bs := make([]Boid, size)
-	for i := range bs {
-		x := r.Float64() * worldWidth * world.TileSize.X
-		y := r.Float64() * worldHeight * world.TileSize.Y
-		bs[i].Body = &phys.Body{
-			Vel: geom.Point{r.Float64(), r.Float64()},
-			Box: geom.Rect(x, y, x+boidWidth, y+boidHeight),
-		}
-	}
-	return reflect.ValueOf(boids(bs))
-}
-
-func (b boids) Len() int {
-	return len(b)
-}
-
-func (b boids) Boid(i int) Boid {
-	return b[i]
-}
-
-func (boids) BoidInfo() BoidInfo {
-	return BoidInfo{
-		MaxVelocity:  0.5,
-		LocalDist:    960,
-		MatchBias:    0.0,
-		CenterDist:   480,
-		CenterBias:   0.005,
-		AvoidDist:    48,
-		AvoidBias:    0.001,
-		PlayerDist:   64,
-		PlayerBias:   0.02,
-		TerrainDist:  35.2,
-		TerrainBias:  0.0005,
-		AvoidTerrain: "g",
 	}
 }

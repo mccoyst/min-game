@@ -49,7 +49,7 @@ func main() {
 	red := color.RGBA{208, 70, 72, 255}
 	for _, herbs := range g.Herbivores {
 		for _, h := range herbs.Herbs {
-			colors[w.At(w.Tile(h.Body.Center()))] = red
+			colors[w.At(w.Tile(h.Boid.Body.Center()))] = red
 		}
 	}
 

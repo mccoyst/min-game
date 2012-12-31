@@ -60,7 +60,7 @@ func main() {
 			herbs.Spawn(geom.Pt(x, y), vel)
 			h := herbs.Herbs[len(herbs.Herbs)-1]
 
-			loc := w.At(w.Tile(h.Body.Center()))
+			loc := w.At(w.Tile(h.Boid.Body.Center()))
 			tname := loc.Terrain.Char
 			if loc.Depth <= herbs.Info.BoidInfo.MaxDepth && herbs.Info.Affinity[tname] == maxAffinity {
 				break
@@ -72,7 +72,7 @@ func main() {
 	}
 
 	for _, h := range herbs.Herbs {
-		tx, ty := w.Tile(h.Body.Center())
+		tx, ty := w.Tile(h.Boid.Body.Center())
 		tname := w.At(tx, ty).Terrain.Char
 		if *name == "Guppy" && tname != "w" {
 			panic("Err")
