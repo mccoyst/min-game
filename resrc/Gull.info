@@ -1,0 +1,34 @@
+{
+	"Name": "Gull",
+	"Sheet": {
+		"Name": "Bird0",
+		"FrameSize": 32,
+		"Tempo": 30,
+		"North": 1,
+		"East": 3,
+		"South": 0,
+		"West": 2
+	},
+	"Affinity": {
+		"g": 1.0,
+		"f": 1.0,
+		"m": 1.0,
+		"w": 1.0,
+		"d": 1.0,
+		"i": 0.1
+	},
+	"BoidInfo": {
+		"MaxVelocity": 2.0,
+		"LocalDist": 320.0,
+		"CenterBias": 0.3,
+		"MatchBias": 0.5,
+		"AvoidDist": 16,
+		"AvoidBias": 0.5,
+		"PlayerDist": 96,
+		"PlayerBias": 0.2,
+		"TerrainDist": 48,
+		"TerrainBias": 0.005,
+		"AvoidTerrain": "i",
+		"MaxDepth": 99
+	}
+}
