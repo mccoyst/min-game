@@ -18,13 +18,13 @@
 		"i": 0.0
 	},
 	"BoidInfo": {
-		"AvoidBias": 0.01,
+		"AvoidBias": 0.1,
 		"AvoidDist": 16,
 		"AvoidTerrain": "gfmdi",
-		"CenterBias": 0.05,
+		"CenterBias": 0.3,
 		"CenterDist": 0,
 		"LocalDist": 160,
-		"MatchBias": 0.08,
+		"MatchBias": 0.5,
 		"MaxVelocity": 1.5,
 		"PlayerBias": 0.02,
 		"PlayerDist": 64,
