@@ -20,7 +20,7 @@ type Boids interface {
 
 const (
 	// NThinkGroups is the number of think groups.
-	NThinkGroups = 6 // At 60 frames per second, this gives us thinking at 10Hz
+	NThinkGroups = 6 // At 60 fps, this gives us thinking at 10Hz.
 )
 
 // A Boid is a bird-like (cow-like, or fish-like) object.
