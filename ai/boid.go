@@ -198,11 +198,11 @@ func (boid *Boid) avoidTerrain(i BoidInfo, w *world.World) {
 	}
 
 	var a geom.Point
-	dd := i.TerrainDist * i.TerrainDist
 	sz := geom.Pt(i.TerrainDist, i.TerrainDist)
 	x0, y0 := w.Tile(boid.Body.Box.Min.Sub(sz))
 	x1, y1 := w.Tile(boid.Body.Box.Min.Add(sz))
 
+	// These are in range, no point testing sqDist
 	for x := x0; x <= x1; x++ {
 		for y := y0; y <= y1; y++ {
 			l := w.At(x, y)
@@ -212,12 +212,10 @@ func (boid *Boid) avoidTerrain(i BoidInfo, w *world.World) {
 			}
 			pt := geom.Pt((float64(x)+0.5)*world.TileSize.X,
 				(float64(y)+0.5)*world.TileSize.Y)
-			if w.Pixels.SqDist(boid.Body.Box.Center(), pt) > dd {
-				continue
-			}
 			a = a.Add(avoidVec(boid.Body.Box.Center(), pt, i.TerrainDist, w))
 		}
 	}
+
 	a = a.Mul(i.TerrainBias)
 	boid.Body.Vel = boid.Body.Vel.Add(a)
 }
