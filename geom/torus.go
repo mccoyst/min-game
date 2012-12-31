@@ -67,10 +67,10 @@ func (t Torus) Intersect(a, b Rectangle) Rectangle {
 	return a.Intersect(b)
 }
 
-// Hits returns true if the two rectangles intersect on the torus.
+// Overlaps returns true if the two rectangles intersect on the torus.
 //
 // Both a and b must be smaller than the size of the torus.
-func (t Torus) Hits(a, b Rectangle) bool {
+func (t Torus) Overlaps(a, b Rectangle) bool {
 	return t.Intersect(a, b) != Rectangle{}
 }
 
