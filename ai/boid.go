@@ -118,7 +118,6 @@ func localBoids(nframes uint, boids Boids, w *world.World) [][]Boid {
 				continue
 			}
 			local[i] = append(local[i], b)
-			local[j] = append(local[j], boid)
 		}
 	}
 	return local
