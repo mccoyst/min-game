@@ -303,19 +303,15 @@ func (g *grid) neighbors(boid *Boid, r float64) []*Boid {
 // wrap returns the value of n wrapped around if it goes
 // above bound-1 or below zero.
 func wrap(n, bound int) int {
-	if n >= 0 && n < bound {
-		return n
-	}
-
 	if bound <= 0 {
 		panic("Bad bound in wrap")
+	}
+	if n >= 0 && n < bound {
+		return n
 	}
 	n %= bound
 	if n < 0 {
 		n = bound + n
-		if n < 0 {
-			panic("A value wrapped to a negative")
-		}
 	}
 	return n
 }
