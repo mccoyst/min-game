@@ -4,6 +4,7 @@ package world
 
 import (
 	"bufio"
+	"errors"
 	"math/rand"
 	"os"
 	"reflect"
@@ -38,22 +39,13 @@ func TestWriteRead(t *testing.T) {
 	for i := range w.locs {
 		w.locs[i].Elevation = rand.Intn(MaxElevation-1) + 1
 		w.locs[i].Depth = rand.Intn(w.locs[i].Elevation)
-		t := rand.Intn(len(types))
-		w.locs[i].Terrain = &Terrain[types[t][0]]
+		te := rand.Intn(len(types))
+		w.locs[i].Terrain = &Terrain[types[te][0]]
 	}
 
-	read, write, err := os.Pipe()
+	u, err := writeRead(w)
 	if err != nil {
-		t.Fatalf("os.Pipe() error: %s", err)
-	}
-
-	if err := w.Write(write); err != nil {
-		t.Fatalf("Failed to write the world: %s", err)
-	}
-
-	u, err := Read(bufio.NewReader(read))
-	if err != nil {
-		t.Fatalf("Failed to read the world: %s", err)
+		t.Error(err.Error())
 	}
 
 	if !reflect.DeepEqual(w, u) {
@@ -71,21 +63,65 @@ func TestWriteReadSame(t *testing.T) {
 		w.locs[i].Terrain = &Terrain[int('g')]
 	}
 
-	read, write, err := os.Pipe()
+	u, err := writeRead(w)
 	if err != nil {
-		t.Fatalf("os.Pipe() error: %s", err)
-	}
-
-	if err := w.Write(write); err != nil {
-		t.Fatalf("Failed to write the world: %s", err)
-	}
-
-	u, err := Read(bufio.NewReader(read))
-	if err != nil {
-		t.Fatalf("Failed to read the world: %s", err)
+		t.Error(err.Error())
 	}
 
 	if !reflect.DeepEqual(w, u) {
 		t.Error("Worlds don't match")
 	}
+}
+
+// TestWriteReadRuns tests writing a world where some locations are the same.
+func TestWriteReadRuns(t *testing.T) {
+	var types []string
+	for _, t := range Terrain {
+		if t.Char != "" {
+			types = append(types, t.Char)
+		}
+	}
+
+	run := rand.Intn(4) + 1
+	var el, de, te int
+
+	w := New(10, 10)
+	for i := range w.locs {
+		if run == 0 {
+			run = rand.Intn(4) + 1
+			el = rand.Intn(MaxElevation)
+			de = rand.Intn(el+1) - 1
+			te = rand.Intn(len(types))
+		}
+		run--
+
+		w.locs[i].Elevation = el
+		w.locs[i].Depth = de
+		w.locs[i].Terrain = &Terrain[types[te][0]]
+	}
+
+	u, err := writeRead(w)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if !reflect.DeepEqual(w, u) {
+		t.Error("Worlds don't match")
+	}
+}
+
+// WriteRead writes the given world, reads it, and returns what it read.
+func writeRead(w *World) (*World, error) {
+	read, write, err := os.Pipe()
+	if err != nil {
+		return nil, errors.New("Failed to create a pipe: " + err.Error())
+	}
+	if err := w.Write(write); err != nil {
+		return nil, errors.New("Failed to write the world: " + err.Error())
+	}
+	u, err := Read(bufio.NewReader(read))
+	if err != nil {
+		err = errors.New("Failed to read the world: " + err.Error())
+	}
+	return u, err
 }
