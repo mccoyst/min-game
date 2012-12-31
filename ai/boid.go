@@ -198,6 +198,7 @@ func (boid *Boid) avoidTerrain(i BoidInfo, w *world.World) {
 	}
 
 	var a geom.Point
+	c := boid.Body.Box.Center()
 	sz := geom.Pt(i.TerrainDist, i.TerrainDist)
 	x0, y0 := w.Tile(boid.Body.Box.Min.Sub(sz))
 	x1, y1 := w.Tile(boid.Body.Box.Min.Add(sz))
@@ -212,7 +213,7 @@ func (boid *Boid) avoidTerrain(i BoidInfo, w *world.World) {
 			}
 			pt := geom.Pt((float64(x)+0.5)*world.TileSize.X,
 				(float64(y)+0.5)*world.TileSize.Y)
-			a = a.Add(avoidVec(boid.Body.Box.Center(), pt, i.TerrainDist, w))
+			a = a.Add(avoidVec(c, pt, i.TerrainDist, w))
 		}
 	}
 
