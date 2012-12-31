@@ -20,10 +20,10 @@
 	"BoidInfo": {
 		"MaxVelocity": 2.0,
 		"LocalDist": 320.0,
-		"CenterBias": 0.05,
-		"MatchBias": 0.08,
+		"CenterBias": 0.3,
+		"MatchBias": 0.5,
 		"AvoidDist": 16,
-		"AvoidBias": 0.08,
+		"AvoidBias": 0.5,
 		"PlayerDist": 96,
 		"PlayerBias": 0.2,
 		"TerrainDist": 48,
