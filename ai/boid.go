@@ -103,22 +103,22 @@ func UpdateBoids(nframes uint, boids Boids, p *phys.Body, w *world.World) {
 // LocalBoids returns a slice containing the Boids that
 // are local to the Boid with the corresponding index.
 func localBoids(nframes uint, boids Boids, w *world.World) [][]Boid {
-	localDist := boids.BoidInfo().LocalDist
-	dd := localDist * localDist
-	local := make([][]Boid, boids.Len())
+	g := makeGrid(10, 10, w.Pixels)
+	for i := 0; i < boids.Len(); i++ {
+		b := boids.Boid(i)
+		c := g.index(g.pt2Cell(b.Body.Box.Min))
+		g.cells[c] = append(g.cells[c], b)
+	}
+
+	dist := boids.BoidInfo().LocalDist
 	tGroup := nframes % NThinkGroups
+	local := make([][]Boid, boids.Len())
 	for i := range local {
 		boid := boids.Boid(i)
 		if tGroup != boid.ThinkGroup {
 			continue
 		}
-		for j := 0; j < boids.Len(); j++ {
-			b := boids.Boid(j)
-			if j == i || boid.sqDist(b, w) > dd {
-				continue
-			}
-			local[i] = append(local[i], b)
-		}
+		local[i] = g.neighbors(boid, dist)
 	}
 	return local
 }
@@ -162,7 +162,7 @@ func (boid Boid) avoidOthers(local []Boid, i BoidInfo, w *world.World) {
 	dd := i.AvoidDist * i.AvoidDist
 	var a geom.Point
 	for _, b := range local {
-		if d := boid.sqDist(b, w); d > dd {
+		if d := boid.sqDist(b, w.Pixels); d > dd {
 			continue
 		}
 		a = a.Add(avoidVec(boid.Center(), b.Center(), i.AvoidDist, w))
@@ -222,8 +222,8 @@ func (boid Boid) clampVel(max float64) {
 }
 
 // SqDist returns the squared distance between two boids.
-func (b Boid) sqDist(o Boid, w *world.World) float64 {
-	return w.Pixels.SqDist(b.Box.Min, o.Box.Min)
+func (a Boid) sqDist(b Boid, t geom.Torus) float64 {
+	return t.SqDist(a.Box.Min, b.Box.Min)
 }
 
 // AvoidVec returns a vector to direct a away from b.
@@ -236,4 +236,85 @@ func avoidVec(a, b geom.Point, dist float64, w *world.World) geom.Point {
 	diff.X = math.Copysign(sqrt-math.Abs(diff.X), diff.X)
 	diff.Y = math.Copysign(sqrt-math.Abs(diff.Y), diff.Y)
 	return diff
+}
+
+// A grid is a coarse grid overlaid on the given world pixels.
+// Boids can be added to the grid cells in order to improve
+// the nearest neighbor computation.
+type grid struct {
+	// Px is the world's pixel torus
+	px geom.Torus
+
+	// W and h are width and height of the grid.
+	w, h int
+
+	// CellSz is the size of each grid cell in pixels.
+	cellSz geom.Point
+
+	cells [][]Boid
+}
+
+// MakeGrid returns a grid of a specified size overlaid on a torus.
+func makeGrid(w, h int, px geom.Torus) grid {
+	return grid{
+		w:      w,
+		h:      h,
+		px:     px,
+		cellSz: geom.Pt(px.W/float64(w), px.H/float64(h)),
+		cells:  make([][]Boid, w*h),
+	}
+}
+
+// Neighbors returns the neighbors of the given boid at a specified radius.
+func (g *grid) neighbors(boid Boid, r float64) (n []Boid) {
+	rad := geom.Pt(r, r)
+	pt := g.px.Norm(boid.Body.Box.Min)
+	x0, y0 := g.pt2Cell(pt.Sub(rad))
+	x1, y1 := g.pt2Cell(pt.Add(rad))
+
+	if x1-x1 >= g.w {
+		x0, x1 = 0, g.w-1
+	}
+
+	if y1-y0 >= g.h {
+		y0, y1 = 0, g.h-1
+	}
+
+	for x := x0; x <= x1; x++ {
+		for y := y0; y <= y1; y++ {
+			for _, b := range g.cells[g.index(x, y)] {
+				if b.Body != boid.Body && boid.sqDist(b, g.px) <= r*r {
+					n = append(n, b)
+				}
+			}
+		}
+	}
+	return
+}
+
+// At returns the index for the cell x, y.
+func (g *grid) index(x, y int) int {
+	return wrap(x, g.w)*g.h + wrap(y, g.h)
+}
+
+// pt2Cell returns the cell that contains the given point.
+func (g *grid) pt2Cell(p geom.Point) (int, int) {
+	return int(math.Floor(p.X/g.cellSz.X + 0.5)),
+		int(math.Floor(p.Y/g.cellSz.Y + 0.5))
+}
+
+// wrap returns the value of n wrapped around if it goes
+// above bound-1 or below zero.
+func wrap(n, bound int) int {
+	if bound <= 0 {
+		panic("Bad bound in wrap")
+	}
+	if n >= 0 && n < bound {
+		return n
+	}
+	n %= bound
+	if n < 0 {
+		n = bound + n
+	}
+	return n
 }
