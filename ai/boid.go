@@ -103,14 +103,15 @@ func UpdateBoids(nframes uint, boids Boids, p *phys.Body, w *world.World) {
 // LocalBoids returns a slice containing the Boids that
 // are local to the Boid with the corresponding index.
 func localBoids(nframes uint, boids Boids, w *world.World) [][]Boid {
-	g := makeGrid(10, 10, w.Pixels)
+	dist := boids.BoidInfo().LocalDist
+	width, height := int(w.Pixels.W/dist), int(w.Pixels.H/dist)
+	g := makeGrid(width, height, w.Pixels)
 	for i := 0; i < boids.Len(); i++ {
 		b := boids.Boid(i)
 		c := g.index(g.pt2Cell(b.Body.Box.Min))
 		g.cells[c] = append(g.cells[c], b)
 	}
 
-	dist := boids.BoidInfo().LocalDist
 	tGroup := nframes % NThinkGroups
 	local := make([][]Boid, boids.Len())
 	for i := range local {
