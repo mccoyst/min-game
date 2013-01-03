@@ -103,3 +103,40 @@ func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Poi
 
 	return bounds.Max
 }
+
+func HandleInvPair(a, b *Inventory, k ui.Button) {
+	var src, dst *Inventory
+	if a.Selected >= 0 {
+		src = a
+		dst = b
+	} else {
+		src = b
+		dst = a
+	}
+
+	switch k {
+	case ui.Action:
+		if src.Get(src.Selected) != nil {
+			i := src.Get(src.Selected)
+			if dst.Put(i) {
+				src.Set(src.Selected, nil)
+			}
+		}
+	case ui.Left:
+		src.Selected--
+		if src.Selected < 0 {
+			src.Selected = src.Len() - 1
+		}
+	case ui.Right:
+		src.Selected++
+		if src.Selected == src.Len() {
+			src.Selected = 0
+		}
+	case ui.Up, ui.Down:
+		dst.Selected = src.Selected
+		if dst.Selected >= dst.Len() {
+			dst.Selected = dst.Len() - 1
+		}
+		src.Selected = -1
+	}
+}
