@@ -20,7 +20,7 @@ func NewBase(p geom.Point) Base {
 			Min: p,
 			Max: p.Add(geom.Pt(64, 64)),
 		},
-		Storage: Inventory{[]*item.Item{item.New(item.ETele)}, 0},
+		Storage: Inventory{[]*item.Item{item.New(item.ETele)}, 0, false},
 	}
 }
 

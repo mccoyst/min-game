@@ -11,6 +11,7 @@ import (
 type Inventory struct {
 	Items    []*item.Item
 	Selected int
+	Limited  bool
 }
 
 func (i *Inventory) Len() int {
@@ -29,6 +30,11 @@ func (i *Inventory) Put(m *item.Item) bool {
 			return true
 		}
 	}
+
+	if i.Limited {
+		return false
+	}
+
 	i.Items = append(i.Items, m)
 	return true
 }
