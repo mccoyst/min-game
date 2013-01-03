@@ -31,7 +31,7 @@ type Player struct {
 	o2ticks int
 
 	suit Inventory
-	pack []*item.Item
+	pack Inventory
 }
 
 var astroSheet sprite.Sheet
@@ -67,7 +67,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		o2max: 50,
 		o2:    50,
 		suit:  Inventory{[]*item.Item{item.New(item.ETele), nil}, 0, true},
-		pack:  []*item.Item{nil, nil, item.New(item.Uranium), nil},
+		pack:  Inventory{[]*item.Item{nil, nil, item.New(item.Uranium), nil}, 0, true},
 	}
 }
 
@@ -147,13 +147,7 @@ func (p *Player) FindEtele() *item.Item {
 
 // PutPack tries to add i to the player's backpack, and returns true iff successful.
 func (p *Player) PutPack(i *item.Item) bool {
-	for j := range p.pack {
-		if p.pack[j] == nil {
-			p.pack[j] = i
-			return true
-		}
-	}
-	return false
+	return p.pack.Put(i)
 }
 
 // PutSuit tries to add i to the player's suit, and returns true iff successful.

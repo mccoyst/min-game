@@ -33,10 +33,10 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	pt := p.drawInventory(d, "Suit: ", pad, origin)
 	pt = p.drawInventory(d, "Pack: ", pad, geom.Pt(origin.X, pt.Y+pad))
 
-	if p.inPack && p.astro.pack[p.selected] == nil {
+	if p.inPack && p.astro.pack.Get(p.selected) == nil {
 		return
 	}
-	if !p.inPack && p.astro.suit.Items[p.selected] == nil {
+	if !p.inPack && p.astro.suit.Get(p.selected) == nil {
 		return
 	}
 
@@ -53,9 +53,9 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	d.SetColor(Black)
 	desc := ""
 	if p.inPack {
-		desc = p.astro.pack[p.selected].Desc()
+		desc = p.astro.pack.Get(p.selected).Desc()
 	} else {
-		desc = p.astro.suit.Items[p.selected].Desc()
+		desc = p.astro.suit.Get(p.selected).Desc()
 	}
 	uitil.WordWrap(d, desc, descBounds.Rpad(pad))
 }
@@ -74,13 +74,13 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Menu:
 		p.closing = true
 	case ui.Action:
-		if p.inPack && p.astro.pack[p.selected] != nil {
-			if p.astro.PutSuit(p.astro.pack[p.selected]) {
-				p.astro.pack[p.selected] = nil
+		if p.inPack && p.astro.pack.Get(p.selected) != nil {
+			if p.astro.PutSuit(p.astro.pack.Get(p.selected)) {
+				p.astro.pack.Items[p.selected] = nil
 			}
 		}
-		if !p.inPack && p.astro.suit.Items[p.selected] != nil {
-			if p.astro.PutPack(p.astro.suit.Items[p.selected]) {
+		if !p.inPack && p.astro.suit.Get(p.selected) != nil {
+			if p.astro.PutPack(p.astro.suit.Get(p.selected)) {
 				p.astro.suit.Items[p.selected] = nil
 			}
 		}
@@ -88,14 +88,14 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		p.selected--
 		if p.selected < 0 {
 			if p.inPack {
-				p.selected = len(p.astro.pack) - 1
+				p.selected = p.astro.pack.Len() - 1
 			} else {
 				p.selected = p.astro.suit.Len() - 1
 			}
 		}
 	case ui.Right:
 		p.selected++
-		if p.inPack && p.selected == len(p.astro.pack) {
+		if p.inPack && p.selected == p.astro.pack.Len() {
 			p.selected = 0
 		}
 		if !p.inPack && p.selected == p.astro.suit.Len() {
@@ -103,8 +103,8 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		}
 	case ui.Up, ui.Down:
 		p.inPack = !p.inPack
-		if p.inPack && p.selected >= len(p.astro.pack) {
-			p.selected = len(p.astro.pack) - 1
+		if p.inPack && p.selected >= p.astro.pack.Len() {
+			p.selected = p.astro.pack.Len() - 1
 		}
 		if !p.inPack && p.selected >= p.astro.suit.Len() {
 			p.selected = p.astro.suit.Len() - 1
@@ -138,7 +138,7 @@ func (p PauseInv) Label() string {
 
 func (p PauseInv) Len() int {
 	if p.label == "Pack: " {
-		return len(p.p.astro.pack)
+		return p.p.astro.pack.Len()
 	}
 	return p.p.astro.suit.Len()
 }
@@ -152,14 +152,14 @@ func (p PauseInv) Selected(i int) bool {
 
 func (p PauseInv) Get(i int) *item.Item {
 	if p.label == "Pack: " {
-		return p.p.astro.pack[i]
+		return p.p.astro.pack.Get(i)
 	}
 	return p.p.astro.suit.Get(i)
 }
 
 func (p PauseInv) Set(i int, n *item.Item) {
 	if p.label == "Pack: " {
-		p.p.astro.pack[i] = n
+		p.p.astro.pack.Items[i] = n
 	} else {
 		p.p.astro.suit.Items[i] = n
 	}
