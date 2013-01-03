@@ -21,6 +21,18 @@ func (i *Inventory) Get(n int) *item.Item {
 	return i.Items[n]
 }
 
+// Put tries to add i to the inventory, returning false if there was no room.
+func (b *Base) Put(i *item.Item) bool {
+	for j := range b.Storage.Items {
+		if b.Storage.Items[j] == nil {
+			b.Storage.Items[j] = i
+			return true
+		}
+	}
+	b.Storage.Items = append(b.Storage.Items, i)
+	return true
+}
+
 func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Point, fit bool) geom.Point {
 	size := d.TextSize(label)
 

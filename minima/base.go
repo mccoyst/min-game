@@ -34,13 +34,7 @@ func (b *Base) Draw(d ui.Drawer, cam ui.Camera) {
 
 // PutStorage adds i to the base's storage.
 func (b *Base) PutStorage(i *item.Item) {
-	for j := range b.Storage.Items {
-		if b.Storage.Items[j] == nil {
-			b.Storage.Items[j] = i
-			return
-		}
-	}
-	b.Storage.Items = append(b.Storage.Items, i)
+	b.Storage.Put(i)
 }
 
 type BaseScreen struct {
