@@ -76,12 +76,12 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Action:
 		if p.inPack && p.astro.pack.Get(p.selected) != nil {
 			if p.astro.PutSuit(p.astro.pack.Get(p.selected)) {
-				p.astro.pack.Items[p.selected] = nil
+				p.astro.pack.Set(p.selected, nil)
 			}
 		}
 		if !p.inPack && p.astro.suit.Get(p.selected) != nil {
 			if p.astro.PutPack(p.astro.suit.Get(p.selected)) {
-				p.astro.suit.Items[p.selected] = nil
+				p.astro.suit.Set(p.selected, nil)
 			}
 		}
 	case ui.Left:
@@ -159,8 +159,8 @@ func (p PauseInv) Get(i int) *item.Item {
 
 func (p PauseInv) Set(i int, n *item.Item) {
 	if p.label == "Pack: " {
-		p.p.astro.pack.Items[i] = n
+		p.p.astro.pack.Set(i, n)
 	} else {
-		p.p.astro.suit.Items[i] = n
+		p.p.astro.suit.Set(i, n)
 	}
 }
