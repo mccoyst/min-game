@@ -43,7 +43,7 @@ func (i *Inventory) Put(m *item.Item) bool {
 	return true
 }
 
-// Draw displays the Inventory in the given label, in the usual bordered-box style at origin with the given padding.
+// Draw displays the Inventory with the given label, in the usual bordered-box style at origin with the given padding.
 // If the fit parameter is true, the box will snugly fit the contents of the inventory, otherwise it will
 // fill the rest of the screen, minus a margin of TileSize.
 func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Point, fit bool) geom.Point {
