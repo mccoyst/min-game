@@ -80,7 +80,7 @@ func (b BaseInv) Label() string {
 
 func (b BaseInv) Len() int {
 	if b.label == "Pack" {
-		return len(b.s.astro.pack)
+		return b.s.astro.pack.Len()
 	}
 	return b.s.base.Storage.Len()
 }
@@ -94,14 +94,14 @@ func (b BaseInv) Selected(n int) bool {
 
 func (b BaseInv) Get(n int) *item.Item {
 	if b.label == "Pack" {
-		return b.s.astro.pack[n]
+		return b.s.astro.pack.Get(n)
 	}
-	return b.s.base.Storage.Items[n]
+	return b.s.base.Storage.Get(n)
 }
 
 func (b BaseInv) Set(n int, i *item.Item) {
 	if b.label == "Pack" {
-		b.s.astro.pack[n] = i
+		b.s.astro.pack.Items[n] = i
 	} else {
 		b.s.base.Storage.Items[n] = i
 	}
@@ -121,13 +121,13 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Menu:
 		s.closing = true
 	case ui.Action:
-		if s.inPack && s.astro.pack[s.selected] != nil {
-			i := s.astro.pack[s.selected]
-			s.astro.pack[s.selected] = nil
+		if s.inPack && s.astro.pack.Get(s.selected) != nil {
+			i := s.astro.pack.Get(s.selected)
+			s.astro.pack.Items[s.selected] = nil
 			s.base.PutStorage(i)
 		}
-		if !s.inPack && s.base.Storage.Items[s.selected] != nil {
-			i := s.base.Storage.Items[s.selected]
+		if !s.inPack && s.base.Storage.Get(s.selected) != nil {
+			i := s.base.Storage.Get(s.selected)
 			if s.astro.PutPack(i) {
 				s.base.Storage.Items[s.selected] = nil
 			}
@@ -136,14 +136,14 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		s.selected--
 		if s.selected < 0 {
 			if s.inPack {
-				s.selected = len(s.astro.pack) - 1
+				s.selected = s.astro.pack.Len() - 1
 			} else {
 				s.selected = s.base.Storage.Len() - 1
 			}
 		}
 	case ui.Right:
 		s.selected++
-		if s.inPack && s.selected == len(s.astro.pack) {
+		if s.inPack && s.selected == s.astro.pack.Len() {
 			s.selected = 0
 		}
 		if !s.inPack && s.selected == s.base.Storage.Len() {
@@ -151,8 +151,8 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		}
 	case ui.Up, ui.Down:
 		s.inPack = !s.inPack
-		if s.inPack && s.selected >= len(s.astro.pack) {
-			s.selected = len(s.astro.pack) - 1
+		if s.inPack && s.selected >= s.astro.pack.Len() {
+			s.selected = s.astro.pack.Len() - 1
 		}
 		if !s.inPack && s.selected >= s.base.Storage.Len() {
 			s.selected = s.base.Storage.Len() - 1
