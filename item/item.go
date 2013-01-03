@@ -23,7 +23,7 @@ var initialUses = map[string]int{
 // an item description.
 var descs = map[string]func(*Item) string{
 	ETele: withUses(`The Emergency Teleporter reacts to
-		critical condition by sending you back to home base`),
+		critical condition by sending you back to home base.`),
 
 	Uranium: func(*Item) string {
 		return `Uranium is of great interest because of its application to
