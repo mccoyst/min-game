@@ -42,8 +42,7 @@ type BaseScreen struct {
 	base    *Base
 	closing bool
 
-	inPack   bool
-	selected int
+	inPack bool
 }
 
 const pad = 4
@@ -56,7 +55,7 @@ var bounds = geom.Rectangle{
 var packBounds = bounds.Add(geom.Pt(0, bounds.Dy()+3*pad+32))
 
 func NewBaseScreen(astro *Player, base *Base) *BaseScreen {
-	return &BaseScreen{astro, base, false, false, 0}
+	return &BaseScreen{astro, base, false, false}
 }
 
 func (s *BaseScreen) Transparent() bool {
@@ -65,46 +64,8 @@ func (s *BaseScreen) Transparent() bool {
 
 func (s *BaseScreen) Draw(d ui.Drawer) {
 	d.SetFont(DialogFont, 16)
-	pt := DrawInventory(BaseInv{s, "Pack"}, d, pad, origin, true)
-	DrawInventory(BaseInv{s, "Storage"}, d, pad, geom.Pt(origin.X, pt.Y+32+2*pad), false)
-}
-
-type BaseInv struct {
-	s     *BaseScreen
-	label string
-}
-
-func (b BaseInv) Label() string {
-	return b.label
-}
-
-func (b BaseInv) Len() int {
-	if b.label == "Pack" {
-		return b.s.astro.pack.Len()
-	}
-	return b.s.base.Storage.Len()
-}
-
-func (b BaseInv) Selected(n int) bool {
-	if b.label == "Pack" && b.s.inPack || b.label == "Storage" && !b.s.inPack {
-		return b.s.selected == n
-	}
-	return false
-}
-
-func (b BaseInv) Get(n int) *item.Item {
-	if b.label == "Pack" {
-		return b.s.astro.pack.Get(n)
-	}
-	return b.s.base.Storage.Get(n)
-}
-
-func (b BaseInv) Set(n int, i *item.Item) {
-	if b.label == "Pack" {
-		b.s.astro.pack.Set(n, i)
-	} else {
-		b.s.base.Storage.Set(n, i)
-	}
+	pt := s.astro.pack.Draw("Pack", d, pad, origin, true)
+	s.base.Storage.Draw("Storage", d, pad, geom.Pt(origin.X, pt.Y+32+2*pad), false)
 }
 
 func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
@@ -121,41 +82,52 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Menu:
 		s.closing = true
 	case ui.Action:
-		if s.inPack && s.astro.pack.Get(s.selected) != nil {
-			i := s.astro.pack.Get(s.selected)
-			s.astro.pack.Set(s.selected, nil)
+		if s.inPack && s.astro.pack.Get(s.astro.pack.Selected) != nil {
+			i := s.astro.pack.Get(s.astro.pack.Selected)
+			s.astro.pack.Set(s.astro.pack.Selected, nil)
 			s.base.PutStorage(i)
 		}
-		if !s.inPack && s.base.Storage.Get(s.selected) != nil {
-			i := s.base.Storage.Get(s.selected)
+		if !s.inPack && s.base.Storage.Get(s.base.Storage.Selected) != nil {
+			i := s.base.Storage.Get(s.base.Storage.Selected)
 			if s.astro.PutPack(i) {
-				s.base.Storage.Set(s.selected, nil)
+				s.base.Storage.Set(s.base.Storage.Selected, nil)
 			}
 		}
 	case ui.Left:
-		s.selected--
-		if s.selected < 0 {
-			if s.inPack {
-				s.selected = s.astro.pack.Len() - 1
-			} else {
-				s.selected = s.base.Storage.Len() - 1
+		if s.inPack {
+			s.astro.pack.Selected--
+			if s.astro.pack.Selected < 0 {
+				s.astro.pack.Selected = s.astro.pack.Len() - 1
+			}
+		} else {
+			s.base.Storage.Selected--
+			if s.base.Storage.Selected < 0 {
+				s.astro.pack.Selected = s.base.Storage.Len() - 1
 			}
 		}
 	case ui.Right:
-		s.selected++
-		if s.inPack && s.selected == s.astro.pack.Len() {
-			s.selected = 0
-		}
-		if !s.inPack && s.selected == s.base.Storage.Len() {
-			s.selected = 0
+		if s.inPack {
+			s.astro.pack.Selected++
+			if s.astro.pack.Selected == s.astro.pack.Len() {
+				s.astro.pack.Selected = 0
+			}
+		} else {
+			s.base.Storage.Selected++
+			if s.base.Storage.Selected == s.base.Storage.Len() {
+				s.base.Storage.Selected = 0
+			}
 		}
 	case ui.Up, ui.Down:
-		s.inPack = !s.inPack
-		if s.inPack && s.selected >= s.astro.pack.Len() {
-			s.selected = s.astro.pack.Len() - 1
-		}
-		if !s.inPack && s.selected >= s.base.Storage.Len() {
-			s.selected = s.base.Storage.Len() - 1
+		if s.inPack {
+			if s.base.Storage.Selected >= s.astro.pack.Len() {
+				s.astro.pack.Selected = s.astro.pack.Len() - 1
+			}
+			s.inPack = false
+		} else {
+			if s.astro.pack.Selected >= s.base.Storage.Len() {
+				s.base.Storage.Selected = s.base.Storage.Len() - 1
+			}
+			s.inPack = true
 		}
 	}
 	return nil
