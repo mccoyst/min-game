@@ -19,7 +19,7 @@ func NewNormalMessage(msg string) *uitil.MessageBox {
 
 	return &uitil.MessageBox{
 		Text:   msg,
-		Font:   "prstartk",
+		Font:   DialogFont,
 		Fontsz: 16,
 		Fg:     Black,
 		Bg:     White,

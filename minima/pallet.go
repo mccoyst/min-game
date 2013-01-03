@@ -13,3 +13,8 @@ var (
 	Red   = color.RGBA{208, 70, 72, 255}
 	Sky   = color.RGBA{109, 194, 202, 255}
 )
+
+const (
+	DialogFont = "prstartk"
+	TitleFont  = "bit_outline"
+)
