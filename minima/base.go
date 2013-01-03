@@ -11,7 +11,7 @@ import (
 type Base struct {
 	Box geom.Rectangle
 
-	Storage []*item.Item
+	Storage Inventory
 }
 
 func NewBase(p geom.Point) Base {
@@ -20,7 +20,7 @@ func NewBase(p geom.Point) Base {
 			Min: p,
 			Max: p.Add(geom.Pt(64, 64)),
 		},
-		Storage: []*item.Item{item.New(item.ETele)},
+		Storage: Inventory{[]*item.Item{item.New(item.ETele)}, 0},
 	}
 }
 
@@ -34,13 +34,13 @@ func (b *Base) Draw(d ui.Drawer, cam ui.Camera) {
 
 // PutStorage adds i to the base's storage.
 func (b *Base) PutStorage(i *item.Item) {
-	for j := range b.Storage {
-		if b.Storage[j] == nil {
-			b.Storage[j] = i
+	for j := range b.Storage.Items {
+		if b.Storage.Items[j] == nil {
+			b.Storage.Items[j] = i
 			return
 		}
 	}
-	b.Storage = append(b.Storage, i)
+	b.Storage.Items = append(b.Storage.Items, i)
 }
 
 type BaseScreen struct {
@@ -88,7 +88,7 @@ func (b BaseInv) Len() int {
 	if b.label == "Pack" {
 		return len(b.s.astro.pack)
 	}
-	return len(b.s.base.Storage)
+	return b.s.base.Storage.Len()
 }
 
 func (b BaseInv) Selected(n int) bool {
@@ -102,14 +102,14 @@ func (b BaseInv) Get(n int) *item.Item {
 	if b.label == "Pack" {
 		return b.s.astro.pack[n]
 	}
-	return b.s.base.Storage[n]
+	return b.s.base.Storage.Items[n]
 }
 
 func (b BaseInv) Set(n int, i *item.Item) {
 	if b.label == "Pack" {
 		b.s.astro.pack[n] = i
 	} else {
-		b.s.base.Storage[n] = i
+		b.s.base.Storage.Items[n] = i
 	}
 }
 
@@ -132,10 +132,10 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 			s.astro.pack[s.selected] = nil
 			s.base.PutStorage(i)
 		}
-		if !s.inPack && s.base.Storage[s.selected] != nil {
-			i := s.base.Storage[s.selected]
+		if !s.inPack && s.base.Storage.Items[s.selected] != nil {
+			i := s.base.Storage.Items[s.selected]
 			if s.astro.PutPack(i) {
-				s.base.Storage[s.selected] = nil
+				s.base.Storage.Items[s.selected] = nil
 			}
 		}
 	case ui.Left:
@@ -144,7 +144,7 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 			if s.inPack {
 				s.selected = len(s.astro.pack) - 1
 			} else {
-				s.selected = len(s.base.Storage) - 1
+				s.selected = s.base.Storage.Len() - 1
 			}
 		}
 	case ui.Right:
@@ -152,7 +152,7 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		if s.inPack && s.selected == len(s.astro.pack) {
 			s.selected = 0
 		}
-		if !s.inPack && s.selected == len(s.base.Storage) {
+		if !s.inPack && s.selected == s.base.Storage.Len() {
 			s.selected = 0
 		}
 	case ui.Up, ui.Down:
@@ -160,8 +160,8 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		if s.inPack && s.selected >= len(s.astro.pack) {
 			s.selected = len(s.astro.pack) - 1
 		}
-		if !s.inPack && s.selected >= len(s.base.Storage) {
-			s.selected = len(s.base.Storage) - 1
+		if !s.inPack && s.selected >= s.base.Storage.Len() {
+			s.selected = s.base.Storage.Len() - 1
 		}
 	}
 	return nil
