@@ -36,7 +36,7 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	if p.inPack && p.astro.pack[p.selected] == nil {
 		return
 	}
-	if !p.inPack && p.astro.suit[p.selected] == nil {
+	if !p.inPack && p.astro.suit.Items[p.selected] == nil {
 		return
 	}
 
@@ -55,7 +55,7 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	if p.inPack {
 		desc = p.astro.pack[p.selected].Desc()
 	} else {
-		desc = p.astro.suit[p.selected].Desc()
+		desc = p.astro.suit.Items[p.selected].Desc()
 	}
 	uitil.WordWrap(d, desc, descBounds.Rpad(pad))
 }
@@ -79,9 +79,9 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 				p.astro.pack[p.selected] = nil
 			}
 		}
-		if !p.inPack && p.astro.suit[p.selected] != nil {
-			if p.astro.PutPack(p.astro.suit[p.selected]) {
-				p.astro.suit[p.selected] = nil
+		if !p.inPack && p.astro.suit.Items[p.selected] != nil {
+			if p.astro.PutPack(p.astro.suit.Items[p.selected]) {
+				p.astro.suit.Items[p.selected] = nil
 			}
 		}
 	case ui.Left:
@@ -90,7 +90,7 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 			if p.inPack {
 				p.selected = len(p.astro.pack) - 1
 			} else {
-				p.selected = len(p.astro.suit) - 1
+				p.selected = p.astro.suit.Len() - 1
 			}
 		}
 	case ui.Right:
@@ -98,7 +98,7 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		if p.inPack && p.selected == len(p.astro.pack) {
 			p.selected = 0
 		}
-		if !p.inPack && p.selected == len(p.astro.suit) {
+		if !p.inPack && p.selected == p.astro.suit.Len() {
 			p.selected = 0
 		}
 	case ui.Up, ui.Down:
@@ -106,8 +106,8 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		if p.inPack && p.selected >= len(p.astro.pack) {
 			p.selected = len(p.astro.pack) - 1
 		}
-		if !p.inPack && p.selected >= len(p.astro.suit) {
-			p.selected = len(p.astro.suit) - 1
+		if !p.inPack && p.selected >= p.astro.suit.Len() {
+			p.selected = p.astro.suit.Len() - 1
 		}
 	}
 
@@ -140,7 +140,7 @@ func (p PauseInv) Len() int {
 	if p.label == "Pack: " {
 		return len(p.p.astro.pack)
 	}
-	return len(p.p.astro.suit)
+	return p.p.astro.suit.Len()
 }
 
 func (p PauseInv) Selected(i int) bool {
@@ -154,13 +154,13 @@ func (p PauseInv) Get(i int) *item.Item {
 	if p.label == "Pack: " {
 		return p.p.astro.pack[i]
 	}
-	return p.p.astro.suit[i]
+	return p.p.astro.suit.Get(i)
 }
 
 func (p PauseInv) Set(i int, n *item.Item) {
 	if p.label == "Pack: " {
 		p.p.astro.pack[i] = n
 	} else {
-		p.p.astro.suit[i] = n
+		p.p.astro.suit.Items[i] = n
 	}
 }

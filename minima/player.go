@@ -30,7 +30,7 @@ type Player struct {
 	o2      int
 	o2ticks int
 
-	suit []*item.Item
+	suit Inventory
 	pack []*item.Item
 }
 
@@ -66,7 +66,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		},
 		o2max: 50,
 		o2:    50,
-		suit:  []*item.Item{item.New(item.ETele), nil},
+		suit:  Inventory{[]*item.Item{item.New(item.ETele), nil}, 0},
 		pack:  []*item.Item{nil, nil, item.New(item.Uranium), nil},
 	}
 }
@@ -137,7 +137,7 @@ func (p *Player) drawO2(d ui.Drawer) {
 
 // FindEtele returns the E-Tele item from the player's suit, or nil if it is not found.
 func (p *Player) FindEtele() *item.Item {
-	for _, i := range p.suit {
+	for _, i := range p.suit.Items {
 		if i != nil && i.Name == item.ETele {
 			return i
 		}
@@ -158,9 +158,9 @@ func (p *Player) PutPack(i *item.Item) bool {
 
 // PutSuit tries to add i to the player's suit, and returns true iff successful.
 func (p *Player) PutSuit(i *item.Item) bool {
-	for j := range p.suit {
-		if p.suit[j] == nil {
-			p.suit[j] = i
+	for j := range p.suit.Items {
+		if p.suit.Items[j] == nil {
+			p.suit.Items[j] = i
 			return true
 		}
 	}
