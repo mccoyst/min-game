@@ -101,9 +101,9 @@ func (b BaseInv) Get(n int) *item.Item {
 
 func (b BaseInv) Set(n int, i *item.Item) {
 	if b.label == "Pack" {
-		b.s.astro.pack.Items[n] = i
+		b.s.astro.pack.Set(n, i)
 	} else {
-		b.s.base.Storage.Items[n] = i
+		b.s.base.Storage.Set(n, i)
 	}
 }
 
@@ -123,13 +123,13 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Action:
 		if s.inPack && s.astro.pack.Get(s.selected) != nil {
 			i := s.astro.pack.Get(s.selected)
-			s.astro.pack.Items[s.selected] = nil
+			s.astro.pack.Set(s.selected, nil)
 			s.base.PutStorage(i)
 		}
 		if !s.inPack && s.base.Storage.Get(s.selected) != nil {
 			i := s.base.Storage.Get(s.selected)
 			if s.astro.PutPack(i) {
-				s.base.Storage.Items[s.selected] = nil
+				s.base.Storage.Set(s.selected, nil)
 			}
 		}
 	case ui.Left:

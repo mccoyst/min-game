@@ -22,6 +22,10 @@ func (i *Inventory) Get(n int) *item.Item {
 	return i.Items[n]
 }
 
+func (i *Inventory) Set(n int, m *item.Item) {
+	i.Items[n] = m
+}
+
 // Put tries to add i to the inventory, returning false if there was no room.
 func (i *Inventory) Put(m *item.Item) bool {
 	for j := range i.Items {
