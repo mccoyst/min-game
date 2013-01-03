@@ -32,11 +32,6 @@ func (b *Base) Draw(d ui.Drawer, cam ui.Camera) {
 	}, b.Box.Min)
 }
 
-// PutStorage adds i to the base's storage.
-func (b *Base) PutStorage(i *item.Item) {
-	b.Storage.Put(i)
-}
-
 type BaseScreen struct {
 	astro   *Player
 	base    *Base
@@ -83,11 +78,11 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 		if s.astro.pack.Selected >= 0 && s.astro.pack.Get(s.astro.pack.Selected) != nil {
 			i := s.astro.pack.Get(s.astro.pack.Selected)
 			s.astro.pack.Set(s.astro.pack.Selected, nil)
-			s.base.PutStorage(i)
+			s.base.Storage.Put(i)
 		}
 		if s.base.Storage.Selected >= 0 && s.base.Storage.Get(s.base.Storage.Selected) != nil {
 			i := s.base.Storage.Get(s.base.Storage.Selected)
-			if s.astro.PutPack(i) {
+			if s.astro.pack.Put(i) {
 				s.base.Storage.Set(s.base.Storage.Selected, nil)
 			}
 		}
