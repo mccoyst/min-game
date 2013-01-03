@@ -41,8 +41,6 @@ type BaseScreen struct {
 	astro   *Player
 	base    *Base
 	closing bool
-
-	inPack bool
 }
 
 const pad = 4
@@ -55,7 +53,7 @@ var bounds = geom.Rectangle{
 var packBounds = bounds.Add(geom.Pt(0, bounds.Dy()+3*pad+32))
 
 func NewBaseScreen(astro *Player, base *Base) *BaseScreen {
-	return &BaseScreen{astro, base, false, false}
+	return &BaseScreen{astro, base, false}
 }
 
 func (s *BaseScreen) Transparent() bool {
@@ -82,19 +80,19 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	case ui.Menu:
 		s.closing = true
 	case ui.Action:
-		if s.inPack && s.astro.pack.Get(s.astro.pack.Selected) != nil {
+		if s.astro.pack.Selected >= 0 && s.astro.pack.Get(s.astro.pack.Selected) != nil {
 			i := s.astro.pack.Get(s.astro.pack.Selected)
 			s.astro.pack.Set(s.astro.pack.Selected, nil)
 			s.base.PutStorage(i)
 		}
-		if !s.inPack && s.base.Storage.Get(s.base.Storage.Selected) != nil {
+		if s.base.Storage.Selected >= 0 && s.base.Storage.Get(s.base.Storage.Selected) != nil {
 			i := s.base.Storage.Get(s.base.Storage.Selected)
 			if s.astro.PutPack(i) {
 				s.base.Storage.Set(s.base.Storage.Selected, nil)
 			}
 		}
 	case ui.Left:
-		if s.inPack {
+		if s.astro.pack.Selected >= 0 {
 			s.astro.pack.Selected--
 			if s.astro.pack.Selected < 0 {
 				s.astro.pack.Selected = s.astro.pack.Len() - 1
@@ -106,7 +104,7 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 			}
 		}
 	case ui.Right:
-		if s.inPack {
+		if s.astro.pack.Selected >= 0 {
 			s.astro.pack.Selected++
 			if s.astro.pack.Selected == s.astro.pack.Len() {
 				s.astro.pack.Selected = 0
@@ -118,16 +116,18 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 			}
 		}
 	case ui.Up, ui.Down:
-		if s.inPack {
-			if s.base.Storage.Selected >= s.astro.pack.Len() {
-				s.astro.pack.Selected = s.astro.pack.Len() - 1
-			}
-			s.inPack = false
-		} else {
-			if s.astro.pack.Selected >= s.base.Storage.Len() {
+		if s.astro.pack.Selected >= 0 {
+			s.base.Storage.Selected = s.astro.pack.Selected
+			if s.base.Storage.Selected >= s.base.Storage.Len() {
 				s.base.Storage.Selected = s.base.Storage.Len() - 1
 			}
-			s.inPack = true
+			s.astro.pack.Selected = -1
+		} else {
+			s.astro.pack.Selected = s.base.Storage.Selected
+			if s.astro.pack.Selected >= s.astro.pack.Len() {
+				s.astro.pack.Selected = s.astro.pack.Len() - 1
+			}
+			s.base.Storage.Selected = -1
 		}
 	}
 	return nil
