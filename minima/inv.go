@@ -108,13 +108,9 @@ func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Poi
 }
 
 func HandleInvPair(a, b *Inventory, k ui.Button) {
-	var src, dst *Inventory
-	if a.Selected >= 0 {
-		src = a
-		dst = b
-	} else {
-		src = b
-		dst = a
+	src, dst := a, b
+	if a.Selected < 0 {
+		src, dst = b, a
 	}
 
 	switch k {
