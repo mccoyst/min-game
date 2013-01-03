@@ -70,7 +70,7 @@ func (s *BaseScreen) Transparent() bool {
 }
 
 func (s *BaseScreen) Draw(d ui.Drawer) {
-	d.SetFont("prstartk", 16)
+	d.SetFont(DialogFont, 16)
 	pt := DrawInventory(BaseInv{s, "Pack"}, d, pad, origin, true)
 	DrawInventory(BaseInv{s, "Storage"}, d, pad, geom.Pt(origin.X, pt.Y+32+2*pad), false)
 }
