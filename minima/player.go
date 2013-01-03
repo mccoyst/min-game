@@ -138,7 +138,7 @@ func (p *Player) drawO2(d ui.Drawer) {
 // FindEtele returns the E-Tele item from the player's suit, or nil if it is not found.
 func (p *Player) FindEtele() *item.Item {
 	for _, i := range p.suit {
-		if i.Name == item.ETele {
+		if i != nil && i.Name == item.ETele {
 			return i
 		}
 	}
