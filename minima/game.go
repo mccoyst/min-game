@@ -105,7 +105,7 @@ func (e *Game) Draw(d ui.Drawer) {
 	if !*debug {
 		return
 	}
-	d.SetFont(DialogFont, 14)
+	d.SetFont(DialogFont, 8)
 	d.SetColor(White)
 	sz := d.TextSize(e.Astro.info)
 	d.Draw(e.Astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))

@@ -30,7 +30,7 @@ func (t *GameOverScreen) Draw(d ui.Drawer) {
 		ScreenDims.Y/2-textSz.Y)
 	wh := d.Draw(text, textPos)
 
-	d.SetFont(DialogFont, 12)
+	d.SetFont(DialogFont, 16)
 	flavor := "…and there was nothing…"
 	flavorSz := d.TextSize(flavor)
 	flavorPos := geom.Pt(ScreenDims.X/2-flavorSz.X/2, textPos.Y+wh.Y+flavorSz.Y)
