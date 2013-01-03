@@ -66,7 +66,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		},
 		o2max: 50,
 		o2:    50,
-		suit:  Inventory{[]*item.Item{item.New(item.ETele), nil}, 0},
+		suit:  Inventory{[]*item.Item{item.New(item.ETele), nil}, 0, true},
 		pack:  []*item.Item{nil, nil, item.New(item.Uranium), nil},
 	}
 }
@@ -158,11 +158,5 @@ func (p *Player) PutPack(i *item.Item) bool {
 
 // PutSuit tries to add i to the player's suit, and returns true iff successful.
 func (p *Player) PutSuit(i *item.Item) bool {
-	for j := range p.suit.Items {
-		if p.suit.Items[j] == nil {
-			p.suit.Items[j] = i
-			return true
-		}
-	}
-	return false
+	return p.suit.Put(i)
 }
