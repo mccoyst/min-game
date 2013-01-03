@@ -6,38 +6,23 @@ import (
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/uitil"
 )
 
-func NewNormalMessage(msg string) *uitil.MessageBox {
-	origin := geom.Pt(32, 32)
-	dims := geom.Pt(ScreenDims.X, ScreenDims.Y/2)
-	box := geom.Rectangle{
-		Min: origin,
-		Max: origin.Add(dims).Sub(origin.Mul(2)),
-	}
-
-	return &uitil.MessageBox{
-		Text:   msg,
-		Font:   DialogFont,
-		Fontsz: 16,
-		Fg:     Black,
-		Bg:     White,
-		Box:    box,
-		Pad:    4.0,
-	}
+type Inventory struct {
+	Items    []*item.Item
+	Selected int
 }
 
-type InventoryXXX interface {
-	Label() string
-	Len() int
-	Selected(int) bool
-	Get(int) *item.Item
-	Set(int, *item.Item)
+func (i *Inventory) Len() int {
+	return len(i.Items)
 }
 
-func DrawInventory(i InventoryXXX, d ui.Drawer, pad float64, origin geom.Point, fit bool) geom.Point {
-	size := d.TextSize(i.Label())
+func (i *Inventory) Get(n int) *item.Item {
+	return i.Items[n]
+}
+
+func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Point, fit bool) geom.Point {
+	size := d.TextSize(label)
 
 	width, height := 0.0, 0.0
 	if fit {
@@ -62,7 +47,7 @@ func DrawInventory(i InventoryXXX, d ui.Drawer, pad float64, origin geom.Point, 
 	pt := origin.Add(geom.Pt(pad, pad))
 
 	d.SetColor(Black)
-	d.Draw(i.Label(), pt)
+	d.Draw(label, pt)
 	if fit {
 		pt.X += size.X + pad
 	} else {
@@ -71,7 +56,7 @@ func DrawInventory(i InventoryXXX, d ui.Drawer, pad float64, origin geom.Point, 
 
 	for j := 0; j < i.Len(); j++ {
 		a := i.Get(j)
-		if i.Selected(j) {
+		if i.Selected == j {
 			d.SetColor(Black)
 			d.Draw(geom.Rectangle{
 				Min: pt.Sub(geom.Pt(2, 2)),
