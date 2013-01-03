@@ -74,57 +74,9 @@ func (s *BaseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch key.Button {
 	case ui.Menu:
 		s.closing = true
-	case ui.Action:
-		if s.astro.pack.Selected >= 0 && s.astro.pack.Get(s.astro.pack.Selected) != nil {
-			i := s.astro.pack.Get(s.astro.pack.Selected)
-			s.astro.pack.Set(s.astro.pack.Selected, nil)
-			s.base.Storage.Put(i)
-		}
-		if s.base.Storage.Selected >= 0 && s.base.Storage.Get(s.base.Storage.Selected) != nil {
-			i := s.base.Storage.Get(s.base.Storage.Selected)
-			if s.astro.pack.Put(i) {
-				s.base.Storage.Set(s.base.Storage.Selected, nil)
-			}
-		}
-	case ui.Left:
-		if s.astro.pack.Selected >= 0 {
-			s.astro.pack.Selected--
-			if s.astro.pack.Selected < 0 {
-				s.astro.pack.Selected = s.astro.pack.Len() - 1
-			}
-		} else {
-			s.base.Storage.Selected--
-			if s.base.Storage.Selected < 0 {
-				s.astro.pack.Selected = s.base.Storage.Len() - 1
-			}
-		}
-	case ui.Right:
-		if s.astro.pack.Selected >= 0 {
-			s.astro.pack.Selected++
-			if s.astro.pack.Selected == s.astro.pack.Len() {
-				s.astro.pack.Selected = 0
-			}
-		} else {
-			s.base.Storage.Selected++
-			if s.base.Storage.Selected == s.base.Storage.Len() {
-				s.base.Storage.Selected = 0
-			}
-		}
-	case ui.Up, ui.Down:
-		if s.astro.pack.Selected >= 0 {
-			s.base.Storage.Selected = s.astro.pack.Selected
-			if s.base.Storage.Selected >= s.base.Storage.Len() {
-				s.base.Storage.Selected = s.base.Storage.Len() - 1
-			}
-			s.astro.pack.Selected = -1
-		} else {
-			s.astro.pack.Selected = s.base.Storage.Selected
-			if s.astro.pack.Selected >= s.astro.pack.Len() {
-				s.astro.pack.Selected = s.astro.pack.Len() - 1
-			}
-			s.base.Storage.Selected = -1
-		}
 	}
+
+	HandleInvPair(&s.astro.pack, &s.base.Storage, key.Button)
 	return nil
 }
 
