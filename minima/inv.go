@@ -22,14 +22,14 @@ func (i *Inventory) Get(n int) *item.Item {
 }
 
 // Put tries to add i to the inventory, returning false if there was no room.
-func (b *Base) Put(i *item.Item) bool {
-	for j := range b.Storage.Items {
-		if b.Storage.Items[j] == nil {
-			b.Storage.Items[j] = i
+func (i *Inventory) Put(m *item.Item) bool {
+	for j := range i.Items {
+		if i.Items[j] == nil {
+			i.Items[j] = m
 			return true
 		}
 	}
-	b.Storage.Items = append(b.Storage.Items, i)
+	i.Items = append(i.Items, m)
 	return true
 }
 
