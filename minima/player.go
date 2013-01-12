@@ -30,8 +30,8 @@ type Player struct {
 	o2      int
 	o2ticks int
 
-	suit []*item.Item
-	pack []*item.Item
+	suit Inventory
+	pack Inventory
 }
 
 var astroSheet sprite.Sheet
@@ -66,8 +66,8 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		},
 		o2max: 50,
 		o2:    50,
-		suit:  []*item.Item{item.New(item.ETele), nil},
-		pack:  []*item.Item{nil, nil, item.New(item.Uranium), nil},
+		suit:  Inventory{[]*item.Item{item.New(item.ETele), nil}, 0, true},
+		pack:  Inventory{[]*item.Item{nil, nil, item.New(item.Uranium), nil}, -1, true},
 	}
 }
 
@@ -137,8 +137,8 @@ func (p *Player) drawO2(d ui.Drawer) {
 
 // FindEtele returns an E-Tele item with remaining uses from the player's suit or nil if such an item is not found.
 func (p *Player) FindEtele() *item.Item {
-	for _, i := range p.suit {
-		if i.Name == item.ETele && i.Uses > 0 {
+	for _, i := range p.suit.Items {
+		if i != nil && i.Name == item.ETele && i.Uses > 0 {
 			return i
 		}
 	}
@@ -147,22 +147,10 @@ func (p *Player) FindEtele() *item.Item {
 
 // PutPack tries to add i to the player's backpack, and returns true iff successful.
 func (p *Player) PutPack(i *item.Item) bool {
-	for j := range p.pack {
-		if p.pack[j] == nil {
-			p.pack[j] = i
-			return true
-		}
-	}
-	return false
+	return p.pack.Put(i)
 }
 
 // PutSuit tries to add i to the player's suit, and returns true iff successful.
 func (p *Player) PutSuit(i *item.Item) bool {
-	for j := range p.suit {
-		if p.suit[j] == nil {
-			p.suit[j] = i
-			return true
-		}
-	}
-	return false
+	return p.suit.Put(i)
 }

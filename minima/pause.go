@@ -4,20 +4,17 @@ package main
 
 import (
 	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/uitil"
 )
 
 type PauseScreen struct {
-	astro    *Player
-	closing  bool
-	selected int
-	inPack   bool
+	astro   *Player
+	closing bool
 }
 
 func NewPauseScreen(astro *Player) *PauseScreen {
-	return &PauseScreen{astro, false, 0, false}
+	return &PauseScreen{astro, false}
 }
 
 func (p *PauseScreen) Transparent() bool {
@@ -25,18 +22,18 @@ func (p *PauseScreen) Transparent() bool {
 }
 
 func (p *PauseScreen) Draw(d ui.Drawer) {
-	d.SetFont("prstartk", 16)
+	d.SetFont(DialogFont, 16)
 
 	origin := geom.Pt(32, 32)
 	pad := 4.0
 
-	pt := p.drawInventory(d, "Suit: ", pad, origin)
-	pt = p.drawInventory(d, "Pack: ", pad, geom.Pt(origin.X, pt.Y+pad))
+	pt := p.astro.suit.Draw("Suit: ", d, pad, origin, true)
+	pt = p.astro.pack.Draw("Pack: ", d, pad, geom.Pt(origin.X, pt.Y+pad), true)
 
-	if p.inPack && p.astro.pack[p.selected] == nil {
+	if p.astro.pack.Selected >= 0 && p.astro.pack.Get(p.astro.pack.Selected) == nil {
 		return
 	}
-	if !p.inPack && p.astro.suit[p.selected] == nil {
+	if p.astro.suit.Selected >= 0 && p.astro.suit.Get(p.astro.suit.Selected) == nil {
 		return
 	}
 
@@ -52,10 +49,10 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 
 	d.SetColor(Black)
 	desc := ""
-	if p.inPack {
-		desc = p.astro.pack[p.selected].Desc()
+	if p.astro.pack.Selected >= 0 {
+		desc = p.astro.pack.Get(p.astro.pack.Selected).Desc()
 	} else {
-		desc = p.astro.suit[p.selected].Desc()
+		desc = p.astro.suit.Get(p.astro.suit.Selected).Desc()
 	}
 	uitil.WordWrap(d, desc, descBounds.Rpad(pad))
 }
@@ -73,44 +70,9 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch key.Button {
 	case ui.Menu:
 		p.closing = true
-	case ui.Action:
-		if p.inPack && p.astro.pack[p.selected] != nil {
-			if p.astro.PutSuit(p.astro.pack[p.selected]) {
-				p.astro.pack[p.selected] = nil
-			}
-		}
-		if !p.inPack && p.astro.suit[p.selected] != nil {
-			if p.astro.PutPack(p.astro.suit[p.selected]) {
-				p.astro.suit[p.selected] = nil
-			}
-		}
-	case ui.Left:
-		p.selected--
-		if p.selected < 0 {
-			if p.inPack {
-				p.selected = len(p.astro.pack) - 1
-			} else {
-				p.selected = len(p.astro.suit) - 1
-			}
-		}
-	case ui.Right:
-		p.selected++
-		if p.inPack && p.selected == len(p.astro.pack) {
-			p.selected = 0
-		}
-		if !p.inPack && p.selected == len(p.astro.suit) {
-			p.selected = 0
-		}
-	case ui.Up, ui.Down:
-		p.inPack = !p.inPack
-		if p.inPack && p.selected >= len(p.astro.pack) {
-			p.selected = len(p.astro.pack) - 1
-		}
-		if !p.inPack && p.selected >= len(p.astro.suit) {
-			p.selected = len(p.astro.suit) - 1
-		}
 	}
 
+	HandleInvPair(&p.astro.pack, &p.astro.suit, key.Button)
 	return nil
 }
 
@@ -121,46 +83,4 @@ func (p *PauseScreen) Update(stk *ui.ScreenStack) error {
 	}
 
 	return nil
-}
-
-func (p *PauseScreen) drawInventory(d ui.Drawer, label string, pad float64, origin geom.Point) geom.Point {
-	return DrawInventory(PauseInv{p, label}, d, pad, origin, true)
-}
-
-type PauseInv struct {
-	p     *PauseScreen
-	label string
-}
-
-func (p PauseInv) Label() string {
-	return p.label
-}
-
-func (p PauseInv) Len() int {
-	if p.label == "Pack: " {
-		return len(p.p.astro.pack)
-	}
-	return len(p.p.astro.suit)
-}
-
-func (p PauseInv) Selected(i int) bool {
-	if p.label == "Pack: " && p.p.inPack || p.label == "Suit: " && !p.p.inPack {
-		return i == p.p.selected
-	}
-	return false
-}
-
-func (p PauseInv) Get(i int) *item.Item {
-	if p.label == "Pack: " {
-		return p.p.astro.pack[i]
-	}
-	return p.p.astro.suit[i]
-}
-
-func (p PauseInv) Set(i int, n *item.Item) {
-	if p.label == "Pack: " {
-		p.p.astro.pack[i] = n
-	} else {
-		p.p.astro.suit[i] = n
-	}
 }
