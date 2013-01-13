@@ -12,7 +12,6 @@ import (
 	"code.google.com/p/min-game/world"
 	"encoding/json"
 	"io"
-	"math"
 	"math/rand"
 )
 
@@ -63,29 +62,15 @@ func (e *Game) Draw(d ui.Drawer) {
 	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
 	x0, y0 := e.wo.Tile(e.cam.Pt)
 
-	xoff0 := -math.Mod(e.cam.Pt.X, TileSize)
-	if xoff0 > 0 && e.cam.Pt.X < 0 {
-		xoff0 = -TileSize + xoff0
-	}
-
-	yoff0 := -math.Mod(e.cam.Pt.Y, TileSize)
-	if yoff0 > 0 && e.cam.Pt.Y < 0 {
-		yoff0 = -TileSize + yoff0
-	}
-
-	pt := geom.Pt(xoff0, yoff0)
 	for x := x0; x <= x0+w; x++ {
 		for y := y0; y <= y0+h; y++ {
 			l := e.wo.At(x, y)
-			d.Draw(ui.Sprite{
+			e.cam.Draw(d, ui.Sprite{
 				Name:   l.Terrain.Name,
 				Bounds: geom.Rect(0, 0, TileSize, TileSize),
 				Shade:  shade(l),
-			}, pt)
-			pt.Y += TileSize
+			}, geom.Pt(float64(x*TileSize), float64(y*TileSize)))
 		}
-		pt.Y = yoff0
-		pt.X += TileSize
 	}
 
 	e.base.Draw(d, e.cam)
