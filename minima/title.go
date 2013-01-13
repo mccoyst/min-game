@@ -150,6 +150,10 @@ func (t *TitleScreen) loadWorld() {
 		if err != nil {
 			panic(err)
 		}
+		if *debug {
+			os.Stderr.Write([]byte("executing: " + p.String() + "\n"))
+		}
+
 		stdout, err := p.Last().StdoutPipe()
 		if err != nil {
 			panic(err)
