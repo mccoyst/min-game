@@ -77,7 +77,11 @@ func (e *Game) Draw(d ui.Drawer) {
 	for x := x0; x <= x0+w; x++ {
 		for y := y0; y <= y0+h; y++ {
 			l := e.wo.At(x, y)
-			drawCell(d, l, x, y, pt)
+			d.Draw(ui.Sprite{
+				Name:   l.Terrain.Name,
+				Bounds: geom.Rect(0, 0, TileSize, TileSize),
+				Shade:  shade(l),
+			}, pt)
 			pt.Y += TileSize
 		}
 		pt.Y = yoff0
@@ -92,7 +96,7 @@ func (e *Game) Draw(d ui.Drawer) {
 		e.cam.Draw(d, ui.Sprite{
 			Name:   "Present",
 			Bounds: geom.Rect(0, 0, t.Box.Dx(), t.Box.Dy()),
-			Shade:  1.0, //TODO: should shade with altitude
+			Shade:  shade(e.wo.At(e.wo.Tile(t.Box.Center()))),
 		}, t.Box.Min)
 	}
 	e.Astro.Draw(d, e.cam)
@@ -111,15 +115,11 @@ func (e *Game) Draw(d ui.Drawer) {
 	d.Draw(e.Astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))
 }
 
-func drawCell(d ui.Drawer, l *world.Loc, x, y int, pt geom.Point) {
+// Shade returns the shade value for a location.
+func shade(l *world.Loc) float32 {
 	const minSh = 0.15
 	const slope = (1 - minSh) / world.MaxElevation
-
-	d.Draw(ui.Sprite{
-		Name:   l.Terrain.Name,
-		Bounds: geom.Rect(0, 0, TileSize, TileSize),
-		Shade:  slope*float32(l.Elevation-l.Depth) + minSh,
-	}, pt)
+	return slope*float32(l.Elevation-l.Depth) + minSh
 }
 
 func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
