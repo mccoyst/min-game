@@ -51,11 +51,11 @@ func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Poi
 
 	width, height := 0.0, 0.0
 	if fit {
-		width = TileSize*float64(i.Len()) + pad*float64(i.Len()+3) + size.X
-		height = TileSize + pad*2
+		width = TileSize.X*float64(i.Len()) + pad*float64(i.Len()+3) + size.X
+		height = TileSize.Y + pad*2
 	} else {
-		width = ScreenDims.X - TileSize - origin.X
-		height = ScreenDims.Y - TileSize - origin.Y
+		pt := ScreenDims.Sub(TileSize).Sub(origin)
+		width, height = pt.X, pt.Y
 	}
 
 	bounds := geom.Rectangle{
@@ -100,7 +100,7 @@ func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Poi
 		pt.X += 32.0 + pad
 		if pt.X >= bounds.Dx() {
 			pt.X = bounds.Min.X
-			pt.Y += TileSize + pad
+			pt.Y += TileSize.Y + pad
 		}
 	}
 
