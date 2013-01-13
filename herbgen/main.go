@@ -198,7 +198,7 @@ func probs(w *world.World, locs []*world.Loc, n int, stdev float64) []float64 {
 // randGauss returns a random Gaussian2d.
 func randGauss(w *world.World, ls []*world.Loc, stdev float64) *math.Gaussian2d {
 	i := rand.Int31n(int32(len(ls)))
-	pt := ls[i].Point().Add(world.TileSize.Div(2))
+	pt := ls[i].Point().Add(world.TileSize.Div(geom.Pt(2, 2)))
 	ht := 1.0
 	cov := 0.0
 	return math.NewGaussian2d(pt.X, pt.Y, stdev, stdev, ht, cov)
