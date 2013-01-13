@@ -15,8 +15,7 @@ import (
 	"math/rand"
 )
 
-// TileSize is the width and height of a tile in pixels.
-const TileSize = 32
+var TileSize = world.TileSize
 
 type Game struct {
 	wo         *world.World
@@ -37,7 +36,7 @@ func ReadGame(r io.Reader) (*Game, error) {
 		return nil, err
 	}
 	g.cam = ui.Camera{Torus: g.wo.Pixels, Dims: ScreenDims}
-	crashSite := geom.Pt(float64(g.wo.X0*TileSize), float64(g.wo.Y0*TileSize))
+	crashSite := geom.Pt(float64(g.wo.X0), float64(g.wo.Y0)).Mul(TileSize)
 	g.Astro = NewPlayer(g.wo, crashSite)
 	g.base = NewBase(crashSite)
 
@@ -54,12 +53,14 @@ func (e *Game) Transparent() bool {
 
 // CenterOnTile centers the display on a given tile.
 func (e *Game) CenterOnTile(x, y int) {
-	e.cam.Center(geom.Pt(TileSize*float64(x)+TileSize/2,
-		TileSize*float64(y)+TileSize/2))
+	pt := geom.Pt(float64(x), float64(y))
+	halfTile := TileSize.Div(geom.Pt(2, 2))
+	e.cam.Center(pt.Mul(TileSize).Add(halfTile))
 }
 
 func (e *Game) Draw(d ui.Drawer) {
-	w, h := int(ScreenDims.X/TileSize), int(ScreenDims.Y/TileSize)
+	pt := ScreenDims.Div(TileSize)
+	w, h := int(pt.X), int(pt.Y)
 	x0, y0 := e.wo.Tile(e.cam.Pt)
 
 	for x := x0; x <= x0+w; x++ {
@@ -67,9 +68,9 @@ func (e *Game) Draw(d ui.Drawer) {
 			l := e.wo.At(x, y)
 			e.cam.Draw(d, ui.Sprite{
 				Name:   l.Terrain.Name,
-				Bounds: geom.Rect(0, 0, TileSize, TileSize),
+				Bounds: geom.Rectangle{geom.Pt(0, 0), TileSize},
 				Shade:  shade(l),
-			}, geom.Pt(float64(x*TileSize), float64(y*TileSize)))
+			}, geom.Pt(float64(x), float64(y)).Mul(TileSize))
 		}
 	}
 

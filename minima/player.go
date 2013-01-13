@@ -62,7 +62,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 	return &Player{
 		wo: wo,
 		body: phys.Body{
-			Box: geom.Rect(p.X, p.Y, p.X+TileSize, p.Y+TileSize),
+			Box: geom.Rectangle{p, p.Add(TileSize)},
 		},
 		o2max: 50,
 		o2:    50,
