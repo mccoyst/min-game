@@ -12,7 +12,7 @@ func NewNormalMessage(msg string) *uitil.MessageBox {
 	dims := geom.Pt(ScreenDims.X, ScreenDims.Y/2)
 	box := geom.Rectangle{
 		Min: origin,
-		Max: origin.Add(dims).Sub(origin.Mul(2)),
+		Max: origin.Add(dims).Sub(origin.Mul(geom.Pt(2, 2))),
 	}
 
 	return &uitil.MessageBox{

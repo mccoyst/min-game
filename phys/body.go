@@ -17,7 +17,8 @@ func (b *Body) Move(w *world.World, velScale map[string]float64) {
 		return
 	}
 	wx, wy := w.Tile(b.Center())
-	maxVel := velScale[w.At(wx, wy).Terrain.Char] * b.Vel.Len()
+	m := velScale[w.At(wx, wy).Terrain.Char] * b.Vel.Len()
+	maxVel := geom.Pt(m, m)
 	b.Box = b.Box.Add(b.Vel.Normalize().Mul(maxVel))
 	b.Box = w.Pixels.NormRect(b.Box)
 }

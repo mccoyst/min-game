@@ -133,7 +133,9 @@ func (boid Boid) matchVel(local []Boid, i BoidInfo) {
 	if len(local) == 0 {
 		return
 	}
-	avg = avg.Div(float64(len(local))).Normalize().Mul(i.MatchBias)
+	bias := geom.Pt(i.MatchBias, i.MatchBias)
+	n := float64(len(local))
+	avg = avg.Div(geom.Pt(n, n)).Normalize().Mul(bias)
 	boid.Vel = boid.Vel.Add(avg)
 }
 
@@ -150,11 +152,12 @@ func (boid Boid) moveCenter(local []Boid, i BoidInfo, w *world.World) {
 		return
 	}
 	n := float64(len(local))
-	c = c.Div(n)
+	c = c.Div(geom.Pt(n, n))
 	if w.Pixels.SqDist(c, boid.Box.Min) < i.CenterDist*i.CenterDist {
 		return
 	}
-	avg = avg.Div(n).Normalize().Mul(i.CenterBias)
+	bias := geom.Pt(i.CenterBias, i.CenterBias)
+	avg = avg.Div(geom.Pt(n, n)).Normalize().Mul(bias)
 	boid.Vel = boid.Vel.Add(avg)
 }
 
@@ -168,7 +171,8 @@ func (boid Boid) avoidOthers(local []Boid, i BoidInfo, w *world.World) {
 		}
 		a = a.Add(avoidVec(boid.Center(), b.Center(), i.AvoidDist, w))
 	}
-	a = a.Mul(i.AvoidBias)
+	bias := geom.Pt(i.AvoidBias, i.AvoidBias)
+	a = a.Mul(bias)
 	boid.Vel = boid.Vel.Add(a)
 }
 
@@ -179,7 +183,8 @@ func (boid Boid) avoidPlayer(p *phys.Body, i BoidInfo, w *world.World) {
 	if p.Vel == geom.Pt(0, 0) || w.Pixels.SqDist(boid.Box.Center(), pt) > dd {
 		return
 	}
-	d := avoidVec(boid.Box.Center(), pt, i.PlayerDist, w).Mul(i.PlayerBias)
+	bias := geom.Pt(i.PlayerBias, i.PlayerBias)
+	d := avoidVec(boid.Box.Center(), pt, i.PlayerDist, w).Mul(bias)
 	boid.Vel = boid.Vel.Add(d)
 }
 
@@ -210,7 +215,8 @@ func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
 			a = a.Add(avoidVec(boid.Box.Center(), pt, i.TerrainDist, w))
 		}
 	}
-	a = a.Mul(i.TerrainBias)
+	bias := geom.Pt(i.TerrainBias, i.TerrainBias)
+	a = a.Mul(bias)
 	boid.Vel = boid.Vel.Add(a)
 }
 
@@ -218,7 +224,7 @@ func (boid Boid) avoidTerrain(i BoidInfo, w *world.World) {
 // no more than max.
 func (boid Boid) clampVel(max float64) {
 	if boid.Vel.Len() > max {
-		boid.Vel = boid.Vel.Normalize().Mul(max)
+		boid.Vel = boid.Vel.Normalize().Mul(geom.Pt(max, max))
 	}
 }
 

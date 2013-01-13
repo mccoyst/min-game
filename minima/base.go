@@ -43,7 +43,7 @@ const pad = 4
 var origin = geom.Pt(32, 32)
 var bounds = geom.Rectangle{
 	Min: origin,
-	Max: origin.Add(geom.Pt(ScreenDims.X, ScreenDims.Y/2)).Sub(origin.Mul(2)),
+	Max: origin.Add(geom.Pt(ScreenDims.X, ScreenDims.Y/2)).Sub(origin.Mul(geom.Pt(2, 2))),
 }
 var packBounds = bounds.Add(geom.Pt(0, bounds.Dy()+3*pad+32))
 

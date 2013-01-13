@@ -27,14 +27,14 @@ func (p Point) Sub(q Point) Point {
 	return Point{p.X - q.X, p.Y - q.Y}
 }
 
-// Mul returns the vector p*k.
-func (p Point) Mul(k float64) Point {
-	return Point{p.X * k, p.Y * k}
+// Mul returns the vector p*q
+func (p Point) Mul(q Point) Point {
+	return Point{p.X * q.X, p.Y * q.Y}
 }
 
-// Div returns the vector p/k.
-func (p Point) Div(k float64) Point {
-	return Point{p.X / k, p.Y / k}
+// Div returns the vector p/q.
+func (p Point) Div(q Point) Point {
+	return Point{p.X / q.X, p.Y / q.Y}
 }
 
 // Len returns the magnitude of the vector defined by p.
@@ -55,7 +55,8 @@ func (p Point) Dist(q Point) float64 {
 
 // Normalize returns the vector normalized so that it has a magnitude of one.
 func (p Point) Normalize() Point {
-	return p.Div(p.Len())
+	l := p.Len()
+	return p.Div(Pt(l, l))
 }
 
 // Eq returns whether p and q are equal.
