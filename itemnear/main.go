@@ -21,8 +21,6 @@ var (
 	seed   = flag.Int64("seed", time.Now().UnixNano(), "The random seed")
 )
 
-const TileSize = 32
-
 func main() {
 	flag.Parse()
 	rand.Seed(*seed)
@@ -33,15 +31,11 @@ func main() {
 		panic(err)
 	}
 
-	xmin := float64(w.X0-*radius) * TileSize
-	xmax := float64(w.X0+*radius) * TileSize
-	ymin := float64(w.Y0-*radius) * TileSize
-	ymax := float64(w.Y0+*radius) * TileSize
-
+	r := *radius
 	var items []interface{}
 	for i := 0; i < *num; i++ {
-		x := rand.Float64()*(xmax-xmin) + xmin
-		y := rand.Float64()*(ymax-ymin) + ymin
+		x := float64(w.X0+(rand.Intn(2*r)-r)) * world.TileSize.X
+		y := float64(w.Y0+(rand.Intn(2*r)-r)) * world.TileSize.Y
 		it := item.NewTreasure(x, y, item.New(*name))
 		if it == nil {
 			panic("Unknown item name: " + *name)
