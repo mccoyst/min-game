@@ -402,7 +402,14 @@ func (img *sdlImg) Draw(ui *Ui, s Sprite, p geom.Point) {
 	}
 	C.SDL_RenderCopy(ui.rend, img.tex,
 		&C.SDL_Rect{C.int(s.Bounds.Min.X), C.int(s.Bounds.Min.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())},
-		&C.SDL_Rect{C.int(p.X), C.int(p.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())})
+		&C.SDL_Rect{round(p.X), round(p.Y), C.int(s.Bounds.Dx()), C.int(s.Bounds.Dy())})
+}
+
+func round(x float64) C.int {
+	if x < 0 {
+		return C.int(x - 0.5)
+	}
+	return C.int(x + 0.5)
 }
 
 // DrawText draws the string to the ui at the given point, 
