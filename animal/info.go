@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"code.google.com/p/min-game/ai"
+	"code.google.com/p/min-game/resrc"
 	"code.google.com/p/min-game/sprite"
 )
 
@@ -18,10 +19,12 @@ type Info struct {
 	BoidInfo ai.BoidInfo
 }
 
+var finder = resrc.NewPkgFinder()
+
 func LoadInfo(s string) (Info, error) {
 	var i Info
 
-	f, err := os.Open("resrc/" + s + ".info")
+	f, err := os.Open(finder.Find(s + ".info"))
 	if err != nil {
 		return i, err
 	}

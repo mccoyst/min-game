@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/resrc"
 )
 
 type Sheet struct {
@@ -17,10 +18,12 @@ type Sheet struct {
 	North, East, South, West int
 }
 
+var finder = resrc.NewPkgFinder()
+
 func LoadSheet(s string) (Sheet, error) {
 	var sh Sheet
 
-	f, err := os.Open("resrc/" + s + ".sheet")
+	f, err := os.Open(finder.Find(s + ".sheet"))
 	if err != nil {
 		return sh, err
 	}

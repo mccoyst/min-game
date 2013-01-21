@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/resrc"
 	"code.google.com/p/min-game/ui"
 )
 
@@ -48,7 +49,7 @@ func main() {
 		ui.CurrentKeymap = ui.DvorakKeymap
 	}
 
-	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y), DumbFinder{}, !*vsyncoff)
+	u, err := ui.New("minima", int(ScreenDims.X), int(ScreenDims.Y), resrc.NewPkgFinder(), !*vsyncoff)
 	if err != nil {
 		os.Stderr.WriteString("oops: " + err.Error() + "\n")
 		os.Exit(1)
