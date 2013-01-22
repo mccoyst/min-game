@@ -134,6 +134,23 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
 			return nil
 		}
+		//TODO: perhaps this should be a new button
+		if ex.Astro.Held != nil {
+			dropped := ex.Astro.Held
+			ex.Astro.Held = nil
+			//TODO: we do this a lot…
+			i := 0
+			for ; i < len(ex.Treasure); i++ {
+				if ex.Treasure[i].Item == nil {
+					ex.Treasure[i].Item = dropped
+					ex.Treasure[i].Box = ex.Astro.body.Box
+					break
+				}
+			}
+			if i == len(ex.Treasure) {
+				ex.Treasure = append(ex.Treasure, item.Treasure{dropped, ex.Astro.body.Box})
+			}
+		}
 	}
 	return nil
 }
