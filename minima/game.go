@@ -135,21 +135,22 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			return nil
 		}
 	case ui.Drop:
-		if ex.Astro.Held != nil {
-			dropped := ex.Astro.Held
-			ex.Astro.Held = nil
-			//TODO: we do this a lot…
-			i := 0
-			for ; i < len(ex.Treasure); i++ {
-				if ex.Treasure[i].Item == nil {
-					ex.Treasure[i].Item = dropped
-					ex.Treasure[i].Box = ex.Astro.body.Box
-					break
-				}
+		if ex.Astro.Held == nil {
+			break
+		}
+		dropped := ex.Astro.Held
+		ex.Astro.Held = nil
+		//TODO: we do this a lot…
+		i := 0
+		for ; i < len(ex.Treasure); i++ {
+			if ex.Treasure[i].Item == nil {
+				ex.Treasure[i].Item = dropped
+				ex.Treasure[i].Box = ex.Astro.body.Box
+				break
 			}
-			if i == len(ex.Treasure) {
-				ex.Treasure = append(ex.Treasure, item.Treasure{dropped, ex.Astro.body.Box})
-			}
+		}
+		if i == len(ex.Treasure) {
+			ex.Treasure = append(ex.Treasure, item.Treasure{dropped, ex.Astro.body.Box})
 		}
 	}
 	return nil
