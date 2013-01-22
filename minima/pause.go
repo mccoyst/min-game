@@ -4,6 +4,7 @@ package main
 
 import (
 	"code.google.com/p/min-game/geom"
+	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
 	"code.google.com/p/min-game/uitil"
 )
@@ -28,7 +29,13 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	pad := 4.0
 
 	pt := p.astro.suit.Draw("Suit: ", d, pad, origin, true)
+	held := geom.Pt(pt.X+pad, origin.Y)
 	pt = p.astro.pack.Draw("Pack: ", d, pad, geom.Pt(origin.X, pt.Y+pad), true)
+
+	if p.astro.Held != nil {
+		hinv := Inventory{[]*item.Item{p.astro.Held}, 0, true}
+		hinv.Draw("Held: ", d, pad, held, true)
+	}
 
 	if p.astro.pack.Selected >= 0 && p.astro.pack.Get(p.astro.pack.Selected) == nil {
 		return
