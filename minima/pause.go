@@ -70,6 +70,15 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch key.Button {
 	case ui.Menu:
 		p.closing = true
+	case ui.Drop:
+		a := p.astro
+		if a.pack.Selected >= 0 {
+			a.Held, a.pack.Items[a.pack.Selected] = a.pack.Items[a.pack.Selected], a.Held
+		}
+		if a.suit.Selected >= 0 {
+			a.Held, a.suit.Items[a.suit.Selected] = a.suit.Items[a.suit.Selected], a.Held
+		}
+		return nil
 	}
 
 	HandleInvPair(&p.astro.pack, &p.astro.suit, key.Button)
