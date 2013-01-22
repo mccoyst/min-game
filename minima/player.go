@@ -32,6 +32,8 @@ type Player struct {
 
 	suit Inventory
 	pack Inventory
+
+	Held *item.Item
 }
 
 var astroSheet sprite.Sheet
@@ -68,6 +70,7 @@ func NewPlayer(wo *world.World, p geom.Point) *Player {
 		o2:    50,
 		suit:  Inventory{[]*item.Item{item.New(item.ETele), nil}, 0, true},
 		pack:  Inventory{[]*item.Item{nil, nil, item.New(item.Uranium), nil}, -1, true},
+		Held:  item.New(item.Uranium),
 	}
 }
 
@@ -99,6 +102,28 @@ func (p *Player) Draw(d ui.Drawer, cam ui.Camera) {
 		Bounds: astroSheet.Frame(p.anim.Face, p.anim.Frame),
 		Shade:  1.0,
 	}, p.body.Box.Min)
+
+	if p.Held == nil {
+		return
+	}
+
+	held := p.body.Box.Min
+	switch p.anim.Face {
+	case astroSheet.North:
+		held.Y -= TileSize.Y
+	case astroSheet.South:
+		held.Y += TileSize.Y
+	case astroSheet.East:
+		held.X += TileSize.X
+	case astroSheet.West:
+		held.X -= TileSize.X
+	}
+
+	cam.Draw(d, ui.Sprite{
+		Name:   p.Held.Name,
+		Bounds: geom.Rect(0, 0, TileSize.X, TileSize.Y),
+		Shade:  1.0,
+	}, held)
 }
 
 func (p *Player) RefillO2() {
