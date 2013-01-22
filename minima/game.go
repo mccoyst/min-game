@@ -118,14 +118,16 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	case ui.Menu:
 		stk.Push(NewPauseScreen(ex.Astro))
 	case ui.Action:
-		for i, t := range ex.Treasure {
-			if t.Item == nil || !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
+		for i := 0; i < len(ex.Treasure); i++ {
+			t := &ex.Treasure[i]
+			if !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
 				continue
 			}
 			scr := NewNormalMessage("You don't have room for that in your pack.")
 			if ex.Astro.PutPack(t.Item) {
 				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
-				ex.Treasure[i].Item = nil
+				ex.Treasure[i] = ex.Treasure[len(ex.Treasure)-1]
+				ex.Treasure = ex.Treasure[:len(ex.Treasure)-1]
 			}
 			stk.Push(scr)
 			return nil
