@@ -77,7 +77,7 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	switch key.Button {
 	case ui.Menu:
 		p.closing = true
-	case ui.Drop:
+	case ui.Hands:
 		a := p.astro
 		if a.pack.Selected >= 0 {
 			a.Held, a.pack.Items[a.pack.Selected] = a.pack.Items[a.pack.Selected], a.Held
