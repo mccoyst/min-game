@@ -138,6 +138,18 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 		}
 	case ui.Drop:
 		if ex.Astro.Held == nil {
+			for i := 0; i < len(ex.Treasure); i++ {
+				t := &ex.Treasure[i]
+				if !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
+					continue
+				}
+				ex.Astro.Held = ex.Treasure[i].Item
+				ex.Treasure[i] = ex.Treasure[len(ex.Treasure)-1]
+				ex.Treasure = ex.Treasure[:len(ex.Treasure)-1]
+				scr := NewNormalMessage("Ahh, you decided to hold onto the " + t.Item.Name + "!")
+				stk.Push(scr)
+				return nil
+			}
 			break
 		}
 		dropped := ex.Astro.Held
