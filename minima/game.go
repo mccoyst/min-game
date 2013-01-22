@@ -134,7 +134,7 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
 			return nil
 		}
-		//TODO: perhaps this should be a new button
+	case ui.Drop:
 		if ex.Astro.Held != nil {
 			dropped := ex.Astro.Held
 			ex.Astro.Held = nil
