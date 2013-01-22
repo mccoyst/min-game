@@ -136,7 +136,7 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
 			return nil
 		}
-	case ui.Drop:
+	case ui.Hands:
 		if ex.Astro.Held == nil {
 			for i := 0; i < len(ex.Treasure); i++ {
 				t := &ex.Treasure[i]
