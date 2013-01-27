@@ -3,6 +3,8 @@
 package main
 
 import (
+	"fmt"
+
 	"code.google.com/p/min-game/geom"
 	"code.google.com/p/min-game/item"
 	"code.google.com/p/min-game/ui"
@@ -30,7 +32,21 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 
 	pt := p.astro.suit.Draw("Suit: ", d, pad, origin, true)
 	held := geom.Pt(pt.X+pad, origin.Y)
-	pt = p.astro.pack.Draw("Pack: ", d, pad, geom.Pt(origin.X, pt.Y+pad), true)
+	packPt := geom.Pt(origin.X, pt.Y+pad)
+	pt = p.astro.pack.Draw("Pack: ", d, pad, packPt, true)
+
+	scrapPt := geom.Pt(pt.X+pad, packPt.Y)
+	scrapText := fmt.Sprintf("Scrap: %d", p.astro.Scrap)
+	scrapDims := d.TextSize(scrapText)
+	scrapBounds := geom.Rectangle{
+		Max: geom.Pt(scrapDims.X+2*pad, TileSize.Y+2*pad),
+	}
+	d.SetColor(Black)
+	d.Draw(scrapBounds.Pad(pad), scrapPt)
+	d.SetColor(White)
+	d.Draw(scrapBounds, scrapPt)
+	d.SetColor(Black)
+	d.Draw(scrapText, scrapPt.Add(geom.Pt(pad, pad)))
 
 	if p.astro.Held != nil {
 		hinv := Inventory{[]*item.Item{p.astro.Held}, 0, true}
