@@ -87,6 +87,11 @@ func (i *Inventory) Draw(label string, d ui.Drawer, pad float64, origin geom.Poi
 				Min: pt.Sub(geom.Pt(2, 2)),
 				Max: pt.Add(geom.Pt(34, 34)),
 			}, geom.Pt(0, 0))
+			d.SetColor(White)
+			d.Draw(geom.Rectangle{
+				Min: pt,
+				Max: pt.Add(geom.Pt(32, 32)),
+			}, geom.Pt(0, 0))
 		}
 
 		if a != nil {
