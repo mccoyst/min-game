@@ -11,6 +11,7 @@ import (
 const (
 	ETele   = "E-Tele"
 	Uranium = "Uranium"
+	Scrap   = "Scrap"
 )
 
 // InitialUses returns the initial value for the Uses field
