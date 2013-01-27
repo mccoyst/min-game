@@ -49,7 +49,7 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 	d.Draw(scrapText, scrapPt.Add(geom.Pt(pad, pad)))
 
 	if p.astro.Held != nil {
-		hinv := Inventory{[]*item.Item{p.astro.Held}, 0, true}
+		hinv := Inventory{[]*item.Item{p.astro.Held}, -1, true}
 		hinv.Draw("Held: ", d, pad, held, true)
 	}
 
