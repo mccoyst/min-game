@@ -140,7 +140,9 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 		if ex.Astro.Held != nil {
 			dropped := ex.Astro.Held
 			ex.Astro.Held = nil
-			ex.Treasure = append(ex.Treasure, item.Treasure{dropped, ex.Astro.body.Box})
+			pt := ex.Astro.HeldLoc()
+			box := geom.Rectangle{pt, pt.Add(TileSize)}
+			ex.Treasure = append(ex.Treasure, item.Treasure{dropped, box})
 			break
 		}
 		for i := 0; i < len(ex.Treasure); i++ {
