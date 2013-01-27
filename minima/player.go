@@ -108,17 +108,7 @@ func (p *Player) Draw(d ui.Drawer, cam ui.Camera) {
 		return
 	}
 
-	held := p.body.Box.Min
-	switch p.anim.Face {
-	case astroSheet.North:
-		held.Y -= TileSize.Y
-	case astroSheet.South:
-		held.Y += TileSize.Y
-	case astroSheet.East:
-		held.X += TileSize.X
-	case astroSheet.West:
-		held.X -= TileSize.X
-	}
+	held := p.HeldLoc()
 
 	cam.Draw(d, ui.Sprite{
 		Name:   p.Held.Name,
@@ -183,4 +173,19 @@ func (p *Player) PutPack(i *item.Item) bool {
 // PutSuit tries to add i to the player's suit, and returns true iff successful.
 func (p *Player) PutSuit(i *item.Item) bool {
 	return p.suit.Put(i)
+}
+
+func (p *Player) HeldLoc() geom.Point {
+	held := p.body.Box.Min
+	switch p.anim.Face {
+	case astroSheet.North:
+		held.Y -= TileSize.Y
+	case astroSheet.South:
+		held.Y += TileSize.Y
+	case astroSheet.East:
+		held.X += TileSize.X
+	case astroSheet.West:
+		held.X -= TileSize.X
+	}
+	return held
 }
