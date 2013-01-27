@@ -128,6 +128,7 @@ func (t *TitleScreen) loadWorld() {
 			gen("wgen"),
 			gen("herbgen 25 Gull 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 10 Guppy 25 Cow 25 Cow 25 Cow 25 Cow 10 Chicken 10 Chicken 10 Chicken 10 Chicken 10 Chicken"),
 			gen("itemnear -num 5 -name Uranium"),
+			gen("itemnear -num 5 -name Scrap"),
 		}
 
 		stderrin, stderrout, err := os.Pipe()

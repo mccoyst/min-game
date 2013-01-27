@@ -33,7 +33,8 @@ type Player struct {
 	suit Inventory
 	pack Inventory
 
-	Held *item.Item
+	Held  *item.Item
+	Scrap int
 }
 
 var astroSheet sprite.Sheet
@@ -172,6 +173,10 @@ func (p *Player) FindEtele() *item.Item {
 
 // PutPack tries to add i to the player's backpack, and returns true iff successful.
 func (p *Player) PutPack(i *item.Item) bool {
+	if i.Name == item.Scrap {
+		p.Scrap++
+		return true
+	}
 	return p.pack.Put(i)
 }
 
