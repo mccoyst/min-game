@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	ETele   = "E-Tele"
-	Uranium = "Uranium"
-	Scrap   = "Scrap"
+	ETele    = "E-Tele"
+	Uranium  = "Uranium"
+	Flippers = "Flippers"
+	Scrap    = "Scrap"
 )
 
 // InitialUses returns the initial value for the Uses field
@@ -32,6 +33,10 @@ var descs = map[string]func(*Item) string{
 		an emotive environmental problem. It is not particularly rare and
 		is more common than beryllium or tungsten for instance.
 		[br] [br] http://www.webelements.com/uranium`
+	},
+
+	Flippers: func(*Item) string {
+		return "A flat rubber attachment worn on the foot for underwater swimming." // —via Google for "define flippers."  Is this copyrighted or something?
 	},
 }
 
