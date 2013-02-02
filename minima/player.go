@@ -48,11 +48,17 @@ var baseScales = map[string]float64{
 	"i": 0.4,
 }
 
+var scales = make(map[string]float64)
+
 func init() {
 	var err error
 	astroSheet, err = sprite.LoadSheet("Astronaut")
 	if err != nil {
 		panic(err)
+	}
+
+	for t, base := range baseScales {
+		scales[t] = base
 	}
 }
 
@@ -83,7 +89,7 @@ func (p *Player) Move(w *world.World) {
 	}
 
 	p.anim.Move(&astroSheet, p.body.Vel)
-	p.body.Move(w, baseScales)
+	p.body.Move(w, scales)
 
 	if !*debug {
 		return
@@ -168,11 +174,6 @@ func (p *Player) PutPack(i *item.Item) bool {
 		return true
 	}
 	return p.pack.Put(i)
-}
-
-// PutSuit tries to add i to the player's suit, and returns true iff successful.
-func (p *Player) PutSuit(i *item.Item) bool {
-	return p.suit.Put(i)
 }
 
 func (p *Player) HeldLoc() geom.Point {

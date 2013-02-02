@@ -81,6 +81,23 @@ func (p *PauseScreen) Draw(d ui.Drawer) {
 }
 
 func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
+	defer func() {
+		// TODO(eaburns): Is there something more elegant than setting
+		// every terrain type to it's best scale each time the player hands
+		// something.
+		for t, base := range baseScales {
+			scales[t] = base
+		}
+		for _, i := range p.astro.suit.Items {
+			if i == nil {
+				continue
+			}
+			if b, ok := item.Bonus[i.Name]; ok && scales[b.Terrain] < b.Scale {
+				scales[b.Terrain] = b.Scale
+			}
+		}
+	}()
+
 	if p.closing {
 		return nil
 	}
@@ -105,6 +122,7 @@ func (p *PauseScreen) Handle(stk *ui.ScreenStack, e ui.Event) error {
 	}
 
 	HandleInvPair(&p.astro.pack, &p.astro.suit, key.Button)
+
 	return nil
 }
 

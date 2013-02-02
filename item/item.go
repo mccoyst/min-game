@@ -36,7 +36,7 @@ var descs = map[string]func(*Item) string{
 	},
 
 	Flippers: func(*Item) string {
-		return "A flat rubber attachment worn on the foot for underwater swimming." // —via Google for "define flippers."  Is this copyrighted or something?
+		return "A flat rubber attachment worn on the foot for underwater swimming." // via Googling for "define flippers."  Is this copyrighted or something?
 	},
 }
 
@@ -47,6 +47,16 @@ func withUses(desc string) func(*Item) string {
 		return fmt.Sprintf("%s  This %s currently has %d uses remaining.",
 			desc, i.Name, i.Uses)
 	}
+}
+
+// Bonus maps each item to it's terrain bonus.  A terrain bonus is
+// the scale to set for the given terrain type.  If an item is not in this
+// map then it doesn't give a terrain bonus.
+var Bonus = map[string]struct {
+	Terrain string
+	Scale   float64
+}{
+	Flippers: {"w", 1.0},
 }
 
 // An Item is something that the player can collect and possibly use.
