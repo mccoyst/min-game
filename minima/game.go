@@ -47,26 +47,26 @@ func ReadGame(r io.Reader) (*Game, error) {
 	return g, nil
 }
 
-func (e *Game) Transparent() bool {
+func (*Game) Transparent() bool {
 	return false
 }
 
 // CenterOnTile centers the display on a given tile.
-func (e *Game) CenterOnTile(x, y int) {
+func (g *Game) CenterOnTile(x, y int) {
 	pt := geom.Pt(float64(x), float64(y))
 	halfTile := TileSize.Div(geom.Pt(2, 2))
-	e.cam.Center(pt.Mul(TileSize).Add(halfTile))
+	g.cam.Center(pt.Mul(TileSize).Add(halfTile))
 }
 
-func (e *Game) Draw(d ui.Drawer) {
+func (g *Game) Draw(d ui.Drawer) {
 	pt := ScreenDims.Div(TileSize)
 	w, h := int(pt.X), int(pt.Y)
-	x0, y0 := e.wo.Tile(e.cam.Pt)
+	x0, y0 := g.wo.Tile(g.cam.Pt)
 
 	for x := x0; x <= x0+w; x++ {
 		for y := y0; y <= y0+h; y++ {
-			l := e.wo.At(x, y)
-			e.cam.Draw(d, ui.Sprite{
+			l := g.wo.At(x, y)
+			g.cam.Draw(d, ui.Sprite{
 				Name:   l.Terrain.Name,
 				Bounds: geom.Rectangle{geom.Pt(0, 0), TileSize},
 				Shade:  shade(l),
@@ -74,31 +74,31 @@ func (e *Game) Draw(d ui.Drawer) {
 		}
 	}
 
-	e.base.Draw(d, e.cam)
-	for _, t := range e.Treasure {
+	g.base.Draw(d, g.cam)
+	for _, t := range g.Treasure {
 		if t.Item == nil {
 			continue
 		}
-		e.cam.Draw(d, ui.Sprite{
+		g.cam.Draw(d, ui.Sprite{
 			Name:   "Present",
 			Bounds: geom.Rect(0, 0, t.Box.Dx(), t.Box.Dy()),
-			Shade:  shade(e.wo.At(e.wo.Tile(t.Box.Center()))),
+			Shade:  shade(g.wo.At(g.wo.Tile(t.Box.Center()))),
 		}, t.Box.Min)
 	}
-	e.Astro.Draw(d, e.cam)
-	for i := range e.Herbivores {
-		e.Herbivores[i].Draw(d, e.cam)
+	g.Astro.Draw(d, g.cam)
+	for i := range g.Herbivores {
+		g.Herbivores[i].Draw(d, g.cam)
 	}
 
-	e.Astro.drawO2(d)
+	g.Astro.drawO2(d)
 
 	if !*debug {
 		return
 	}
 	d.SetFont(DialogFont, 8)
 	d.SetColor(White)
-	sz := d.TextSize(e.Astro.info)
-	d.Draw(e.Astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))
+	sz := d.TextSize(g.Astro.info)
+	d.Draw(g.Astro.info, geom.Pt(0, ScreenDims.Y-sz.Y))
 }
 
 // Shade returns the shade value for a location.
@@ -164,41 +164,41 @@ func (g *Game) GetTreasure(b geom.Rectangle) (*item.Item, geom.Rectangle) {
 	return nil, geom.Rectangle{}
 }
 
-func (e *Game) Update(stk *ui.ScreenStack) error {
+func (g *Game) Update(stk *ui.ScreenStack) error {
 	const speed = 4 // px
 
-	if e.Astro.o2 == 0 && !*debug {
-		if et := e.Astro.FindEtele(); et == nil {
+	if g.Astro.o2 == 0 && !*debug {
+		if et := g.Astro.FindEtele(); et == nil {
 			stk.Push(NewGameOverScreen())
 		} else {
 			et.Uses--
-			e.Astro.body.Vel = geom.Pt(0, 0)
-			dims := geom.Pt(e.Astro.body.Box.Dx(), e.Astro.body.Box.Dy())
-			e.Astro.body.Box.Min = e.base.Box.Min
-			e.Astro.body.Box.Max = e.base.Box.Min.Add(dims)
-			e.Astro.RefillO2()
+			g.Astro.body.Vel = geom.Pt(0, 0)
+			dims := geom.Pt(g.Astro.body.Box.Dx(), g.Astro.body.Box.Dy())
+			g.Astro.body.Box.Min = g.base.Box.Min
+			g.Astro.body.Box.Max = g.base.Box.Min.Add(dims)
+			g.Astro.RefillO2()
 		}
 	}
 
-	e.Astro.body.Vel = geom.Pt(0, 0)
+	g.Astro.body.Vel = geom.Pt(0, 0)
 	if stk.Buttons&ui.Left != 0 {
-		e.Astro.body.Vel.X -= speed
+		g.Astro.body.Vel.X -= speed
 	}
 	if stk.Buttons&ui.Right != 0 {
-		e.Astro.body.Vel.X += speed
+		g.Astro.body.Vel.X += speed
 	}
 	if stk.Buttons&ui.Down != 0 {
-		e.Astro.body.Vel.Y += speed
+		g.Astro.body.Vel.Y += speed
 	}
 	if stk.Buttons&ui.Up != 0 {
-		e.Astro.body.Vel.Y -= speed
+		g.Astro.body.Vel.Y -= speed
 	}
-	e.Astro.Move(e.wo)
-	e.cam.Center(e.Astro.body.Box.Center())
+	g.Astro.Move(g.wo)
+	g.cam.Center(g.Astro.body.Box.Center())
 
-	for i := range e.Herbivores {
-		ai.UpdateBoids(stk.NFrames, e.Herbivores[i], &e.Astro.body, e.wo)
-		e.Herbivores[i].Move(e.wo)
+	for i := range g.Herbivores {
+		ai.UpdateBoids(stk.NFrames, g.Herbivores[i], &g.Astro.body, g.wo)
+		g.Herbivores[i].Move(g.wo)
 	}
 
 	return nil
