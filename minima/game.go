@@ -117,53 +117,51 @@ func (g *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	switch k.Button {
 	case ui.Menu:
 		stk.Push(NewPauseScreen(g.Astro))
+
 	case ui.Action:
-		for i := 0; i < len(g.Treasure); i++ {
-			t := &g.Treasure[i]
-			if !g.wo.Pixels.Overlaps(g.Astro.body.Box, t.Box) {
-				continue
-			}
-			scr := NewNormalMessage("You don't have room for that in your pack.")
-			if g.Astro.PutPack(t.Item) {
-				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
-				g.Treasure[i] = g.Treasure[len(g.Treasure)-1]
-				g.Treasure = g.Treasure[:len(g.Treasure)-1]
+		if it, box := g.GetTreasure(g.Astro.body.Box); it != nil {
+			scr := NewNormalMessage("Bravo! You got the " + it.Name + "!")
+			if !g.Astro.PutPack(it) {
+				scr = NewNormalMessage("You don't have room for that in your pack.")
+				g.Treasure = append(g.Treasure, item.Treasure{it, box})
 			}
 			stk.Push(scr)
-			return nil
-		}
-		if g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box) {
+
+		} else if g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box) {
 			stk.Push(NewBaseScreen(g.Astro, &g.base))
-			return nil
 		}
+
 	case ui.Hands:
 		if g.Astro.Held != nil {
-			dropped := g.Astro.Held
-			g.Astro.Held = nil
 			pt := g.Astro.HeldLoc()
 			box := geom.Rectangle{pt, pt.Add(TileSize)}
-			g.Treasure = append(g.Treasure, item.Treasure{dropped, box})
-			break
-		}
-		for i, t := range g.Treasure {
-			if !g.wo.Pixels.Overlaps(g.Astro.body.Box, t.Box) {
-				continue
-			}
-			scr := NewNormalMessage("Ahh, you decided to hold onto the " + t.Item.Name + "!")
-			if t.Item.Name == item.Scrap {
-				g.Astro.Scrap++
-				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
-			} else {
-				g.Astro.Held = t.Item
-			}
-			g.Treasure[i] = g.Treasure[len(g.Treasure)-1]
-			g.Treasure = g.Treasure[:len(g.Treasure)-1]
+			g.Treasure = append(g.Treasure, item.Treasure{g.Astro.Held, box})
+			g.Astro.Held = nil
 
+		} else if it, _ := g.GetTreasure(g.Astro.body.Box); it != nil {
+			scr := NewNormalMessage("Ahh, you decided to hold onto the " + it.Name + "!")
+			if it.Name == item.Scrap {
+				g.Astro.Scrap++
+				scr = NewNormalMessage("Bravo! You got the " + it.Name + "!")
+			} else {
+				g.Astro.Held = it
+			}
 			stk.Push(scr)
-			return nil
 		}
 	}
 	return nil
+}
+
+func (g *Game) GetTreasure(b geom.Rectangle) (*item.Item, geom.Rectangle) {
+	for i, t := range g.Treasure {
+		if !g.wo.Pixels.Overlaps(b, t.Box) {
+			continue
+		}
+		g.Treasure[i] = g.Treasure[len(g.Treasure)-1]
+		g.Treasure = g.Treasure[:len(g.Treasure)-1]
+		return t.Item, t.Box
+	}
+	return nil, geom.Rectangle{}
 }
 
 func (e *Game) Update(stk *ui.ScreenStack) error {
