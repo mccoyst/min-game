@@ -118,12 +118,12 @@ func (g *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	case k.Button == ui.Menu:
 		stk.Push(NewPauseScreen(g.Astro))
 
-	case k.Button == ui.Action && g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box):
-		stk.Push(NewBaseScreen(g.Astro, &g.base))
-
 	case k.Button == ui.Action:
 		it, box := g.GetTreasure(g.Astro.body.Box)
-		if it == nil {
+		if it == nil && g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box) {
+			stk.Push(NewBaseScreen(g.Astro, &g.base))
+			break
+		} else if it == nil {
 			break
 		}
 		scr := NewNormalMessage("Bravo! You got the " + it.Name + "!")
