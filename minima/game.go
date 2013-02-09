@@ -108,7 +108,7 @@ func shade(l *world.Loc) float32 {
 	return slope*float32(l.Elevation-l.Depth) + minSh
 }
 
-func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
+func (g *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 	k, ok := ev.(ui.Key)
 	if !ok || !k.Down {
 		return nil
@@ -116,48 +116,48 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 
 	switch k.Button {
 	case ui.Menu:
-		stk.Push(NewPauseScreen(ex.Astro))
+		stk.Push(NewPauseScreen(g.Astro))
 	case ui.Action:
-		for i := 0; i < len(ex.Treasure); i++ {
-			t := &ex.Treasure[i]
-			if !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
+		for i := 0; i < len(g.Treasure); i++ {
+			t := &g.Treasure[i]
+			if !g.wo.Pixels.Overlaps(g.Astro.body.Box, t.Box) {
 				continue
 			}
 			scr := NewNormalMessage("You don't have room for that in your pack.")
-			if ex.Astro.PutPack(t.Item) {
+			if g.Astro.PutPack(t.Item) {
 				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
-				ex.Treasure[i] = ex.Treasure[len(ex.Treasure)-1]
-				ex.Treasure = ex.Treasure[:len(ex.Treasure)-1]
+				g.Treasure[i] = g.Treasure[len(g.Treasure)-1]
+				g.Treasure = g.Treasure[:len(g.Treasure)-1]
 			}
 			stk.Push(scr)
 			return nil
 		}
-		if ex.wo.Pixels.Overlaps(ex.Astro.body.Box, ex.base.Box) {
-			stk.Push(NewBaseScreen(ex.Astro, &ex.base))
+		if g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box) {
+			stk.Push(NewBaseScreen(g.Astro, &g.base))
 			return nil
 		}
 	case ui.Hands:
-		if ex.Astro.Held != nil {
-			dropped := ex.Astro.Held
-			ex.Astro.Held = nil
-			pt := ex.Astro.HeldLoc()
+		if g.Astro.Held != nil {
+			dropped := g.Astro.Held
+			g.Astro.Held = nil
+			pt := g.Astro.HeldLoc()
 			box := geom.Rectangle{pt, pt.Add(TileSize)}
-			ex.Treasure = append(ex.Treasure, item.Treasure{dropped, box})
+			g.Treasure = append(g.Treasure, item.Treasure{dropped, box})
 			break
 		}
-		for i, t := range ex.Treasure {
-			if !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
+		for i, t := range g.Treasure {
+			if !g.wo.Pixels.Overlaps(g.Astro.body.Box, t.Box) {
 				continue
 			}
 			scr := NewNormalMessage("Ahh, you decided to hold onto the " + t.Item.Name + "!")
 			if t.Item.Name == item.Scrap {
-				ex.Astro.Scrap++
+				g.Astro.Scrap++
 				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
 			} else {
-				ex.Astro.Held = t.Item
+				g.Astro.Held = t.Item
 			}
-			ex.Treasure[i] = ex.Treasure[len(ex.Treasure)-1]
-			ex.Treasure = ex.Treasure[:len(ex.Treasure)-1]
+			g.Treasure[i] = g.Treasure[len(g.Treasure)-1]
+			g.Treasure = g.Treasure[:len(g.Treasure)-1]
 
 			stk.Push(scr)
 			return nil
