@@ -114,40 +114,44 @@ func (g *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 		return nil
 	}
 
-	switch k.Button {
-	case ui.Menu:
+	switch {
+	case k.Button == ui.Menu:
 		stk.Push(NewPauseScreen(g.Astro))
 
-	case ui.Action:
-		if it, box := g.GetTreasure(g.Astro.body.Box); it != nil {
-			scr := NewNormalMessage("Bravo! You got the " + it.Name + "!")
-			if !g.Astro.PutPack(it) {
-				scr = NewNormalMessage("You don't have room for that in your pack.")
-				g.Treasure = append(g.Treasure, item.Treasure{it, box})
-			}
-			stk.Push(scr)
+	case k.Button == ui.Action && g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box):
+		stk.Push(NewBaseScreen(g.Astro, &g.base))
 
-		} else if g.wo.Pixels.Overlaps(g.Astro.body.Box, g.base.Box) {
-			stk.Push(NewBaseScreen(g.Astro, &g.base))
+	case k.Button == ui.Action:
+		it, box := g.GetTreasure(g.Astro.body.Box)
+		if it == nil {
+			break
 		}
-
-	case ui.Hands:
-		if g.Astro.Held != nil {
-			pt := g.Astro.HeldLoc()
-			box := geom.Rectangle{pt, pt.Add(TileSize)}
-			g.Treasure = append(g.Treasure, item.Treasure{g.Astro.Held, box})
-			g.Astro.Held = nil
-
-		} else if it, _ := g.GetTreasure(g.Astro.body.Box); it != nil {
-			scr := NewNormalMessage("Ahh, you decided to hold onto the " + it.Name + "!")
-			if it.Name == item.Scrap {
-				g.Astro.Scrap++
-				scr = NewNormalMessage("Bravo! You got the " + it.Name + "!")
-			} else {
-				g.Astro.Held = it
-			}
-			stk.Push(scr)
+		scr := NewNormalMessage("Bravo! You got the " + it.Name + "!")
+		if !g.Astro.PutPack(it) {
+			scr = NewNormalMessage("You don't have room for that in your pack.")
+			g.Treasure = append(g.Treasure, item.Treasure{it, box})
 		}
+		stk.Push(scr)
+
+	case k.Button == ui.Hands && g.Astro.Held != nil:
+		pt := g.Astro.HeldLoc()
+		box := geom.Rectangle{pt, pt.Add(TileSize)}
+		g.Treasure = append(g.Treasure, item.Treasure{g.Astro.Held, box})
+		g.Astro.Held = nil
+
+	case k.Button == ui.Hands:
+		it, _ := g.GetTreasure(g.Astro.body.Box)
+		if it == nil {
+			break
+		}
+		scr := NewNormalMessage("Ahh, you decided to hold onto the " + it.Name + "!")
+		if it.Name == item.Scrap {
+			g.Astro.Scrap++
+			scr = NewNormalMessage("Bravo! You got the " + it.Name + "!")
+		} else {
+			g.Astro.Held = it
+		}
+		stk.Push(scr)
 	}
 	return nil
 }
