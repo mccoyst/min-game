@@ -149,10 +149,16 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			if !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
 				continue
 			}
-			ex.Astro.Held = t.Item
+			scr := NewNormalMessage("Ahh, you decided to hold onto the " + t.Item.Name + "!")
+			if t.Item.Name == item.Scrap {
+				ex.Astro.Scrap++
+				scr = NewNormalMessage("Bravo! You got the " + t.Item.Name + "!")
+			} else {
+				ex.Astro.Held = t.Item
+			}
 			ex.Treasure[i] = ex.Treasure[len(ex.Treasure)-1]
 			ex.Treasure = ex.Treasure[:len(ex.Treasure)-1]
-			scr := NewNormalMessage("Ahh, you decided to hold onto the " + t.Item.Name + "!")
+
 			stk.Push(scr)
 			return nil
 		}
