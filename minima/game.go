@@ -145,12 +145,11 @@ func (ex *Game) Handle(stk *ui.ScreenStack, ev ui.Event) error {
 			ex.Treasure = append(ex.Treasure, item.Treasure{dropped, box})
 			break
 		}
-		for i := 0; i < len(ex.Treasure); i++ {
-			t := &ex.Treasure[i]
+		for i, t := range ex.Treasure {
 			if !ex.wo.Pixels.Overlaps(ex.Astro.body.Box, t.Box) {
 				continue
 			}
-			ex.Astro.Held = ex.Treasure[i].Item
+			ex.Astro.Held = t.Item
 			ex.Treasure[i] = ex.Treasure[len(ex.Treasure)-1]
 			ex.Treasure = ex.Treasure[:len(ex.Treasure)-1]
 			scr := NewNormalMessage("Ahh, you decided to hold onto the " + t.Item.Name + "!")
