@@ -12,6 +12,7 @@ import (
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/math/fixed"
 )
 
 const (
@@ -119,10 +120,10 @@ type fontExtents struct {
 // Extents returns the extents of a font.
 func (f *font) extents() fontExtents {
 	em := f.ttf.FUnitsPerEm()
-	bounds := f.ttf.Bounds(em)
+	bounds := f.ttf.Bounds(fixed.I(int(em)))
 	scale := (f.size / ptInch * pxInch) / float64(em)
-	a := int(float64(bounds.YMax)*scale + 0.5)
-	d := int(float64(bounds.YMin)*scale - 0.5)
+	a := int(float64(bounds.Max.Y)*scale + 0.5)
+	d := int(float64(bounds.Min.Y)*scale - 0.5)
 	return fontExtents{
 		height:  a - d,
 		ascent:  a,
@@ -133,14 +134,14 @@ func (f *font) extents() fontExtents {
 // Width returns width of a string in pixels.
 func (f *font) width(s string) int {
 	em := f.ttf.FUnitsPerEm()
-	var width int32
+	var width fixed.Int26_6
 	prev, hasPrev := truetype.Index(0), false
 	for _, r := range s {
 		index := f.ttf.Index(r)
 		if hasPrev {
-			width += f.ttf.Kerning(em, prev, index)
+			width += f.ttf.Kern(fixed.I(int(em)), prev, index)
 		}
-		width += f.ttf.HMetric(em, index).AdvanceWidth
+		width += f.ttf.HMetric(fixed.I(int(em)), index).AdvanceWidth
 		prev, hasPrev = index, true
 	}
 	scale := (f.size / ptInch * pxInch) / float64(em)
@@ -155,12 +156,12 @@ func (f *font) render(s string) (image.Image, error) {
 	em := f.ttf.FUnitsPerEm()
 	scale := (f.size / ptInch * pxInch) / float64(em)
 
-	var x int32
+	var x fixed.Int26_6
 	prev, hasPrev := truetype.Index(0), false
 	for _, r := range s {
 		index := f.ttf.Index(r)
 		if hasPrev {
-			x += f.ttf.Kerning(em, prev, index)
+			x += f.ttf.Kern(fixed.I(int(em)), prev, index)
 		}
 
 		g, err := f.glyph(r)
@@ -170,7 +171,7 @@ func (f *font) render(s string) (image.Image, error) {
 		b := g.Bounds().Add(image.Pt(int(float64(x)*scale), 0))
 		draw.Draw(img, b, g, image.ZP, draw.Src)
 
-		x += f.ttf.HMetric(em, index).AdvanceWidth
+		x += f.ttf.HMetric(fixed.I(int(em)), index).AdvanceWidth
 		prev, hasPrev = index, true
 	}
 
