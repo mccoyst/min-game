@@ -3,11 +3,12 @@
 package main
 
 import (
-	"code.google.com/p/eaburns/perlin"
-	"code.google.com/p/min-game/world"
 	"container/heap"
 	"math"
 	"math/rand"
+
+	"github.com/eaburns/eaburns/perlin"
+	"github.com/mccoyst/min-game/world"
 )
 
 // addRivers adds rivers

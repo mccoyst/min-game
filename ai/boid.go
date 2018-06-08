@@ -6,9 +6,9 @@ import (
 	"math"
 	"strings"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/phys"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/phys"
+	"github.com/mccoyst/min-game/world"
 )
 
 // Boids is a list of boids that may flock together.
@@ -65,7 +65,7 @@ type BoidInfo struct {
 	AvoidBias float64
 
 	// PlayerDist is the distance at which boids will avoid
-	// the player. 
+	// the player.
 	PlayerDist float64
 
 	// PlayerBias is the weight applied to avoiding the player.

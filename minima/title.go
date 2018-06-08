@@ -11,8 +11,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/ui"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/ui"
 	"github.com/mccoyst/pipeline"
 )
 

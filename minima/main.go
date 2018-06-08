@@ -10,9 +10,9 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/resrc"
-	"code.google.com/p/min-game/ui"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/resrc"
+	"github.com/mccoyst/min-game/ui"
 )
 
 // Command flags

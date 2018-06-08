@@ -3,7 +3,7 @@
 package ui
 
 import (
-	"code.google.com/p/min-game/geom"
+	"github.com/mccoyst/min-game/geom"
 )
 
 type Camera struct {

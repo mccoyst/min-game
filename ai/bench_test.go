@@ -15,9 +15,9 @@ import (
 	"math/rand"
 	"testing"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/phys"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/phys"
+	"github.com/mccoyst/min-game/world"
 )
 
 func BenchmarkUpdateBoids100(b *testing.B) {

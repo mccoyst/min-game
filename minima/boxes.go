@@ -3,8 +3,8 @@
 package main
 
 import (
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/uitil"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/uitil"
 )
 
 func NewNormalMessage(msg string) *uitil.MessageBox {

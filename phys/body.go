@@ -3,8 +3,8 @@
 package phys
 
 import (
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/world"
 )
 
 type Body struct {

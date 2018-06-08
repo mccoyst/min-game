@@ -5,19 +5,19 @@ package main
 import (
 	"fmt"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/item"
-	"code.google.com/p/min-game/phys"
-	"code.google.com/p/min-game/sprite"
-	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/item"
+	"github.com/mccoyst/min-game/phys"
+	"github.com/mccoyst/min-game/sprite"
+	"github.com/mccoyst/min-game/ui"
+	"github.com/mccoyst/min-game/world"
 )
 
 type Player struct {
 	wo   *world.World
 	body phys.Body
 
-	// TileX and tileX give the coordinates of the player's current tile. 
+	// TileX and tileX give the coordinates of the player's current tile.
 	tileX, tileY int
 
 	// Info is a string describing the player's current tile.  It is used

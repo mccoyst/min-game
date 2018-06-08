@@ -15,7 +15,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"code.google.com/p/min-game/geom"
+	"github.com/mccoyst/min-game/geom"
 )
 
 // MaxElevation is the number of distinct

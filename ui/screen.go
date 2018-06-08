@@ -3,9 +3,10 @@
 package ui
 
 import (
-	"code.google.com/p/min-game/geom"
 	"image/color"
 	"time"
+
+	"github.com/mccoyst/min-game/geom"
 )
 
 // A Drawer can draw things and change colors.

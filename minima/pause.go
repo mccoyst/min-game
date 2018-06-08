@@ -5,10 +5,10 @@ package main
 import (
 	"fmt"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/item"
-	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/uitil"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/item"
+	"github.com/mccoyst/min-game/ui"
+	"github.com/mccoyst/min-game/uitil"
 )
 
 type PauseScreen struct {

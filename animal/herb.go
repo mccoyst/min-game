@@ -5,12 +5,12 @@ package animal
 import (
 	"math/rand"
 
-	"code.google.com/p/min-game/ai"
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/phys"
-	"code.google.com/p/min-game/sprite"
-	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/ai"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/phys"
+	"github.com/mccoyst/min-game/sprite"
+	"github.com/mccoyst/min-game/ui"
+	"github.com/mccoyst/min-game/world"
 )
 
 // Herbivore is a struct representing basic herding, non-agressive, herbivorous animals.

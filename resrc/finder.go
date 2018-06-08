@@ -12,7 +12,7 @@ type PkgFinder struct {
 }
 
 func NewPkgFinder() PkgFinder {
-	pkg, err := build.Import("code.google.com/p/min-game/resrc", "", build.FindOnly)
+	pkg, err := build.Import("github.com/mccoyst/min-game/resrc", "", build.FindOnly)
 	if err != nil {
 		panic(err)
 	}

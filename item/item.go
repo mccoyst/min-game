@@ -3,9 +3,10 @@
 package item
 
 import (
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/world"
 	"fmt"
+
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/world"
 )
 
 const (

@@ -3,9 +3,9 @@
 package main
 
 import (
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/item"
-	"code.google.com/p/min-game/ui"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/item"
+	"github.com/mccoyst/min-game/ui"
 )
 
 type Base struct {

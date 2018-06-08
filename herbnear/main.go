@@ -4,15 +4,16 @@ package main
 
 import (
 	"bufio"
-	"code.google.com/p/min-game/animal"
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/world"
 	"encoding/json"
 	"flag"
 	"io"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/mccoyst/min-game/animal"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/world"
 )
 
 var (

@@ -6,8 +6,8 @@ import (
 	"image/color"
 	"strings"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/ui"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/ui"
 )
 
 // WordWrap draws text to the screen, bounded by the given rectangle. The special token "[br]" inserts a line break.

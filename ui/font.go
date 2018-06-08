@@ -4,13 +4,14 @@
 package ui
 
 import (
-	"code.google.com/p/freetype-go/freetype"
-	"code.google.com/p/freetype-go/freetype/truetype"
 	"image"
 	"image/color"
 	"image/draw"
 	"io/ioutil"
 	"os"
+
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 )
 
 const (

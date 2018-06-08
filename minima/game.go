@@ -4,15 +4,16 @@ package main
 
 import (
 	"bufio"
-	"code.google.com/p/min-game/ai"
-	"code.google.com/p/min-game/animal"
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/item"
-	"code.google.com/p/min-game/ui"
-	"code.google.com/p/min-game/world"
 	"encoding/json"
 	"io"
 	"math/rand"
+
+	"github.com/mccoyst/min-game/ai"
+	"github.com/mccoyst/min-game/animal"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/item"
+	"github.com/mccoyst/min-game/ui"
+	"github.com/mccoyst/min-game/world"
 )
 
 var TileSize = world.TileSize

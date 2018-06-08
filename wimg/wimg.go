@@ -12,8 +12,8 @@ import (
 	"io"
 	"os"
 
-	"code.google.com/p/min-game/animal"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/animal"
+	"github.com/mccoyst/min-game/world"
 )
 
 var (

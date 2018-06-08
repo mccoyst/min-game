@@ -7,8 +7,8 @@ import (
 	"math"
 	"os"
 
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/resrc"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/resrc"
 )
 
 type Sheet struct {

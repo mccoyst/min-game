@@ -25,13 +25,14 @@ static Uint32 sdl_rgba_fmt(int isLE){
 import "C"
 
 import (
-	"code.google.com/p/min-game/geom"
 	"errors"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 	"unsafe"
+
+	"github.com/mccoyst/min-game/geom"
 )
 
 // The Finder's Find method takes a filename of a resource and returns the full path to it.
@@ -416,7 +417,7 @@ func round(x float64) C.int {
 	return C.int(x + 0.5)
 }
 
-// DrawText draws the string to the ui at the given point, 
+// DrawText draws the string to the ui at the given point,
 // using the ui's current font, and current color.
 func drawText(ui *Ui, txt string, p geom.Point) geom.Point {
 	r, g, b, a := ui.color.RGBA()

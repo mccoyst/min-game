@@ -3,14 +3,15 @@
 
 // +build ignore
 
-package main 
+package main
 
 import (
-	"code.google.com/p/min-game/ui"
 	"flag"
 	"image/color"
 	"image/png"
 	"os"
+
+	"github.com/mccoyst/min-game/ui"
 )
 
 var (

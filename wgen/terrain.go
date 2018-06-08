@@ -3,10 +3,11 @@
 package main
 
 import (
-	"code.google.com/p/min-game/world"
 	"math"
 	"math/rand"
 	"strings"
+
+	"github.com/mccoyst/min-game/world"
 )
 
 // doTerrain is the main routine for assigning a

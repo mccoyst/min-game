@@ -4,14 +4,15 @@ package main
 
 import (
 	"bufio"
-	"code.google.com/p/min-game/math"
-	"code.google.com/p/min-game/world"
 	"flag"
 	"fmt"
 	"math/rand"
 	"os"
 	"runtime/pprof"
 	"time"
+
+	"github.com/mccoyst/min-game/math"
+	"github.com/mccoyst/min-game/world"
 )
 
 const (

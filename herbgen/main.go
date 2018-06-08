@@ -19,10 +19,10 @@ import (
 	"strconv"
 	"time"
 
-	"code.google.com/p/min-game/animal"
-	"code.google.com/p/min-game/geom"
-	"code.google.com/p/min-game/math"
-	"code.google.com/p/min-game/world"
+	"github.com/mccoyst/min-game/animal"
+	"github.com/mccoyst/min-game/geom"
+	"github.com/mccoyst/min-game/math"
+	"github.com/mccoyst/min-game/world"
 )
 
 var (
