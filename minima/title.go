@@ -13,7 +13,7 @@ import (
 
 	"github.com/mccoyst/min-game/geom"
 	"github.com/mccoyst/min-game/ui"
-	"github.com/mccoyst/pipeline"
+	"mccoy.space/g/pipeline"
 )
 
 type TitleScreen struct {
