@@ -3,13 +3,13 @@
 package ui
 
 /*
-#include <SDL.h>
-
-#cgo darwin CFLAGS: -I/Library/Frameworks/SDL2.framework/Headers
-#cgo darwin LDFLAGS: -framework SDL2
+#cgo darwin CFLAGS: -F/Library/Frameworks
+#cgo darwin LDFLAGS: -F/Library/Frameworks -framework SDL2 -Wl,-rpath,/Library/Frameworks
 
 #cgo linux CFLAGS: -I/usr/local/include/SDL2
 #cgo linux LDFLAGS: -L/usr/local/lib -lSDL2
+
+#include <SDL2/SDL.h>
 
 static Uint32 sdl_event_type(SDL_Event *e){
 	return e->type;
@@ -163,7 +163,7 @@ func New(title string, w, h int, f Finder, vsync bool) (*Ui, error) {
 		return nil, sdlError()
 	}
 
-	var renderOptions _Ctype_Uint32 = C.SDL_RENDERER_ACCELERATED
+	var renderOptions C.Uint32 = C.SDL_RENDERER_ACCELERATED
 	if vsync {
 		renderOptions |= C.SDL_RENDERER_PRESENTVSYNC
 	}
