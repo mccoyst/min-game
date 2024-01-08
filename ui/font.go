@@ -122,8 +122,8 @@ func (f *font) extents() fontExtents {
 	em := f.ttf.FUnitsPerEm()
 	bounds := f.ttf.Bounds(fixed.I(int(em)))
 	scale := (f.size / ptInch * pxInch) / float64(em)
-	a := int(float64(bounds.Max.Y)*scale + 0.5)
-	d := int(float64(bounds.Min.Y)*scale - 0.5)
+	a := int(float64(bounds.Max.Y.Round())*scale + 0.5)
+	d := int(float64(bounds.Min.Y.Round())*scale - 0.5)
 	return fontExtents{
 		height:  a - d,
 		ascent:  a,
@@ -145,7 +145,7 @@ func (f *font) width(s string) int {
 		prev, hasPrev = index, true
 	}
 	scale := (f.size / ptInch * pxInch) / float64(em)
-	return int(float64(width)*scale + 0.5)
+	return int(float64(width.Round())*scale + 0.5)
 }
 
 // Render returns an image of the given string.
@@ -168,7 +168,7 @@ func (f *font) render(s string) (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		b := g.Bounds().Add(image.Pt(int(float64(x)*scale), 0))
+		b := g.Bounds().Add(image.Pt(int(float64(x.Round())*scale), 0))
 		draw.Draw(img, b, g, image.ZP, draw.Src)
 
 		x += f.ttf.HMetric(fixed.I(int(em)), index).AdvanceWidth
